@@ -322,6 +322,24 @@ func _check_perk_tree(main: Node) -> void:
 	tr.icon_of("vif").clicked.emit("vif")
 	await _frames(2)
 	_check(u.has_perk("vif") and taken == ["vif"], "arbre de talents : sélection puis apprentissage au second clic")
+	# Maîtrises : badge de famille et infobulle « Actif / Inactif » selon l'équipement porté
+	u.weapon = "epee"
+	u.perks.assign(["bretteur", "vif", "parade", "spec_epee"])
+	u.perk_points = 1
+	tr.set_unit(u)
+	await _frames(2)
+	var mic: PerkIcon = tr.icon_of("spec_epee")
+	_check(PerkIcon.badge_of("spec_epee") != null and PerkIcon.badge_of("ma_mailles") != null and PerkIcon.badge_of("vif") == null, "maîtrises : badge de famille (arme, armure, aucun)")
+	_check(mic.unit == u and tr.state_of("spec_epee") == "taken", "maîtrise apprise : l'icône connaît l'homme affiché")
+	var tip: Control = mic._make_custom_tooltip("") as Control
+	_check(tip != null and "Actif" in _all_text(tip) and "Épée d'armes" in _all_text(tip), "infobulle de maîtrise : famille et état actif")
+	tip.free()
+	u.weapon = "hache"
+	var tip2: Control = mic._make_custom_tooltip("") as Control
+	_check("Inactif" in _all_text(tip2), "infobulle de maîtrise : inactive avec une hache")
+	tip2.free()
+	_check(tr.icon_of("ex_epee") != null and tr.state_of("ex_epee") == "locked", "talent expert présent, fermé (rang 5 talents requis)")
+	tr.size = Vector2(1000, 600)
 	var scr: PerkScreen = PerkScreen.open(main, u)
 	await _frames(2)
 	_check(scr.tree != null and scr.tree.icon_of("parade") != null, "écran de talents : arbre hébergé dans la modale")
@@ -330,3 +348,14 @@ func _check_perk_tree(main: Node) -> void:
 	host.queue_free()
 	u.perks.assign(saved_perks)
 	u.perk_points = saved_pts
+
+
+## Texte de tous les Label / RichTextLabel sous un nœud.
+func _all_text(n: Node) -> String:
+	var out: String = ""
+	if n is Label:
+		out += (n as Label).text + "
+"
+	for c in n.get_children():
+		out += _all_text(c)
+	return out

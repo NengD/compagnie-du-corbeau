@@ -310,6 +310,10 @@ func _attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dict
 		if int(res["armor"]) > 0:
 			board.float_text(d.hex, "−%d" % res["armor"], Color("cfd9e4"), -14.0)
 		board.float_text(d.hex, ("Tête ! " if res["head"] else "") + "−%d" % res["hp"], Color("ff7a68"), 0.0, 18 if res["head"] else 15)
+	for ex in res.get("extra", []):  # riposte, balayage, second javelot : coups déclenchés par une maîtrise
+		var xr: Dictionary = ex
+		var xt: Unit = xr["target"]
+		board.float_text(xt.hex, ("−%d" % xr["hp"]) if xr["hit"] else "Raté", Color("ff7a68") if xr["hit"] else Color("ddd2bb"), 10.0)
 	if res.has("pushed"):
 		board.float_text(d.hex, "Repoussé", Color("ddd2bb"), -28.0)
 	if res.get("stunned", false):
@@ -842,8 +846,8 @@ func _refresh_actions() -> void:
 		_hint.text = "L'ennemi agit…" if u.side == "e" else "…"
 		return
 	if u.shield_ok():
-		var sw := UiKit.button("Mur de boucliers (4 PA)")
-		sw.disabled = u.shield_wall or u.ap < 4 or u.fat + 10 > u.fat_max_eff()
+		var sw := UiKit.button("Mur de boucliers (%d PA)" % u.wall_ap())
+		sw.disabled = u.shield_wall or u.ap < u.wall_ap() or u.fat + u.wall_fat() > u.fat_max_eff()
 		sw.pressed.connect(_raise_shield)
 		_reg_hot(sw)
 		_actions.add_child(sw)

@@ -200,7 +200,7 @@ static func next_action(s: BattleState, u: Unit, memo: Dictionary) -> Dictionary
 		memo["moved"] = true
 		return {"type": "move", "path": Pathfinding.path_to(reach, best)}
 	memo["n"] = 5
-	if not memo.get("shielded", false) and u.is_live() and u.shield_ok() and not u.shield_wall and u.ap >= 4:
+	if not memo.get("shielded", false) and u.is_live() and u.shield_ok() and not u.shield_wall and u.ap >= u.wall_ap():
 		for f in s.foes_of(u):
 			if Hex.distance(f.hex, u.hex) <= 2:
 				memo["shielded"] = true

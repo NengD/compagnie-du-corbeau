@@ -107,6 +107,7 @@ func refresh() -> void:
 		var ic: PerkIcon = _icons[k]
 		var st: String = state_of(str(k))
 		ic.status_text = status_of(str(k))
+		ic.unit = unit
 		ic.set_state(st, str(k) == _sel)
 	_refresh_reset()
 	_show_info()

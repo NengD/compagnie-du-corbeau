@@ -1,5 +1,5 @@
 extends RefCounted
-## Refonte des talents : 50 talents (rangs 9/8/8/12/5/4/4), icônes, migration, un test de logique pure par nouveau talent, composant PerkTree.
+## Refonte des talents : 76 talents (rangs 9/8/6/17/13/17/6), icônes, migration, un test de logique pure par nouveau talent, composant PerkTree.
 var t
 
 const OLD_28: Array[String] = [
@@ -39,7 +39,7 @@ func _hit(a: Unit, d: Unit, units: Array = []) -> int:
 # --- Données ---
 
 func test_fifty_perks_and_pyramid() -> void:
-	t.eq(Data.PERKS.size(), 50, "50 talents")
+	t.eq(Data.PERKS.size(), 76, "76 talents")
 	t.eq(OLD_28.size() + NEW_22.size(), 50, "28 anciens + 22 nouveaux")
 	for k in OLD_28:
 		t.check(Data.PERKS.has(k), "ancienne clé conservée : %s" % k)
@@ -48,7 +48,7 @@ func test_fifty_perks_and_pyramid() -> void:
 	var rows: Array = []
 	for tier in range(1, Data.PERK_TIERS + 1):
 		rows.append(Perks.in_tier(tier).size())
-	t.eq(rows, [9, 8, 8, 12, 5, 4, 4], "rangées 9, 8, 8, 12, 5, 4, 4")
+	t.eq(rows, [9, 8, 6, 17, 13, 17, 6], "rangées 9, 8, 6, 17, 13, 17, 6")
 	t.eq(Data.PERK_ROWS, rows, "PERK_ROWS cohérent")
 	var seen: Dictionary = {}
 	for k in Data.PERKS:
@@ -58,7 +58,7 @@ func test_fifty_perks_and_pyramid() -> void:
 		seen[key] = true
 		t.check(int(pd["col"]) >= 0 and int(pd["col"]) < Perks.row_size(int(pd["tier"])), "%s : colonne dans la rangée" % k)
 		t.check(Data.PERK_FAMILIES.has(pd["fam"]) and pd.has("fx") and pd.has("icon"), "%s : famille, fx, icône déclarés" % k)
-		var has_effect: bool = pd.has("stat") or pd.has("shield_stat") or pd.has("light_stat") or pd.has("wp") or not (pd["fx"] as Dictionary).is_empty() or BY_ID.has(k) or pd.has("ability")
+		var has_effect: bool = pd.has("stat") or pd.has("shield_stat") or pd.has("light_stat") or pd.has("wp") or pd.has("mfx") or pd.has("fstat") or not (pd["fx"] as Dictionary).is_empty() or BY_ID.has(k) or pd.has("ability")
 		t.check(has_effect, "%s : un effet est déclaré" % k)
 		t.check(str(pd["d"]).length() > 10 and (_has_digit(str(pd["d"])) or str(pd["d"]).begins_with("Deux fois") or str(pd["d"]).begins_with("Ignore")), "%s : description chiffrée" % k)
 	# Les rangs hauts sont plus rares et plus forts : moins de talents qu'en haut.
@@ -81,7 +81,7 @@ func test_icon_coverage() -> void:
 		for f in dir.get_files():
 			if f.ends_with(".svg"):
 				t.check(used.has(f), "icône sans talent : %s" % f)
-	t.eq(used.size(), 50, "une icône par talent")
+	t.eq(used.size(), 76, "une icône par talent")
 
 
 func test_migration_keeps_points() -> void:
@@ -423,7 +423,7 @@ func test_perk_tree_logic() -> void:
 	t.check(not tr.learn("endurant"), "impossible sans point")
 	t.check(tr._reset_b.disabled, "sans Game : réinitialisation désactivée")
 	# 50 pastilles, positions dans le cadre, rangées centrées
-	t.eq(tr._icons.size(), 50, "50 pastilles")
+	t.eq(tr._icons.size(), 76, "76 pastilles")
 	for tier in range(1, 8):
 		var xs: Array = []
 		for k in Perks.in_tier(tier):
@@ -441,8 +441,8 @@ func test_perk_tree_scales() -> void:
 		tr.size = sz
 		tr._layout()
 		var ic: PerkIcon = tr.icon_of("bretteur")
-		var w12: float = tr.center_of(Perks.in_tier(4)[11]).x - tr.center_of(Perks.in_tier(4)[0]).x
-		t.check(ic.size.x >= 16.0 and w12 < sz.x, "taille %s : pastilles et rangée de 12 tiennent" % str(sz))
+		var w12: float = tr.center_of(Perks.in_tier(4)[16]).x - tr.center_of(Perks.in_tier(4)[0]).x
+		t.check(ic.size.x >= 16.0 and w12 < sz.x, "taille %s : pastilles et rangée de 17 tiennent" % str(sz))
 		tr.free()
 	# Avec une partie : le reset passe par Game et n'est permis qu'en ville
 	var g: Node = t.new_game(81)

@@ -24,12 +24,13 @@ static func abilities_of(u: Unit) -> Array[String]:
 			if tool_left(u, str(ab["tool"])) > 0:
 				out.append(k)
 		elif ab.has("perk"):
-			if u.has_perk(str(ab["perk"])) and not u.is_ranged():
+			var ws: Array = ab["weapons"]  # vide : toute arme de mêlée ; sinon l'arme tenue (ou son modèle, pour une arme unique)
+			if u.has_perk(str(ab["perk"])) and ((ws.is_empty() and not u.is_ranged()) or ws.has(u.weapon) or ws.has(Perks.weapon_base(u.weapon))):
 				out.append(k)
 		elif bool(ab.get("needs_shield", false)):
 			if u.shield_ok() and not u.is_ranged():
 				out.append(k)
-		elif (ab["weapons"] as Array).has(u.weapon):
+		elif (ab["weapons"] as Array).has(u.weapon) or (ab["weapons"] as Array).has(Perks.weapon_base(u.weapon)):
 			out.append(k)
 	return out
 
@@ -45,7 +46,8 @@ static func tool_left(u: Unit, key: String) -> int:
 
 static func ability_ap(u: Unit, id: String) -> int:
 	var ab: Dictionary = Data.ABILITIES[id]
-	return int(ab["ap"]) if ab.has("ap") else u.attack_ap() + int(ab.get("ap_extra", 0))
+	var c: int = int(ab["ap"]) if ab.has("ap") else u.attack_ap() + int(ab.get("ap_extra", 0))
+	return maxi(1, c - Perks.ability_cut(u, id)) if not u.perks.is_empty() else c  ## maîtrises
 
 
 static func ability_fat(u: Unit, id: String) -> int:
@@ -132,12 +134,13 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 		ter_def = int(terrain_at(cells, d.hex)["def"])
 	if bool(w["ranged"]):
 		var sh: int = (25 if d.shield_ok() else 0) + (20 if d.shield_wall else 0)
-		ch = a.eff("ranged_skill") + int(w["hit"]) - (d.eff("ranged_def") + ter_def + sh + int(Data.MDEF[d.morale])) - 3 * maxi(0, dist - 2)
-		if dist == 1:
+		var far: int = 3 - (int(Perks.mfx(a, "far_pen_cut")) if not a.perks.is_empty() else 0)
+		ch = a.eff("ranged_skill") + int(w["hit"]) - (d.eff("ranged_def") + ter_def + sh + int(Data.MDEF[d.morale])) - far * maxi(0, dist - 2)
+		if dist == 1 and (a.perks.is_empty() or Perks.mfx(a, "no_close_pen") <= 0.0):
 			ch -= 10
 		ch -= Data.LINE_UNIT_MALUS * line_units(a, d, units)
 	else:
-		var sh: int = (maxi(0, 15 - int(w.get("shield_ign", 0))) if d.shield_ok() else 0) + (20 if d.shield_wall else 0)
+		var sh: int = (maxi(0, 15 - int(w.get("shield_ign", 0)) - (int(Perks.mfx(a, "shield_ign")) if not a.perks.is_empty() else 0)) if d.shield_ok() else 0) + (20 if d.shield_wall else 0)
 		ch = a.eff("melee_skill") + int(w["hit"]) - (d.eff("melee_def") + ter_def + sh + int(Data.MDEF[d.morale]))
 		if d.shield_ok():
 			ch += int(w.get("vs_shield", 0))
@@ -151,19 +154,22 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 			ch += Data.HILL_MELEE_BONUS
 		elif ha < hd:
 			ch -= Data.HILL_MELEE_BONUS
-	return clampi(ch - Perks.def_bonus(d, units, bool(w["ranged"])) + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + Perks.hit_bonus(a, d, units) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units), 5, 95)
+	return clampi(ch - Perks.def_bonus(d, units, bool(w["ranged"])) + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + Perks.hit_bonus(a, d, units) + Perks.family_hit(a, d) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units), 5, 95)
 
 
 ## Tire les dégâts d'un coup qui touche. Retour : {head, hp, armor} (ne modifie pas la cible).
 ## `ab` : capacité utilisée (multiplicateurs `dmg` et `armor`). Arme ébréchée : dégâts réduits.
 static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictionary = {}) -> Dictionary:
 	var w: Dictionary = a.weapon_data()
-	var head: bool = rng.randf() < (0.35 if a.has_perk("coup_de_grace") else 0.25) - Perks.head_shield(d)
+	var head: bool = rng.randf() < (0.35 if a.has_perk("coup_de_grace") else 0.25) + float(ab.get("head_bonus", 0.0)) + (Perks.mfx(a, "head_ch") if not a.perks.is_empty() else 0.0) - Perks.head_shield(d)
 	var raw: float = float(rng.randi_range(int(w["min"]), int(w["max"]))) * (1.5 if head else 1.0)
 	raw *= float(ab.get("dmg", 1.0)) * Perks.weapon_field(a, "dmg") * Perks.dmg_mult(a)
+	if not a.perks.is_empty() and (d.stunned or d.morale <= 1):
+		raw *= Perks.mmult(a, "vs_down_dmg")  ## Marteleur
 	if a.weapon_broken():
 		raw *= Data.BROKEN_WEAPON_DMG
-	var arm: int = d.arm_h if head else d.arm_b
+	var real_arm: int = d.arm_h if head else d.arm_b
+	var arm: int = real_arm + (Perks.armor_soak(d, head) if real_arm > 0 else 0)  ## Bourre épaisse, Tête dure…
 	if a.has_perk("briseur") and arm < LIGHT_ARMOR:
 		raw *= 1.1
 	var hp_d: float
@@ -173,12 +179,17 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 		arm_d = 0.0
 	else:
 		var eff_arm: float = float(w["arm"]) * Perks.weapon_field(a, "arm") * Perks.arm_mult(a)
-		var ign: float = float(w["ign"]) + Perks.weapon_field(a, "ign")
+		var ign: float = float(w["ign"]) + Perks.weapon_field(a, "ign") + float(ab.get("ign_add", 0.0))
+		var edged: bool = not d.perks.is_empty() and Perks.is_edged(a)
+		if edged:
+			eff_arm *= Perks.mmult(d, "edge_arm")  ## Maillons serrés
 		var ad: float = raw * eff_arm * float(ab.get("armor", 1.0))
 		arm_d = minf(float(arm), ad)
 		hp_d = maxf(0.0, raw * ign - float(arm) * 0.1)
 		if ad > float(arm):
 			hp_d += (ad - float(arm)) / (eff_arm * float(ab.get("armor", 1.0))) * (1.0 - ign)
+		if edged:
+			hp_d *= Perks.mmult(d, "edge_hp")
 	return {"head": head, "hp": roundi(hp_d), "armor": roundi(arm_d), "zone_armor": arm}
 
 

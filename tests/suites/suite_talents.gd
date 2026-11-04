@@ -18,7 +18,7 @@ func _veteran(level: int = 11) -> Unit:
 # --- Structure ---
 
 func test_tree_structure() -> void:
-	t.eq(Data.PERKS.size(), 50, "50 talents")
+	t.eq(Data.PERKS.size(), 76, "76 talents")
 	for k in OLD_PERKS:
 		t.check(Data.PERKS.has(k), "talent existant conservé : %s" % k)
 	for tier in range(1, Data.PERK_TIERS + 1):
@@ -28,7 +28,7 @@ func test_tree_structure() -> void:
 		for k in row:
 			cols[int(Data.PERKS[k]["col"])] = true
 		t.eq(cols.size(), row.size(), "rang %d : colonnes distinctes" % tier)
-	t.eq(Data.PERK_ROWS, [9, 8, 8, 12, 5, 4, 4], "forme de la pyramide")
+	t.eq(Data.PERK_ROWS, [9, 8, 6, 17, 13, 17, 6], "forme de l'arbre (rang 4 : maîtrises, rang 6 : experts)")
 	for k in Data.PERKS:
 		var pd: Dictionary = Data.PERKS[k]
 		t.check(str(pd["n"]) != "" and str(pd["d"]) != "" and str(pd["icon"]) != "", "%s : nom, description, icône" % k)
@@ -49,7 +49,9 @@ func test_access_rules() -> void:
 	t.check(not Perks.take(u, "bretteur"), "pas deux fois le même")
 	t.check(not Perks.take(u, "spec_epee"), "rang 3 après 1 talent : non")
 	t.check(Perks.take(u, "briseur"), "rang 2 après 1 talent")
-	t.check(Perks.take(u, "spec_epee"), "rang 3 après 2 talents")
+	t.check(not Perks.take(u, "spec_epee"), "rang 4 après 2 talents : non")
+	t.check(Perks.take(u, "cran"), "rang 3 après 2 talents")
+	t.check(Perks.take(u, "spec_epee"), "rang 4 après 3 talents")
 	# Prérequis explicite
 	var v: Unit = _veteran()
 	for k in ["bretteur", "vif", "endurant", "oeil_sur", "pied_sur"]:
@@ -215,12 +217,12 @@ func test_light_and_heavy_gear() -> void:
 
 func test_weapon_specialisations() -> void:
 	# Toucher : épée et lances
-	for pair in [["epee", "spec_epee"], ["lance", "spec_lance"], ["hallebarde", "spec_lance"], ["fourche", "spec_lance"], ["javelot", "spec_javelot"]]:
+	for pair in [["epee", "spec_epee", 10], ["lance", "spec_lance", 10], ["hallebarde", "spec_hast", 8], ["fourche", "spec_hast", 8], ["javelot", "spec_javelot", 10]]:
 		var a: Unit = t.mk(pair[0], "p", Vector2i(0, 0))
 		var d: Unit = t.mk("hache", "e", Vector2i(2, 0) if pair[0] == "javelot" else Vector2i(1, 0))
 		var before: int = CombatRules.hit_chance(a, d, [a, d])
 		a.perks.append(pair[1])
-		t.eq(CombatRules.hit_chance(a, d, [a, d]), before + 10, "%s : +10 au toucher avec %s" % [pair[1], pair[0]])
+		t.eq(CombatRules.hit_chance(a, d, [a, d]), before + int(pair[2]), "%s : +%d au toucher avec %s" % [pair[1], int(pair[2]), pair[0]])
 	# Ne s'applique pas à une autre arme
 	var other: Unit = t.mk("hache", "p", Vector2i(0, 0))
 	var foe: Unit = t.mk("hache", "e", Vector2i(1, 0))

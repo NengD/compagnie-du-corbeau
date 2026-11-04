@@ -5,7 +5,7 @@ extends RefCounted
 
 
 static func _chance(u: Unit, base: int) -> int:
-	return base / 2 if u.has_perk("dur_a_cuire") else base
+	return base / 2 if u.has_perk("dur_a_cuire") or Perks.mfx(u, "wound_resist") > 0.0 else base
 
 
 static func _add(u: Unit, id: String, rng: RandomNumberGenerator) -> void:

@@ -508,8 +508,16 @@ func _build_left() -> void:
 	if u.perks.is_empty():
 		perks.add_child(UiKit.sub("Aucun talent appris%s." % (" · %d point(s) à dépenser" % u.perk_points if u.perk_points > 0 else ""), 12, false))
 	for k in u.perks:
-		perks.add_child(PerkIcon.new(k, 26, "taken"))
+		var pic := PerkIcon.new(k, 26, "taken")
+		pic.unit = u
+		perks.add_child(pic)
 	_left.add_child(perks)
+	var masteries: Array[String] = Perks.mastery_summary(u)  # maîtrises de l'équipement porté : dans l'infobulle de la rangée (pas de ligne en plus : la fiche doit tenir en 1280x720)
+	if not masteries.is_empty():
+		perks.tooltip_text = "Maîtrises de l'équipement porté :
+" + "
+".join(masteries)
+		perks.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	# Aperçu avant → après d'un changement d'équipement
 	_preview_box = HFlowContainer.new()
@@ -615,7 +623,7 @@ func _make_cell(loc: Dictionary, it: Dictionary, px: int, slot_kind: String = ""
 		if Loot.wear_ratio(it) < 1.0:
 			o["durability"] = Loot.wear_ratio(it)
 		c.set_item(it, o)
-		var tip: String = Inventory.tooltip(it, sell_value(loc))
+		var tip: String = Inventory.tooltip(it, sell_value(loc), selected())
 		c.tooltip_provider = func() -> String: return tip
 		c.drag_data_provider = func() -> Variant: return {"loc": loc, "item": it} if editable() else null
 		c.double_clicked.connect(func() -> void: quick(loc))

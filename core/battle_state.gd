@@ -708,7 +708,7 @@ func can_act(u: Unit) -> bool:
 	for f in foes_of(u):
 		if can_attack(u, f):
 			return true
-	return u.shield_ok() and not u.shield_wall and u.ap >= 4 or not CombatRules.abilities_of(u).is_empty() and _ability_target(u) != null or _object_work(u)
+	return u.shield_ok() and not u.shield_wall and u.ap >= u.wall_ap() or not CombatRules.abilities_of(u).is_empty() and _ability_target(u) != null or _object_work(u)
 
 
 ## Une porte à ouvrir ou un obstacle à frapper à portée ?
@@ -747,6 +747,8 @@ func use_ability(a: Unit, id: String, d: Unit) -> Dictionary:
 
 ## Repousse `d` d'une case à l'opposé de `a` si la case est libre et praticable. Renvoie la nouvelle case ou (-999, -999).
 func push_target(a: Unit, d: Unit) -> Vector2i:
+	if not d.perks.is_empty() and Perks.mfx(d, "no_push") > 0.0:
+		return Vector2i(-999, -999)  ## Forteresse : impossible à repousser
 	var dist: int = Hex.distance(a.hex, d.hex)
 	for n in Hex.neighbors(d.hex):
 		if Hex.distance(a.hex, n) != dist + 1 or not cells.has(n) or unit_at(n) != null:
@@ -795,10 +797,8 @@ func _throw(a: Unit, d: Unit, id: String) -> Dictionary:
 				res["killed"] = true
 			_kill(x, a)
 			continue
-		if bool(ab.get("stun", false)) and x == d:
-			x.stunned = true
+		if bool(ab.get("stun", false)) and x == d and _try_stun(x):
 			res["stunned"] = true
-			say("%s est étourdi." % x.unit_name, "mor")
 		if bool(ab.get("net", false)) and x == d:
 			if x.is_big():
 				say("%s se dégage du filet sans effort." % x.unit_name, "miss")
@@ -829,12 +829,17 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 		if a.uses_ammo() and a.ammo > 0:
 			a.ammo -= 1
 	var ch: int = hit_chance(a, d, ability)
+	if free and not d.perks.is_empty():
+		ch = clampi(ch - int(Perks.mfx(d, "free_evade")), 5, 95)  ## Feu follet : les attaques d'opportunité touchent moins
 	var hit: bool = rng.randi_range(1, 100) <= ch
-	var res: Dictionary = {"attacker": a, "target": d, "hit": hit, "chance": ch, "free": free, "head": false, "hp": 0, "armor": 0, "killed": false, "ability": ability}
-	var tag: String = " (attaque d'opportunité)" if free else (" — %s" % ab["n"] if ability != "" else "")
+	var res: Dictionary = {"attacker": a, "target": d, "hit": hit, "chance": ch, "free": free, "head": false, "hp": 0, "armor": 0, "killed": false, "ability": ability, "extra": []}
+	var tag: String = " (attaque d'opportunité)" if free and ability == "" else (" — %s" % ab["n"] if ability != "" else "")
 	_wear_on_block(a, d, hit)
 	if not hit:
 		say("%s manque %s%s — %d %%" % [a.unit_name, d.unit_name, tag, ch], "miss")
+		if not free and ability == "":
+			_riposte(d, a, res)
+		_extra_blows(a, d, ab, res, free)
 		return res
 	var dmg: Dictionary = CombatRules.roll_damage(a, d, rng, ab)
 	CombatRules.apply_damage(d, dmg)
@@ -853,9 +858,10 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 	if d.hp > 0 and ability != "":
 		_apply_ability_effects(a, d, ab, res)
 	if d.hp > 0 and int(a.foe_data().get("stun_hit", 0)) > 0 and not d.is_big() and rng.randi_range(1, 100) <= int(a.foe_data()["stun_hit"]):
-		d.stunned = true
-		res["stunned"] = true
-		say("%s est étourdi." % d.unit_name, "mor")
+		if _try_stun(d):
+			res["stunned"] = true
+	if not a.perks.is_empty():
+		_mastery_hit_effects(a, d, res)
 	if d.hp <= 0:
 		res["killed"] = true
 		_kill(d, a)
@@ -868,14 +874,76 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 		if wound != "":
 			res["wound"] = wound
 			say("%s est blessé : %s." % [d.unit_name, Data.INJURIES[wound]["n"]], "death")
+	_extra_blows(a, d, ab, res, free)
 	return res
+
+
+## Étourdit `d` sauf résistance (Forteresse, Heaume vissé). Renvoie true s'il est étourdi.
+func _try_stun(d: Unit) -> bool:
+	if not d.perks.is_empty():
+		var resist: int = int(Perks.mfx(d, "stun_resist"))
+		if resist > 0 and rng.randi_range(1, 100) <= resist:
+			say("%s encaisse le choc sans broncher." % d.unit_name, "miss")
+			return false
+	d.stunned = true
+	say("%s est étourdi." % d.unit_name, "mor")
+	return true
+
+
+## Effets des maîtrises de `a` sur un coup qui vient de toucher `d` encore en vie : bouclier fendu, étourdissement.
+func _mastery_hit_effects(a: Unit, d: Unit, res: Dictionary) -> void:
+	if not d.is_live():
+		return
+	var sw: int = int(Perks.mfx(a, "shield_wear"))
+	if sw > 0 and d.shield_ok():
+		if d.wear_shield(_wear_n(d, sw)):
+			say("Le bouclier de %s vole en éclats !" % d.unit_name, "death")
+			res["shield_broken"] = true
+	var sc: int = int(Perks.mfx(a, "stun_chance"))
+	if sc > 0 and d.hp > 0 and not d.is_big() and not d.stunned and rng.randi_range(1, 100) <= sc:
+		if _try_stun(d):
+			res["stunned"] = true
+
+
+## Riposte (maîtrise experte de l'épée) : `d` vient de rater `a` au corps à corps ; il contre-attaque gratuitement, une fois par manche.
+func _riposte(d: Unit, a: Unit, res: Dictionary) -> void:
+	if d.perks.is_empty() or not d.is_fighting() or not a.is_live() or Hex.distance(a.hex, d.hex) != 1 or a.is_ranged():
+		return
+	if d.riposte_round == round_no or Perks.mfx(d, "riposte") <= 0.0:
+		return
+	d.riposte_round = round_no
+	(res["extra"] as Array).append(attack(d, a, true, "riposte"))
+
+
+## Coups qui suivent l'attaque principale : second javelot, balayage du fléau.
+func _extra_blows(a: Unit, d: Unit, ab: Dictionary, res: Dictionary, free: bool) -> void:
+	if free or a.dead:
+		return
+	if bool(ab.get("twice", false)) and a.ammo > 0 and d.is_live():
+		a.ammo -= 1
+		(res["extra"] as Array).append(attack(a, d, true, "second_jet"))
+	if a.is_ranged():
+		return
+	var all: bool = bool(ab.get("sweep_all", false))
+	if not all and (a.perks.is_empty() or Perks.mfx(a, "sweep") <= 0.0):
+		return
+	var targets: Array[Unit] = []
+	for f in foes_of(a):
+		if f != d and f.is_live() and Hex.distance(a.hex, f.hex) == 1:
+			targets.append(f)
+	if not all and targets.size() > 1:
+		targets = [targets[0]]
+	for f in targets:
+		if a.dead:
+			break
+		(res["extra"] as Array).append(attack(a, f, true, "balayage"))
 
 
 ## Le bouclier de la cible encaisse le coup (touché ou paré) ; le mur de boucliers l'use deux fois plus.
 func _wear_on_block(a: Unit, d: Unit, hit: bool) -> void:
 	if not d.shield_ok():
 		return
-	var n: int = (1 if hit else 2) * (2 if d.shield_wall else 1)
+	var n: int = (1 if hit else 2) * (2 if d.shield_wall and (d.perks.is_empty() or Perks.mfx(d, "wall_wear_free") <= 0.0) else 1)
 	if d.wear_shield(_wear_n(d, n)):
 		say("Le bouclier de %s se brise !" % d.unit_name, "death")
 
@@ -896,16 +964,21 @@ func _apply_ability_effects(a: Unit, d: Unit, ab: Dictionary, res: Dictionary) -
 		res["fire"] = true
 	if ab.has("morale"):
 		_morale_down(d, int(ab["morale"]), "est assommé")
-	if bool(ab.get("push", false)):
+	if bool(ab.get("push", false)) or (bool(ab.get("needs_shield", false)) and not a.perks.is_empty() and Perks.mfx(a, "bash_push") > 0.0):
 		var from: Vector2i = d.hex
 		var to: Vector2i = push_target(a, d)
 		if to != Vector2i(-999, -999):
 			res["pushed"] = [from, to]
 			say("%s est repoussé." % d.unit_name, "miss")
-	if bool(ab.get("stun", false)):
-		d.stunned = true
+	if bool(ab.get("stun", false)) and _try_stun(d):
 		res["stunned"] = true
-		say("%s est étourdi." % d.unit_name, "mor")
+	if bool(ab.get("rooted", false)) and d.hp > 0:
+		if d.is_big():
+			say("%s ne se laisse pas faucher." % d.unit_name, "miss")
+		else:
+			d.rooted = 1
+			res["rooted"] = true
+			say("%s est cloué au sol." % d.unit_name, "mor")
 	if bool(ab.get("expose", false)):
 		d.exposed = true
 		res["exposed"] = true
@@ -989,11 +1062,28 @@ func free_attackers(u: Unit) -> Array[Unit]:
 ## Fait un pas. Renvoie true si le déplacement doit s'arrêter là (mort, piège…).
 func step(u: Unit, to: Vector2i) -> bool:
 	var c: Dictionary = Pathfinding.step_cost(u, cells, u.hex, to)
+	var prev: Vector2i = u.hex
 	u.hex = to
 	u.ap -= int(c["ap"])
 	u.fat += int(c["fat"])
 	u.moved_cells += 1
-	return Scenery.on_enter(self, u) or not u.is_live()
+	var stop: bool = Scenery.on_enter(self, u) or not u.is_live()
+	if not stop:
+		_spear_wall(u, prev)
+	return stop or not u.is_live()
+
+
+## Mur de lances : un lancier (talent expert) frappe gratuitement l'ennemi qui entre à son contact, une fois par manche.
+func _spear_wall(u: Unit, prev: Vector2i) -> void:
+	for f in foes_of(u):
+		if f.perks.is_empty() or not f.is_fighting() or f.is_ranged() or f.wall_round == round_no:
+			continue
+		if Hex.distance(f.hex, u.hex) != 1 or Hex.distance(f.hex, prev) == 1 or Perks.mfx(f, "spear_wall") <= 0.0:
+			continue
+		f.wall_round = round_no
+		attack(f, u, true, "mur_lances")
+		if not u.is_live():
+			return
 
 
 ## Déplacement complet, synchrone (tests, simulation). Renvoie false si l'unité est morte ou retenue.
@@ -1044,9 +1134,9 @@ func undo_move(u: Unit) -> bool:
 func raise_shield(u: Unit, with_fatigue: bool = true) -> void:
 	undo = {}
 	u.shield_wall = true
-	u.ap -= 4
+	u.ap -= u.wall_ap()
 	if with_fatigue:
-		u.fat += 10
+		u.fat += u.wall_fat()
 	say("%s %s." % [u.unit_name, "forme un mur de boucliers" if with_fatigue else "lève son bouclier"], "miss")
 
 

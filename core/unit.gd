@@ -66,6 +66,8 @@ var rooted: int = 0  ## tours restants sans pouvoir bouger (filet, piège)
 var moved_cells: int = 0  ## cases parcourues ce tour (charge du cavalier de loup)
 var tool_used: Dictionary = {}  ## outil -> lancers déjà faits dans cette bataille
 var retreats: int = 0  ## replis déjà faits dans cette bataille (borne le comportement « blessé qui se replie »)
+var riposte_round: int = -1  ## manche de sa dernière riposte (maîtrise de l'épée : une par manche)
+var wall_round: int = -1  ## manche de sa dernière attaque de mur de lances
 
 
 static func alloc_id() -> int:
@@ -76,7 +78,9 @@ static func alloc_id() -> int:
 
 func weight() -> int:
 	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(Data.SHIELD["w"]) if shield else 0)
-	return w - Perks.weight_cut(self, w)
+	if perks.is_empty():
+		return w
+	return maxi(0, w - Perks.weight_cut(self, w) - int(Perks.mfx(self, "weight_cut")))  ## Port d'armure, Maillons serrés
 
 
 ## Fiche de Data.FOE de l'ennemi ({} pour un homme de la compagnie ou un chariot).
@@ -120,6 +124,8 @@ func eff(k: String) -> int:
 			v += int(pd.get("shield_stat", {}).get(k, 0))
 		if light:
 			v += int(pd.get("light_stat", {}).get(k, 0))
+	if not perks.is_empty():
+		v += Perks.family_stat(self, k)  ## maîtrises : seulement avec l'équipement de leur famille
 	for i in injuries:
 		v += int(Data.INJURIES.get(str(i["id"]), {}).get("fx", {}).get(k, 0))
 	for tr in traits:
@@ -132,16 +138,22 @@ func eff(k: String) -> int:
 	return v
 
 
+## Poids qui pèse sur l'endurance et le déplacement (nul avec la maîtrise des plates).
+func fat_weight() -> int:
+	return 0 if not perks.is_empty() and Perks.mfx(self, "fat_weight_free") > 0.0 else weight()
+
+
 func fat_max_eff() -> int:
-	return eff("fat_max") - weight()
+	return eff("fat_max") - fat_weight()
 
 
 func ini_eff() -> int:
-	return eff("initiative") - weight() - fat
+	var w: int = weight()
+	return eff("initiative") - w - (int(float(w) * Perks.mfx(self, "ini_heavy")) if not perks.is_empty() else 0) - fat
 
 
 func move_fat() -> int:
-	return maxi(1, 2 + weight() / 10 - (1 if has_perk("pied_sur") else 0))
+	return maxi(1, 2 + fat_weight() / 10 - (1 if has_perk("pied_sur") else 0) - (int(Perks.mfx(self, "move_fat_cut")) if not perks.is_empty() else 0))
 
 
 func weapon_data() -> Dictionary:
@@ -152,17 +164,28 @@ func weapon_range() -> int:
 	var r: int = int(Data.WPN[weapon]["rng"])
 	if uses_ammo() and ammo <= 0:
 		return 1  ## plus de projectiles : on frappe au contact
-	return r + 2 if has_perk("oeil_de_lynx") and is_ranged() else r
+	return r + int(Perks.mfx(self, "range")) if is_ranged() and not perks.is_empty() else r  ## Œil de lynx
 
 
-## PA que coûte l'attaque (Frappe vive : -1 sur la première du tour).
+## PA que coûte l'attaque (maîtrise : -N ; Frappe vive : -1 sur la première du tour).
 func attack_ap() -> int:
 	var c: int = int(Data.WPN[weapon]["ap"])
+	if not perks.is_empty():
+		c = maxi(1, c - int(Perks.mfx(self, "ap_cut")))
 	return maxi(1, c - 1) if has_perk("frappe_vive") and not attacked_turn else c
 
 
 func attack_fat() -> int:
-	return maxi(0, int(Data.WPN[weapon]["fat"]) - (3 if has_perk("endurant") else 0))
+	return maxi(0, int(Data.WPN[weapon]["fat"]) - (3 if has_perk("endurant") else 0) - (int(Perks.mfx(self, "fat_cut")) if not perks.is_empty() else 0))
+
+
+## Mur de boucliers : PA et fatigue (Rempart les réduit).
+func wall_ap() -> int:
+	return maxi(1, 4 - (int(Perks.mfx(self, "wall_ap_cut")) if not perks.is_empty() else 0))
+
+
+func wall_fat() -> int:
+	return maxi(0, 10 - (int(Perks.mfx(self, "wall_fat_cut")) if not perks.is_empty() else 0))
 
 
 func is_ranged() -> bool:
@@ -256,6 +279,8 @@ func reset_for_battle() -> void:
 	moved_cells = 0
 	tool_used = {}
 	retreats = 0
+	riposte_round = -1
+	wall_round = -1
 
 
 ## Projectiles en début de bataille (-1 = arme sans munitions), talents compris.
@@ -342,6 +367,7 @@ func combat_dict() -> Dictionary:
 		"waited": waited, "turn_round": turn_round, "attacked_turn": attacked_turn, "ammo": ammo, "stunned": stunned, "exposed": exposed, "q": hex.x, "r": hex.y,
 		"hit_taken": hit_taken, "lucky_used": lucky_used,
 		"rooted": rooted, "moved_cells": moved_cells, "tool_used": tool_used.duplicate(), "retreats": retreats,
+		"riposte_round": riposte_round, "wall_round": wall_round,
 	})
 	return d
 
@@ -365,6 +391,8 @@ static func from_combat_dict(d: Dictionary) -> Unit:
 	u.rooted = int(d.get("rooted", 0))
 	u.moved_cells = int(d.get("moved_cells", 0))
 	u.retreats = int(d.get("retreats", 0))
+	u.riposte_round = int(d.get("riposte_round", -1))
+	u.wall_round = int(d.get("wall_round", -1))
 	for k in d.get("tool_used", {}):
 		u.tool_used[str(k)] = int(d["tool_used"][k])
 	u.hex = Vector2i(int(d.get("q", 0)), int(d.get("r", 0)))

@@ -92,9 +92,14 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   personnage à onglets Inventaire / Talents (`scenes/inventory/inventory_screen.gd`, poupée d'équipement, statistiques en barres,
   formation en bas), cases d'objets (`scenes/ui/item_cell.gd`, `ItemIcons.get_icon_for_item`, icônes dans `assets/icons/`), formation
   de combat (`core/formation.gd`, `Game.formation`, `Game.set_formation_slot`, `scenes/inventory/formation_panel.gd` : 3 rangées de
-  combat + réserve de 9 tentes ; `BattleState.create(..., formation)`), arbre de 50 talents sur 7 rangs [9, 8, 8, 12, 5, 4, 4]
+  combat + réserve de 9 tentes ; `BattleState.create(..., formation)`), arbre de talents sur 7 rangs (50 de base, 76 avec les maîtrises)
   (`Data.PERKS`, `scenes/perks/perk_tree.gd`, `assets/perk_icons/`). Résolution 2K (2560×1440) disponible dans les options.
 - **Provenance** : ne jamais lire ni copier le dossier d'une copie piratée de Battle Brothers (`E:\crack\…`) ; le dépôt est public.
+- **Maîtrises et builds spécialisés** : 76 talents ; chaque arme et chaque armure a une famille (`Data.WEAPON_FAMILIES`,
+  `Data.ARMOR_FAMILIES`, `Perks.weapon_family/armor_family`, un test échoue si une arme ou armure joueur n'a pas de famille),
+  une maîtrise au rang 4 (17 : 12 armes + 5 armures) et un talent expert au rang 6 (17, exige la maîtrise) ; les effets ne
+  s'appliquent qu'avec l'équipement RÉEL de la famille ; sans maîtrise, l'arme reste utilisable. `docs/builds.md` (généré par
+  `tools/gen_builds_doc.gd`, ne pas éditer à la main) liste les familles et 12 builds testés.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

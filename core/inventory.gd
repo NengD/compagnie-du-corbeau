@@ -377,7 +377,8 @@ static func preview(stash: Array, u: Unit, from: Dictionary, to: Dictionary) -> 
 # --- Texte ---
 
 ## Infobulle détaillée d'un objet (`sell` : prix de vente ici, -1 si on ne peut pas vendre).
-static func tooltip(it: Dictionary, sell: int = -1) -> String:
+## `who` : l'homme qui regarde l'objet (facultatif) ; sert à dire si la maîtrise de la famille de l'objet est apprise.
+static func tooltip(it: Dictionary, sell: int = -1, who: Unit = null) -> String:
 	if it.is_empty():
 		return ""
 	var d: Dictionary = Loot.data_of(it)
@@ -397,6 +398,9 @@ static func tooltip(it: Dictionary, sell: int = -1) -> String:
 			lines.append("Poids %d · exige une arme à une main" % int(d["w"]))
 		"head", "body":
 			lines.append("Armure %d/%d · poids %d" % [Loot.armor_of(it), d["a"], d["w"]])
+	var mline: String = Perks.mastery_line(who, str(it["kind"]), key)
+	if mline != "":
+		lines.append(mline if who != null else mline.replace(" (non apprise)", ""))
 	if Loot.dur_max(it) > 0:
 		lines.append("Durabilité %d/%d" % [Loot.dur_of(it), Loot.dur_max(it)])
 	if d.get("note", "") != "":
