@@ -684,6 +684,69 @@ def zombie(big, variant):
     return s + "</g>"
 
 
+# ---------------------------------------------------------------- tenues d'élite et bannière
+def crest_plume():
+    """Panache de casque (teinté) : s'enracine au sommet du casque et part vers l'arrière."""
+    return (path("M-1.5,-40.6 Q-4,-53 -16,-49.6 Q-11,-48.6 -10,-44 Q-12,-45 -14.5,-44 Q-9,-41.5 -3,-39.4 Z", W, OL, 1.0)
+            + path("M-3,-45 Q-8,-48 -12,-47.4 M-3.6,-42.4 Q-8,-44 -11.6,-43.6", "none", "#000", .6, .35)
+            + path("M-3.6,-50 Q-8,-51.4 -13.4,-49.8", "none", "#fff", .6, .5)
+            + f'<rect x="-3" y="-41.6" width="5.6" height="2.6" rx=".8" fill="#c9a24a" stroke="{OL}" stroke-width=".7"/>')
+
+
+def circlet():
+    """Cercle d'or des vétérans tête nue."""
+    return (path("M-6.8,-31.2 Q1,-36.6 8.6,-31.6", "none", OL, 3.2)
+            + path("M-6.8,-31.2 Q1,-36.6 8.6,-31.6", "none", "#c9a24a", 1.8)
+            + path("M-5,-32.8 Q1,-36 6.4,-32.8", "none", "#fff", .5, .5)
+            + f'<circle cx="1.2" cy="-35.2" r="1.1" fill="#b02a20" stroke="{OL}" stroke-width=".5"/>')
+
+
+def pauldron_elite():
+    """Épaulière de vétéran ou de chef : acier bordé d'or, hérissée d'une pointe."""
+    return (path("M3,-16.4 Q12,-20 16.6,-11 Q16,-5.6 10.6,-4.8 Q9.4,-11.4 3,-14 Z", "url(#gSteel)", OL, 1.0)
+            + path("M4.4,-15.4 Q12,-17.6 15.6,-11 M5.6,-13.4 Q11,-14.6 14.4,-10.4", "none", "#c9a24a", .9)
+            + path("M11.6,-18.2 L14.4,-26 L15.2,-17 Z", "#c9a24a", OL, .8)
+            + f'<circle cx="13.6" cy="-9.4" r="1" fill="#b02a20" stroke="{OL}" stroke-width=".4"/>'
+            + light("M6,-17.4 Q11.5,-19 15.4,-13.2", .55, .7))
+
+
+def cape_trim():
+    """Liseré d'or le long du bord de la cape (fixe, non teinté)."""
+    return (path("M-9,-16 Q-18,-12 -20,6 Q-20,16 -14,17", "none", "#c9a24a", 1.1, .9)
+            + path("M-14,17 L-8,14", "none", "#c9a24a", 1.1, .9))
+
+
+def war_paint():
+    """Peinture de guerre rouge sur le visage (berserkers)."""
+    return (path("M-2.4,-30.4 L3,-28.6 M-2.6,-27.2 L2.6,-25.4 M-2.4,-24 L2,-22.6", "none", "#a02a20", 1.3, .85)
+            + path("M5.4,-33.4 L7.4,-29.4", "none", "#a02a20", 1.2, .8))
+
+
+def bone_necklace():
+    """Collier d'os autour du cou (berserkers, chefs de guerre)."""
+    beads = ((-5, -15.2), (-2.6, -13.2), (0, -12.4), (2.6, -13), (5, -14.8))
+    return (path("M-6.4,-16 Q0,-10.4 6.6,-15.8", "none", OL, 1.0)
+            + "".join(f'<path d="M{x - .9},{y - 1.6} l1.8,0 l-.4,3.4 l-1,0 z" fill="#e6dcc0" stroke="{OL}" stroke-width=".4"/>' for x, y in beads))
+
+
+def shield_banner(raised):
+    """Écu aux couleurs de la compagnie : trois calques (champ, chevron, bossage) à teinter par `modulate`."""
+    import math
+    cx, cy, r = (7, -5, 13.5) if raised else (-5, -1, 12)
+    rf = r - 2.1
+    field = (f'<circle cx="{cx}" cy="{cy}" r="{rf}" fill="{W}"/>'
+             + f'<path d="M{cx - r * .9},{cy - r * .3} Q{cx},{cy - r * .2} {cx + r * .9},{cy - r * .35} '
+               f'M{cx - r * .85},{cy + r * .4} Q{cx},{cy + r * .5} {cx + r * .88},{cy + r * .35} '
+               f'M{cx - r * .4},{cy - r * .9} L{cx - r * .45},{cy + r * .9} M{cx + r * .45},{cy - r * .9} L{cx + r * .42},{cy + r * .9}" '
+               f'stroke="#000" stroke-width=".6" opacity=".22" fill="none"/>'
+             + f'<circle cx="{cx}" cy="{cy}" r="{rf}" fill="url(#gShield)"/>')
+    chev = (f'<path d="M{cx - r * .72},{cy - r * .32} L{cx},{cy + r * .42} L{cx + r * .72},{cy - r * .32}" '
+            f'stroke="{W}" stroke-width="{r * .32}" fill="none" stroke-linejoin="miter"/>')
+    boss = (f'<circle cx="{cx}" cy="{cy}" r="3.3" fill="url(#gSteel)" stroke="{OL}" stroke-width=".9"/>'
+            f'<circle cx="{cx - .8}" cy="{cy - .9}" r="1" fill="#fff" opacity=".45"/>')
+    return field, chev, boss
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     for k in ("tunique", "gambison", "mailles", "brigandine"):
@@ -741,6 +804,18 @@ def main():
     write("zombie_b", zombie(False, 1))
     write("zombie_big", zombie(True, 0))
     write("zombie_big_b", zombie(True, 1))
+    write("crest_plume", crest_plume())
+    write("circlet", circlet())
+    write("pauldron_elite", pauldron_elite())
+    write("cape_trim", cape_trim())
+    write("war_paint", war_paint())
+    write("bone_necklace", bone_necklace())
+    for raised in (False, True):
+        field, chev, boss = shield_banner(raised)
+        suffix = "_up" if raised else ""
+        write("shield_field" + suffix, field)
+        write("shield_chev" + suffix, chev)
+        write("shield_boss" + suffix, boss)
     print("calques écrits dans", OUT, "-", len(os.listdir(OUT)), "fichiers")
 
 

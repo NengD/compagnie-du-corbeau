@@ -50,6 +50,7 @@ static func make_merc(key: String, rng: RandomNumberGenerator, taken: Array) -> 
 	var u: Unit = make_unit(t, "p", random_name(taken, rng), rng)
 	u.faction = "p"
 	u.wage = int(t["wage"])
+	Traits.assign(u)  ## 1 ou 2 traits de caractère (graine dérivée de l'id : l'aléa de la partie n'est pas touché)
 	return u
 
 
@@ -168,30 +169,8 @@ static func is_transport(c: Dictionary) -> bool:
 
 
 static func _flavor(type: String, town: String, rng: RandomNumberGenerator) -> Array:
-	match type:
-		"g":
-			return ["Goules près de " + town, str(pick([
-				"On déterre les morts au cimetière. Les villageois n'osent plus sortir.",
-				"Des bêtes difformes rôdent autour du charnier depuis la dernière peste.",
-				"Un berger a été dévoré. On a vu des silhouettes voûtées dans la brume.",
-			], rng))]
-		"o":
-			return ["Orcs près de " + town, str(pick([
-				"Une horde a franchi les collines et brûle les granges. Il faut la briser.",
-				"Des orcs ont pris la tour de guet. Leur chef exige un tribut de sang.",
-				"Les villageois fuient vers la ville : des rugissements montent de la forêt.",
-			], rng))]
-		"u":
-			return ["Morts-vivants près de " + town, str(pick([
-				"Les tombes de la chapelle se sont ouvertes cette nuit. Quelqu'un les relève.",
-				"Des squelettes arpentent la vieille route. On parle d'un nécromant.",
-				"Les morts frappent aux portes du tertre. Le prêtre a perdu la raison.",
-			], rng))]
-	return ["Brigands près de " + town, str(pick([
-		"Des brigands rançonnent la route du " + str(pick(["moulin", "marché", "gué", "col"], rng)) + ".",
-		"Une bande a pillé deux fermes et campe dans les bois.",
-		"Les péages illégaux étranglent le commerce. Qu'on en finisse.",
-	], rng))]
+	var f: Array = pick(ContractTexts.FLAVOR.get(type, ContractTexts.FLAVOR["b"]), rng)
+	return [str(f[0]).replace("{town}", town), str(f[1]).replace("{town}", town)]
 
 
 ## Un contrat de transport (escorte / livraison) vers `ds`.
@@ -202,20 +181,10 @@ static func _transport(kind: String, type: String, d: int, town: String, origin_
 	var ambush: bool = rng.randf() < 0.2 + 0.15 * d + (0.1 if escort else 0.0)
 	var at: float = rng.randf_range(0.3, 0.7) if ambush else -1.0
 	var pay: int = int(round((d * 90 + days * (45 if escort else 35) + rng.randi_range(0, 20) * 5) * pay_mult / 5.0)) * 5
-	var descs: Array
-	if escort:
-		descs = [
-			"Un notable doit rejoindre %s sans encombre. Les routes sont peu sûres." % ds["name"],
-			"Un convoi de marchands cherche des lames pour rejoindre %s." % ds["name"],
-		]
-	else:
-		descs = [
-			"Un colis scellé doit arriver à %s. Ne posez pas de questions." % ds["name"],
-			"Des lettres de change pour %s : elles ne doivent pas se perdre en route." % ds["name"],
-		]
+	var desc_txt: String = str(pick(ContractTexts.ESCORT if escort else ContractTexts.DELIVERY, rng)).replace("{dest}", str(ds["name"]))
 	return {
 		"kind": "contract", "type": type, "type_contract": kind, "d": d, "foes": foes_for(type, d),
-		"title": ("Escorte vers " if escort else "Livraison à ") + str(ds["name"]), "desc": str(pick(descs, rng)),
+		"title": ("Escorte vers " if escort else "Livraison à ") + str(ds["name"]), "desc": desc_txt,
 		"employer": str(pick(Data.EMPLOYERS, rng)) + " de " + town, "origin": town, "origin_id": origin_id,
 		"pay": pay, "days": days, "tx": target.x, "ty": target.y, "target_name": str(ds["name"]),
 		"dest_id": str(ds["id"]), "ambush_at": at, "ox": origin.x, "oy": origin.y,
@@ -266,7 +235,7 @@ static func gen_contracts(renown: int, rng: RandomNumberGenerator, town: String,
 			if kind == "hunt":
 				var leader: String = str(Data.FACTION_LEADER[type])
 				title = "Chasse au chef : " + str(Data.FOE[leader]["n"])
-				desc = "Abattez %s et son escorte : la bande se dispersera. Prime élevée." % str(Data.FOE[leader]["n"]).to_lower()
+				desc = str(pick(ContractTexts.HUNT, rng)) % str(Data.FOE[leader]["n"]).to_lower()
 				foes = hunt_foes(type, d)
 				pay = int(pay * 1.6)
 			pay = int(round(pay * pay_mult / 5.0)) * 5

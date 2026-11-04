@@ -39,6 +39,9 @@ var bag: Array = [{}, {}]  ## sac : Data.BAG_SLOTS emplacements d'armes / boucli
 var perks: Array[String] = []  ## talents (clés de Data.PERKS)
 var perk_points: int = 0  ## points de talent à dépenser (1 par niveau gagné, voir core/perks.gd)
 var injuries: Array = []  ## [{"id": clé de Data.INJURIES, "days_left": jours restants, -1 = permanente}]
+var traits: Array[String] = []  ## traits de caractère (clés de Data.TRAITS, voir core/traits.gd) : tirés à la génération, jamais gagnés
+var hit_taken: bool = false  ## a encaissé un coup dans cette bataille (Brave, Rancunier)
+var lucky_used: bool = false  ## Chanceux : la chance a déjà joué dans cette bataille
 
 # --- État de combat ---
 var hp: int = 50
@@ -92,6 +95,11 @@ func eff(k: String) -> int:
 			v += int(pd.get("light_stat", {}).get(k, 0))
 	for i in injuries:
 		v += int(Data.INJURIES.get(str(i["id"]), {}).get("fx", {}).get(k, 0))
+	for tr in traits:
+		var td: Dictionary = Data.TRAITS.get(tr, {})
+		v += int(td.get("stat", {}).get(k, 0))
+		if hit_taken:
+			v += int(td.get("hit_stat", {}).get(k, 0))
 	if exposed and (k == "melee_def" or k == "ranged_def"):
 		v -= Data.EXPOSE_DEF
 	return v
@@ -215,6 +223,8 @@ func reset_for_battle() -> void:
 	ammo = full_ammo()
 	stunned = false
 	exposed = false
+	hit_taken = false
+	lucky_used = false
 
 
 ## Projectiles en début de bataille (-1 = arme sans munitions), talents compris.
@@ -243,6 +253,7 @@ func to_dict() -> Dictionary:
 	d["perk_points"] = perk_points
 	d["injuries"] = injuries.duplicate(true)
 	d["bag"] = bag.duplicate(true)
+	d["traits"] = traits.duplicate()
 	return d
 
 
@@ -266,6 +277,12 @@ static func from_dict(d: Dictionary) -> Unit:
 	else:  # ancienne sauvegarde : un point par niveau gagné qui n'a pas de talent
 		u.perk_points = maxi(0, Perks.points_for_level(u.level) - u.perks.size())
 	u.bag = Unit.clean_bag(d.get("bag", []))
+	if d.has("traits"):
+		for k in d["traits"]:
+			if Data.TRAITS.has(str(k)):
+				u.traits.append(str(k))
+	elif u.side == "p":
+		Traits.migrate(u)  # ancienne sauvegarde : l'homme reçoit ses traits
 	for i in d.get("injuries", []):
 		u.injuries.append({"id": str(i["id"]), "days_left": int(i["days_left"])})
 	return u
@@ -289,6 +306,7 @@ func combat_dict() -> Dictionary:
 	d.merge({
 		"ap": ap, "fat": fat, "morale": morale, "dead": dead, "escaped": escaped, "shield_wall": shield_wall,
 		"waited": waited, "turn_round": turn_round, "attacked_turn": attacked_turn, "ammo": ammo, "stunned": stunned, "exposed": exposed, "q": hex.x, "r": hex.y,
+		"hit_taken": hit_taken, "lucky_used": lucky_used,
 	})
 	return d
 
@@ -307,5 +325,7 @@ static func from_combat_dict(d: Dictionary) -> Unit:
 	u.ammo = int(d.get("ammo", u.full_ammo()))
 	u.stunned = bool(d.get("stunned", false))
 	u.exposed = bool(d.get("exposed", false))
+	u.hit_taken = bool(d.get("hit_taken", false))
+	u.lucky_used = bool(d.get("lucky_used", false))
 	u.hex = Vector2i(int(d.get("q", 0)), int(d.get("r", 0)))
 	return u

@@ -205,6 +205,10 @@ func _build_company(root: VBoxContainer) -> void:
 	var inv_open := UiKit.button("Inventaire (I)")
 	inv_open.pressed.connect(func() -> void: InventoryScreen.open(self))
 	actions.add_child(inv_open)
+	var banner_open := UiKit.button("Bannière")
+	banner_open.tooltip_text = "Nom, couleurs et emblème de la compagnie"
+	banner_open.pressed.connect(func() -> void: BannerScreen.open(self))
+	actions.add_child(banner_open)
 	actions.add_child(UiKit.sub("%d/%d hommes · les %d premiers partent au combat" % [Game.roster.size(), Data.MAX_ROSTER, Data.FIGHTERS], 13, false))
 	root.add_child(actions)
 	var flow := _flow(root)
@@ -244,6 +248,9 @@ func _roster_card(flow: Node, m: Unit, index: int) -> void:
 	c.add_child(UiKit.bars(m, [StatBar.new("Exp.", m.xp - prev, nxt - prev, GameTheme.GOLD)]))
 	c.add_child(UiKit.stats_grid(m))
 	c.add_child(UiKit.gear_list(m))
+	var tc: Control = TraitChips.row(m)
+	if tc != null:
+		c.add_child(tc)
 	var pk: Control = PerkIcon.row(m)
 	if pk != null:
 		c.add_child(pk)
@@ -374,6 +381,9 @@ func _build_recruits(root: VBoxContainer) -> void:
 		_who_header(c, u, "%s · solde %d/jour" % [u.background, u.wage], false)
 		c.add_child(UiKit.stats_grid(u))
 		c.add_child(UiKit.gear_list(u))
+		var rt: Control = TraitChips.row(u)
+		if rt != null:
+			c.add_child(rt)
 		var rp: Control = PerkIcon.row(u)
 		if rp != null:
 			c.add_child(rp)

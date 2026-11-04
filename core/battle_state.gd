@@ -20,6 +20,9 @@ var corpses: Array[Vector2i] = []
 var over: String = ""  ## "", "win", "lose", "retreat"
 var contract: Dictionary = {}
 var biome: String = "plain"
+var undo: Dictionary = {}  ## dernier déplacement annulable : {"id", "hex", "ap", "fat"} (vide si rien à annuler)
+var log_group: int = 0  ## numéro du groupe de lignes de journal (une action = un groupe)
+const LOG_MAX: int = 200
 
 
 ## Crée une bataille : copie de la compagnie (les 8 premiers), ennemis du contrat, terrain, déploiement.
@@ -89,10 +92,15 @@ func _place(u: Unit, slots: Array[Vector2i], used: Dictionary) -> void:
 # --- Accès ---
 
 func say(text: String, css: String = "") -> void:
-	log_lines.push_front({"t": text, "c": css})
-	if log_lines.size() > 60:
-		log_lines.resize(60)
+	log_lines.push_front({"t": text, "c": css, "g": log_group})
+	if log_lines.size() > LOG_MAX:
+		log_lines.resize(LOG_MAX)
 	logged.emit(text, css)
+
+
+## Les prochaines lignes du journal forment un nouveau groupe (une même action).
+func new_log_group() -> void:
+	log_group += 1
 
 
 func unit_by_id(id: int) -> Unit:
@@ -171,6 +179,8 @@ func begin_turn(u: Unit) -> void:
 	if u.turn_round == round_no:
 		return
 	u.turn_round = round_no
+	undo = {}
+	new_log_group()
 	u.ap = Data.AP_PER_TURN
 	u.fat = maxi(0, u.fat - 15 - (5 if u.has_perk("second_souffle") else 0))
 	u.shield_wall = false
@@ -292,6 +302,9 @@ func push_target(a: Unit, d: Unit) -> Vector2i:
 func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dictionary:
 	var w: Dictionary = a.weapon_data()
 	var ab: Dictionary = Data.ABILITIES[ability] if ability != "" else {}
+	new_log_group()
+	if not free or (not undo.is_empty() and int(undo["id"]) == d.id):
+		undo = {}  # une attaque (aléatoire) ou une attaque d'opportunité sur le marcheur ferme l'annulation
 	if not free:
 		a.ap -= CombatRules.ability_ap(a, ability) if ability != "" else a.attack_ap()
 		a.fat += CombatRules.ability_fat(a, ability) if ability != "" else a.attack_fat()
@@ -308,6 +321,11 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 		return res
 	var dmg: Dictionary = CombatRules.roll_damage(a, d, rng, ab)
 	CombatRules.apply_damage(d, dmg)
+	d.hit_taken = true
+	if d.hp <= 0 and Traits.lucky_save(d, rng):  # trait Chanceux : échappe à un coup mortel, une fois par bataille
+		d.hp = 1
+		say("%s échappe à la mort de justesse !" % d.unit_name, "mor")
+		res["lucky"] = true
 	if int(dmg["armor"]) > 0 and a.wear_weapon(2 if int(dmg["zone_armor"]) >= Data.HEAVY_ARMOR_WEAR else 1):
 		say("L'arme de %s est ébréchée." % a.unit_name, "death")
 		res["weapon_broke"] = true
@@ -364,7 +382,7 @@ func _apply_ability_effects(a: Unit, d: Unit, ab: Dictionary, res: Dictionary) -
 
 
 func _morale_down(u: Unit, modifier: int, why: String) -> void:
-	if CombatRules.morale_test_fails(u, modifier + Perks.morale_aura(u, units), rng):
+	if CombatRules.morale_test_fails(u, modifier + Perks.morale_aura(u, units) + Traits.aura(u, units), rng):
 		say("%s %s : %s." % [u.unit_name, why, str(Data.MORALE_NAMES[u.morale]).to_lower()], "mor")
 
 
@@ -382,7 +400,7 @@ func _kill(d: Unit, a: Unit) -> void:
 			continue
 		var dist: int = Hex.distance(x.hex, d.hex)
 		if x.side == d.side and dist <= 4:
-			_morale_down(x, -15 if d.leader else 0, "voit son chef tomber" if d.leader else "voit tomber " + d.unit_name.split(" ")[0])
+			_morale_down(x, (-15 if d.leader else 0) + Traits.ally_fall_mod(x), "voit son chef tomber" if d.leader else "voit tomber " + d.unit_name.split(" ")[0])
 		elif x.side != d.side and dist <= 4:
 			if CombatRules.morale_rally_up(x, rng):
 				say("%s est galvanisé." % x.unit_name, "mor")
@@ -409,9 +427,11 @@ func step(u: Unit, to: Vector2i) -> void:
 
 
 ## Déplacement complet, synchrone (tests, simulation). Renvoie false si l'unité est morte ou retenue.
-func move_along(u: Unit, path: Array[Vector2i]) -> bool:
+func move_along(u: Unit, path: Array[Vector2i], record_undo: bool = false) -> bool:
 	if path.is_empty():
 		return true
+	if record_undo:
+		begin_move(u)
 	for f in free_attackers(u):
 		var r: Dictionary = attack(f, u, true)
 		if u.dead:
@@ -424,7 +444,34 @@ func move_along(u: Unit, path: Array[Vector2i]) -> bool:
 	return true
 
 
+## Mémorise la situation de `u` avant un déplacement du joueur, pour `undo_move`. À appeler avant les attaques d'opportunité.
+func begin_move(u: Unit) -> void:
+	undo = {"id": u.id, "hex": u.hex, "ap": u.ap, "fat": u.fat}
+
+
+## Le dernier déplacement de `u` peut-il être annulé ? (pas d'attaque, de capacité ou d'équipement depuis ; case de départ libre)
+func can_undo_move(u: Unit) -> bool:
+	if undo.is_empty() or u == null or not u.is_live() or current != u or int(undo["id"]) != u.id or over != "":
+		return false
+	var start: Vector2i = undo["hex"]
+	return start != u.hex and unit_at(start) == null
+
+
+## Ramène `u` à sa case de départ et lui rend les PA et la fatigue du déplacement. Un seul niveau. Renvoie true si fait.
+func undo_move(u: Unit) -> bool:
+	if not can_undo_move(u):
+		return false
+	u.hex = undo["hex"]
+	u.ap = int(undo["ap"])
+	u.fat = int(undo["fat"])
+	undo = {}
+	new_log_group()
+	say("%s revient sur ses pas." % u.unit_name, "miss")
+	return true
+
+
 func raise_shield(u: Unit, with_fatigue: bool = true) -> void:
+	undo = {}
 	u.shield_wall = true
 	u.ap -= 4
 	if with_fatigue:
@@ -443,6 +490,7 @@ func swap_weapon(u: Unit, slot: int) -> bool:
 	if not can_swap_weapon(u, slot):
 		return false
 	var incoming: String = Loot.item_name(u.bag[slot])
+	undo = {}
 	Inventory.bag_swap(u, slot)
 	u.ap -= Data.SWAP_AP
 	u.fat += Data.SWAP_FAT
@@ -453,6 +501,7 @@ func swap_weapon(u: Unit, slot: int) -> bool:
 
 
 func wait(u: Unit) -> void:
+	undo = {}
 	u.waited = true
 	queue.append(u)
 	current = null
@@ -520,6 +569,8 @@ func to_dict() -> Dictionary:
 		"width": width, "height": height, "cells": cell_list, "units": unit_list, "queue": q_ids,
 		"round": round_no, "current": current.id if current else -1, "log": log_lines, "xp": xp,
 		"corpses": corpse_list, "over": over, "contract": contract, "biome": biome,
+		"undo": ({"id": undo["id"], "hex": [undo["hex"].x, undo["hex"].y], "ap": undo["ap"], "fat": undo["fat"]} if not undo.is_empty() else {}),
+		"log_group": log_group,
 	}
 
 
@@ -539,7 +590,7 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> BattleStat
 	s.round_no = int(d["round"])
 	s.current = s.unit_by_id(int(d["current"]))
 	for l in d["log"]:
-		s.log_lines.append({"t": str(l["t"]), "c": str(l["c"])})
+		s.log_lines.append({"t": str(l["t"]), "c": str(l["c"]), "g": int(l.get("g", 0))})
 	for k in d["xp"]:
 		s.xp[int(k)] = int(d["xp"][k])
 	for c in d["corpses"]:
@@ -547,4 +598,8 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> BattleStat
 	s.over = str(d["over"])
 	s.contract = Contracts.normalize(d["contract"])
 	s.biome = str(d.get("biome", "plain"))
+	s.log_group = int(d.get("log_group", 0))
+	var ud: Dictionary = d.get("undo", {})
+	if not ud.is_empty() and (ud["hex"] as Array).size() == 2:
+		s.undo = {"id": int(ud["id"]), "hex": Vector2i(int(ud["hex"][0]), int(ud["hex"][1])), "ap": int(ud["ap"]), "fat": int(ud["fat"])}
 	return s

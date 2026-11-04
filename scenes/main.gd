@@ -15,6 +15,9 @@ var _confirm_new: bool = false
 var _company_open: bool = false
 var _in_menu: bool = false
 var _menu: MainMenu
+var _banner_view: BannerView
+var _title_label: RichTextLabel
+var _toast: AchievementToast
 var _pause_modal: ModalOverlay
 var _fade: ColorRect
 var _fade_tween: Tween
@@ -52,11 +55,15 @@ func _ready() -> void:
 	_fade.visible = false
 	layer.add_child(_fade)
 	add_child(Tutorial.new())
+	_toast = AchievementToast.new()
+	add_child(_toast)
+	Game.achievement_unlocked.connect(_toast.show_achievement)
 
 	Game.changed.connect(_update_header)
 	Game.location_changed.connect(_on_screen_change)
 	Game.battle_started.connect(func() -> void: _go(_show_battle.bind(false)))
 	Game.battle_finished.connect(_on_screen_change)
+	Game.battle_finished.connect(func() -> void: SummaryScreen.open(self, Game.last_battle_report))
 	Settings.changed.connect(_apply_battle_speed)
 	if Game.roster.is_empty():
 		_show_menu()  # lancement : le menu principal décide (Continuer / Nouvelle partie / Charger…)
@@ -64,6 +71,13 @@ func _ready() -> void:
 		_enter_game()  # une partie est déjà en mémoire (tests, rechargement)
 	_booted = true
 	_update_header()
+	if Game.roster.is_empty() and BootScreen.should_show():  # écran de lancement par-dessus le menu
+		var boot_layer := CanvasLayer.new()
+		boot_layer.layer = 200
+		add_child(boot_layer)
+		var boot := BootScreen.new()
+		boot.finished.connect(boot_layer.queue_free)
+		boot_layer.add_child(boot)
 
 
 # --- Fondu entre écrans ---
@@ -129,6 +143,10 @@ func _build_header() -> Control:
 	title.add_theme_font_override("normal_font", GameTheme.title_font())
 	title.add_theme_font_size_override("normal_font_size", 34)
 	title.text = "Compagnie du [color=#b03a2e]Corbeau[/color]"
+	_banner_view = BannerView.new(Game.banner, Vector2(26, 38))
+	_banner_view.tooltip_text = "Bannière de la compagnie (onglet Compagnie)"
+	row.add_child(_banner_view)
+	_title_label = title
 	row.add_child(title)
 	for key in ["Jour", "Couronnes", "Renom", "Solde/jour"]:
 		var pair := UiKit.hbox(5)
@@ -147,6 +165,8 @@ func _build_header() -> Control:
 
 
 func _update_header() -> void:
+	_banner_view.set_banner(Game.banner)
+	_title_label.text = "Compagnie du [color=#b03a2e]Corbeau[/color]" if Game.company_name == Data.COMPANY_NAME_DEFAULT else "[color=#ece1c9]%s[/color]" % Game.company_name.replace("[", "[lb]")
 	_values["Jour"].text = str(Game.day)
 	_values["Couronnes"].text = str(Game.gold)
 	_values["Renom"].text = str(Game.renown)
@@ -288,6 +308,8 @@ func _on_menu_action(what: String) -> void:
 			p.modal.tree_exited.connect(func() -> void:
 				if is_instance_valid(_menu) and _menu.is_inside_tree():
 					_menu.refresh())
+		"achievements":
+			AchievementsScreen.open(self)
 		"options":
 			OptionsPanel.open(self)
 		"quit":
@@ -359,6 +381,9 @@ func _open_pause() -> void:
 	box.add_child(saves)
 	var opts := UiKit.button("Options")
 	opts.pressed.connect(func() -> void: OptionsPanel.open(self))
+	var achv := UiKit.button("Succès et statistiques")
+	achv.pressed.connect(func() -> void: AchievementsScreen.open(self))
+	box.add_child(achv)
 	box.add_child(opts)
 	var quit := UiKit.button("Retour au menu principal", "ghost")
 	quit.pressed.connect(func() -> void:

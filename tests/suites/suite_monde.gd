@@ -239,7 +239,7 @@ func test_reputation_prix_et_contrats() -> void:
 
 
 func test_evenements_donnees() -> void:
-	t.check(Events.DEFS.size() >= 10 and Events.DEFS.size() <= 14, "10 à 14 événements (%d)" % Events.DEFS.size())
+	t.check(Events.DEFS.size() >= 10, "au moins 10 événements (%d)" % Events.DEFS.size())
 	var ids: Dictionary = {}
 	for e in Events.DEFS:
 		t.check(not ids.has(e["id"]), "id unique " + e["id"])

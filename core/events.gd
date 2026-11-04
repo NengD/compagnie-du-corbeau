@@ -171,6 +171,228 @@ const DEFS: Array = [
 			{"id": "pass", "label": "Laisser tel quel", "outcomes": [{"w": 1, "text": "Mieux vaut ne pas toucher à ce qui n'est pas à soi."}]},
 		],
 	},
+	{
+		"id": "healer", "title": "Herboriste",
+		"text": "Une vieille femme cueille des plantes à l'orée du bois. Elle vous jauge : « Vos hommes ont l'air de ceux qui saignent beaucoup. »",
+		"choices": [
+			{"id": "buy", "label": "Acheter des onguents (45 couronnes) : +14 PV à tous", "cost": 45, "outcomes": [
+				{"w": 4, "text": "Les baumes sentent mauvais mais les plaies se ferment.", "hp_all": 14},
+				{"w": 1, "text": "Elle vous glisse un flacon de plus, pour l'amour de la route.", "hp_all": 20},
+			]},
+			{"id": "talk", "label": "Bavarder avec elle (1 jour)", "outcomes": [
+				{"w": 2, "text": "Elle vous apprend à reconnaître les herbes qui tuent, et celles qui sauvent.", "days": 1, "xp_all": 4},
+				{"w": 1, "text": "Elle disparaît au matin, laissant une tisane encore tiède.", "days": 1, "hp_all": 8},
+			]},
+			{"id": "pass", "label": "Passer", "outcomes": [{"w": 1, "text": "Elle crache par terre, sans rancune."}]},
+		],
+	},
+	{
+		"id": "wolves", "title": "Meute de loups",
+		"text": "Des yeux jaunes dans le sous-bois, des silhouettes grises qui vous suivent depuis une heure. La meute se resserre.",
+		"choices": [
+			{"id": "fire", "label": "Allumer de grands feux et veiller", "outcomes": [
+				{"w": 3, "text": "Les loups tournent autour du feu toute la nuit, puis s'en vont.", "hp_all": -3},
+				{"w": 1, "text": "Un loup plus hardi se jette sur un homme avant de fuir.", "hp_one": -12},
+			]},
+			{"id": "hunt", "label": "Les traquer et les abattre", "outcomes": [
+				{"w": 2, "text": "Quelques peaux, un peu de gloire de paysan.", "gold": 50, "renown": 3},
+				{"w": 1, "text": "La traque tourne mal : un homme se fait mordre à la jambe.", "hp_one": -16},
+			]},
+			{"id": "pass", "label": "Presser le pas", "outcomes": [{"w": 1, "text": "Les loups vous laissent filer, ou vous accompagnent un temps."}]},
+		],
+	},
+	{
+		"id": "bard", "title": "Ménestrel",
+		"text": "Un jongleur accorde son luth sur une borne. « Une ballade pour trois sous, et un nom qui fera le tour des auberges ! »",
+		"choices": [
+			{"id": "pay", "label": "Lui payer une ballade (25 couronnes)", "cost": 25, "outcomes": [
+				{"w": 3, "text": "Il chante le Corbeau et ses lames. Les hommes redressent l'échine.", "renown": 10},
+				{"w": 1, "text": "Les vers sont pitoyables, mais le refrain restera.", "renown": 4},
+			]},
+			{"id": "sing", "label": "Chanter avec lui autour du feu (1 jour)", "outcomes": [
+				{"w": 1, "text": "Une soirée de chants gaillards. Tout le monde dort mieux ensuite.", "days": 1, "hp_all": 10, "renown": 2},
+			]},
+			{"id": "pass", "label": "Poursuivre", "outcomes": [{"w": 1, "text": "Le ménestrel lève un sourcil et reprend son luth."}]},
+		],
+	},
+	{
+		"id": "lost_child", "title": "Enfant égaré",
+		"text": "Un petit garçon pleure au bord du chemin, sa mère introuvable. Les bois sont profonds.",
+		"choices": [
+			{"id": "search", "label": "Chercher la mère (1 jour)", "outcomes": [
+				{"w": 3, "text": "La mère, folle d'angoisse, vous bénit à genoux. On le dira au village.", "days": 1, "renown": 9},
+				{"w": 1, "text": "Son père, plus pratique, vous remet une bourse bien lourde.", "days": 1, "gold": 70, "renown": 4},
+			]},
+			{"id": "carry", "label": "Le confier au prochain hameau", "outcomes": [{"w": 1, "text": "Une femme sort en courant et l'arrache à vos bras.", "renown": 4}]},
+			{"id": "pass", "label": "Ne pas s'en mêler", "outcomes": [{"w": 1, "text": "Le sanglot vous suit longtemps."}]},
+		],
+	},
+	{
+		"id": "bridge_out", "title": "Pont effondré",
+		"text": "Le pont de pierre a cédé sous les pluies. Le torrent gronde en contrebas, brun et rapide.",
+		"choices": [
+			{"id": "cross", "label": "Traverser à gué", "outcomes": [
+				{"w": 3, "text": "Les hommes passent la corde à la main, trempés jusqu'aux hanches.", "hp_all": -3},
+				{"w": 1, "text": "Un homme perd pied. On le repêche à moitié noyé.", "hp_one": -18},
+			]},
+			{"id": "detour", "label": "Faire le détour (1 jour)", "outcomes": [{"w": 1, "text": "Une longue marche sur des chemins de chèvres.", "days": 1}]},
+			{"id": "build", "label": "Bâtir une passerelle (1 jour, 20 couronnes de cordages)", "cost": 20, "outcomes": [
+				{"w": 1, "text": "Les villageois voisins, impressionnés, vous offrent à boire.", "days": 1, "renown": 6},
+			]},
+		],
+	},
+	{
+		"id": "inn_brawl", "title": "Rixe d'auberge",
+		"text": "Vous faites halte dans une auberge de bord de route quand une bagarre éclate. Les bancs volent.",
+		"choices": [
+			{"id": "join", "label": "Se mêler à la mêlée", "outcomes": [
+				{"w": 2, "text": "Poings et rires : vos hommes sortent bleus, fiers et un peu plus soudés.", "xp_all": 3, "hp_all": -4},
+				{"w": 1, "text": "Un couteau jaillit. Un homme est piqué avant que la salle ne se calme.", "hp_one": -12, "xp_all": 2},
+			]},
+			{"id": "calm", "label": "Imposer le calme (15 couronnes de dégâts)", "cost": 15, "outcomes": [
+				{"w": 1, "text": "Le patron vous remercie d'un tonneau de bière.", "renown": 5, "hp_all": 5},
+			]},
+			{"id": "pass", "label": "Boire dans son coin", "outcomes": [{"w": 1, "text": "Vous finissez vos chopes sous la table, sans histoire."}]},
+		],
+	},
+	{
+		"id": "tax_collector", "title": "Percepteur du seigneur",
+		"text": "Un percepteur à cheval, flanqué de deux archers, exige le tribut de passage au nom du seigneur de ces terres.",
+		"choices": [
+			{"id": "pay", "label": "Payer l'impôt (55 couronnes)", "cost": 55, "outcomes": [{"w": 1, "text": "Il note la somme d'un air satisfait. Le reçu est même lisible."}]},
+			{"id": "bribe", "label": "Lui glisser une bourse en secret (25 couronnes)", "cost": 25, "outcomes": [
+				{"w": 2, "text": "Il fait mine de ne rien avoir vu. L'économie est affaire d'oreilles discrètes."},
+				{"w": 1, "text": "Il empoche et exige le reste : à vous de vous expliquer.", "battle": {"type": "b", "d": 1}},
+			]},
+			{"id": "refuse", "label": "Refuser et passer outre", "outcomes": [
+				{"w": 1, "text": "Les archers se ravisent. Le percepteur jure de se plaindre à son maître.", "renown": -4},
+			]},
+		],
+	},
+	{
+		"id": "ruins", "title": "Ruines envahies",
+		"text": "Les murs d'une ancienne chapelle émergent du lierre. Il y a des traces de pas récentes dans la cendre du foyer.",
+		"choices": [
+			{"id": "explore", "label": "Fouiller les ruines", "outcomes": [
+				{"w": 3, "text": "Sous une dalle, un coffret de chandeliers d'argent.", "gold": 100},
+				{"w": 2, "text": "Un effondrement : deux hommes sont blessés dans la poussière.", "hp_one": -14},
+				{"w": 1, "text": "Les ruines sont habitées : des brigands vous attendaient.", "battle": {"type": "b", "d": 1}},
+			]},
+			{"id": "camp", "label": "S'y abriter pour la nuit (1 jour)", "outcomes": [{"w": 1, "text": "Un abri de pierre sous un ciel noir. Chacun repart reposé.", "days": 1, "hp_all": 10}]},
+			{"id": "pass", "label": "Passer son chemin", "outcomes": [{"w": 1, "text": "Mieux vaut laisser les ruines aux fantômes."}]},
+		],
+	},
+	{
+		"id": "drowned", "title": "Noyé dans le gué",
+		"text": "Un cadavre gonflé flotte contre les roseaux. Il porte une bonne cotte, et à sa ceinture, un pli cacheté.",
+		"choices": [
+			{"id": "loot", "label": "Prendre la cotte et le pli", "outcomes": [
+				{"w": 3, "text": "Le pli était une lettre de change. Le banquier de la ville la rachètera.", "gold": 85},
+				{"w": 1, "text": "La cotte est vérolée. Plusieurs hommes en pâtissent.", "hp_all": -5},
+			]},
+			{"id": "bury", "label": "Lui donner une sépulture (1 jour)", "outcomes": [{"w": 1, "text": "Un prêtre de passage vous bénit pour ce geste.", "days": 1, "renown": 5}]},
+			{"id": "pass", "label": "Passer", "outcomes": [{"w": 1, "text": "Le courant le reprend et l'emporte."}]},
+		],
+	},
+	{
+		"id": "poacher", "title": "Braconnier acculé",
+		"text": "Un homme accroupi dans un fossé tient un daim sur ses épaules. Les gardes du seigneur battent le bois non loin.",
+		"choices": [
+			{"id": "hide", "label": "Le cacher dans le chariot", "outcomes": [
+				{"w": 2, "text": "Les gardes passent. Il vous offre un bon morceau de venaison.", "hp_all": 8},
+				{"w": 1, "text": "Un garde en sait plus qu'il n'en dit. Explication tendue.", "renown": -4},
+			]},
+			{"id": "hire", "label": "Lui proposer de se joindre à la compagnie", "outcomes": [
+				{"w": 2, "text": "Il lance son daim dans les fourrés et vous suit.", "recruit": "braconnier"},
+				{"w": 1, "text": "Il préfère sa liberté. Il vous laisse seulement un conseil sur la route."},
+			]},
+			{"id": "give", "label": "Le livrer aux gardes", "outcomes": [{"w": 1, "text": "Les gardes vous remercient. L'homme crache à vos pieds.", "gold": 30, "renown": -3}]},
+		],
+	},
+	{
+		"id": "plague_cart", "title": "Charrette de pestiférés",
+		"text": "Une charrette couverte avance au pas, un chiffon noué sur le visage du conducteur. L'odeur est écœurante.",
+		"choices": [
+			{"id": "keep_away", "label": "S'écarter largement (1 jour)", "outcomes": [{"w": 1, "text": "Vous contournez les champs par prudence.", "days": 1}]},
+			{"id": "help", "label": "Aider à creuser une fosse", "outcomes": [
+				{"w": 2, "text": "Un dur labeur. Les familles gardent mémoire de votre aide.", "hp_all": -4, "renown": 8},
+				{"w": 1, "text": "La fièvre, ou la fatigue : un homme s'effondre.", "hp_one": -20, "renown": 8},
+			]},
+			{"id": "pass", "label": "Passer sous le vent", "outcomes": [{"w": 1, "text": "Vous vous lavez à la prochaine source, sans un mot."}]},
+		],
+	},
+	{
+		"id": "duel", "title": "Défi en duel",
+		"text": "Un champion de village, torse nu sur la place, défie la compagnie : « Un seul de vous contre moi, pour une bourse ! »",
+		"choices": [
+			{"id": "accept", "label": "Envoyer votre meilleur homme", "outcomes": [
+				{"w": 3, "text": "L'affaire est rondement menée. La foule applaudit à contrecœur.", "gold": 80, "renown": 6, "xp_all": 2},
+				{"w": 2, "text": "Le champion tient bon. Votre homme finit au sol, la mâchoire démise.", "hp_one": -16, "renown": -2},
+			]},
+			{"id": "bet", "label": "Parier sur le champion (30 couronnes)", "cost": 30, "outcomes": [
+				{"w": 1, "text": "Il gagne, vous aussi.", "gold": 70},
+				{"w": 1, "text": "Il perd. Les couronnes aussi."},
+			]},
+			{"id": "pass", "label": "Décliner poliment", "outcomes": [{"w": 1, "text": "On rit un peu de vous. Un peu."}]},
+		],
+	},
+	{
+		"id": "deserters_camp", "title": "Soldats en maraude",
+		"text": "Une troupe de soldats en loques fouille un hameau. Leur capitaine vous remarque et lève la main : « Compagnons, pas d'histoire. »",
+		"choices": [
+			{"id": "talk", "label": "Négocier un passage en paix", "outcomes": [
+				{"w": 2, "text": "On trinque. Ils vous cèdent même un peu de leur butin.", "gold": 40},
+				{"w": 1, "text": "La discussion tourne vinaigre : on sort les lames.", "battle": {"type": "b", "d": 1}},
+			]},
+			{"id": "protect", "label": "Protéger le hameau", "outcomes": [
+				{"w": 1, "text": "Vos lames sortent. Les maraudeurs cherchent noise.", "battle": {"type": "b", "d": 2}, "renown": 4},
+			]},
+			{"id": "pass", "label": "Ne pas s'en mêler", "outcomes": [{"w": 1, "text": "Vous passez la tête basse. Les paysans murmurent."}]},
+		],
+	},
+	{
+		"id": "smith", "title": "Forgeron itinérant",
+		"text": "Un forgeron installe son enclume sur le bas-côté. Il cogne une lame rouge, la trempe, la brandit. « Qui a du métal à redresser ? »",
+		"choices": [
+			{"id": "repair", "label": "Faire réparer le matériel (50 couronnes)", "cost": 50, "outcomes": [
+				{"w": 1, "text": "Des coups précis, des étincelles : tout est remis à neuf.", "repair": true},
+			]},
+			{"id": "help", "label": "L'aider au soufflet contre menue monnaie (1 jour)", "outcomes": [
+				{"w": 2, "text": "Il vous rémunère de quelques pièces et de précieux conseils.", "days": 1, "gold": 35, "xp_all": 3},
+				{"w": 1, "text": "Un éclat de métal fait sauter la flamme : une brûlure.", "days": 1, "gold": 35, "hp_one": -8},
+			]},
+			{"id": "pass", "label": "Passer", "outcomes": [{"w": 1, "text": "Le marteau reprend sa chanson derrière vous."}]},
+		],
+	},
+	{
+		"id": "orphan_mill", "title": "Moulin hanté",
+		"text": "Un meunier apeuré vous arrête. « Depuis trois nuits, on gratte sous le moulin. Faites-moi taire cette chose, et je vous paie. »",
+		"choices": [
+			{"id": "inspect", "label": "Inspecter les caves", "outcomes": [
+				{"w": 2, "text": "Des rats gros comme des chats. Vous les chassez, il vous paie.", "gold": 60, "renown": 3},
+				{"w": 1, "text": "Pas des rats : des goules sortent de la cave !", "battle": {"type": "g", "d": 1}},
+			]},
+			{"id": "sleep", "label": "Passer la nuit au moulin (1 jour)", "outcomes": [
+				{"w": 1, "text": "Rien ne bouge, mais le meunier dort enfin. Vous êtes nourris et logés.", "days": 1, "hp_all": 10},
+			]},
+			{"id": "pass", "label": "Passer", "outcomes": [{"w": 1, "text": "Il se signe en vous regardant partir."}]},
+		],
+	},
+	{
+		"id": "stray_horse", "title": "Cheval sans cavalier",
+		"text": "Un cheval sellé broute au bord du chemin. Ni cavalier ni blessure, seulement du sang sur la bride.",
+		"choices": [
+			{"id": "take", "label": "Le prendre avec ses fontes", "outcomes": [
+				{"w": 2, "text": "Dans les fontes : des vivres, une bourse, un livre d'heures.", "gold": 65, "hp_all": 4},
+				{"w": 1, "text": "Le cavalier revient avec ses amis, peu enclins à plaisanter.", "battle": {"type": "b", "d": 1}},
+			]},
+			{"id": "search", "label": "Chercher le cavalier (1 jour)", "outcomes": [
+				{"w": 2, "text": "Vous le trouvez blessé sous un arbre. Il paiera bien sa dette.", "days": 1, "gold": 55, "renown": 6},
+				{"w": 1, "text": "Vous ne trouvez que ses ennemis.", "days": 1, "battle": {"type": "b", "d": 1}},
+			]},
+			{"id": "pass", "label": "Laisser le cheval", "outcomes": [{"w": 1, "text": "Le cheval vous regarde partir, sans mot dire."}]},
+		],
+	},
 ]
 
 

@@ -54,15 +54,30 @@ static func box(bg: Color, border: Color = Color.TRANSPARENT, border_w: int = 1,
 	return s
 
 
+## Taille de police multipliée par le réglage « Taille du texte » (Settings.text_size).
+static func scaled_size(size: int) -> int:
+	var tree := Engine.get_main_loop() as SceneTree
+	var st: Node = null if tree == null else tree.root.get_node_or_null("/root/Settings")
+	var f: float = 1.0 if st == null else float(st.call("text_factor"))
+	return maxi(8, roundi(size * f))
+
+
+## Réapplique la taille du texte au thème partagé ; les écrans construits ensuite utilisent la nouvelle taille.
+static func refresh_text_size() -> void:
+	if _theme != null:
+		_theme.default_font_size = scaled_size(15)
+		_theme.set_font_size("normal_font_size", "RichTextLabel", scaled_size(14))
+
+
 static func get_theme() -> Theme:
 	if _theme != null:
 		return _theme
 	var t := Theme.new()
 	t.default_font = _font("res://assets/fonts/AlegreyaSans-Regular.ttf", PackedStringArray(["Alegreya Sans", "Segoe UI", "Trebuchet MS", "Arial"]))
-	t.default_font_size = 15
+	t.default_font_size = scaled_size(15)
 	t.set_color("font_color", "Label", INK)
 	t.set_color("default_color", "RichTextLabel", INK)
-	t.set_font_size("normal_font_size", "RichTextLabel", 14)
+	t.set_font_size("normal_font_size", "RichTextLabel", scaled_size(14))
 
 	# Boutons
 	for type in ["Button", "OptionButton"]:

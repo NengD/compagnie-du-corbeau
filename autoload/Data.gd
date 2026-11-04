@@ -120,10 +120,12 @@ const FACTION_PARTY_TITLES: Dictionary = {"b": "Bande de brigands", "g": "Meute 
 ## Renom minimal pour croiser / se voir proposer une faction.
 const FACTION_MIN_RENOWN: Dictionary = {"b": 0, "g": 0, "u": 200, "o": 350}
 
-const FIRST_NAMES: Array = ["Aldric", "Bertrand", "Guillaume", "Hugues", "Arnaud", "Gautier", "Thibaut", "Renaud", "Enguerrand", "Jehan", "Martin", "Odon", "Foulques", "Baudouin", "Raoul", "Godefroy", "Simon", "Lancelin", "Gérard", "Anselme", "Mathieu", "Perceval", "Amaury", "Josselin", "Clément", "Barthélemy", "Évrard", "Tristan", "Gilles", "Herbert"]
-const NICKNAMES: Array = ["le Borgne", "la Brute", "Sans-Terre", "Trois-Doigts", "le Rouge", "Tête-de-Fer", "le Pieux", "l'Ours", "le Muet", "Belle-Gueule", "le Bâtard", "Poing-Lourd", "le Gris", "Courte-Paille", "le Boiteux", "Pied-de-Chêne", "la Fouine", "le Vieux"]
-const TOWNS: Array = ["Vieux-Moulin", "Saint-Aubin-des-Ronces", "Hautefage", "Bourg-sur-Lys", "Les Marches", "Roncevaux-le-Bas", "Fontfroide", "Malbosc", "Gué-aux-Loups", "Pierrecourbe"]
-const EMPLOYERS: Array = ["Le bailli", "Le prévôt", "Le marchand", "L'abbé", "Le meunier", "La dame"]
+const FIRST_NAMES: Array = ["Aldric", "Bertrand", "Guillaume", "Hugues", "Arnaud", "Gautier", "Thibaut", "Renaud", "Enguerrand", "Jehan", "Martin", "Odon", "Foulques", "Baudouin", "Raoul", "Godefroy", "Simon", "Lancelin", "Gérard", "Anselme", "Mathieu", "Perceval", "Amaury", "Josselin", "Clément", "Barthélemy", "Évrard", "Tristan", "Gilles", "Herbert", "Thierry", "Bastien", "Colin", "Eudes", "Garin", "Hervé", "Ingelger", "Lambert", "Maheu", "Néel", "Olivier", "Pons", "Quentin", "Robin", "Sigebert", "Thomas", "Urbain", "Vivien", "Wilfrid", "Yvon", "Aymeric", "Béranger", "Conrad", "Drogon", "Émeric", "Fulbert", "Gaucher", "Hugonet", "Jocelin", "Landry"]
+const NICKNAMES: Array = ["le Borgne", "la Brute", "Sans-Terre", "Trois-Doigts", "le Rouge", "Tête-de-Fer", "le Pieux", "l'Ours", "le Muet", "Belle-Gueule", "le Bâtard", "Poing-Lourd", "le Gris", "Courte-Paille", "le Boiteux", "Pied-de-Chêne", "la Fouine", "le Vieux", "Mauvaise-Herbe", "le Chanceux", "Dent-Creuse", "Longue-Échine", "le Sournois", "Bras-de-Fer", "la Pie", "Coupe-Gorge", "le Taciturne", "Face-de-Lune", "le Cadet", "Sept-Doigts", "Œil-de-Chat", "le Bavard", "Corne-de-Bœuf", "Pas-Perdu", "la Belette", "le Blême"]
+const TOWNS: Array = ["Vieux-Moulin", "Saint-Aubin-des-Ronces", "Hautefage", "Bourg-sur-Lys", "Les Marches", "Roncevaux-le-Bas", "Fontfroide", "Malbosc", "Gué-aux-Loups", "Pierrecourbe",
+	"Brumevalle", "Sainte-Colombe-les-Eaux", "Châtel-Ardent", "Combe-Noire", "Aubépine", "Mont-Corbin", "Val-de-Cendre", "Bellerive", "Tourbière", "Saint-Gildas-du-Gué",
+	"Haute-Ronce", "Écorcheval", "Pontlevis", "Clairefontaine", "Montfaucon-le-Sec", "La Rochebrune", "Épinoy", "Noirmoutel", "Saint-Aigulf", "Terre-Rouge"]
+const EMPLOYERS: Array = ["Le bailli", "Le prévôt", "Le marchand", "L'abbé", "Le meunier", "La dame", "Le châtelain", "Le sénéchal", "La prieure", "Le maître de guilde", "Le seigneur", "Le syndic"]
 
 const MORALE_NAMES: Array = ["En fuite", "Brisé", "Hésitant", "Stable", "Confiant"]
 const MSK: Array = [-30, -20, -10, 0, 10]
@@ -272,3 +274,40 @@ const WOUND_HP_FRAC: float = 0.30  ## coup qui retire au moins cette part des PV
 const WOUND_CHANCE: int = 50
 const PERM_HP_FRAC: float = 0.25  ## homme à ce niveau de PV ou moins en fin de combat : risque de blessure permanente
 const PERM_CHANCE: int = 35
+
+
+# --- Traits de caractère (core/traits.gd) ---
+## Chaque recrue tire 1 ou 2 traits (jamais deux traits de la même famille `ex`). `stat` : modificateurs permanents d'attributs (lus par
+## Unit.eff) ; `hit_stat` : modificateurs une fois qu'il a encaissé un coup dans la bataille ; `hp` : PV max ajoutés à la génération ;
+## `wage` : multiplicateur de solde ; `rest` : PV de repos en plus ; `ally_fall` : modificateur au test de moral quand un camarade tombe ;
+## `aura` : modificateur de moral des alliés adjacents ; `lucky` : chance (%) d'échapper à la mort une fois par bataille (reste à 1 PV).
+## `tone` : "good" | "bad" | "mixed" (couleur de la pastille).
+const TRAIT_CHANCE_SECOND: float = 0.35
+const TRAITS: Dictionary = {
+	"brave": {"n": "Brave", "d": "+10 en détermination après le premier coup encaissé dans une bataille.", "hit_stat": {"resolve": 10}, "tone": "good", "ex": "cran"},
+	"peureux": {"n": "Peureux", "d": "−10 à son test de moral quand un camarade tombe près de lui.", "ally_fall": -10, "tone": "bad", "ex": "cran"},
+	"avare": {"n": "Avare", "d": "Réclame une solde plus élevée (+25 %).", "wage": 1.25, "tone": "bad", "ex": "pay"},
+	"frugal": {"n": "Frugal", "d": "Se contente d'une solde réduite (−20 %).", "wage": 0.8, "tone": "good", "ex": "pay"},
+	"robuste": {"n": "Robuste", "d": "+8 PV maximum.", "hp": 8, "tone": "good", "ex": "body"},
+	"fragile": {"n": "Fragile", "d": "−8 PV maximum.", "hp": -8, "tone": "bad", "ex": "body"},
+	"costaud": {"n": "Costaud", "d": "+10 d'endurance.", "stat": {"fat_max": 10}, "tone": "good", "ex": "fat"},
+	"myope": {"n": "Myope", "d": "−8 en attaque à distance.", "stat": {"ranged_skill": -8}, "tone": "bad", "ex": "eye"},
+	"bon_oeil": {"n": "Bon œil", "d": "+6 en attaque à distance.", "stat": {"ranged_skill": 6}, "tone": "good", "ex": "eye"},
+	"chanceux": {"n": "Chanceux", "d": "Une fois par bataille, 35 % de chances d'échapper à un coup mortel (il survit avec 1 PV).", "lucky": 35, "tone": "good", "ex": "luck"},
+	"rancunier": {"n": "Rancunier", "d": "+6 en attaque de mêlée une fois blessé dans la bataille.", "hit_stat": {"melee_skill": 6}, "tone": "mixed", "ex": "grudge"},
+	"sociable": {"n": "Sociable", "d": "Les alliés adjacents ont +5 à leurs tests de moral.", "aura": 5, "tone": "good", "ex": "social"},
+	"gourmand": {"n": "Gourmand", "d": "Récupère 5 PV de plus à chaque jour de repos en ville.", "rest": 5, "tone": "mixed", "ex": "greed"},
+	"vif": {"n": "Vif", "d": "+6 d'initiative.", "stat": {"initiative": 6}, "tone": "good", "ex": "speed"},
+	"lent": {"n": "Lent", "d": "−6 d'initiative.", "stat": {"initiative": -6}, "tone": "bad", "ex": "speed"},
+	"tete_brulee": {"n": "Tête brûlée", "d": "+5 en attaque de mêlée, −5 en défense de mêlée.", "stat": {"melee_skill": 5, "melee_def": -5}, "tone": "mixed", "ex": "style"},
+	"prudent": {"n": "Prudent", "d": "+4 en défense de mêlée, −3 en attaque de mêlée.", "stat": {"melee_def": 4, "melee_skill": -3}, "tone": "mixed", "ex": "style"},
+}
+
+# --- Bannière de compagnie (écran « Bannière ») ---
+const COMPANY_NAME_DEFAULT: String = "Compagnie du Corbeau"
+const COMPANY_NAME_MAX: int = 26
+const BANNER_COLORS: Array = ["b8862e", "b03a2e", "3e526a", "4b5a3a", "5a4a6a", "2b2622", "d8cfb8", "7a4e2a", "8a3a6a", "3f7f7a"]
+const BANNER_COLOR_NAMES: Array = ["Ocre", "Rouge sang", "Bleu acier", "Vert mousse", "Violet", "Noir", "Parchemin", "Brun", "Prune", "Sarcelle"]
+const BANNER_EMBLEMS: Array = ["Corbeau", "Épées croisées", "Étoile", "Croix", "Tour", "Couronne", "Lune", "Chevron"]
+const BANNER_DEFAULT: Dictionary = {"primary": "", "secondary": "1d1a17", "emblem": 0}  ## primary "" = ocre d'origine des boucliers
+const ELITE_LEVEL: int = 6  ## niveau à partir duquel un homme porte une tenue de vétéran

@@ -10,7 +10,9 @@ const ZOOM_MIN := 1.0
 const ZOOM_MAX := 2.5
 const ZOOM_STEP := 1.15
 const FACTION_COLORS := {"p": Color("8fb0d0"), "b": Color("d9705f"), "g": Color("a99bb5"), "o": Color("8fb45f"), "u": Color("cbc6b0")}
-const LOG_COLORS := {"hit": "#ece1c9", "miss": "#a8997e", "death": "#ff8a78", "mor": "#dcc56a", "sys": "#cfa851", "": "#ece1c9"}
+const LOG_COLORS := {"hit": "#e9d6b4", "miss": "#9c8f78", "death": "#ff8a78", "mor": "#e0c85e", "sys": "#7fb6d8", "": "#ece1c9"}
+const LOG_FILTERS := [["all", "Tout"], ["combat", "Combat"], ["mor", "Moral"], ["sys", "Système"]]
+const LOG_SHOWN := 200
 
 class Pips extends Control:
 	var ap: int = 0
@@ -55,6 +57,9 @@ var _zoom: float = 1.0  ## zoom de la vue (1 = plateau entier)
 var _fit_k: float = 1.0  ## échelle qui fait tenir le plateau entier dans la scène
 var _panning: bool = false
 var _view_btn: Button
+var _log_filter: String = "all"  ## filtre du journal (Tout / Combat / Moral / Système), conservé pendant la bataille
+var _hot: Array[Button] = []  ## boutons d'action numérotés (touches 1 à 9), dans l'ordre d'affichage
+var _help: ModalOverlay
 
 
 func _ready() -> void:
@@ -125,13 +130,32 @@ func _ready() -> void:
 	side.add_child(_inspect_box)
 	var log_panel := PanelContainer.new()
 	log_panel.theme_type_variation = "Card"
-	log_panel.custom_minimum_size = Vector2(0, 200)
+	log_panel.custom_minimum_size = Vector2(0, 230)
+	var log_box := UiKit.vbox(4)
+	log_panel.add_child(log_box)
+	var frow := UiKit.hbox(4)
+	var fgroup := ButtonGroup.new()
+	for f in LOG_FILTERS:
+		var fb := UiKit.button(str(f[1]), "", true)
+		fb.toggle_mode = true
+		fb.button_group = fgroup
+		fb.button_pressed = f[0] == _log_filter
+		fb.pressed.connect(func() -> void:
+			_log_filter = str(f[0])
+			_refresh_log())
+		frow.add_child(fb)
+	frow.add_child(UiKit.spacer())
+	var help_b := UiKit.button("?", "ghost", true)
+	help_b.tooltip_text = "Raccourcis clavier (? ou F1)"
+	help_b.pressed.connect(_open_help)
+	frow.add_child(help_b)
+	log_box.add_child(frow)
 	_log = RichTextLabel.new()
 	_log.bbcode_enabled = true
 	_log.scroll_active = true
 	_log.custom_minimum_size = Vector2(0, 180)
 	_log.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	log_panel.add_child(_log)
+	log_box.add_child(_log)
 	side.add_child(log_panel)
 
 
@@ -324,9 +348,22 @@ func _player_move(h: Vector2i) -> void:
 	_busy = true
 	_hover = null
 	_refresh_all()
+	state.begin_move(u)  ## mémorise le départ : « Annuler le déplacement » tant qu'aucune action ne le verrouille
 	await _move_along(u, Pathfinding.path_to(_reach, h))
 	if _alive:
 		_after_player_action()
+
+
+## Annule le dernier déplacement du joueur (PA et fatigue rendus) tant que rien d'aléatoire ne s'est produit depuis.
+func _undo_move() -> void:
+	var u: Unit = state.current
+	if not _player_turn() or u == null or not state.undo_move(u):
+		return
+	_ability = ""
+	_reach = state.reachable(u)
+	board.refresh_units()
+	_refresh_all()
+	Game.save()
 
 
 func _player_attack(t: Unit) -> void:
@@ -356,8 +393,37 @@ func _after_player_action() -> void:
 func _end_turn() -> void:
 	if _busy:
 		return
+	if Settings.confirm_end_turn and BattleScreen.speed > 0.0 and state.current != null and state.current.ap > 0 \
+			and _player_turn() and _confirm_modal == null:
+		_ask_end_turn()
+		return
 	state.current = null
 	_run_turns()
+
+
+## Réglage « Confirmer la fin du tour » : il reste des PA, on demande avant de passer.
+var _confirm_modal: ModalOverlay
+
+
+func _ask_end_turn() -> void:
+	_confirm_modal = ModalOverlay.open(self, 380)
+	var box: VBoxContainer = _confirm_modal.content
+	box.add_child(UiKit.title("Finir le tour ?", 28))
+	box.add_child(UiKit.para("Il reste %d PA à %s." % [state.current.ap, state.current.unit_name]))
+	var row := UiKit.hbox(8)
+	var yes := UiKit.button("Finir le tour", "pri")
+	var no := UiKit.button("Continuer", "ghost")
+	yes.pressed.connect(func() -> void:
+		_confirm_modal.close()
+		_confirm_modal = null
+		state.current.ap = 0  # plus de PA : _end_turn ne redemande pas
+		_end_turn())
+	no.pressed.connect(func() -> void:
+		_confirm_modal.close()
+		_confirm_modal = null)
+	row.add_child(yes)
+	row.add_child(no)
+	box.add_child(row)
 
 
 func _wait_turn() -> void:
@@ -391,12 +457,71 @@ func _retreat() -> void:
 # --- Entrées ---
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
-		_end_turn()
-		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_H or event.keycode == KEY_HOME) and state != null:
+	if not (event is InputEventKey and event.pressed and not event.echo) or state == null:
+		return
+	var ke := event as InputEventKey
+	var k: int = ke.keycode
+	var handled: bool = true
+	if _help != null and is_instance_valid(_help):
+		if k == KEY_ESCAPE or k == KEY_QUESTION or k == KEY_F1:
+			_help.close()
+			_help = null
+		else:
+			handled = false
+	elif _modal != null or _confirm_modal != null or state.over != "":
+		handled = false
+	elif k == KEY_F1 or k == KEY_QUESTION or ke.unicode == 63:
+		_open_help()
+	elif k == KEY_H or k == KEY_HOME:
 		reset_view()
+	elif k == KEY_ESCAPE:
+		if _ability != "":
+			_ability = ""
+			_refresh_all()
+		else:
+			handled = false
+	elif (k == KEY_Z and ke.ctrl_pressed) or k == KEY_BACKSPACE:
+		_undo_move()
+	elif k == KEY_SPACE or k == KEY_ENTER or k == KEY_KP_ENTER:
+		_end_turn()
+	elif k == KEY_W:
+		_wait_turn()
+	elif k == KEY_TAB:
+		_inspect_next(-1 if ke.shift_pressed else 1)
+	else:
+		var pk: int = ke.physical_keycode
+		var n: int = pk - KEY_1 if pk >= KEY_1 and pk <= KEY_9 else (k - KEY_KP_1 if k >= KEY_KP_1 and k <= KEY_KP_9 else -1)
+		if n >= 0 and _player_turn() and n < _hot.size() and is_instance_valid(_hot[n]) and not _hot[n].disabled:
+			_hot[n].pressed.emit()
+		else:
+			handled = false
+	if handled:
 		get_viewport().set_input_as_handled()
+
+
+func _open_help() -> void:
+	if _help != null and is_instance_valid(_help):
+		return
+	_help = Shortcuts.open(self, "battle")
+
+
+## Tab : inspecte l'unité vivante suivante (ou précédente), dans l'ordre d'initiative.
+func _inspect_next(dir: int) -> void:
+	var order: Array[Unit] = []
+	if state.current != null:
+		order.append(state.current)
+	order.append_array(state.queue)
+	var live: Array[Unit] = []
+	for u in order:
+		if u.is_live():
+			live.append(u)
+	if live.is_empty():
+		return
+	var i: int = live.find(_inspect)
+	_inspect = live[(i + dir + live.size()) % live.size()] if i >= 0 else live[0 if dir > 0 else live.size() - 1]
+	if _inspect == state.current:
+		_inspect = null
+	_refresh_inspect()
 
 
 func _board_hex(pos: Vector2) -> Vector2i:
@@ -547,7 +672,7 @@ func _refresh_marks() -> void:
 			cost = int(_reach[_hover]["ap"])
 			cost_text = "%d PA" % cost
 		for f in state.foes_of(cur):
-			if _can_hit(cur, f):
+			if _can_hit(cur, f) or Settings.show_hit_pct:
 				targets.append({"hex": f.hex, "pct": state.hit_chance(cur, f, _ability)})
 	board.set_marks(_reach if pl else {}, path_set, cur.hex if cur != null and state.over == "" else null, cost_hex, cost_text, targets)
 	_pips.ap = cur.ap if cur != null else 0
@@ -639,13 +764,23 @@ Coût : %d PA, %d fatigue." % [ab["d"], ap, fat]
 		b.pressed.connect(func() -> void:
 			_ability = "" if _ability == id else id
 			_refresh_all())
+		_reg_hot(b)
 		_actions.add_child(b)
 	if _ability != "":
-		_hint.text = "%s : cliquez sur un ennemi à portée (ou de nouveau sur le bouton pour annuler)." % Data.ABILITIES[_ability]["n"]
+		_hint.text = "%s : cliquez sur un ennemi à portée (ou de nouveau sur le bouton, ou Échap, pour annuler)." % Data.ABILITIES[_ability]["n"]
+
+
+## Numérote le bouton (touches 1 à 9) et ajoute la touche à son texte.
+func _reg_hot(b: Button) -> void:
+	if _hot.size() >= 9:
+		return
+	_hot.append(b)
+	b.text += Shortcuts.tag(str(_hot.size()))
 
 
 func _refresh_actions() -> void:
 	_clear(_actions)
+	_hot.clear()
 	_hint.text = ""
 	var u: Unit = state.current
 	if state.over != "" or u == null:
@@ -657,6 +792,7 @@ func _refresh_actions() -> void:
 		var sw := UiKit.button("Mur de boucliers (4 PA)")
 		sw.disabled = u.shield_wall or u.ap < 4 or u.fat + 10 > u.fat_max_eff()
 		sw.pressed.connect(_raise_shield)
+		_reg_hot(sw)
 		_actions.add_child(sw)
 	_add_ability_buttons(u)
 	for bi in u.bag.size():  # changement d'arme : objets du sac
@@ -667,12 +803,18 @@ func _refresh_actions() -> void:
 		swap_b.disabled = block != "" or u.ap < Data.SWAP_AP or u.fat + Data.SWAP_FAT > u.fat_max_eff()
 		swap_b.tooltip_text = block if block != "" else "Range ce que vous portez dans le sac. Coût : %d PA, %d fatigue." % [Data.SWAP_AP, Data.SWAP_FAT]
 		swap_b.pressed.connect(_swap_weapon.bind(bi))
+		_reg_hot(swap_b)
 		_actions.add_child(swap_b)
-	var wait_b := UiKit.button("Attendre")
+	if state.can_undo_move(u):
+		var undo_b := UiKit.button("Annuler le déplacement" + Shortcuts.tag("Ctrl+Z"))
+		undo_b.tooltip_text = "Revenir à la case de départ et récupérer les PA et la fatigue du déplacement (tant que vous n'avez pas attaqué)."
+		undo_b.pressed.connect(_undo_move)
+		_actions.add_child(undo_b)
+	var wait_b := UiKit.button("Attendre" + Shortcuts.tag("W"))
 	wait_b.disabled = u.waited
 	wait_b.pressed.connect(_wait_turn)
 	_actions.add_child(wait_b)
-	var end_b := UiKit.button("Fin du tour", "pri")
+	var end_b := UiKit.button("Fin du tour" + Shortcuts.tag("Espace"), "pri")
 	end_b.pressed.connect(_end_turn)
 	_actions.add_child(end_b)
 	if _confirm_retreat:
@@ -715,15 +857,39 @@ func _refresh_inspect() -> void:
 			_inspect_box.add_child(UiKit.sub(why))
 
 
+func _log_kind(css: String) -> String:
+	return "mor" if css == "mor" else ("sys" if css == "sys" else "combat")
+
+
+## Journal : filtré, couleurs par type d'événement, les lignes d'une même action regroupées (chronologie dans le groupe,
+## groupes du plus récent au plus ancien). Reste calé en haut sur le plus récent.
 func _refresh_log() -> void:
 	if state == null or _log == null:
 		return
+	var groups: Array = []  ## de plus récent à plus ancien ; chaque groupe = lignes dans l'ordre chronologique
+	var last_g: int = -999999
+	var shown: int = 0
+	for l in state.log_lines:
+		if _log_filter != "all" and _log_kind(str(l["c"])) != _log_filter:
+			continue
+		if shown >= LOG_SHOWN:
+			break
+		shown += 1
+		var g: int = int(l.get("g", 0))
+		if groups.is_empty() or g != last_g:
+			groups.append([])
+			last_g = g
+		(groups[groups.size() - 1] as Array).push_front(l)
 	var lines: PackedStringArray = []
-	for i in mini(40, state.log_lines.size()):
-		var l: Dictionary = state.log_lines[i]
-		var col: String = LOG_COLORS.get(l["c"], "#ece1c9")
-		var t: String = str(l["t"]).replace("[", "(").replace("]", ")")
-		lines.append("[color=%s]%s[/color]" % [col, ("[b]%s[/b]" % t) if l["c"] == "death" or l["c"] == "sys" else t])
+	for grp in groups:
+		for i in (grp as Array).size():
+			var l: Dictionary = grp[i]
+			var col: String = LOG_COLORS.get(l["c"], "#ece1c9")
+			var t: String = str(l["t"]).replace("[", "(").replace("]", ")")
+			if l["c"] == "death" or l["c"] == "sys":
+				t = "[b]%s[/b]" % t
+			var prefix: String = "" if i == 0 else "[color=#6b5d46]  ↳ [/color]"
+			lines.append("%s[color=%s]%s[/color]" % [prefix, col, t])
 	_log.text = "\n".join(lines)
 	_log.scroll_to_line(0)
 
@@ -753,29 +919,15 @@ func _show_end() -> void:
 	else:
 		box.add_child(UiKit.para("Pas un sou pour ce contrat." if is_contract else "Les survivants s'enfuient à travers champs."))
 	var dead: Array = []
-	var best: Unit = null
 	for u in state.units:
-		if u.side != "p":
-			continue
-		if u.dead:
+		if u.side == "p" and u.dead:
 			dead.append(u.unit_name)
-		elif best == null or int(state.xp.get(u.id, 0)) > int(state.xp.get(best.id, 0)):
-			best = u
 	if dead.is_empty():
 		box.add_child(UiKit.sub("Aucun mort à déplorer."))
 	else:
 		box.add_child(UiKit.label("Tombés : " + ", ".join(dead), 15, Color("ff8a78")))
-	if win and best != null and int(state.xp.get(best.id, 0)) > 0:
-		box.add_child(UiKit.sub("Le plus redoutable : %s." % best.unit_name))
-	if win:
-		var loot: Array = Game.prepare_loot()
-		if loot.is_empty():
-			box.add_child(UiKit.sub("Rien de récupérable sur les dépouilles."))
-		else:
-			box.add_child(UiKit.label("Butin récupéré", 15, GameTheme.GOLD, true))
-			for it in loot:
-				box.add_child(ItemUi.row(it, false))
-	var b := UiKit.button("Retourner au camp", "pri")
+	box.add_child(UiKit.sub("Le détail (hommes, butin, prime) suit."))
+	var b := UiKit.button("Continuer", "pri")
 	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	b.pressed.connect(func() -> void: Game.finish_battle())
 	box.add_child(b)

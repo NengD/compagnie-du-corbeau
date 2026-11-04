@@ -78,7 +78,7 @@ func death(pos: Vector2, target: Node2D = null, blood: Color = BLOOD) -> void:
 
 ## Petit tremblement (le nœud revient à sa position d'origine ; un nouveau tremblement en cours est ignoré).
 func shake(target: Node2D, amplitude: float, duration: float) -> void:
-	if not enabled() or _shaking or not is_instance_valid(target):
+	if not enabled() or _shaking or not is_instance_valid(target) or not shake_allowed():
 		return
 	_shaking = true
 	var origin: Vector2 = target.position
@@ -90,3 +90,10 @@ func shake(target: Node2D, amplitude: float, duration: float) -> void:
 		tw.tween_property(target, "position", origin + off, duration / steps)
 	tw.tween_property(target, "position", origin, 0.02)
 	tw.tween_callback(func() -> void: _shaking = false)
+
+
+## Réglage « tremblement d'écran » (lu sans identifiant d'autoload : le script se charge aussi dans les tests `-s`).
+static func shake_allowed() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var st: Node = null if tree == null else tree.root.get_node_or_null("/root/Settings")
+	return st == null or bool(st.get("screen_shake"))

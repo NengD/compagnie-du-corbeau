@@ -6,6 +6,7 @@ signal changed  ## l'état a changé (rafraîchir l'affichage)
 signal location_changed  ## entrée ou sortie d'un lieu
 signal battle_started
 signal battle_finished
+signal achievement_unlocked(id: String)  ## un succès vient d'être débloqué
 
 const SAVE_PATH: String = "user://savegame.json"
 const ROAD_HEAL: int = 2  ## PV rendus à chaque homme par jour de route
@@ -26,6 +27,7 @@ var active_contract: Dictionary = {}  ## contrat accepté, à remplir à l'endro
 var inventory: Array = []  ## objets possédés mais non équipés : {"kind": "weapon"|"head"|"body"|"shield", "key": ...}
 var pending_loot: Array = []  ## butin tiré à la fin d'une bataille gagnée, versé à l'inventaire par finish_battle
 var pending_loot_ready: bool = false
+var last_battle_report: Dictionary = {}  ## compte rendu de la dernière bataille (rempli par finish_battle, lu par SummaryScreen)
 var loot_rng := RandomNumberGenerator.new()  ## aléa du butin, séparé de `rng` pour ne pas modifier le déroulé du reste
 var pending_event: Dictionary = {}  ## événement de route en attente d'un choix : {"id": ..., "choice_text": ...} ({} = aucun)
 var last_event_day: int = 0
@@ -34,11 +36,17 @@ var random_events: bool = true  ## faux dans les tests de déplacement : pas d'�
 var autosave: bool = true  ## désactivé par les tests : plus aucune écriture automatique (savegame.json ni emplacements)
 var campaign: Dictionary = Campaign.new_state()  ## menace, crise finale, arcs, uniques sortis (voir core/campaign.gd)
 var campaign_rng := RandomNumberGenerator.new()  ## aléa de la campagne (escalade, arcs), séparé de `rng`
+var stats: Dictionary = Achievements.default_stats()  ## statistiques de la campagne (voir core/achievements.gd), sauvegardées
+var unlocked: Dictionary = {}  ## succès débloqués {id: jour}, conservés entre les parties (user://achievements.json)
+var achievements_path: String = Achievements.FILE_PATH
+var banner: Dictionary = Data.BANNER_DEFAULT.duplicate()  ## bannière de la compagnie (voir core/banner.gd)
+var company_name: String = Data.COMPANY_NAME_DEFAULT
 
 
 func _ready() -> void:
 	rng.randomize()
 	loot_rng.randomize()
+	unlocked = Achievements.load_unlocked(achievements_path)
 
 
 # --- Partie ---
@@ -66,6 +74,9 @@ func new_game(seed_value: int = -1) -> void:
 	pending_event = {}
 	last_event_day = 0
 	last_event_id = ""
+	stats = Achievements.default_stats()
+	banner = Data.BANNER_DEFAULT.duplicate()
+	company_name = Data.COMPANY_NAME_DEFAULT
 	news = ["La Compagnie du Corbeau est fondée. Cinq lames, peu de couronnes, beaucoup de routes."]
 	for k in ["milicien", "bucheron", "braconnier", "fermier", "deserteur"]:
 		roster.append(Contracts.make_merc(k, rng, _names()))
@@ -79,6 +90,62 @@ func new_game(seed_value: int = -1) -> void:
 	save()
 	changed.emit()
 	location_changed.emit()
+
+
+## Ajoute `n` à un compteur de statistiques.
+func stat_add(key: String, n: float = 1.0) -> void:
+	if not stats.has(key) or n == 0.0:
+		return
+	stats[key] = float(stats[key]) + n if key == "travel_days" else int(stats[key]) + int(n)
+
+
+func _earn(n: int) -> void:
+	gold += n
+	stat_add("gold_earned", float(maxi(0, n)))
+
+
+func _spend(n: int) -> void:
+	gold -= n
+	stat_add("gold_spent", float(maxi(0, n)))
+
+
+## État de la partie lu par les succès de type « ctx ».
+func achievement_context() -> Dictionary:
+	var max_level: int = 1
+	for m in roster:
+		max_level = maxi(max_level, m.level)
+	return {
+		"renown": renown, "gold": gold, "days": day - 1, "max_level": max_level, "roster": roster.size(),
+		"sites": int(campaign.get("sites_taken", 0)),
+		"arcs": (Campaign.arc_summary(campaign) as Array).filter(func(a: Dictionary) -> bool: return a["phase"] == "done").size(),
+		"uniques": (campaign.get("uniques_taken", []) as Array).size(),
+		"ending": 1 if (bool(campaign.get("ending_pending", false)) or bool(campaign.get("free_mode", false))) else 0,
+	}
+
+
+## Débloque les succès atteints (signal `achievement_unlocked` pour chacun) ; renvoie leurs ids.
+func check_achievements() -> Array[String]:
+	if roster.is_empty() and battle == null:
+		return []
+	var fresh: Array[String] = Achievements.newly_met(stats, achievement_context(), unlocked)
+	for id in fresh:
+		unlocked[id] = day
+	if not fresh.is_empty():
+		if autosave:
+			Achievements.save_unlocked(unlocked, achievements_path)
+		for id in fresh:
+			achievement_unlocked.emit(id)
+	return fresh
+
+
+func set_banner(primary: String, secondary: String, emblem: int) -> void:
+	banner = Banner.clean({"primary": primary, "secondary": secondary, "emblem": emblem})
+	_after_change()
+
+
+func set_company_name(n: String) -> void:
+	company_name = Banner.clean_name(n)
+	_after_change()
 
 
 func _names() -> Array:
@@ -170,6 +237,7 @@ func enter_settlement(id: String) -> void:
 	world.stop()
 	world.player_pos = world.settlement_pos(s)
 	location = id
+	s["visited_day"] = day
 	if day >= int(s["restock_day"]):
 		_restock(s)
 	add_news(["La compagnie arrive à %s." % s["name"]])
@@ -235,7 +303,7 @@ func contract_target() -> Vector2:
 # --- Temps ---
 
 func _pay_or_desert(days: int) -> String:
-	gold -= wages() * days
+	_spend(wages() * days)
 	if gold < 0 and not roster.is_empty():
 		var m: Unit = roster[rng.randi() % roster.size()]
 		roster.erase(m)
@@ -270,6 +338,8 @@ func advance_time(days: float) -> void:
 			world.fill_parties(renown, World.MAX_PARTIES)
 	if not lines.is_empty():
 		add_news(lines)
+	if rolled:
+		check_achievements()
 	if rolled or not lines.is_empty():
 		changed.emit()
 
@@ -281,6 +351,7 @@ func map_step(days: float) -> Dictionary:
 		return {}
 	var day_before: int = day
 	var used: float = world.step_player(days)
+	stat_add("travel_days", used)
 	advance_time(used)
 	if game_over:
 		return {"type": "over"}
@@ -343,13 +414,16 @@ func resolve_event(choice_id: String) -> Dictionary:
 	if choice.is_empty() or gold < int(choice.get("cost", 0)):
 		return {"ok": false, "text": "", "battle": false}
 	pending_event = {}
-	gold -= int(choice.get("cost", 0))
+	stat_add("events_seen")
+	_spend(int(choice.get("cost", 0)))
 	var o: Dictionary = Events.resolve(ev_id, choice_id, rng)
 	var lines: Array = []
 	var text: String = str(o.get("text", ""))
 	if o.has("gold"):
 		var g: int = int(o["gold"])
 		gold = maxi(0, gold + g)
+		if g > 0:
+			stat_add("gold_earned", float(g))
 		lines.append("%+d couronnes" % g)
 	if o.has("hp_all"):
 		var h: int = int(o["hp_all"])
@@ -415,7 +489,9 @@ func _complete_transport(id: String) -> void:
 		return
 	var c: Dictionary = active_contract
 	var d: int = int(c["d"])
-	gold += int(c["pay"])
+	_earn(int(c["pay"]))
+	stat_add("contracts_done")
+	stat_add("transports_done")
 	renown += 25 * d
 	world.change_standing(str(c.get("origin_id", "")), 2)
 	world.change_standing(id, 1)
@@ -430,7 +506,7 @@ func rest() -> void:
 		return
 	var w: int = wages()
 	for m in roster:
-		m.hp = mini(m.hp_max, m.hp + 15)
+		m.hp = mini(m.hp_max, m.hp + 15 + Traits.rest_bonus(m))
 	var before: int = roster.size()
 	advance_time(1.0)
 	var lines: Array = ["Un jour de repos. −%d couronnes de solde." % w]
@@ -444,7 +520,7 @@ func repair() -> void:
 	var c: int = repair_cost()
 	if location == "" or c <= 0 or gold < c:
 		return
-	gold -= c
+	_spend(c)
 	for m in roster:
 		m.arm_h = m.head_armor_max()
 		m.arm_b = m.body_armor_max()
@@ -480,7 +556,8 @@ func hire(index: int) -> bool:
 	var r: Dictionary = s["recruits"][index]
 	if gold < int(r["price"]) or roster.size() >= Data.MAX_ROSTER:
 		return false
-	gold -= int(r["price"])
+	_spend(int(r["price"]))
+	stat_add("men_hired")
 	roster.append(r["u"])
 	s["recruits"].remove_at(index)
 	add_news(["%s rejoint la compagnie." % r["u"].unit_name])
@@ -499,7 +576,7 @@ func buy(m: Unit, kind: String, key: String = "") -> bool:
 			var price: int = price_of(int(w["price"]))
 			if gold < price:
 				return false
-			gold -= price
+			_spend(price)
 			m.weapon = key
 			m.weapon_dur = -1
 			if not bool(w["h1"]):
@@ -509,7 +586,7 @@ func buy(m: Unit, kind: String, key: String = "") -> bool:
 			var price: int = price_of(int(Data.SHIELD["price"]))
 			if gold < price or not bool(m.weapon_data()["h1"]) or m.shield:
 				return false
-			gold -= price
+			_spend(price)
 			m.shield = true
 			m.shield_dur = -1
 			line = "%s s'équipe : %s." % [m.unit_name, Data.SHIELD["n"]]
@@ -518,7 +595,7 @@ func buy(m: Unit, kind: String, key: String = "") -> bool:
 			var price: int = price_of(int(h["price"]))
 			if gold < price:
 				return false
-			gold -= price
+			_spend(price)
 			m.head = key
 			m.arm_h = int(h["a"])
 			line = "%s s'équipe : %s." % [m.unit_name, h["n"]]
@@ -527,7 +604,7 @@ func buy(m: Unit, kind: String, key: String = "") -> bool:
 			var price: int = price_of(int(b["price"]))
 			if gold < price:
 				return false
-			gold -= price
+			_spend(price)
 			m.body = key
 			m.arm_b = int(b["a"])
 			line = "%s s'équipe : %s." % [m.unit_name, b["n"]]
@@ -560,7 +637,7 @@ func sell(index: int) -> bool:
 		return false
 	var it: Dictionary = inventory[index]
 	var price: int = sell_price(it)
-	gold += price
+	_earn(price)
 	inventory.remove_at(index)
 	add_news(["%s vendu : +%d couronnes." % [Loot.item_name(it), price]])
 	_sfx("coins")
@@ -593,7 +670,7 @@ func add_to_stash(items: Array) -> int:
 	for it in overflow:
 		total += Loot.sell_base(it)
 	if not overflow.is_empty():
-		gold += total
+		_earn(total)
 		add_news(["Réserve pleine : %d objet%s vendu%s d'office (+%d couronnes)." % [overflow.size(), "s" if overflow.size() > 1 else "", "s" if overflow.size() > 1 else "", total]])
 	return overflow.size()
 
@@ -709,6 +786,7 @@ func apply_promotion(m: Unit, rolls: Dictionary, chosen: Array) -> bool:
 func spend_perks(m: Unit, keys: Array) -> bool:
 	if m == null or keys.is_empty() or not Perks.take_all(m, keys):
 		return false
+	stat_add("perks_taken", float(keys.size()))
 	add_news(["%s apprend : %s." % [m.unit_name, ", ".join(keys.map(func(k: Variant) -> String: return str(Data.PERKS[str(k)]["n"])))]])
 	_after_change()
 	return true
@@ -726,7 +804,7 @@ func can_reset_perks(m: Unit) -> bool:
 func reset_perks(m: Unit) -> bool:
 	if not can_reset_perks(m):
 		return false
-	gold -= Perks.reset_cost(m)
+	_spend(Perks.reset_cost(m))
 	Perks.refund_all(m)
 	add_news(["%s repart de zéro auprès de l'entraîneur : tous ses talents sont à rechoisir." % m.unit_name])
 	_after_change()
@@ -811,7 +889,7 @@ func buy_rare(index: int) -> bool:
 	var price: int = rare_price_of(r)
 	if gold < price or inventory.size() >= Data.STASH_SIZE:
 		return false
-	gold -= price
+	_spend(price)
 	inventory.append(r["item"])
 	_note_uniques([r["item"]])
 	s["rare"].remove_at(index)
@@ -850,7 +928,7 @@ func _assault_won(c: Dictionary) -> Array:
 	if not Campaign.next_wave(c).is_empty():
 		return ["Vague repoussée : une autre arrive aussitôt !"]
 	var lines: Array = []
-	gold += int(c["pay"])
+	_earn(int(c["pay"]))
 	renown += int(c.get("renown", 0))
 	lines.append("%s : +%d couronnes, +%d renom." % [str(c["title"]).split(" (vague")[0].replace("Assaut", "Lieu pris"), int(c["pay"]), int(c.get("renown", 0))])
 	var s: Dictionary = world.site_by_id(str(c.get("site_id", "")))
@@ -901,15 +979,25 @@ func finish_battle() -> void:
 			by_id[u.id] = u
 	var dead_names: Array = []
 	var survivors: Array[Unit] = []
+	var men_report: Array = []
+	var gold_before: int = gold
+	var renown_before: int = renown
 	for m in roster:
 		var bu: Unit = by_id.get(m.id)
 		if bu == null:
 			survivors.append(m)
 			continue
+		stat_add("kills", maxi(0, bu.kills - m.kills))
 		if bu.dead:
+			stat_add("men_fallen")
+			men_report.append({"u": m.to_dict(), "dead": true, "hp_before": m.hp, "hp_after": 0, "xp": 0, "kills": bu.kills - m.kills, "lvl_before": m.level, "lvl_after": m.level, "wounds": []})
 			dead_names.append(m.unit_name)
 			fallen.append({"name": m.unit_name, "bg": m.background, "lvl": m.level, "kills": bu.kills, "day": day})
 			continue
+		var rep_hp_before: int = m.hp
+		var rep_lvl_before: int = m.level
+		var rep_kills_before: int = m.kills
+		var rep_inj_before: int = m.injuries.size()
 		m.hp = maxi(1, bu.hp)
 		m.arm_h = bu.arm_h
 		m.arm_b = bu.arm_b
@@ -925,13 +1013,29 @@ func finish_battle() -> void:
 			add_news(["%s garde une séquelle : %s." % [m.unit_name, str(Data.INJURIES[scar]["n"]).to_lower()]])
 		m.xp += int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5)
 		level_check(m)
+		var rep_wounds: Array = []
+		for wi in range(rep_inj_before, m.injuries.size()):
+			rep_wounds.append(str(Data.INJURIES[str(m.injuries[wi]["id"])]["n"]))
+		men_report.append({"u": m.to_dict(), "dead": false, "hp_before": rep_hp_before, "hp_after": m.hp, "xp": int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5),
+			"kills": bu.kills - rep_kills_before, "lvl_before": rep_lvl_before, "lvl_after": m.level, "wounds": rep_wounds})
 		survivors.append(m)
 	roster = survivors
 	var lines: Array = []
 	if win:
+		stat_add("battles_won")
+		if dead_names.is_empty():
+			stat_add("perfect_wins")
+	elif b.over == "retreat":
+		stat_add("retreats")
+	else:
+		stat_add("battles_lost")
+	if win:
 		if is_contract:
-			gold += int(c["pay"])
+			_earn(int(c["pay"]))
 			renown += 40 * int(c["d"])
+			stat_add("contracts_done")
+			if c.get("type_contract", "kill") == "hunt":
+				stat_add("hunts_done")
 			lines.append("Contrat rempli : +%d couronnes, +%d renom." % [c["pay"], 40 * int(c["d"])])
 			world.change_standing(str(c.get("origin_id", "")), 3 if c.get("type_contract", "kill") == "hunt" else 2)
 			lines.append_array(_arc_result(c, true))
@@ -968,12 +1072,15 @@ func finish_battle() -> void:
 		add_to_stash(loot)
 		_note_uniques(loot)
 		lines.append("Butin récupéré : %d objet%s." % [loot.size(), "s" if loot.size() > 1 else ""])
+	last_battle_report = {"result": b.over, "title": str(c.get("title", "")), "day": day, "men": men_report, "loot": loot.duplicate(true),
+		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate()}
 	pending_loot = []
 	pending_loot_ready = false
 	battle = null
 	add_news(lines)
 	if roster.is_empty():
 		game_over = true
+	check_achievements()
 	save()
 	battle_finished.emit()
 	changed.emit()
@@ -982,6 +1089,7 @@ func finish_battle() -> void:
 
 
 func _after_change() -> void:
+	check_achievements()
 	save()
 	changed.emit()
 
@@ -1000,6 +1108,8 @@ func to_dict() -> Dictionary:
 		"pending_event": pending_event, "last_event_day": last_event_day, "last_event_id": last_event_id,
 		"campaign": campaign.duplicate(true), "campaign_rng_state": str(campaign_rng.state),
 		"inventory": inventory.duplicate(true), "pending_loot": pending_loot.duplicate(true), "pending_loot_ready": pending_loot_ready,
+		"stats": stats.duplicate(), "banner": banner.duplicate(), "company_name": company_name,
+		"last_battle_report": last_battle_report,
 	}
 
 
@@ -1042,6 +1152,14 @@ func from_dict(d: Dictionary) -> void:
 	inventory = _clean_items(d.get("inventory", []))
 	pending_loot = _clean_items(d.get("pending_loot", []))
 	pending_loot_ready = bool(d.get("pending_loot_ready", false))
+	stats = Achievements.normalize_stats(d.get("stats", {}))
+	banner = Banner.clean(d.get("banner", {}))
+	company_name = Banner.clean_name(str(d.get("company_name", Data.COMPANY_NAME_DEFAULT)))
+	last_battle_report = {}
+	var lbr: Variant = d.get("last_battle_report", {})
+	if typeof(lbr) == TYPE_DICTIONARY and not (lbr as Dictionary).is_empty():
+		last_battle_report = (lbr as Dictionary).duplicate(true)
+		last_battle_report["loot"] = _clean_items(last_battle_report.get("loot", []))
 
 
 func _clean_items(raw: Variant) -> Array:

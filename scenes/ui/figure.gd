@@ -23,6 +23,11 @@ const HAIR_STYLES := 7
 const BEARD_STYLES := 8  ## 0 = rasé
 const MARKS: Array[String] = ["", "scar_1", "scar_2", "scar_3", "bruise", "patch"]
 
+## Ennemis d'élite : clé de Data.FOE -> ornements ("plume", "pauldron", "paint", "necklace"). Les hommes de niveau >= Data.ELITE_LEVEL
+## portent la tenue de vétéran (plume ou cercle d'or, épaulière ornée, cape aux couleurs de la compagnie).
+const ELITE_FOES := {"chef": ["plume", "pauldron"], "balafre": ["pauldron"], "berserker": ["paint", "necklace"], "orc_chef": ["necklace", "pauldron"]}
+const ELITE_PLUME_FOE := Color("b03a2e")
+
 static var _textures: Dictionary = {}
 
 var unit: Unit
@@ -44,6 +49,25 @@ func setup(u: Unit) -> Figure:
 	position.y = 10.0 * (1.0 - base_scale)
 	rebuild()
 	return self
+
+
+## Ornements d'élite de `u` (voir ELITE_FOES) ; "vet" pour la tenue de vétéran des hommes de la compagnie.
+static func elite_tags(u: Unit) -> Array:
+	if u.side == "p":
+		return ["vet", "plume", "pauldron", "cape"] if u.level >= Data.ELITE_LEVEL else []
+	for k in ELITE_FOES:
+		if Data.FOE.has(k) and str(Data.FOE[k]["n"]) == u.background:
+			return ELITE_FOES[k]
+	return []
+
+
+## Bannière de la compagnie (celle de la partie en cours si l'autoload Game existe).
+static func company_banner() -> Dictionary:
+	var tree := Engine.get_main_loop() as SceneTree
+	var g: Node = tree.root.get_node_or_null("Game") if tree != null else null
+	if g != null and typeof(g.get("banner")) == TYPE_DICTIONARY:
+		return g.get("banner")
+	return Data.BANNER_DEFAULT
 
 
 static func body_scale(u: Unit) -> float:
@@ -103,7 +127,11 @@ func rebuild() -> void:
 	var sleeve: Color = SLEEVES.get(unit.body, l["skin"].darkened(0.1) if orc and unit.body == "tunique" else l["cloth"])
 	var w: String = unit.weapon
 	var acc: String = l["acc"]
-	if acc == "cape":
+	var tags: Array = elite_tags(unit)
+	if tags.has("cape"):  # vétéran : cape aux couleurs de la compagnie
+		_add("cape", Banner.primary(company_banner()).darkened(0.3))
+		_add("cape_trim")
+	elif acc == "cape":
 		_add("cape", l["cloth"].darkened(0.15))
 	if w == "arc":
 		_add("quiver")
@@ -135,6 +163,7 @@ func rebuild() -> void:
 				_add("helm_capuchon", l["hood"])
 			_:
 				_add("helm_" + unit.head)
+		_add_elite_head(tags)
 		_finish_human(w, sleeve, l)
 		return
 	_add("head", l["skin"])
@@ -156,6 +185,7 @@ func rebuild() -> void:
 			_add("helm_capuchon", l["hood"])
 		_:
 			_add("helm_" + unit.head)
+	_add_elite_head(tags)
 	_finish_human(w, sleeve, l)
 
 
@@ -167,9 +197,38 @@ func _finish_human(w: String, sleeve: Color, l: Dictionary) -> void:
 	_add("arm_" + pose, sleeve)
 	if unit.body == "mailles" or unit.body == "brigandine":
 		_add("pauldron_" + unit.body)
+	if elite_tags(unit).has("pauldron"):
+		_add("pauldron_elite")
 	_add("hand_" + pose, l["skin"])
 	if unit.shield:
-		_add("shield_%s%s" % [unit.side, "_up" if unit.shield_wall else ""])
+		_add_shield()
+
+
+## Ornements de tête des ennemis d'élite et des vétérans : plume sur casque, cercle d'or tête nue, peinture de guerre, collier d'os.
+func _add_elite_head(tags: Array) -> void:
+	if tags.has("plume"):
+		var plume: Color = Banner.primary(company_banner()).lightened(0.1) if tags.has("vet") else ELITE_PLUME_FOE
+		if unit.head != "none" and unit.head != "capuchon":
+			_add("crest_plume", plume)
+		elif tags.has("vet") and unit.faction != "o":
+			_add("circlet")
+	if tags.has("paint"):
+		_add("war_paint")
+	if tags.has("necklace"):
+		_add("bone_necklace")
+
+
+## Bouclier : celui de la compagnie aux couleurs de la bannière (champ, chevron, bossage) si elle est personnalisée.
+func _add_shield() -> void:
+	var up: String = "_up" if unit.shield_wall else ""
+	if unit.side == "p" and Banner.is_custom(company_banner()):
+		var b: Dictionary = company_banner()
+		_add("shield_p" + up)
+		_add("shield_field" + up, Banner.primary(b))
+		_add("shield_chev" + up, Banner.secondary(b))
+		_add("shield_boss" + up)
+	else:
+		_add("shield_%s%s" % [unit.side, up])
 
 
 ## Morts-vivants : zombie (griffes) ou squelette en calques.

@@ -18,6 +18,24 @@ et `build/` sont exclus du paquet. Les sauvegardes vont dans `%APPDATA%\Godot\ap
 
 Vérification : `build\CompagnieDuCorbeau.exe --screen 1 --resolution 1280x720 --quit-after 300` (code de sortie 0).
 
-Notes : l'icône (`assets/app_icon.svg`) et les infos de version (0.1.0) sont dans le preset ; `application/modify_resources`
-est désactivé car il exige l'outil externe rcedit (l'exe garde alors l'icône Godot dans l'explorateur, mais la fenêtre
-utilise l'icône du preset si renseignée par le projet). Pas de signature de code.
+Notes : version 0.2.0 et métadonnées (produit, description, copyright) dans le preset. Pas de signature de code.
+
+## Icône du jeu
+
+- Source : `assets/app_icon.svg` (corbeau sur écu, or #cfa851 / fond #1c1915 / liseré #b03a2e).
+- Régénération : `godot --path . --headless -s res://tools/gen_icon.gd` (PNG 16 à 256 dans `assets/icons_png/`) puis
+  `py tools/make_ico.py` (assemble `assets/app_icon.ico`, bibliothèque standard seulement).
+- `config/icon` (project.godot) = icône de la **fenêtre** et de la barre des tâches : fonctionne sans rien d'autre.
+- Icône du **fichier .exe** dans l'explorateur : elle exige l'outil externe **rcedit** (non installé par le projet).
+  Pour l'activer vous-même :
+  1. Télécharger `rcedit-x64.exe` depuis https://github.com/electron/rcedit/releases (vérifier la source).
+  2. Godot > Éditeur > Paramètres de l'éditeur > Export > Windows : renseigner « Rcedit » avec ce fichier
+     (sous Linux/macOS, il faut aussi Wine).
+  3. Dans `export_presets.cfg` (ou Projet > Exporter), passer `application/modify_resources=true`
+     (`application/icon="res://assets/app_icon.ico"` et les métadonnées sont déjà renseignés), puis refaire l'export.
+  Tant que cette étape n'est pas faite, l'exe garde l'icône Godot dans l'explorateur.
+
+## Écran de lancement
+
+`assets/splash.png` (image du moteur, fond #1c1915) : `godot --path . --screen 1 --resolution 1280x720 res://tools/gen_splash.tscn`
+(fenêtre requise). Ensuite `scenes/boot/boot_screen.gd` précharge les sons et sprites avant le menu.

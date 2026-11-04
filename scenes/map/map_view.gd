@@ -37,6 +37,11 @@ var zoom: float = 1.0  ## ×1 à ×3 (molette)
 var _base_k: float = 0.0  ## échelle qui fait tenir toute la carte dans la vue
 var _drag_btn: int = 0  ## bouton qui fait glisser la carte (milieu ou droit), 0 = aucun
 var _drag_moved: float = 0.0
+var _focus_pos: Vector2 = Vector2.ZERO  ## lieu mis en évidence par Tab (anneau qui s'estompe)
+var _focus_until: float = -1.0
+static var _keep_zoom: float = 1.0  ## vue mémorisée d'un affichage de la carte au suivant (zoom, centre en coordonnées monde)
+static var _keep_center: Vector2 = Vector2(-1.0, -1.0)
+static var _last_report_key: String = ""
 
 
 func _ready() -> void:
@@ -66,11 +71,30 @@ func _fit() -> void:
 	var k: float = minf(size.x / World.SIZE.x, size.y / World.SIZE.y)
 	if k <= 0.0:
 		return
-	var anchor: Vector2 = _world_pos(size * 0.5) if _base_k > 0.0 else World.SIZE * 0.5
+	var anchor: Vector2 = _world_pos(size * 0.5) if _base_k > 0.0 else _initial_anchor()
 	_base_k = k
 	_stage.scale = Vector2.ONE * k * zoom
 	_stage.position = size * 0.5 - anchor * _stage.scale.x
 	_clamp_view()
+
+
+## Première mise en page : reprend le zoom et le centre de la dernière vue ; après une bataille (nouveau compte rendu),
+## recentre sur la compagnie.
+func _initial_anchor() -> Vector2:
+	zoom = clampf(_keep_zoom, ZOOM_MIN, ZOOM_MAX)
+	var report: Dictionary = Game.last_battle_report
+	var key: String = "%s|%s|%s" % [report.get("day", ""), report.get("title", ""), report.get("result", "")] if not report.is_empty() else ""
+	if key != "" and key != _last_report_key:
+		_last_report_key = key
+		return Game.world.player_pos if Game.world != null else World.SIZE * 0.5
+	if _keep_center.x >= 0.0:
+		return _keep_center
+	return World.SIZE * 0.5
+
+
+func _remember_view() -> void:
+	_keep_zoom = zoom
+	_keep_center = _world_pos(size * 0.5)
 
 
 ## Garde la carte dans la fenêtre : centrée si elle est plus petite, sans bord vide sinon.
@@ -92,6 +116,17 @@ func zoom_at(at: Vector2, factor: float) -> void:
 	_stage.scale = Vector2.ONE * _base_k * zoom
 	_stage.position = at - wp * _stage.scale.x
 	_clamp_view()
+	_remember_view()
+
+
+## Centre la vue sur le point `p` du monde (sans changer le zoom) et l'entoure d'un anneau un instant.
+func center_on(p: Vector2, mark: bool = false) -> void:
+	_stage.position = size * 0.5 - p * _stage.scale.x
+	_clamp_view()
+	_remember_view()
+	if mark:
+		_focus_pos = p
+		_focus_until = _t + 2.0
 
 
 ## Recentre la vue sur la compagnie (sans changer le zoom).
@@ -100,6 +135,7 @@ func center_on_player() -> void:
 		return
 	_stage.position = size * 0.5 - Game.world.player_pos * _stage.scale.x
 	_clamp_view()
+	_remember_view()
 
 
 ## Reconstruit le fond (à appeler quand le monde change : nouvelle partie, chargement).
@@ -243,6 +279,11 @@ func _paint_settlement(l: Node2D, s: Dictionary) -> void:
 	var size: int = 28 if s["kind"] == "city" else 22
 	l.draw_string_outline(font, p + Vector2(-90, 32), str(s["name"]), HORIZONTAL_ALIGNMENT_CENTER, 180, size, 5, Color("120f0c"))
 	l.draw_string(font, p + Vector2(-90, 32), str(s["name"]), HORIZONTAL_ALIGNMENT_CENTER, 180, size, GameTheme.INK)
+	if Visits.day_of(s) > 0:  # marque discrète : déjà visité
+		var vp: Vector2 = p + Vector2(26 if s["kind"] == "city" else 20, -12)
+		l.draw_circle(vp, 6.5, OL)
+		l.draw_circle(vp, 5.2, Color("8aa05a"))
+		l.draw_polyline(PackedVector2Array([vp + Vector2(-2.6, 0.2), vp + Vector2(-0.6, 2.4), vp + Vector2(2.8, -2.2)]), OL, 1.6, true)
 
 
 # --- Lieux hostiles (forts, repaires, nécropoles, citadelle) ---
@@ -314,6 +355,10 @@ func _paint_dynamic(l: Node2D) -> void:
 		l.draw_string(font, tp + Vector2(-80, 14), str(Game.active_contract["target_name"]), HORIZONTAL_ALIGNMENT_CENTER, 160, 13, Color("f0a090"))
 	for site in w.sites:
 		_paint_site(l, site, font)
+	if _t < _focus_until:
+		var a: float = clampf(_focus_until - _t, 0.0, 1.0)
+		var r: float = 26.0 + (1.0 - a) * 10.0
+		l.draw_arc(_focus_pos, r, 0.0, TAU, 32, Color(GameTheme.GOLD, 0.9 * a), 3.0, true)
 	# Bandes repérées
 	for p in w.parties:
 		var pp: Vector2 = w.party_pos(p)
@@ -388,6 +433,7 @@ func _gui_input(event: InputEvent) -> void:
 		if _drag_btn == MOUSE_BUTTON_MIDDLE or _drag_moved > DRAG_THRESHOLD:
 			_stage.position += (event as InputEventMouseMotion).relative
 			_clamp_view()
+			_remember_view()
 		_hover_ok = false
 		accept_event()
 		return
@@ -411,8 +457,8 @@ func _gui_input(event: InputEvent) -> void:
 		var goal: Vector2 = thing["pos"] if not thing.is_empty() else p
 		tooltip_text = str(thing.get("title", ""))
 		if thing.get("kind", "") == "settlement":
-			var st: int = w.standing_of(w.settlement_by_id(str(thing["id"])))
-			tooltip_text += "\nRéputation : %s (%+d)" % [World.standing_label(st), st]
+			var ss: Dictionary = w.settlement_by_id(str(thing["id"]))
+			tooltip_text = Visits.tooltip(ss, w.standing_of(ss))
 		elif thing.get("kind", "") == "site":
 			tooltip_text = Campaign.site_tooltip(w.site_by_id(str(thing["id"])), Game.renown)
 		var cell: Vector2i = w.cell_of(goal)

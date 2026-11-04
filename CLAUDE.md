@@ -46,6 +46,16 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
 - **Talents façon BB** : arbre de 28 talents sur 7 rangs × 4 colonnes (`Data.PERKS`, `core/perks.gd`, `scenes/perks/perk_screen.gd`,
   `PerkScreen.open(host, unit)`), 1 point par niveau (`Unit.perk_points`), un talent du rang N exige N−1 talents ; entraîneur payant
   en ville pour réinitialiser ; chefs ennemis peuvent avoir des talents fixes (`Data.FOE[...]["perks"]`).
+- **Confort** : annuler un déplacement (`BattleState.undo_move`, Ctrl+Z), raccourcis clavier affichés et aide « ? »
+  (`scenes/ui/shortcuts.gd`), journal filtrable, résumé après bataille (`scenes/battle/summary_screen.gd`, `Game.last_battle_report`),
+  légende de carte et lieux visités (`settlement["visited_day"]`).
+- **Contenu** : plus d'événements/contrats/noms, traits de caractère (`Data.TRAITS`, `Unit.traits`, `core/traits.gd`), tenues d'élite,
+  bannière et nom de compagnie personnalisables (`Game.banner`, `Game.company_name`), succès et statistiques (`core/achievements.gd`,
+  `Game.stats`, `user://achievements.json`, `scenes/achievements/`).
+- **Options et lancement** : fenêtre (mode, résolution, écran, échelle UI, VSync, FPS, MSAA, tremblement, taille du texte…) dans
+  `autoload/Settings.gd` / `scenes/menu/options_panel.gd` (`user://settings.cfg`) ; écran de lancement (`assets/splash.png`,
+  `scenes/boot/boot_screen.gd`) ; icône `assets/app_icon.ico`. L'icône incrustée dans le .exe exige `rcedit` configuré à la main
+  dans Godot (voir `tools/export.md`).
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720` (écran de l'app Claude).

@@ -1,0 +1,115 @@
+class_name ContractTexts
+extends RefCounted
+## Modèles de textes des contrats (titres et descriptions). `{town}` = lieu d'origine, `{dest}` = destination d'un transport.
+## Pur : les tirages passent par `Contracts.pick` (aléa injecté).
+
+## Missions classiques par faction : [titre, description].
+const FLAVOR: Dictionary = {
+	"b": [
+		["Brigands près de {town}", "Des brigands rançonnent la route du moulin."],
+		["Brigands près de {town}", "Une bande a pillé deux fermes et campe dans les bois."],
+		["Brigands près de {town}", "Les péages illégaux étranglent le commerce. Qu'on en finisse."],
+		["Route coupée près de {town}", "Plus un convoi ne passe le gué sans être détroussé. Les marchands menacent de partir."],
+		["Les loups de la forêt", "Une meute d'hommes en haillons, plus féroce que n'importe quel loup, terrorise les bûcherons de {town}."],
+		["Le butin du couvent", "Des bandits ont forcé la porte d'un couvent. L'abbesse offre une bourse pour le retour du calice."],
+		["Incendie de ferme", "Trois fermes brûlées en une semaine. Les villageois de {town} savent où les coupables se cachent."],
+		["Chef de bande aux abois", "Un ancien sergent a levé une troupe de déserteurs. Il se croit déjà seigneur."],
+		["Rançons et otages", "Le fils d'un drapier est aux mains de brigands. Il faut les déloger avant la prochaine lune."],
+		["Embuscades de la combe", "Les gardes n'osent plus emprunter la combe. Deux messagers y ont perdu la vie."],
+		["Pillards du marché", "Une bande descend la nuit sur les étals de {town}. On cherche des lames qui ne dorment pas."],
+		["Le repaire du vieux chêne", "Des détrousseurs ont fait d'un chêne creux leur tanière. Les enfants du village ont déserté les bois."],
+		["Contrebandiers armés", "Des contrebandiers refusent de payer la taxe du bailli et ont tué le percepteur."],
+		["Les Écorcheurs de {town}", "Un nom qui fait trembler les paysans. Ils ont pris le grand chemin comme on prend un champ."],
+	],
+	"g": [
+		["Goules près de {town}", "On déterre les morts au cimetière. Les villageois n'osent plus sortir."],
+		["Goules près de {town}", "Des bêtes difformes rôdent autour du charnier depuis la dernière peste."],
+		["Goules près de {town}", "Un berger a été dévoré. On a vu des silhouettes voûtées dans la brume."],
+		["Le cimetière dévasté", "Les tombes sont ouvertes, les cercueils vides. Le fossoyeur de {town} a perdu la raison."],
+		["Festin dans la grange", "Une grange isolée résonne de grognements la nuit. Le fermier n'est jamais revenu de son champ."],
+		["Les affamés du marais", "Depuis l'hiver, des créatures grises sortent des marais. Elles ne mangent pas que des poissons."],
+		["Pestiférés", "On dit que ces monstres furent des hommes, emportés par la maladie. Le prêtre de {town} veut les voir brûler."],
+		["Nuit sans lune", "Trois nuits de suite, des cris. Au matin, des traces de griffes sur les portes de {town}."],
+		["Le puits maudit", "Quelque chose remonte du puits abandonné. Le bétail s'en écarte et les chiens se taisent."],
+		["Ossuaire éventré", "Les ossements de l'ossuaire sont rongés. Quelque chose de très affamé s'y est installé."],
+		["La meute du charnier", "Après la bataille de l'automne, des goules rôdent sur le champ. Les paysans refusent d'y labourer."],
+		["Veillée funèbre", "Une veuve a veillé son mari… et ce qui est revenu n'est plus lui. Elle supplie qu'on la délivre."],
+		["Dévoreurs de la combe", "Des voyageurs retrouvés en lambeaux sur la route de {town}. Les loups, eux, ont fui."],
+		["Les cryptes de la chapelle", "Un bruit de pierres déplacées sous la chapelle. Le sacristain jure avoir vu des yeux luire."],
+	],
+	"o": [
+		["Orcs près de {town}", "Une horde a franchi les collines et brûle les granges. Il faut la briser."],
+		["Orcs près de {town}", "Des orcs ont pris la tour de guet. Leur chef exige un tribut de sang."],
+		["Orcs près de {town}", "Les villageois fuient vers la ville : des rugissements montent de la forêt."],
+		["Tambours dans les collines", "Chaque nuit, des tambours de guerre. Les éclaireurs de {town} ne sont pas rentrés."],
+		["La horde du gué", "Des orcs rançonnent les passeurs et empalent ceux qui refusent. Le commerce est à l'arrêt."],
+		["Razzia sur les troupeaux", "Des maraudeurs verts ont emporté le bétail de trois hameaux. Il faut le reprendre, et leur apprendre."],
+		["Le totem sanglant", "Un totem d'os a surgi à la lisière de la forêt. Les orcs de la région s'y rassemblent."],
+		["Un chef de guerre ambitieux", "Un orc plus grand que les autres unit les clans. Mieux vaut le saigner avant qu'il ne soit un roi."],
+		["La palissade des Écorcheurs", "Les orcs ont dressé une palissade de troncs près de {town}. On y entend des chants de guerre."],
+		["Fumées à l'horizon", "Trois colonnes de fumée au-dessus des collines. Les moissons sont perdues si la horde avance."],
+		["Les têtes sur les piques", "Des messagers retrouvés sans tête sur la route. Les orcs ont laissé un message sans équivoque."],
+		["Exigence de tribut", "Les orcs réclament du grain, du fer et des femmes. Le bailli préfère payer en lames."],
+		["Colosses de la montagne", "Des orcs descendent de la montagne, poussés par la faim. Ils ne repartiront pas d'eux-mêmes."],
+		["La tour prise", "L'avant-poste du seigneur est tombé en une nuit. Ses archers pendent aux créneaux."],
+	],
+	"u": [
+		["Morts-vivants près de {town}", "Les tombes de la chapelle se sont ouvertes cette nuit. Quelqu'un les relève."],
+		["Morts-vivants près de {town}", "Des squelettes arpentent la vieille route. On parle d'un nécromant."],
+		["Morts-vivants près de {town}", "Les morts frappent aux portes du tertre. Le prêtre a perdu la raison."],
+		["Les revenants du tertre", "Chaque soir, le tertre vomit des silhouettes aux armures rouillées. Le vieux château les a-t-il appelées ?"],
+		["Le nécromant de la tour", "Un homme en robe noire achète des cadavres. {town} commence à s'en inquiéter."],
+		["Ossements en marche", "Des squelettes en cotte de mailles ont attaqué un convoi. Ils ne dormaient pas, eux."],
+		["Le glas sans sonneur", "La cloche de la chapelle sonne seule. Au pied de l'église, la terre bouge."],
+		["La nécropole oubliée", "Des pillards de tombes ont réveillé ce qui dormait. Aucun n'est ressorti pour le dire."],
+		["Les morts du champ de bataille", "Les soldats tombés l'an dernier se relèvent à la nuit. Leurs veuves n'osent plus regarder par la fenêtre."],
+		["Le puits aux ossements", "On a jeté les pestiférés dans un puits. Il y a quelques jours, il s'est mis à déborder."],
+		["Le cortège sans fin", "Une procession de squelettes remonte la route de {town} à la tombée de la nuit, torches éteintes."],
+		["La crypte des Veilleurs", "Les anciens gardiens ne reposent plus. Le seigneur offre une bourse à qui les renverra en terre."],
+		["Fièvre des tombes", "Les enfants parlent à des morts qui ne sont pas de leur famille. Le médecin de {town} veut en finir."],
+		["L'abbé disparu", "Le vieil abbé a été vu entrer dans la crypte, puis plus rien. Des bruits d'os depuis."],
+	],
+}
+
+const ESCORT: Array = [
+	"Un notable doit rejoindre {dest} sans encombre. Les routes sont peu sûres.",
+	"Un convoi de marchands cherche des lames pour rejoindre {dest}.",
+	"Une jeune mariée doit gagner {dest}, où l'attend son époux. Sa famille paie bien la discrétion.",
+	"Un abbé porte des reliques jusqu'à {dest}. Il refuse de voyager sans escorte armée.",
+	"Un percepteur et ses coffres doivent atteindre {dest}. Ils ont déjà perdu un convoi.",
+	"Des pèlerins fatigués se rendent à {dest}. On vous demande de les mener sans histoire.",
+	"Un maître d'armes, blessé, rentre à {dest}. Il paiera de sa bourse la sécurité de la route.",
+	"Un troupeau de moutons et ses bergers pour {dest}. La laine vaut cher, les loups aussi.",
+	"Un jeune seigneur doit être confié à ses oncles, à {dest}. Sa mère craint les enlèvements.",
+	"Un émissaire porte la paix, ou la guerre, jusqu'à {dest}. Il tient à arriver vivant.",
+	"Une caravane de sel pour {dest} : lourde, lente, tentante.",
+]
+
+const DELIVERY: Array = [
+	"Un colis scellé doit arriver à {dest}. Ne posez pas de questions.",
+	"Des lettres de change pour {dest} : elles ne doivent pas se perdre en route.",
+	"Un coffret de médicaments pour les malades de {dest}. Chaque jour compte.",
+	"Un tonneau de vin de messe est attendu à {dest}. L'abbé a payé d'avance, et il compte.",
+	"Une cloche neuve pour l'église de {dest}. Elle est lourde, fragile et bénie.",
+	"Un message pour un homme de {dest} qui n'aime pas qu'on le dérange. Remettez-le en main propre.",
+	"Des armes forgées en ville pour la garnison de {dest}. Mieux vaut qu'elles n'atterrissent pas ailleurs.",
+	"Un plan de siège destiné à {dest}. Certains paieraient cher pour le lire en route.",
+	"Un reliquaire pour {dest} : le prieur promet une récompense… et des prières.",
+	"Un chargement de grain pour {dest}, où l'on a faim. Chaque sac manquant sera réclamé.",
+	"Des chartes de privilèges à remettre à {dest} avant la prochaine foire.",
+]
+
+## Chasses au chef : `%s` = nom du chef (en minuscules).
+const HUNT: Array = [
+	"Abattez %s et son escorte : la bande se dispersera. Prime élevée.",
+	"%s tient la contrée sous sa botte. Sa tête vaudra de l'or, et la paix.",
+	"On dit de %s qu'il ne dort jamais. Surprenez-le, et le pays respirera.",
+	"Mettez fin à %s et à sa garde rapprochée. La prime est à la hauteur du risque.",
+	"%s a juré de brûler la région. Un seul coup bien placé suffit à briser sa bande.",
+	"Le seigneur veut la mort de %s. Il paie l'escorte, mais pas la prudence.",
+	"Sans %s, ses hommes ne tiendront pas trois jours. Allez le chercher.",
+	"Une récompense pend au cou de %s, et personne n'ose la réclamer. Voilà une affaire de mercenaires.",
+	"Les villageois ont tracé une croix sur la carte, là où %s s'est terré. À vous de finir le travail.",
+	"%s a pris des otages. Frappez vite, et frappez à la tête.",
+	"Le chef est la clef : %s abattu, le reste fuira. Ou se battra jusqu'au bout.",
+]

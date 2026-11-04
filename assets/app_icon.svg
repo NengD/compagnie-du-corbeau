@@ -1,6 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <rect width="256" height="256" rx="36" fill="#2b1d14"/>
-  <rect x="10" y="10" width="236" height="236" rx="28" fill="none" stroke="#c9a44c" stroke-width="6"/>
-  <path d="M60 170 C70 110 110 70 160 72 L200 58 L186 86 C196 120 176 160 140 176 L96 214 L108 176 Z" fill="#0e0b09" stroke="#c9a44c" stroke-width="5" stroke-linejoin="round"/>
-  <circle cx="160" cy="98" r="7" fill="#c9a44c"/>
+  <rect width="256" height="256" rx="40" fill="#1c1915"/>
+  <rect x="7" y="7" width="242" height="242" rx="34" fill="none" stroke="#b03a2e" stroke-width="6"/>
+  <path d="M128 30 L206 50 V122 C206 170 174 206 128 228 C82 206 50 170 50 122 V50 Z" fill="#26211a" stroke="#cfa851" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M128 42 L194 59 V122 C194 162 168 194 128 213 C88 194 62 162 62 122 V59 Z" fill="none" stroke="#b03a2e" stroke-width="3" stroke-linejoin="round"/>
+  <!-- corbeau de profil, tourné vers la droite -->
+  <path d="M66 186 L100 160 C98 128 112 98 138 90 C146 76 160 70 172 74 L204 90 L178 100 C178 108 172 116 164 122 C166 142 152 164 128 174 L104 202 L108 178 L90 190 Z"
+        fill="#cfa851" stroke="#1c1915" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M112 132 C126 128 144 134 152 148 C140 154 122 156 108 152 Z" fill="#1c1915" opacity="0.55"/>
+  <path d="M120 140 C130 140 140 143 146 148" fill="none" stroke="#cfa851" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="165" cy="88" r="4" fill="#1c1915"/>
+  <circle cx="166" cy="87" r="1.3" fill="#cfa851"/>
 </svg>
