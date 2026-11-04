@@ -16,7 +16,7 @@ const DEFS: Array = [
 		"id": "merchant", "title": "Marchand ambulant",
 		"text": "Un colporteur arrête sa charrette et déballe sa marchandise sur le bord du chemin. « Des prix d'ami, messires ! »",
 		"choices": [
-			{"id": "food", "label": "Acheter des provisions (35 couronnes) : +10 PV à tous", "cost": 35, "outcomes": [{"w": 1, "text": "Pain, lard et vin coupé : les hommes se remplissent la panse.", "hp_all": 10}]},
+			{"id": "food", "label": "Acheter des provisions (35 couronnes) : +10 PV à tous, +12 rations", "cost": 35, "outcomes": [{"w": 1, "text": "Pain, lard et vin coupé : les hommes se remplissent la panse.", "hp_all": 10, "food": 12}]},
 			{"id": "kit", "label": "Acheter du fil de fer et des rivets (60 couronnes) : armures réparées", "cost": 60, "outcomes": [{"w": 1, "text": "Un forgeron de fortune répare les cottes entre deux bouchées.", "repair": true}]},
 			{"id": "pass", "label": "Passer son chemin", "outcomes": [{"w": 1, "text": "Le colporteur hausse les épaules et fouette son mulet."}]},
 		],
@@ -396,19 +396,78 @@ const DEFS: Array = [
 ]
 
 
+## Événements de la vie de la compagnie (vivres, querelles, amitiés), tirés comme les autres.
+const CAMP_DEFS: Array = [
+	{
+		"id": "quarrel", "title": "Querelle au bivouac",
+		"text": "Deux de vos hommes en viennent aux mains pour une part de lard. Le reste de la troupe fait cercle.",
+		"choices": [
+			{"id": "split", "label": "Les séparer et les punir", "outcomes": [{"w": 2, "text": "Quelques jours de corvée calment les esprits.", "morale": -1}, {"w": 1, "text": "L'affaire laisse des rancunes.", "bond": "rivals"}]},
+			{"id": "duel", "label": "Les laisser régler ça", "outcomes": [{"w": 1, "text": "Les poings parlent. L'un des deux se jure de ne jamais pardonner.", "bond": "rivals", "hp_one": -6}]},
+		],
+	},
+	{
+		"id": "songs", "title": "Veillée chantée",
+		"text": "Autour du feu, un vieux refrain fait le tour de la troupe. Deux hommes finissent la nuit à trinquer ensemble.",
+		"choices": [
+			{"id": "join", "label": "Chanter avec eux", "outcomes": [{"w": 1, "text": "La nuit est courte, le moral meilleur.", "bond": "friends", "morale": 4}]},
+		],
+	},
+	{
+		"id": "hunt_game", "title": "Gibier en vue",
+		"text": "Un cerf paît à la lisière du bois. Les braconniers de la troupe se lèchent déjà les babines.",
+		"choices": [
+			{"id": "hunt", "label": "Chasser (1 jour)", "outcomes": [{"w": 3, "text": "Le cerf finit à la broche. On mangera bien.", "days": 1, "food": 18, "morale": 3}, {"w": 1, "text": "La bête s'échappe, une heure perdue.", "days": 1}]},
+			{"id": "pass", "label": "Continuer", "outcomes": [{"w": 1, "text": "Le cerf lève la tête et disparaît."}]},
+		],
+	},
+	{
+		"id": "spoiled", "title": "Vivres gâtés",
+		"text": "L'humidité a eu raison d'un sac de provisions : le lard est vert, le pain moisi.",
+		"choices": [
+			{"id": "sort", "label": "Trier ce qui reste", "outcomes": [{"w": 1, "text": "On sauve ce qu'on peut.", "food": -6}]},
+		],
+	},
+]
+
+
 static func get_def(id: String) -> Dictionary:
+	for e in CAMP_DEFS:
+		if e["id"] == id:
+			return e
 	for e in DEFS:
 		if e["id"] == id:
 			return e
+	for sid in Data.STORIES:
+		for st in Data.STORIES[sid]["steps"]:
+			if st["id"] == id:
+				return st
 	return {}
 
 
+## Histoire (clé de Data.STORIES) dont `step_id` est une étape, ou "".
+static func story_of(step_id: String) -> String:
+	for sid in Data.STORIES:
+		for st in Data.STORIES[sid]["steps"]:
+			if st["id"] == step_id:
+				return str(sid)
+	return ""
+
+
 ## Tire un événement au hasard (hors le dernier, pour éviter les répétitions).
-static func pick(rng: RandomNumberGenerator, last_id: String = "") -> Dictionary:
+## `flags` (Game.story_flags) et `day` : les histoires pas encore commencées et assez tardives entrent aussi dans le tirage (à poids double).
+static func pick(rng: RandomNumberGenerator, last_id: String = "", flags: Dictionary = {}, day: int = 0) -> Dictionary:
 	var pool: Array = []
-	for e in DEFS:
+	for e in DEFS + CAMP_DEFS:
 		if e["id"] != last_id:
 			pool.append(e)
+	if day > 0:
+		for sid in Data.STORIES:
+			var story: Dictionary = Data.STORIES[sid]
+			if not flags.has("story_" + str(sid)) and day >= int(story["min_day"]) and story["start"] != last_id:
+				var first: Dictionary = get_def(str(story["start"]))
+				pool.append(first)
+				pool.append(first)
 	return pool[rng.randi() % pool.size()]
 
 

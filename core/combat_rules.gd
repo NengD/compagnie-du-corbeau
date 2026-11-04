@@ -20,12 +20,24 @@ static func abilities_of(u: Unit) -> Array[String]:
 	var out: Array[String] = []
 	for k in Data.ABILITIES:
 		var ab: Dictionary = Data.ABILITIES[k]
-		if bool(ab.get("needs_shield", false)):
+		if ab.has("tool"):
+			if tool_left(u, str(ab["tool"])) > 0:
+				out.append(k)
+		elif bool(ab.get("needs_shield", false)):
 			if u.shield_ok() and not u.is_ranged():
 				out.append(k)
 		elif (ab["weapons"] as Array).has(u.weapon):
 			out.append(k)
 	return out
+
+
+## Lancers restants de l'outil `key` pour `u` : exemplaires dans le sac × usages par bataille − lancers déjà faits.
+static func tool_left(u: Unit, key: String) -> int:
+	var n: int = 0
+	for b in u.bag:
+		if not (b as Dictionary).is_empty() and str(b["kind"]) == "tool" and str(b["key"]) == key:
+			n += int(Data.TOOLS[key]["uses"])
+	return maxi(0, n - int(u.tool_used.get(key, 0)))
 
 
 static func ability_ap(u: Unit, id: String) -> int:
@@ -48,7 +60,10 @@ static func can_use_ability(a: Unit, d: Unit, id: String) -> bool:
 	if bool(ab.get("needs_target_shield", false)) and not d.shield_ok():
 		return false
 	var dist: int = Hex.distance(a.hex, d.hex)
-	if dist < 1 or dist > a.weapon_range():
+	if ab.has("tool"):  # lancer : portée propre à l'outil
+		if dist < int(ab["min_rng"]) or dist > int(ab["rng"]):
+			return false
+	elif dist < 1 or dist > a.weapon_range():
 		return false
 	if bool(ab.get("needs_shield", false)) and dist != 1:
 		return false
@@ -87,7 +102,7 @@ static func line_between(a: Vector2i, b: Vector2i) -> Array[Vector2i]:
 ## Un obstacle (arbre, rocher, forêt) coupe-t-il la ligne entre les deux cases ?
 static func line_blocked(from: Vector2i, to: Vector2i, cells: Dictionary) -> bool:
 	for h in line_between(from, to):
-		if bool(terrain_at(cells, h)["los"]):
+		if bool(terrain_at(cells, h)["los"]) or Scenery.blocks_los(cells, h):
 			return true
 	return false
 
@@ -127,13 +142,13 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 			var xu: Unit = x
 			if xu != a and xu.side == a.side and xu.is_live() and xu.morale > 0 and Hex.distance(xu.hex, d.hex) == 1:
 				ch += 5
-		var ha: int = int(terrain_at(cells, a.hex)["h"])
-		var hd: int = int(terrain_at(cells, d.hex)["h"])
+		var ha: int = int(terrain_at(cells, a.hex)["h"]) + Scenery.height_bonus(cells, a.hex)
+		var hd: int = int(terrain_at(cells, d.hex)["h"]) + Scenery.height_bonus(cells, d.hex)
 		if ha > hd:
 			ch += Data.HILL_MELEE_BONUS
 		elif ha < hd:
 			ch -= Data.HILL_MELEE_BONUS
-	return clampi(ch + bonus + int(Perks.weapon_field(a, "hit")) + int(Data.MSK[a.morale]), 5, 95)
+	return clampi(ch + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units), 5, 95)
 
 
 ## Tire les dégâts d'un coup qui touche. Retour : {head, hp, armor} (ne modifie pas la cible).
@@ -191,3 +206,10 @@ static func morale_rally_up(u: Unit, rng: RandomNumberGenerator) -> bool:
 		u.morale += 1
 		return u.morale == 4
 	return false
+
+
+## Charge (cavalier de loup) : bonus au toucher de mêlée après 3 cases parcourues ou plus ce tour.
+static func charge_bonus(a: Unit) -> int:
+	if a.is_ranged() or a.moved_cells < 3:
+		return 0
+	return int(a.foe_data().get("charge", 0))

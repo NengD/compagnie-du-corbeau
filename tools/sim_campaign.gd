@@ -155,6 +155,9 @@ func town() -> void:
 		g.rest()
 		rests += 1
 	g.repair()
+	g.buy_provisions_full()
+	if g.gold > 900:
+		g.buy_building(str(Data.BUILDING_ORDER[bot.randi() % Data.BUILDING_ORDER.size()]))
 	if g.game_over or g.roster.is_empty():
 		return
 	while g.roster.size() < 6 and s["recruits"].size() > 0 and int(s["recruits"][0]["price"]) <= g.gold:
@@ -283,7 +286,7 @@ func save_load_roundtrip() -> void:
 func check_invariants() -> void:
 	if g.gold < 0:
 		fail("or négatif (%d)" % g.gold)
-	if g.roster.size() > Data.MAX_ROSTER:
+	if g.roster.size() > g.max_roster():
 		fail("compagnie trop grande (%d)" % g.roster.size())
 	if g.roster.is_empty() and not g.game_over:
 		fail("compagnie vide sans game_over")

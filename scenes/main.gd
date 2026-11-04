@@ -13,6 +13,7 @@ var _values: Dictionary = {}
 var _actions: HBoxContainer
 var _confirm_new: bool = false
 var _company_open: bool = false
+var _last_town: String = ""  ## dernier lieu dont l'arrivée a été illustrée (TownArrival)
 var _in_menu: bool = false
 var _menu: MainMenu
 var _banner_view: BannerView
@@ -230,6 +231,11 @@ func _route() -> void:
 		_company_open = false
 		_add_camp("town")
 		Tutorial.hint("town")
+		if Game.location != _last_town:
+			_last_town = Game.location
+			var sd: Dictionary = Game.world.settlement_by_id(Game.location) if Game.world != null else {}
+			if not sd.is_empty():
+				TownArrival.show_over(self, str(sd["name"]), BattleScreen.speed)
 	elif _company_open:
 		_add_camp("company")
 		Tutorial.hint("company")

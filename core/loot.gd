@@ -3,7 +3,7 @@ extends RefCounted
 ## Butin et objets de l'inventaire. Un objet = {"kind": "weapon" | "head" | "body" | "shield", "key": clé de Data}.
 ## Logique pure : l'aléa est injecté.
 
-const KINDS: Array[String] = ["weapon", "shield", "head", "body"]
+const KINDS: Array[String] = ["weapon", "shield", "head", "body", "tool"]
 const SELL_RATE: float = 0.4  ## part du prix de base reçue à la vente
 const BASE_CHANCE: float = 0.15  ## chance de récupérer une armure entièrement détruite
 const WEAPON_CHANCE: float = 0.45
@@ -32,6 +32,8 @@ static func data_of(it: Dictionary) -> Dictionary:
 			return Data.BODY[it["key"]]
 		"shield":
 			return Data.SHIELD
+		"tool":
+			return Data.TOOLS[it["key"]]
 	return {}
 
 
@@ -121,6 +123,8 @@ static func describe(it: Dictionary) -> String:
 			return "Armure %d · poids %d%s" % [d["a"], d["w"], " · abîmée %d/%d" % [armor_of(it), armor_max(it)] if wear_ratio(it) < 1.0 else ""]
 		"shield":
 			return "+15 déf. mêlée, +25 déf. distance · poids %d%s" % [d["w"], _wear_text(it)]
+		"tool":
+			return str(d.get("note", ""))
 	return ""
 
 
@@ -140,6 +144,8 @@ static func is_valid(it: Variant) -> bool:
 			return Data.BODY.has(it["key"])
 		"shield":
 			return true
+		"tool":
+			return Data.TOOLS.has(it["key"])
 	return false
 
 
@@ -187,6 +193,12 @@ static func roll_battle(units: Array, rng: RandomNumberGenerator) -> Array:
 				if dur_max(it) > 0:  # seconde main : usé en combat, puis par l'ennemi lui-même
 					worn(it, int(round(dur_of(it) * Data.WORN_LOOT_RATE)))
 				out.append(it)
+		for b in u.bag:  # outils du sac (huile des défenseurs d'un fort…)
+			if not (b as Dictionary).is_empty() and str(b["kind"]) == "tool" and rng.randf() < 0.6:
+				out.append(clean(b))
+		for dr in u.foe_data().get("drop", []):  # dépouilles des monstres
+			if rng.randf() < float(dr[2]):
+				out.append(item(str(dr[0]), str(dr[1])))
 	return out
 
 

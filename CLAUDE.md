@@ -56,6 +56,22 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   `autoload/Settings.gd` / `scenes/menu/options_panel.gd` (`user://settings.cfg`) ; écran de lancement (`assets/splash.png`,
   `scenes/boot/boot_screen.gd`) ; icône `assets/app_icon.ico`. L'icône incrustée dans le .exe exige `rcedit` configuré à la main
   dans Godot (voir `tools/export.md`).
+- **Batailles variées** : types (`contract["battle_type"]` : pitched / ambush / convoy / siege / night), objectifs secondaires
+  (`BattleState.objectives`), décor interactif (`core/scenery.gd`, `Data.SCENERY`, `cells[h]["obj"]` : feu, portes, barricades, pièges,
+  murs), outils de jet (kind `"tool"` : pierres, huile, filet), monstres (faction `"m"` : loup, ogre, troll, cavalier de loup ;
+  `Unit.sprite`), IA plus variée (archers qui reculent, chefs à l'arrière, encerclement, soigneurs). Toute nouvelle arme de
+  `Data.WPN` exige une icône du même nom dans `assets/icons/`.
+- **Compagnie** : quartier général (`Data.CAMP_BUILDINGS`, `core/camp_buildings.gd`, onglet `scenes/camp/hq_tab.gd`), vivres
+  (`Game.provisions`) et moral de compagnie (`Game.company_morale`), relations (`Unit.bonds`, `core/bonds.gd`), factions humaines
+  (`Data.FACTIONS`, `settlement["owner"]`, `Game.faction_standing`, `core/factions.gd`), histoires à étapes (`Data.STORIES`,
+  `Game.story_flags`, `Game.pending_events`).
+- **Rendu du plateau** : sol texturé teinté par biome avec fondus, météo (`scenes/battle/weather.gd`), décalcomanies de sang,
+  projectiles et animations d'attaque par arme (`scenes/battle/attack_anims.gd`), cadavres variés, obscurité de nuit.
+- **Figurines et interface** : capes/manteaux/bottes, usure visible, sprites de monstres, portraits expressifs (`mood`), thème
+  « cuir et parchemin » (`assets/ui/`, `tools/gen_ui.gd`, réglage « Interface illustrée »), illustrations de transition
+  (`scenes/ui/illustrations.gd`, `town_arrival.gd`).
+- **Carte** : cycle jour/nuit, météo, routes lissées (plus rapides : coût 0,8), rivières avec gués et ponts (`World.T.BRIDGE`),
+  relief et forêts variés, territoires et bannières des factions, rose des vents et cartouche.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720` (écran de l'app Claude).

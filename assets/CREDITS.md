@@ -24,3 +24,4 @@ Recolorées (parchemin) ; fond retiré. Auteurs : Lorc, Delapouite, Lucas (lucas
 - `icons/hallebarde.svg` (halberd), `javelot.svg` (thrown-spear) — Lorc ; `icons/fleau.svg` (flail) — Delapouite (CC BY 3.0, recolorées comme les autres)
 - `icons/arbalete.svg` : dessin original réalisé pour le projet (aucune source externe).
 - `icons/poings.svg` : copie de `griffes.svg` (icône de repli pour « Poings nus », arme implicite d’un homme sans arme).
+- `icons/morsure.svg`, `icons/massue_geant.svg` : copies des icônes `griffes.svg` / `gourdin.svg` (armes naturelles de monstres, jamais en vente) — mêmes auteurs et licence (Delapouite, CC BY 3.0)

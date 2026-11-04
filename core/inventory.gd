@@ -14,7 +14,7 @@ const UNIT_SLOTS: Array[String] = ["head", "body", "weapon", "shield", "bag0", "
 const BIG: int = 1000000
 const SORT_MODES: Array[String] = ["type", "value", "wear"]
 const FILTERS: Array[String] = ["all", "weapon", "head", "body", "shield"]
-const KIND_ORDER: Dictionary = {"weapon": 0, "shield": 1, "head": 2, "body": 3}
+const KIND_ORDER: Dictionary = {"weapon": 0, "shield": 1, "head": 2, "body": 3, "tool": 4}
 
 
 static func at(u: Unit, slot: String) -> Dictionary:
@@ -145,7 +145,7 @@ static func accepts(slot: String, it: Dictionary) -> bool:
 			return true
 		"head", "body", "weapon", "shield":
 			return k == slot
-	return k == "weapon" or k == "shield"  # sac
+	return k == "weapon" or k == "shield" or k == "tool"  # sac
 
 
 ## Raison pour laquelle `it` ne peut pas aller dans cet emplacement, "" si c'est permis.
@@ -289,6 +289,8 @@ static func bag_swap(u: Unit, i: int) -> Dictionary:
 	if i < 0 or i >= u.bag.size() or (u.bag[i] as Dictionary).is_empty():
 		return fail("Rien dans ce sac.")
 	var it: Dictionary = u.bag[i]
+	if str(it["kind"]) == "tool":
+		return fail("Un outil se lance, il ne s'équipe pas.")
 	var snap: Dictionary = _snap(u)
 	var tmp: Array = []
 	var res: Dictionary = move(tmp, at(u, "bag%d" % i), at(u, "weapon" if str(it["kind"]) == "weapon" else "shield"), BIG)

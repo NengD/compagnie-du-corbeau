@@ -78,7 +78,76 @@ static func get_theme() -> Theme:
 	t.set_color("font_color", "Label", INK)
 	t.set_color("default_color", "RichTextLabel", INK)
 	t.set_font_size("normal_font_size", "RichTextLabel", scaled_size(14))
+	_styles(t)
+	_theme = t
+	return t
 
+
+static func illustrated() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	var st: Node = null if tree == null else tree.root.get_node_or_null("/root/Settings")
+	return st == null or bool(st.get("illustrated_ui"))
+
+
+## Réapplique le style (plat ou illustré) au thème partagé, sur place : les écrans ouverts suivent.
+static func apply_style() -> void:
+	if _theme != null:
+		_styles(_theme)
+
+
+static func _tex(file: String, margin: int, content: Vector4, tile: bool = true) -> StyleBox:
+	var path: String = "res://assets/ui/" + file + ".png"
+	if not ResourceLoader.exists(path):
+		return null
+	var s := StyleBoxTexture.new()
+	s.texture = load(path) as Texture2D
+	s.set_texture_margin_all(margin)
+	s.content_margin_left = content.x
+	s.content_margin_top = content.y
+	s.content_margin_right = content.z
+	s.content_margin_bottom = content.w
+	if tile:
+		s.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
+		s.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
+	return s
+
+
+## Remplace les boîtes plates par les cadres dessinés de assets/ui/ (voir tools/gen_ui.gd).
+static func _skin(t: Theme) -> void:
+	for type in ["Button", "OptionButton"]:
+		for st in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+			var f: String = {"normal": "normal", "hover": "hover", "pressed": "pressed", "hover_pressed": "pressed", "disabled": "disabled"}[st]
+			var sb := _tex("btn_" + f, 9, Vector4(12, 6, 12, 6), false)
+			if sb != null:
+				t.set_stylebox(st, type, sb)
+	for st in ["normal", "hover", "pressed", "disabled"]:
+		var sb2 := _tex("btn_pri_" + st, 9, Vector4(12, 6, 12, 6), false)
+		if sb2 != null:
+			t.set_stylebox(st, "PrimaryButton", sb2)
+	var m: Dictionary = {
+		"Card": ["card", 14, Vector4(16, 14, 16, 14)],
+		"ModalPanel": ["modal", 36, Vector4(30, 28, 30, 28)],
+		"ChipPanel": ["chip", 6, Vector4(7, 2, 7, 2)],
+		"FlatPanel": ["flat", 5, Vector4(6, 3, 6, 3)],
+		"NewsPanel": ["news", 6, Vector4(14, 8, 12, 8)],
+	}
+	for k in m:
+		var a: Array = m[k]
+		var sb3 := _tex(str(a[0]), int(a[1]), a[2])
+		if sb3 != null:
+			t.set_stylebox("panel", k, sb3)
+	var pp := _tex("panel", 20, Vector4(16, 14, 16, 14))
+	if pp != null:
+		t.set_stylebox("panel", "PopupMenu", pp)
+
+
+static func _styles(t: Theme) -> void:
+	_flat_styles(t)
+	if illustrated():
+		_skin(t)
+
+
+static func _flat_styles(t: Theme) -> void:
 	# Boutons
 	for type in ["Button", "OptionButton"]:
 		t.set_stylebox("normal", type, box(PANEL2, LINE))
@@ -145,5 +214,3 @@ static func get_theme() -> Theme:
 	t.set_constant("separation", "HFlowContainer", 12)
 	t.set_constant("h_separation", "HFlowContainer", 12)
 	t.set_constant("v_separation", "HFlowContainer", 12)
-	_theme = t
-	return t

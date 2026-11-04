@@ -6,7 +6,7 @@ extends VBoxContainer
 signal closed  ## « Retour à la carte » demandé en mode compagnie seule
 
 const CARD_W := 300
-const TOWN_TABS: Array[String] = ["Contrats", "Recruter", "Marché", "Compagnie"]
+const TOWN_TABS: Array[String] = ["Contrats", "Recruter", "Marché", "Compagnie", "Quartier général"]
 
 ## "town" : onglets du lieu où l'on se trouve ; "company" : seulement la Compagnie (depuis la carte).
 var mode: String = "town"
@@ -32,7 +32,7 @@ func _ready() -> void:
 	Sfx.music("town")
 	add_theme_constant_override("separation", 10)
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tab_names.assign(TOWN_TABS if mode == "town" else ["Compagnie"])
+	_tab_names.assign(TOWN_TABS if mode == "town" else ["Compagnie", "Quartier général"])
 	_head = _build_head()
 	add_child(_head)
 	_news_panel = PanelContainer.new()
@@ -122,6 +122,8 @@ func _rebuild() -> void:
 	match _tab_names[i]:
 		"Compagnie":
 			_build_company(inner)
+		"Quartier général":
+			HqTab.build(inner)
 		"Contrats":
 			_build_contracts(inner)
 		"Recruter":
@@ -209,7 +211,7 @@ func _build_company(root: VBoxContainer) -> void:
 	banner_open.tooltip_text = "Nom, couleurs et emblème de la compagnie"
 	banner_open.pressed.connect(func() -> void: BannerScreen.open(self))
 	actions.add_child(banner_open)
-	actions.add_child(UiKit.sub("%d/%d hommes · les %d premiers partent au combat" % [Game.roster.size(), Data.MAX_ROSTER, Data.FIGHTERS], 13, false))
+	actions.add_child(UiKit.sub("%d/%d hommes · les %d premiers partent au combat" % [Game.roster.size(), Game.max_roster(), Data.FIGHTERS], 13, false))
 	root.add_child(actions)
 	var flow := _flow(root)
 	for i in Game.roster.size():
@@ -251,6 +253,11 @@ func _roster_card(flow: Node, m: Unit, index: int) -> void:
 	var tc: Control = TraitChips.row(m)
 	if tc != null:
 		c.add_child(tc)
+	var bond_txt: String = Bonds.summary(m, Game.roster)
+	if bond_txt != "":
+		var bl := UiKit.sub(bond_txt, 12)
+		bl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		c.add_child(bl)
 	var pk: Control = PerkIcon.row(m)
 	if pk != null:
 		c.add_child(pk)
@@ -346,6 +353,12 @@ func _build_contracts(root: VBoxContainer) -> void:
 		c.add_child(top)
 		c.add_child(UiKit.title(str(ct["title"]), 22))
 		c.add_child(UiKit.sub(str(ct["employer"])))
+		if Data.FACTIONS.has(str(ct.get("faction", ""))):
+			var fl := UiKit.label("%s %s" % [Data.FACTIONS[ct["faction"]]["ic"], Factions.name_of(str(ct["faction"]))], 13, Factions.color_of(str(ct["faction"])), true)
+			fl.tooltip_text = "Employeur : sa réputation est en jeu."
+			c.add_child(fl)
+			if Data.FACTIONS.has(str(ct.get("vs_faction", ""))):
+				c.add_child(UiKit.sub("Dessert la cause contre : " + Factions.name_of(str(ct["vs_faction"])) + " (prime majorée)", 12))
 		c.add_child(UiKit.para(str(ct["desc"])))
 		var kind_txt: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison"}.get(str(ct.get("type_contract", "kill")), "Éliminer")
 		if Contracts.is_transport(ct):
@@ -367,9 +380,9 @@ func _build_contracts(root: VBoxContainer) -> void:
 # --- Recrues ---
 
 func _build_recruits(root: VBoxContainer) -> void:
-	var full: bool = Game.roster.size() >= Data.MAX_ROSTER
+	var full: bool = Game.roster.size() >= Game.max_roster()
 	var recruits: Array = Game.settlement()["recruits"]
-	root.add_child(UiKit.sub("Les recrues changent avec le temps." + (" La compagnie est au complet (%d)." % Data.MAX_ROSTER if full else "")))
+	root.add_child(UiKit.sub("Les recrues changent avec le temps." + (" La compagnie est au complet (%d)." % Game.max_roster() if full else "")))
 	if recruits.is_empty():
 		root.add_child(UiKit.sub("Personne ne cherche d'engagement ici pour l'instant."))
 		return
@@ -428,6 +441,7 @@ func _build_market(root: VBoxContainer) -> void:
 	cur.add_child(UiKit.gear_list(m))
 	cur.add_child(UiKit.sub("Poids total %d : réduit l'endurance et l'initiative." % m.weight()))
 
+	_build_provisions(root)
 	_build_rare(root)
 	_build_inventory(root, m)
 
@@ -450,6 +464,24 @@ func _build_market(root: VBoxContainer) -> void:
 	for k in shop["body"]:
 		var a: Dictionary = Data.BODY[k]
 		_shop_item(f, str(a["n"]), "Armure %d · poids %d" % [a["a"], a["w"]], Game.price_of(int(a["price"])), true, m.body == k, func() -> void: Game.buy(m, "body", k))
+
+
+## Vivres : une ration par homme et par jour de route ; prix variable selon le lieu.
+func _build_provisions(root: VBoxContainer) -> void:
+	_section(root, "Vivres")
+	root.add_child(UiKit.sub("%d rations (≈ %.1f jours de route) · stock max %d. En ville on mange sur place." % [Game.provisions, Game.provisions_days(), Game.provisions_cap()]))
+	var row := UiKit.hbox(8)
+	var n: int = mini(Data.PROVISIONS_PACK, Game.provisions_cap() - Game.provisions)
+	var b1 := UiKit.button("+%d rations (%d cr.)" % [Data.PROVISIONS_PACK, Game.food_cost(Data.PROVISIONS_PACK)], "pri", true)
+	b1.disabled = n <= 0 or Game.gold < Game.food_cost(Data.PROVISIONS_PACK)
+	b1.pressed.connect(func() -> void: Game.buy_provisions(Data.PROVISIONS_PACK))
+	row.add_child(b1)
+	var full_n: int = Game.provisions_cap() - Game.provisions
+	var b2 := UiKit.button("Faire le plein (%d cr.)" % Game.food_cost(maxi(0, full_n)), "", true)
+	b2.disabled = full_n <= 0 or Game.gold < Game.food_cost(full_n)
+	b2.pressed.connect(func() -> void: Game.buy_provisions_full())
+	row.add_child(b2)
+	root.add_child(row)
 
 
 ## Marchand rare du lieu (quand il y en a un) : objets uniques à stock limité, vendus très cher.
@@ -495,7 +527,7 @@ func _build_inventory(root: VBoxContainer, m: Unit) -> void:
 	open_inv.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	open_inv.pressed.connect(func() -> void: InventoryScreen.open(self, m.id))
 	root.add_child(open_inv)
-	root.add_child(UiKit.sub("Réserve : %d/%d emplacements. Quand elle est pleine, le butin en trop est vendu d'office." % [Game.inventory.size(), Data.STASH_SIZE]))
+	root.add_child(UiKit.sub("Réserve : %d/%d emplacements. Quand elle est pleine, le butin en trop est vendu d'office." % [Game.inventory.size(), Game.stash_size()]))
 	if Game.inventory.is_empty():
 		root.add_child(UiKit.sub("Rien en réserve. Le butin des batailles et les armes d'un homme renvoyé arrivent ici."))
 		return

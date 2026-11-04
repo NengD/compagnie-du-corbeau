@@ -158,6 +158,12 @@ func _build_legend() -> void:
 		row.add_child(LegendIcon.new(str(e[0])))
 		row.add_child(UiKit.label(str(e[1]), 13))
 		lv.add_child(row)
+	var terr_cb := CheckBox.new()
+	terr_cb.text = "Territoires des factions"
+	terr_cb.button_pressed = view.show_territories
+	terr_cb.add_theme_font_size_override("font_size", 13)
+	terr_cb.toggled.connect(view.set_show_territories)
+	lv.add_child(terr_cb)
 	box.add_child(_legend_panel)
 	var row2 := UiKit.hbox(4)
 	_legend_btn = UiKit.button("Légende ▸", "ghost", true)
@@ -381,6 +387,26 @@ func _build_campaign_panels() -> void:
 			a.add_child(UiKit.sub(str(ar["text"]), 12))
 
 
+## Vivres, moral de compagnie et réputation des factions.
+func _build_company_panel() -> void:
+	var c := UiKit.card(_side)
+	c.add_child(UiKit.label("Compagnie", 13, GameTheme.GOLD, true))
+	var low: bool = Game.provisions_days() <= float(Data.PROVISIONS_WARN_DAYS)
+	var food := StatBar.new("Vivres", Game.provisions, Game.provisions_cap(), GameTheme.BLOOD if low else GameTheme.GOLD)
+	food.tooltip_text = "%d rations, ≈ %.1f jours de route. Une ration par homme et par jour de route ; achat au marché." % [Game.provisions, Game.provisions_days()]
+	c.add_child(food)
+	if low:
+		c.add_child(UiKit.label("Vivres presque épuisés !", 13, GameTheme.BLOOD, true))
+	var mo := StatBar.new("Moral", int(Game.company_morale), 100, GameTheme.GOLD)
+	mo.tooltip_text = "Moral de la compagnie : %s. Il fixe le moral de départ des hommes en bataille (< 25 : Hésitant, > 80 : Confiant)." % Game.morale_label()
+	c.add_child(mo)
+	for k in Factions.keys():
+		var n: int = Game.standing_with(str(k))
+		var l := UiKit.label("%s %s : %s (%+d)" % [Data.FACTIONS[k]["ic"], Factions.name_of(str(k)), Factions.label(n), n], 12, Factions.color_of(str(k)))
+		l.tooltip_text = Factions.effects_text(n)
+		c.add_child(l)
+
+
 func _refresh_side() -> void:
 	if _side == null or Game.world == null:
 		return
@@ -432,6 +458,7 @@ func _refresh_side() -> void:
 				_refresh_side())
 			r2.add_child(ab)
 		c.add_child(r2)
+	_build_company_panel()
 	_build_campaign_panels()
 	# Destinations
 	_side.add_child(UiKit.title("Lieux", 20))

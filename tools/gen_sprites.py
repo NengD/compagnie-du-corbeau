@@ -816,6 +816,8 @@ def main():
         write("shield_field" + suffix, field)
         write("shield_chev" + suffix, chev)
         write("shield_boss" + suffix, boss)
+    import gen_sprites_more  # tenues, usure, monstres
+    gen_sprites_more.main_more()
     print("calques écrits dans", OUT, "-", len(os.listdir(OUT)), "fichiers")
 
 

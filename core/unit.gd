@@ -10,7 +10,10 @@ static var next_id: int = 1
 @export var side: String = "p"  ## "p" joueur, "e" ennemi
 @export var faction: String = "p"  ## "p", "b" brigands, "g" goules
 @export var leader: bool = false
+@export var sprite: String = ""  ## figurine d'une créature (calque unique, ex. "wolf", "ogre") ; vide = figurine humaine en calques
 @export var xp_value: int = 0  ## XP donnée à celui qui le tue
+@export var foe_key: String = ""  ## clé de Data.FOE d'où vient l'ennemi (vide pour les hommes de la compagnie)
+@export var immobile: bool = false  ## ne joue jamais (chariot de convoi)
 
 @export var hp_max: int = 50
 @export var fat_max: int = 100
@@ -40,6 +43,7 @@ var perks: Array[String] = []  ## talents (clés de Data.PERKS)
 var perk_points: int = 0  ## points de talent à dépenser (1 par niveau gagné, voir core/perks.gd)
 var injuries: Array = []  ## [{"id": clé de Data.INJURIES, "days_left": jours restants, -1 = permanente}]
 var traits: Array[String] = []  ## traits de caractère (clés de Data.TRAITS, voir core/traits.gd) : tirés à la génération, jamais gagnés
+var bonds: Dictionary = {}  ## relations : {id d'un autre homme -> valeur} (amis / rivaux, voir core/bonds.gd)
 var hit_taken: bool = false  ## a encaissé un coup dans cette bataille (Brave, Rancunier)
 var lucky_used: bool = false  ## Chanceux : la chance a déjà joué dans cette bataille
 
@@ -58,6 +62,10 @@ var attacked_turn: bool = false  ## a déjà attaqué ce tour (talent Frappe viv
 var ammo: int = -1  ## projectiles restants (arme à munitions, -1 = sans objet)
 var stunned: bool = false  ## étourdi : perdra des PA au début de son prochain tour
 var exposed: bool = false  ## désarçonné : défenses réduites jusqu'à la fin de son prochain tour
+var rooted: int = 0  ## tours restants sans pouvoir bouger (filet, piège)
+var moved_cells: int = 0  ## cases parcourues ce tour (charge du cavalier de loup)
+var tool_used: Dictionary = {}  ## outil -> lancers déjà faits dans cette bataille
+var retreats: int = 0  ## replis déjà faits dans cette bataille (borne le comportement « blessé qui se replie »)
 
 
 static func alloc_id() -> int:
@@ -69,6 +77,25 @@ static func alloc_id() -> int:
 func weight() -> int:
 	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(Data.SHIELD["w"]) if shield else 0)
 	return w - Perks.weight_cut(self, w)
+
+
+## Fiche de Data.FOE de l'ennemi ({} pour un homme de la compagnie ou un chariot).
+func foe_data() -> Dictionary:
+	return Data.FOE.get(foe_key, {})
+
+
+## Grande créature (ogre, troll) : insensible au filet.
+func is_big() -> bool:
+	return bool(foe_data().get("big", false))
+
+
+## PA de déplacement en moins par case (loups, cavaliers).
+func swift() -> int:
+	return int(foe_data().get("swift", 0))
+
+
+func is_cart() -> bool:
+	return immobile and sprite == "cart"
 
 
 func has_perk(id: String) -> bool:
@@ -225,6 +252,10 @@ func reset_for_battle() -> void:
 	exposed = false
 	hit_taken = false
 	lucky_used = false
+	rooted = 0
+	moved_cells = 0
+	tool_used = {}
+	retreats = 0
 
 
 ## Projectiles en début de bataille (-1 = arme sans munitions), talents compris.
@@ -239,7 +270,7 @@ func duplicate_unit() -> Unit:
 
 
 const _KEYS: Array[String] = [
-	"id", "unit_name", "background", "side", "faction", "leader", "xp_value",
+	"id", "unit_name", "background", "side", "faction", "leader", "sprite", "xp_value", "foe_key", "immobile",
 	"hp_max", "fat_max", "resolve", "initiative", "melee_skill", "ranged_skill", "melee_def", "ranged_def",
 	"weapon", "shield", "head", "body", "arm_h", "arm_b", "weapon_dur", "shield_dur", "level", "xp", "kills", "pending", "wage", "hp",
 ]
@@ -254,6 +285,7 @@ func to_dict() -> Dictionary:
 	d["injuries"] = injuries.duplicate(true)
 	d["bag"] = bag.duplicate(true)
 	d["traits"] = traits.duplicate()
+	d["bonds"] = bonds.duplicate()
 	return d
 
 
@@ -277,6 +309,7 @@ static func from_dict(d: Dictionary) -> Unit:
 	else:  # ancienne sauvegarde : un point par niveau gagné qui n'a pas de talent
 		u.perk_points = maxi(0, Perks.points_for_level(u.level) - u.perks.size())
 	u.bag = Unit.clean_bag(d.get("bag", []))
+	u.bonds = Bonds.clean(d.get("bonds", {}))
 	if d.has("traits"):
 		for k in d["traits"]:
 			if Data.TRAITS.has(str(k)):
@@ -293,7 +326,7 @@ static func clean_bag(raw: Variant) -> Array:
 	var out: Array = []
 	for i in Data.BAG_SLOTS:
 		var it: Variant = raw[i] if typeof(raw) == TYPE_ARRAY and i < (raw as Array).size() else {}
-		if typeof(it) == TYPE_DICTIONARY and Loot.is_valid(it) and (str(it["kind"]) == "weapon" or str(it["kind"]) == "shield"):
+		if typeof(it) == TYPE_DICTIONARY and Loot.is_valid(it) and (str(it["kind"]) == "weapon" or str(it["kind"]) == "shield" or str(it["kind"]) == "tool"):
 			out.append(Loot.clean(it))
 		else:
 			out.append({})
@@ -307,6 +340,7 @@ func combat_dict() -> Dictionary:
 		"ap": ap, "fat": fat, "morale": morale, "dead": dead, "escaped": escaped, "shield_wall": shield_wall,
 		"waited": waited, "turn_round": turn_round, "attacked_turn": attacked_turn, "ammo": ammo, "stunned": stunned, "exposed": exposed, "q": hex.x, "r": hex.y,
 		"hit_taken": hit_taken, "lucky_used": lucky_used,
+		"rooted": rooted, "moved_cells": moved_cells, "tool_used": tool_used.duplicate(), "retreats": retreats,
 	})
 	return d
 
@@ -327,5 +361,10 @@ static func from_combat_dict(d: Dictionary) -> Unit:
 	u.exposed = bool(d.get("exposed", false))
 	u.hit_taken = bool(d.get("hit_taken", false))
 	u.lucky_used = bool(d.get("lucky_used", false))
+	u.rooted = int(d.get("rooted", 0))
+	u.moved_cells = int(d.get("moved_cells", 0))
+	u.retreats = int(d.get("retreats", 0))
+	for k in d.get("tool_used", {}):
+		u.tool_used[str(k)] = int(d["tool_used"][k])
 	u.hex = Vector2i(int(d.get("q", 0)), int(d.get("r", 0)))
 	return u

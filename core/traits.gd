@@ -35,6 +35,15 @@ static func assign(u: Unit) -> void:
 	_apply_gen_effects(u)
 
 
+## Donne à `u` des traits précis (recrues uniques des histoires) et applique leurs effets de génération.
+static func set_fixed(u: Unit, ids: Array) -> void:
+	u.traits.clear()
+	for k in ids:
+		if Data.TRAITS.has(str(k)):
+			u.traits.append(str(k))
+	_apply_gen_effects(u)
+
+
 ## Ancienne sauvegarde : un homme sans traits en reçoit (et ses PV / sa solde suivent). Sans effet s'il en a déjà.
 static func migrate(u: Unit) -> void:
 	if not u.traits.is_empty():

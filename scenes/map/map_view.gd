@@ -1,6 +1,7 @@
 class_name MapView
 extends Control
-## Carte du monde : terrain peint, routes, villes et villages, contrat, bandes, compagnie, chemin.
+## Carte du monde : terrain peint, rivières, routes, villes et villages, territoires, contrat, bandes, compagnie, chemin.
+## Cycle jour/nuit, météo, cadre de parchemin : voir MapFx. Dessin du terrain : MapTerrain ; des lieux : MapPlaces.
 ## Ne calcule aucune règle : lit `Game.world`, émet des demandes de déplacement.
 
 signal travel_requested(target: Vector2, info: Dictionary)
@@ -9,11 +10,22 @@ signal stop_requested
 const ZOOM_MIN := 1.0
 const ZOOM_MAX := 3.0
 const DRAG_THRESHOLD := 6.0  ## pixels : en deçà, un clic droit reste un « s'arrêter »
-const VISION := 240.0  ## rayon dans lequel on repère les bandes errantes
-const TEX_SCALE := 5  ## pixels de texture par case
+const VISION := 240.0  ## rayon de vue par défaut (Game.vision_radius() s'il existe)
 const OL := Color("17110c")
 const PARTY_COLORS: Dictionary = {"b": Color("a33a2c"), "g": Color("7a5e9a"), "o": Color("4f7a2c"), "u": Color("8a8f86")}
-const TERRAIN_COLORS: Array[Color] = [Color("707f45"), Color("46572f"), Color("8b8553"), Color("3f5f73"), Color("7d7466")]
+const WATER_SHADER := """
+shader_type canvas_item;
+uniform float t = 0.0;
+void fragment() {
+	float m = texture(TEXTURE, UV).a;
+	vec2 p = UV * vec2(80.0, 50.0) * 3.2;
+	float a = sin(p.x * 2.3 + t * 1.2 + sin(p.y * 1.7 + t * 0.6) * 1.6);
+	float b = sin(p.y * 2.9 - t * 0.8 + sin(p.x * 1.3 - t * 0.9) * 1.5);
+	float h = smoothstep(0.72, 0.95, a * b);
+	float g = smoothstep(0.55, 0.9, sin(p.x * 0.9 + p.y * 1.4 + t * 0.5)) * 0.08;
+	COLOR = vec4(0.88, 0.95, 0.98, (h * 0.38 + g) * m);
+}
+"""
 
 class Layer extends Node2D:
 	var painter: Callable
@@ -22,11 +34,36 @@ class Layer extends Node2D:
 		if painter.is_valid():
 			painter.call(self)
 
+
+class Overlay extends Control:
+	var painter: Callable
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	func _draw() -> void:
+		if painter.is_valid():
+			painter.call(self)
+
 var _stage: Node2D
-var _terrain: Layer
+var _root: Node2D  ## fond et décor : teinté par la lumière du jour
+var _ground: Layer
+var _shimmer: Sprite2D
+var _terr: Layer
+var _objects: Layer
+var _lights_layer: Layer
+var _labels: Layer
 var _dyn: Layer
-var _tex: ImageTexture
-var _roads: Array[PackedVector2Array] = []
+var _sky: Overlay
+var _wx: Overlay
+var _frame: Overlay
+var _fx: MapFx = MapFx.new()
+var _curves: Array = []
+var _lights: Array = []
+var _terr_data: Dictionary = {}
+var _terr_sig: String = ""
+var _lights_drawn: bool = false
 var _hover: Vector2 = Vector2.ZERO
 var _hover_ok: bool = false
 var _hover_path: Array[Vector2] = []
@@ -39,22 +76,41 @@ var _drag_btn: int = 0  ## bouton qui fait glisser la carte (milieu ou droit), 0
 var _drag_moved: float = 0.0
 var _focus_pos: Vector2 = Vector2.ZERO  ## lieu mis en évidence par Tab (anneau qui s'estompe)
 var _focus_until: float = -1.0
+var show_territories: bool = true
 static var _keep_zoom: float = 1.0  ## vue mémorisée d'un affichage de la carte au suivant (zoom, centre en coordonnées monde)
 static var _keep_center: Vector2 = Vector2(-1.0, -1.0)
 static var _last_report_key: String = ""
+static var _keep_territories: bool = true
 
 
 func _ready() -> void:
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	show_territories = _keep_territories
 	_stage = Node2D.new()
 	add_child(_stage)
-	_terrain = Layer.new()
-	_terrain.painter = _paint_terrain
-	_stage.add_child(_terrain)
-	_dyn = Layer.new()
-	_dyn.painter = _paint_dynamic
-	_stage.add_child(_dyn)
+	_root = Node2D.new()
+	_stage.add_child(_root)
+	_ground = _layer(_paint_ground, _root)
+	_shimmer = Sprite2D.new()
+	_shimmer.centered = false
+	var mat := ShaderMaterial.new()
+	var sh := Shader.new()
+	sh.code = WATER_SHADER
+	mat.shader = sh
+	_shimmer.material = mat
+	_root.add_child(_shimmer)
+	_terr = _layer(_paint_territories, _root)
+	_objects = _layer(_paint_objects, _root)
+	_lights_layer = _layer(_paint_lights, _stage)
+	var add := CanvasItemMaterial.new()
+	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_lights_layer.material = add
+	_labels = _layer(_paint_labels, _stage)
+	_dyn = _layer(_paint_dynamic, _stage)
+	_sky = _overlay(_paint_sky)
+	_wx = _overlay(_paint_wx)
+	_frame = _overlay(_paint_frame)
 	resized.connect(_fit)
 	mouse_exited.connect(func() -> void:
 		_hover_ok = false
@@ -62,9 +118,70 @@ func _ready() -> void:
 	rebuild()
 
 
+func _layer(painter: Callable, parent: Node) -> Layer:
+	var l := Layer.new()
+	l.painter = painter
+	parent.add_child(l)
+	return l
+
+
+func _overlay(painter: Callable) -> Overlay:
+	var o := Overlay.new()
+	o.painter = painter
+	add_child(o)
+	return o
+
+
+func _draw() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), Color("1b140d"))
+
+
+func _vision() -> float:
+	var base: float = VISION
+	if Game.has_method("vision_radius"):
+		base = float(Game.call("vision_radius"))
+	return base * (_fx.vision_scale() if Settings.day_night else 1.0)
+
+
 func _process(delta: float) -> void:
 	_t += delta
+	var w: World = Game.world
+	if w == null:
+		return
+	_fx.update(delta, Game.day, Game.day_fraction, Settings.day_night, Settings.weather_fx, Settings.map_anim)
+	var tint: Color = _fx.world_tint()
+	_root.modulate = tint
+	_dyn.modulate = tint.lerp(Color.WHITE, 0.45)
+	var mat := _shimmer.material as ShaderMaterial
+	if Settings.map_anim:
+		mat.set_shader_parameter("t", _fx.t)
+	if _fx.night > 0.02 or _lights_drawn:
+		_lights_layer.queue_redraw()
+		_lights_drawn = _fx.night > 0.02
+	_sky.queue_redraw()
+	_wx.queue_redraw()
+	_frame.queue_redraw()
 	_dyn.queue_redraw()
+	var sig: String = _owners_signature(w)
+	if sig != _terr_sig:
+		_terr_sig = sig
+		_terr_data = MapPlaces.territories(w)
+		_terr.queue_redraw()
+		_labels.queue_redraw()
+
+
+func _owners_signature(w: World) -> String:
+	var parts: PackedStringArray = []
+	for s in w.settlements:
+		parts.append("%s%d" % [str(s.get("owner", "")), Visits.day_of(s)])
+	return ",".join(parts)
+
+
+func set_show_territories(on: bool) -> void:
+	show_territories = on
+	_keep_territories = on
+	_terr.queue_redraw()
+	_labels.queue_redraw()
 
 
 func _fit() -> void:
@@ -143,195 +260,73 @@ func rebuild() -> void:
 	var w: World = Game.world
 	if w == null:
 		return
-	_tex = _build_texture(w)
-	_roads = _build_roads(w)
-	_terrain.queue_redraw()
+	var tx: Array = MapTerrain.textures(w)
+	_shimmer.texture = tx[1]
+	_shimmer.scale = World.SIZE / Vector2((tx[1] as Texture2D).get_size())
+	_curves = MapTerrain.road_curves(w)
+	_terr_sig = ""
+	_lights.clear()
+	_ground.set_meta("tex", tx[0])
+	for l in [_ground, _objects, _labels]:
+		l.queue_redraw()
 	_fit()
 
 
-func _build_texture(w: World) -> ImageTexture:
-	var iw: int = World.GW * TEX_SCALE
-	var ih: int = World.GH * TEX_SCALE
-	var img := Image.create(iw, ih, false, Image.FORMAT_RGB8)
-	var n1 := FastNoiseLite.new()
-	n1.seed = 7
-	n1.frequency = 0.05
-	var n2 := FastNoiseLite.new()
-	n2.seed = 11
-	n2.frequency = 0.35
-	for y in ih:
-		for x in iw:
-			var fx: float = (x + 0.5) / TEX_SCALE - 0.5
-			var fy: float = (y + 0.5) / TEX_SCALE - 0.5
-			var x0: int = clampi(int(floorf(fx)), 0, World.GW - 1)
-			var y0: int = clampi(int(floorf(fy)), 0, World.GH - 1)
-			var x1: int = mini(x0 + 1, World.GW - 1)
-			var y1: int = mini(y0 + 1, World.GH - 1)
-			var tx: float = clampf(fx - x0, 0.0, 1.0)
-			var ty: float = clampf(fy - y0, 0.0, 1.0)
-			var c00: Color = TERRAIN_COLORS[w.terrain[y0 * World.GW + x0]]
-			var c10: Color = TERRAIN_COLORS[w.terrain[y0 * World.GW + x1]]
-			var c01: Color = TERRAIN_COLORS[w.terrain[y1 * World.GW + x0]]
-			var c11: Color = TERRAIN_COLORS[w.terrain[y1 * World.GW + x1]]
-			var c: Color = c00.lerp(c10, tx).lerp(c01.lerp(c11, tx), ty)
-			var shade: float = n1.get_noise_2d(x, y) * 0.09 + n2.get_noise_2d(x, y) * 0.04
-			img.set_pixel(x, y, Color(c.r + shade, c.g + shade, c.b + shade * 0.8))
-	return ImageTexture.create_from_image(img)
+# --- Couches statiques ---
 
-
-## Routes décoratives : chaque lieu est relié à son plus proche voisin.
-func _build_roads(w: World) -> Array[PackedVector2Array]:
-	var out: Array[PackedVector2Array] = []
-	var done: Dictionary = {}
-	for i in w.settlements.size():
-		var a: Vector2 = w.settlement_pos(w.settlements[i])
-		var order: Array = range(w.settlements.size())
-		order.erase(i)
-		order.sort_custom(func(p: int, q: int) -> bool: return a.distance_to(w.settlement_pos(w.settlements[p])) < a.distance_to(w.settlement_pos(w.settlements[q])))
-		for j in order.slice(0, 2):
-			var key: String = "%d-%d" % [mini(i, j), maxi(i, j)]
-			if done.has(key):
-				continue
-			done[key] = true
-			var p: Array[Vector2] = w.find_path(a, w.settlement_pos(w.settlements[j]))
-			if p.size() >= 2:
-				out.append(PackedVector2Array(p))
-	return out
-
-
-# --- Terrain (dessiné une fois) ---
-
-func _paint_terrain(l: Node2D) -> void:
+func _paint_ground(l: Node2D) -> void:
 	var w: World = Game.world
-	if w == null or _tex == null:
+	var tex: Texture2D = l.get_meta("tex", null)
+	if w == null or tex == null:
 		return
-	l.draw_texture_rect(_tex, Rect2(Vector2.ZERO, World.SIZE), false)
-	for y in World.GH:
-		for x in World.GW:
-			var t: int = w.terrain[y * World.GW + x]
-			if t == World.T.PLAIN:
-				continue
-			var r := RandomNumberGenerator.new()
-			r.seed = x * 7919 + y * 104729 + 3
-			var o := Vector2(x * World.CELL, y * World.CELL)
-			match t:
-				World.T.FOREST:
-					for k in 2:
-						var p: Vector2 = o + Vector2(r.randf_range(4, 16), r.randf_range(7, 17))
-						var rad: float = r.randf_range(4.5, 6.5)
-						l.draw_circle(p + Vector2(1, 1.5), rad + 1.0, OL)
-						l.draw_circle(p, rad, Color("2f4224"))
-						l.draw_circle(p + Vector2(-1.5, -1.5), rad * 0.55, Color("4a6232"))
-				World.T.HILLS:
-					var p2: Vector2 = o + Vector2(r.randf_range(5, 15), r.randf_range(10, 17))
-					l.draw_arc(p2, 7.0, PI, TAU, 10, Color("5c5834"), 2.0, true)
-					l.draw_arc(p2 + Vector2(-4, -1), 4.0, PI, TAU, 8, Color("a09a63"), 1.4, true)
-				World.T.MOUNTAIN:
-					if r.randf() < 0.75:
-						var b: Vector2 = o + Vector2(r.randf_range(8, 14), 18)
-						var h: float = r.randf_range(15.0, 22.0)
-						var hw: float = h * 0.62
-						var tri := PackedVector2Array([b + Vector2(-hw, 0), b + Vector2(0, -h), b + Vector2(hw, 0)])
-						l.draw_colored_polygon(tri, Color("8a8070"))
-						l.draw_colored_polygon(PackedVector2Array([b + Vector2(0, -h), b + Vector2(hw, 0), b + Vector2(hw * 0.2, 0)]), Color("5f574b"))
-						l.draw_colored_polygon(PackedVector2Array([b + Vector2(-hw * 0.28, -h * 0.72), b + Vector2(0, -h), b + Vector2(hw * 0.28, -h * 0.72), b + Vector2(0, -h * 0.62)]), Color("e8e4da"))
-						l.draw_polyline(PackedVector2Array([tri[0], tri[1], tri[2], tri[0]]), OL, 1.2)
-				World.T.WATER:
-					if r.randf() < 0.14:
-						var p3: Vector2 = o + Vector2(r.randf_range(4, 16), r.randf_range(4, 16))
-						l.draw_arc(p3, 4.0, PI * 1.15, PI * 1.85, 6, Color("6f93a8"), 1.2, true)
-	for road in _roads:
-		l.draw_polyline(road, Color(0.30, 0.22, 0.14, 0.55), 5.0, true)
-		l.draw_polyline(road, Color(0.66, 0.55, 0.38, 0.75), 2.4, true)
+	l.draw_texture_rect(tex, Rect2(Vector2.ZERO, World.SIZE), false)
+	MapTerrain.paint_ground_decor(l, w)
+	MapTerrain.paint_roads(l, w, _curves)
+
+
+func _paint_territories(l: Node2D) -> void:
+	if not show_territories or _terr_data.is_empty():
+		return
+	MapPlaces.paint_territories(l, _terr_data)
+
+
+func _paint_objects(l: Node2D) -> void:
+	var w: World = Game.world
+	if w == null:
+		return
+	MapTerrain.paint_objects(l, w, _curves)
+	_lights.clear()
 	for s in w.settlements:
-		_paint_settlement(l, s)
+		MapPlaces.paint_settlement(l, s, w.settlement_pos(s), _lights)
 
 
-func _ellipse(l: Node2D, c: Vector2, rx: float, ry: float, col: Color) -> void:
-	l.draw_set_transform(c, 0.0, Vector2(1.0, ry / rx))
-	l.draw_circle(Vector2.ZERO, rx, col)
-	l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+func _paint_lights(l: Node2D) -> void:
+	_fx.paint_lights(l, _lights)
 
 
-func _paint_settlement(l: Node2D, s: Dictionary) -> void:
-	var p: Vector2 = Game.world.settlement_pos(s)
-	_ellipse(l, p + Vector2(0, 11), 30 if s["kind"] == "city" else 20, 8, Color(0, 0, 0, 0.3))
-	if s["kind"] == "city":
-		l.draw_rect(Rect2(p + Vector2(-21, -4), Vector2(42, 16)), Color("8f8470"))
-		l.draw_rect(Rect2(p + Vector2(-21, -4), Vector2(42, 16)), OL, false, 1.4)
-		for dx in [-23.0, -5.0, 15.0]:
-			var tall: float = 24.0 if dx == -5.0 else 19.0
-			l.draw_rect(Rect2(p + Vector2(dx, 12 - tall), Vector2(9, tall)), Color("a89d86"))
-			l.draw_rect(Rect2(p + Vector2(dx, 12 - tall), Vector2(9, tall)), OL, false, 1.2)
-			var roof := PackedVector2Array([p + Vector2(dx - 2, 12 - tall), p + Vector2(dx + 4.5, 12 - tall - 9), p + Vector2(dx + 11, 12 - tall)])
-			l.draw_colored_polygon(roof, Color("8a3a2e"))
-			l.draw_polyline(PackedVector2Array([roof[0], roof[1], roof[2], roof[0]]), OL, 1.1)
-		l.draw_rect(Rect2(p + Vector2(-4, 4), Vector2(8, 8)), Color("2a2118"))
-	else:
-		for off in [Vector2(-14, 2), Vector2(2, -2), Vector2(14, 5)]:
-			var b: Vector2 = p + off
-			l.draw_rect(Rect2(b + Vector2(-6, -3), Vector2(12, 9)), Color("b08e60"))
-			l.draw_rect(Rect2(b + Vector2(-6, -3), Vector2(12, 9)), OL, false, 1.1)
-			var roof := PackedVector2Array([b + Vector2(-8, -3), b + Vector2(0, -11), b + Vector2(8, -3)])
-			l.draw_colored_polygon(roof, Color("7a4a32"))
-			l.draw_polyline(PackedVector2Array([roof[0], roof[1], roof[2], roof[0]]), OL, 1.1)
+func _paint_labels(l: Node2D) -> void:
+	var w: World = Game.world
+	if w == null:
+		return
+	if show_territories and not _terr_data.is_empty():
+		MapPlaces.paint_territory_names(l, _terr_data, w, GameTheme.title_font())
 	var font: Font = GameTheme.title_font()
-	var size: int = 28 if s["kind"] == "city" else 22
-	l.draw_string_outline(font, p + Vector2(-90, 32), str(s["name"]), HORIZONTAL_ALIGNMENT_CENTER, 180, size, 5, Color("120f0c"))
-	l.draw_string(font, p + Vector2(-90, 32), str(s["name"]), HORIZONTAL_ALIGNMENT_CENTER, 180, size, GameTheme.INK)
-	if Visits.day_of(s) > 0:  # marque discrète : déjà visité
-		var vp: Vector2 = p + Vector2(26 if s["kind"] == "city" else 20, -12)
-		l.draw_circle(vp, 6.5, OL)
-		l.draw_circle(vp, 5.2, Color("8aa05a"))
-		l.draw_polyline(PackedVector2Array([vp + Vector2(-2.6, 0.2), vp + Vector2(-0.6, 2.4), vp + Vector2(2.8, -2.2)]), OL, 1.6, true)
+	for s in w.settlements:
+		MapPlaces.paint_label(l, s, w.settlement_pos(s), font)
 
 
-# --- Lieux hostiles (forts, repaires, nécropoles, citadelle) ---
+# --- Surcouches en repère écran ---
 
-func _paint_site(l: Node2D, s: Dictionary, font: Font) -> void:
-	var p: Vector2 = Game.world.settlement_pos(s)
-	var state: String = str(s["state"])
-	var col: Color = PARTY_COLORS.get(str(s["faction"]), Color("a33a2c"))
-	var big: bool = s["kind"] == "citadel"
-	var k: float = 1.45 if big else 1.0
-	var fade: float = 1.0 if state == "hostile" else 0.55
-	_ellipse(l, p + Vector2(0, 10 * k), 18 * k, 5 * k, Color(0, 0, 0, 0.35))
-	if state == "hostile":
-		var pulse: float = 0.5 + 0.5 * sin(_t * (4.0 if big else 2.5))
-		l.draw_arc(p, (20.0 + pulse * 4.0) * k, 0.0, TAU, 28, Color(col.r, col.g, col.b, 0.5 - pulse * 0.3), 2.0, true)
-	var wall: Color = Color("6b5a44") if s["kind"] != "necropolis" else Color("7d8079")
-	if s["kind"] == "lair":
-		wall = Color("5a4a2a")
-	wall = Color(wall.r, wall.g, wall.b, fade)
-	# tour crénelée
-	var base := Rect2(p + Vector2(-9, -9) * k, Vector2(18, 20) * k)
-	l.draw_rect(base, wall)
-	l.draw_rect(base, OL, false, 1.4)
-	for i in 3:
-		var cx: float = (-9.0 + i * 7.0) * k
-		var cren := Rect2(p + Vector2(cx, -14 * k), Vector2(4 * k, 5 * k))
-		l.draw_rect(cren, wall)
-		l.draw_rect(cren, OL, false, 1.0)
-	l.draw_rect(Rect2(p + Vector2(-3, 3) * k, Vector2(6, 8) * k), Color("1c1610"))
-	# palissade des repaires, croix des nécropoles
-	if s["kind"] == "lair":
-		for i in 5:
-			var sx: float = (-15.0 + i * 7.5) * k
-			l.draw_line(p + Vector2(sx, 11 * k), p + Vector2(sx, 3 * k), OL, 2.2)
-	elif s["kind"] == "necropolis":
-		l.draw_line(p + Vector2(0, -26), p + Vector2(0, -16), OL, 3.0)
-		l.draw_line(p + Vector2(-4, -22), p + Vector2(4, -22), OL, 3.0)
-	# oriflamme : faction (hostile), bleu acier (poste libéré), gris (libéré)
-	var flag_col: Color = col if state == "hostile" else (Color("4a7a9a") if state == "friendly" else Color("8a8f86"))
-	var top: Vector2 = p + Vector2(0, -14 * k)
-	l.draw_line(top, top + Vector2(0, -14 * k), OL, 3.0)
-	var fl := PackedVector2Array([top + Vector2(0, -14 * k), top + Vector2(12 * k, -10 * k), top + Vector2(0, -6 * k)])
-	l.draw_colored_polygon(fl, flag_col)
-	l.draw_polyline(PackedVector2Array([fl[0], fl[1], fl[2], fl[0]]), OL, 1.0)
-	var label: String = str(s["name"]) + (" ◆◆◆" if state == "hostile" else (" ✓" if state == "friendly" else ""))
-	var lc: Color = col.lerp(Color.WHITE, 0.55) if state == "hostile" else Color(GameTheme.INK, 0.8)
-	l.draw_string_outline(font, p + Vector2(-90, 28 * k), label, HORIZONTAL_ALIGNMENT_CENTER, 180, 17, 5, Color("120f0c"))
-	l.draw_string(font, p + Vector2(-90, 28 * k), label, HORIZONTAL_ALIGNMENT_CENTER, 180, 17, lc)
+func _paint_sky(c: Control) -> void:
+	_fx.paint_sky(c)
+
+
+func _paint_wx(c: Control) -> void:
+	_fx.paint_weather(c)
+
+
+func _paint_frame(c: Control) -> void:
+	_fx.paint_frame(c, World.DAY_PX, _stage.scale.x, Game.day_fraction, Settings.day_night)
 
 
 # --- Éléments mobiles ---
@@ -340,11 +335,25 @@ func _paint_dynamic(l: Node2D) -> void:
 	var w: World = Game.world
 	if w == null:
 		return
+	var animate: bool = Settings.map_anim
 	var font: Font = GameTheme.bold_font()
+	# bannières de faction et ailes des moulins
+	for s in w.settlements:
+		var p: Vector2 = w.settlement_pos(s)
+		var owner: String = str(s.get("owner", ""))
+		var city: bool = s["kind"] == "city"
+		if owner != "":
+			var bn: Dictionary = MapPlaces.faction_banner(owner)
+			if bn.is_empty():
+				bn = {"primary": MapPlaces.faction_color(owner).to_html(false), "secondary": "d8cfb8", "emblem": 0}
+			MapPlaces.paint_banner(l, p + (Vector2(0, -37) if city else Vector2(-15, -7)), bn, _fx.t, animate, 1.0 if city else 0.75)
+		var hub: Vector2 = MapPlaces.windmill_hub(s, p)
+		if hub != Vector2.ZERO:
+			MapPlaces.paint_blades(l, hub, _fx.t * 0.9 if animate else 0.4)
 	# Contrat : drapeau sur le lieu à atteindre
 	if not Game.active_contract.is_empty():
 		var tp: Vector2 = Game.contract_target()
-		var pulse: float = 0.5 + 0.5 * sin(_t * 3.0)
+		var pulse: float = 0.5 + 0.5 * sin(_t * 3.0) if animate else 0.5
 		l.draw_arc(tp, 16.0 + pulse * 5.0, 0.0, TAU, 28, Color(0.8, 0.25, 0.2, 0.7 - pulse * 0.4), 2.0, true)
 		l.draw_line(tp, tp + Vector2(0, -26), OL, 3.0)
 		l.draw_line(tp, tp + Vector2(0, -26), Color("c9c2b2"), 1.5)
@@ -354,26 +363,24 @@ func _paint_dynamic(l: Node2D) -> void:
 		l.draw_string_outline(font, tp + Vector2(-80, 14), str(Game.active_contract["target_name"]), HORIZONTAL_ALIGNMENT_CENTER, 160, 13, 4, Color("120f0c"))
 		l.draw_string(font, tp + Vector2(-80, 14), str(Game.active_contract["target_name"]), HORIZONTAL_ALIGNMENT_CENTER, 160, 13, Color("f0a090"))
 	for site in w.sites:
-		_paint_site(l, site, font)
+		var col: Color = PARTY_COLORS.get(str(site["faction"]), Color("a33a2c"))
+		MapPlaces.paint_site(l, site, w.settlement_pos(site), col, GameTheme.title_font(), _t, animate)
 	if _t < _focus_until:
 		var a: float = clampf(_focus_until - _t, 0.0, 1.0)
 		var r: float = 26.0 + (1.0 - a) * 10.0
 		l.draw_arc(_focus_pos, r, 0.0, TAU, 32, Color(GameTheme.GOLD, 0.9 * a), 3.0, true)
-	# Bandes repérées
+	# Bandes repérées (plus discrètes en bordure de la vue, donc surtout la nuit)
+	var vis: float = _vision()
 	for p in w.parties:
 		var pp: Vector2 = w.party_pos(p)
-		if pp.distance_to(w.player_pos) > VISION and not (_hover_ok and pp.distance_to(_hover) < 24.0):
+		var d: float = pp.distance_to(w.player_pos)
+		var hovered: bool = _hover_ok and pp.distance_to(_hover) < 24.0
+		if d > vis and not hovered:
 			continue
-		var col: Color = PARTY_COLORS.get(str(p["faction"]), Color("7a5e9a"))
-		_ellipse(l, pp + Vector2(0, 5), 10, 3.5, Color(0, 0, 0, 0.35))
-		l.draw_line(pp + Vector2(0, 4), pp + Vector2(0, -20), OL, 3.0)
-		l.draw_line(pp + Vector2(0, 4), pp + Vector2(0, -20), Color("c9c2b2"), 1.4)
-		var fl := PackedVector2Array([pp + Vector2(0, -20), pp + Vector2(13, -16), pp + Vector2(0, -11)])
-		l.draw_colored_polygon(fl, col)
-		l.draw_polyline(PackedVector2Array([fl[0], fl[1], fl[2], fl[0]]), OL, 1.0)
+		var alpha: float = 1.0 if hovered else clampf((vis - d) / 45.0, 0.25, 1.0)
+		var col2: Color = PARTY_COLORS.get(str(p["faction"]), Color("7a5e9a"))
 		var label: String = "%s %s" % [w.party_title(p), "◆".repeat(int(p["d"]))]
-		l.draw_string_outline(font, pp + Vector2(-70, 18), label, HORIZONTAL_ALIGNMENT_CENTER, 140, 12, 4, Color("120f0c"))
-		l.draw_string(font, pp + Vector2(-70, 18), label, HORIZONTAL_ALIGNMENT_CENTER, 140, 12, col.lerp(Color.WHITE, 0.55))
+		MapPlaces.paint_party(l, pp, col2, label, font, _t, animate, alpha, int(p["id"]))
 	# Chemin prévu et chemin en cours
 	if _hover_ok and _hover_path.size() >= 2:
 		l.draw_polyline(PackedVector2Array(_hover_path), Color(1, 1, 1, 0.28), 2.0, true)
@@ -386,19 +393,8 @@ func _paint_dynamic(l: Node2D) -> void:
 		l.draw_polyline(pts, GameTheme.GOLD, 2.2, true)
 		l.draw_arc(pts[pts.size() - 1], 7.0, 0.0, TAU, 16, GameTheme.GOLD, 2.4, true)
 	# Compagnie
-	var me: Vector2 = w.player_pos
-	l.draw_arc(me, VISION, 0.0, TAU, 72, Color(1, 1, 1, 0.07), 1.5, true)
-	_ellipse(l, me + Vector2(0, 11), 13, 4, Color(0, 0, 0, 0.4))
-	l.draw_circle(me, 14.0, OL)
-	l.draw_circle(me, 12.5, GameTheme.GOLD)
-	var raven := PackedVector2Array([
-		Vector2(-8, 3), Vector2(-4, -3), Vector2(1, -6), Vector2(5, -4), Vector2(10, -5), Vector2(6, -1),
-		Vector2(5, 2), Vector2(8, 7), Vector2(1, 5), Vector2(-5, 7),
-	])
-	var moved := PackedVector2Array()
-	for v in raven:
-		moved.append(me + v)
-	l.draw_colored_polygon(moved, Color("1c1915"))
+	var bn2: Dictionary = {"primary": Banner.primary(Game.banner).to_html(false), "secondary": Banner.secondary(Game.banner).to_html(false), "emblem": int(Game.banner.get("emblem", 0))}
+	MapPlaces.paint_company(l, w.player_pos, bn2, _t, animate, not w.path.is_empty(), vis)
 
 
 # --- Entrées ---
@@ -411,7 +407,7 @@ func _world_pos(local: Vector2) -> Vector2:
 func _thing_at(p: Vector2) -> Dictionary:
 	var w: World = Game.world
 	var party: Dictionary = w.party_near(p, 22.0)
-	if not party.is_empty() and w.party_pos(party).distance_to(w.player_pos) <= VISION:
+	if not party.is_empty() and w.party_pos(party).distance_to(w.player_pos) <= _vision():
 		return {"kind": "party", "id": int(party["id"]), "pos": w.party_pos(party), "title": w.party_title(party)}
 	var s: Dictionary = w.settlement_near(p, 30.0)
 	if not s.is_empty():
@@ -456,9 +452,14 @@ func _gui_input(event: InputEvent) -> void:
 		var thing: Dictionary = _thing_at(p)
 		var goal: Vector2 = thing["pos"] if not thing.is_empty() else p
 		tooltip_text = str(thing.get("title", ""))
-		if thing.get("kind", "") == "settlement":
+		if thing.is_empty():
+			tooltip_text = w.terrain_label(p)
+		elif thing.get("kind", "") == "settlement":
 			var ss: Dictionary = w.settlement_by_id(str(thing["id"]))
 			tooltip_text = Visits.tooltip(ss, w.standing_of(ss))
+			var fn: String = MapPlaces.faction_name(str(ss.get("owner", "")))
+			if fn != "":
+				tooltip_text += "\nPropriétaire : " + fn
 		elif thing.get("kind", "") == "site":
 			tooltip_text = Campaign.site_tooltip(w.site_by_id(str(thing["id"])), Game.renown)
 		var cell: Vector2i = w.cell_of(goal)

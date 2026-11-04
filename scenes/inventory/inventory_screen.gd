@@ -325,8 +325,8 @@ func _clear(n: Node) -> void:
 
 func _refresh_footer() -> void:
 	_gold_l.text = "Or : %d couronnes" % Game.gold
-	var full: bool = Game.inventory.size() >= Data.STASH_SIZE
-	_cap_l.text = "Réserve : %d/%d%s" % [Game.inventory.size(), Data.STASH_SIZE, " (pleine)" if full else ""]
+	var full: bool = Game.inventory.size() >= Game.stash_size()
+	_cap_l.text = "Réserve : %d/%d%s" % [Game.inventory.size(), Game.stash_size(), " (pleine)" if full else ""]
 	_cap_l.add_theme_color_override("font_color", GameTheme.BLOOD if full else GameTheme.MUTE)
 
 
@@ -440,7 +440,7 @@ func _build_right() -> void:
 	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 4)
 	var idxs: Array[int] = Inventory.filtered(Game.inventory, filter)
-	var cells: int = maxi(Data.STASH_SIZE, int(ceil(Game.inventory.size() / float(COLS))) * COLS)
+	var cells: int = maxi(Game.stash_size(), int(ceil(Game.inventory.size() / float(COLS))) * COLS)
 	for k in cells:
 		if k < idxs.size():
 			var real: int = idxs[k]

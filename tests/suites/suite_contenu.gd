@@ -2,7 +2,7 @@ extends RefCounted
 ## Contenu et rejouabilité : événements, textes de contrats, noms, traits de caractère, tenues d'élite, bannière, succès, statistiques.
 var t
 
-const EFFECT_KEYS: Array = ["w", "text", "gold", "hp_all", "hp_one", "renown", "days", "recruit", "battle", "repair", "xp_all"]
+const EFFECT_KEYS: Array = ["w", "text", "gold", "hp_all", "hp_one", "renown", "days", "recruit", "battle", "repair", "xp_all", "food", "morale", "standing", "bond", "flag", "schedule", "recruit_story", "contract", "unique", "threat"]
 
 
 func _kill_all_foes(b: BattleState) -> void:

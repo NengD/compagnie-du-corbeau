@@ -41,9 +41,13 @@ const SCHEMA: Dictionary = {
 	"screen_shake": ["game", "screen_shake", true, 0, 0],
 	"text_size": ["game", "text_size", 1, 0, 2],
 	"show_hit_pct": ["game", "show_hit_pct", false, 0, 0],
+	"illustrated_ui": ["game", "illustrated_ui", true, 0, 0],
 	"confirm_end_turn": ["game", "confirm_end_turn", false, 0, 0],
 	"battle_speed": ["game", "battle_speed", 1, 0, 2],
 	"skip_splash": ["game", "skip_splash", false, 0, 0],
+	"day_night": ["game", "day_night", true, 0, 0],
+	"weather_fx": ["game", "weather_fx", true, 0, 0],
+	"map_anim": ["game", "map_anim", true, 0, 0],
 	"tutorial_seen": ["game", "tutorial_seen", false, 0, 0],
 }
 ## Clés de la fenêtre, appliquées ensemble (avec confirmation dans le panneau d'options).
@@ -66,9 +70,13 @@ var msaa: int = 2  ## index dans MSAA_MODES (= Viewport.MSAA_*)
 var screen_shake: bool = true
 var text_size: int = 1  ## index dans TEXT_SIZES
 var show_hit_pct: bool = false  ## pourcentages de toucher affichés en permanence
+var illustrated_ui: bool = true  ## interface « cuir et parchemin » (faux : style plat)
 var confirm_end_turn: bool = false  ## demande avant « Fin du tour » s'il reste des PA
 var battle_speed: int = 1  ## index dans BATTLE_SPEEDS
 var skip_splash: bool = false
+var day_night: bool = true  ## cycle jour/nuit sur la carte du monde
+var weather_fx: bool = true  ## effets météo (carte du monde, bataille)
+var map_anim: bool = true  ## animations de la carte (eau, bannières, torches, compagnie)
 var tutorial_seen: bool = false  ## le tutoriel a été terminé ou passé (absent des anciens fichiers -> faux)
 var persist: bool = true  ## faux dans les tests : ne rien écrire sur le disque
 
@@ -213,6 +221,8 @@ func _apply_key(key: String) -> void:
 		apply_video_quality()
 	elif key == "text_size":
 		GameTheme.refresh_text_size()
+	elif key == "illustrated_ui":
+		GameTheme.apply_style()
 
 
 func apply_scale() -> void:

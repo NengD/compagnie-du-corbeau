@@ -110,3 +110,42 @@ static func _ensure_connected(cells: Dictionary, w: int, h: int, c_min: int, c_m
 	for k in cells:
 		if not seen.has(k) and not Pathfinding.blocked(cells, k):
 			cells[k]["t"] = "rock"
+
+
+# --- Décor de types de bataille (siège, nuit, pièges) ---
+
+static func fort_tops(w: int, _h: int) -> Array[Vector2i]:
+	return [Hex.from_col_row(w - 5, 1), Hex.from_col_row(w - 5, 7)]
+
+
+## Rempart en colonne w-5 : porte au milieu, deux chemins de ronde (`top`).
+static func add_fort(cells: Dictionary, w: int, h: int) -> void:
+	for c in range(w - 7, w):
+		for r in h:
+			cells[Hex.from_col_row(c, r)]["t"] = "g"
+	for r in h:
+		var hx: Vector2i = Hex.from_col_row(w - 5, r)
+		if r == h / 2:
+			Scenery.place(cells, hx, "gate")
+		elif r == 1 or r == 7:
+			Scenery.place(cells, hx, "wall", {"top": true})
+		else:
+			Scenery.place(cells, hx, "wall")
+
+
+static func add_torches(cells: Dictionary, w: int, h: int, drng: RandomNumberGenerator) -> void:
+	for i in drng.randi_range(4, 6):
+		var hx: Vector2i = Hex.from_col_row(drng.randi_range(3, w - 4), drng.randi_range(0, h - 1))
+		if cells[hex_key(hx)]["t"] == "g" and not cells[hx].has("obj"):
+			Scenery.place(cells, hx, "torch")
+
+
+static func hex_key(hx: Vector2i) -> Vector2i:
+	return hx
+
+
+static func add_traps(cells: Dictionary, w: int, h: int, drng: RandomNumberGenerator, owner: String) -> void:
+	for i in 3:
+		var hx: Vector2i = Hex.from_col_row(drng.randi_range(4, w - 5), drng.randi_range(0, h - 1))
+		if cells[hx]["t"] == "g" and not cells[hx].has("obj"):
+			Scenery.place(cells, hx, "trap", {"hidden": true, "owner": owner})

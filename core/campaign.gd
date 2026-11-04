@@ -214,7 +214,7 @@ static func assault_contract(s: Dictionary, world: World) -> Dictionary:
 	var waves: Array = citadel_waves(str(s["faction"])) if s["kind"] == "citadel" else []
 	var foes: Array = (waves[0] as Array).duplicate() if not waves.is_empty() else garrison(str(s["kind"]))
 	return {
-		"kind": "assault", "site_id": str(s["id"]), "type": str(s["faction"]), "d": 3, "foes": foes, "waves": waves, "wave": 0,
+		"kind": "assault", "battle_type": "siege", "site_id": str(s["id"]), "type": str(s["faction"]), "d": 3, "foes": foes, "waves": waves, "wave": 0,
 		"final": s["kind"] == "citadel", "title": "Assaut : " + str(s["name"]), "desc": "", "employer": "", "origin": "",
 		"pay": int(t["pay"]), "renown": int(t["renown"]), "days": 0, "biome": world.biome_at(world.settlement_pos(s)),
 	}

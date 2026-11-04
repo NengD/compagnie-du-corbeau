@@ -3,14 +3,17 @@ extends RefCounted
 ## La carte du monde : terrain, villes et villages, bandes errantes, déplacement de la compagnie.
 ## Logique pure (aucun nœud de scène). Aléa injecté. Positions en pixels du monde (1600 × 1000).
 
-enum T { PLAIN, FOREST, HILLS, WATER, MOUNTAIN }
+enum T { PLAIN, FOREST, HILLS, WATER, MOUNTAIN, BRIDGE, FORD }
 
 const CELL: float = 20.0
 const GW: int = 80
 const GH: int = 50
 const SIZE: Vector2 = Vector2(GW * CELL, GH * CELL)
 const DAY_PX: float = 100.0  ## distance parcourue en un jour en terrain plat
-const COST: Array[float] = [1.0, 1.5, 1.35, 0.0, 0.0]  ## coût en temps par type de terrain (0 = infranchissable)
+const COST: Array[float] = [1.0, 1.5, 1.35, 0.0, 0.0, 0.9, 2.0]  ## coût en temps par type de terrain (0 = infranchissable)
+const ROAD_COST: float = 0.8  ## coût d'une case de route (si elle est moins chère que le terrain)
+const TERRAIN_NAMES: Array[String] = ["Plaine", "Forêt", "Collines", "Eau", "Montagne", "Pont", "Gué"]
+const RIVERS_MAX: int = 4
 const ARRIVE_PX: float = 26.0
 const ENCOUNTER_PX: float = 26.0
 const MAX_PARTIES: int = 4
@@ -26,7 +29,10 @@ var player_pos: Vector2 = Vector2.ZERO
 var path: Array[Vector2] = []
 var dest: Dictionary = {}  ## {"kind": "settlement"|"target"|"party"|"point", "id": ...}
 var next_party_id: int = 1
+var road_paths: Array[PackedVector2Array] = []  ## routes décoratives (centres de cases), recalculées à la génération et au chargement
+var road_cells: Dictionary = {}  ## Vector2i -> true : cases de route (coût ROAD_COST)
 var _astar: AStarGrid2D
+var _elev: FastNoiseLite
 
 
 # --- Génération ---
@@ -35,9 +41,13 @@ static func generate(p_rng: RandomNumberGenerator, renown: int = 0) -> World:
 	var w := World.new()
 	w.rng = p_rng
 	w._build_terrain()
-	w._build_astar()
+	var river_rng := RandomNumberGenerator.new()  # aléa propre : le reste du déroulé ne change pas
+	river_rng.seed = p_rng.seed ^ 0x71E5
+	w._build_rivers(river_rng)
+	w._build_astar(false)
 	w._place_settlements()
 	w._ensure_connected()
+	w.build_roads()
 	w.player_pos = w.settlement_pos(w.settlements[0])
 	w.fill_parties(renown, MAX_PARTIES)
 	var site_rng := RandomNumberGenerator.new()  # aléa propre : ne modifie pas le déroulé du reste de la partie
@@ -58,6 +68,7 @@ func _noise(freq: float) -> FastNoiseLite:
 func _build_terrain() -> void:
 	terrain.resize(GW * GH)
 	var elev: FastNoiseLite = _noise(0.04)
+	_elev = elev
 	var moist: FastNoiseLite = _noise(0.06)
 	for y in GH:
 		for x in GW:
@@ -75,7 +86,7 @@ func _build_terrain() -> void:
 			terrain[y * GW + x] = t
 
 
-func _build_astar() -> void:
+func _build_astar(with_roads: bool = true) -> void:
 	_astar = AStarGrid2D.new()
 	_astar.region = Rect2i(0, 0, GW, GH)
 	_astar.cell_size = Vector2(CELL, CELL)
@@ -84,7 +95,7 @@ func _build_astar() -> void:
 	_astar.update()
 	for y in GH:
 		for x in GW:
-			var c: float = COST[terrain[y * GW + x]]
+			var c: float = _cell_cost(x, y) if with_roads else COST[terrain[y * GW + x]]
 			if c <= 0.0:
 				_astar.set_point_solid(Vector2i(x, y), true)
 			else:
@@ -123,23 +134,195 @@ func _place_settlements() -> void:
 		})
 
 
-## Creuse un passage vers les lieux isolés par l'eau ou la montagne.
+## Rivières : lignes sinueuses de cases d'eau qui descendent des hauteurs vers un lac ou la mer, par le gradient du bruit
+## de hauteur (largeur 1-2 cases). Quelques gués les rendent franchissables. Aléa propre (`rr`).
+func _build_rivers(rr: RandomNumberGenerator) -> void:
+	if _elev == null:
+		return
+	var made: int = 0
+	var sources: Array[Vector2i] = []
+	for attempt in 60:
+		if made >= RIVERS_MAX:
+			break
+		var sx: int = rr.randi_range(4, GW - 5)
+		var sy: int = rr.randi_range(4, GH - 5)
+		if _elev.get_noise_2d(sx, sy) < 0.28:
+			continue
+		var near: bool = false
+		for o in sources:
+			if absi(o.x - sx) + absi(o.y - sy) < 22:
+				near = true
+		if near:
+			continue
+		var line: Array[Vector2i] = _river_line(Vector2i(sx, sy), rr)
+		if line.size() < 12:
+			continue
+		sources.append(Vector2i(sx, sy))
+		made += 1
+		_carve_river(line, rr)
+
+
+## Descend du point `start` : à chaque pas, le voisin le plus bas encore inconnu (un peu de hasard). Vide si elle n'atteint pas l'eau.
+func _river_line(start: Vector2i, rr: RandomNumberGenerator) -> Array[Vector2i]:
+	var line: Array[Vector2i] = []
+	var seen: Dictionary = {}
+	var cur: Vector2i = start
+	var dirs: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	for step in 260:
+		line.append(cur)
+		seen[cur] = true
+		if step > 3 and _elev.get_noise_2d(cur.x, cur.y) < -0.38:
+			return line  # un lac ou la mer
+		var best := Vector2i(-1, -1)
+		var best_e: float = 99.0
+		for d in dirs:
+			var n: Vector2i = cur + d
+			if n.x < 1 or n.y < 1 or n.x >= GW - 1 or n.y >= GH - 1 or seen.has(n):
+				continue
+			var e: float = _elev.get_noise_2d(n.x, n.y) + rr.randf_range(0.0, 0.035)
+			if e < best_e:
+				best_e = e
+				best = n
+		if best.x < 0:
+			break
+		cur = best
+	var none: Array[Vector2i] = []
+	return none
+
+
+func _carve_river(line: Array[Vector2i], rr: RandomNumberGenerator) -> void:
+	var groups: Array = []  # une entrée par pas : les cases d'eau de ce pas (pour poser un gué en travers)
+	var wide: bool = false
+	for i in line.size():
+		var c: Vector2i = line[i]
+		if i % 9 == 0:
+			wide = rr.randf() < 0.4  # le lit s'élargit par endroits
+		var cells: Array[Vector2i] = [c]
+		if wide and i > 2:
+			var dl: Vector2i = c - line[i - 1]
+			var o: Vector2i = c + Vector2i(-dl.y, dl.x)
+			if o.x > 0 and o.y > 0 and o.x < GW - 1 and o.y < GH - 1:
+				cells.append(o)
+		for q in cells:
+			terrain[q.y * GW + q.x] = T.WATER
+		groups.append(cells)
+	# gués : un à trois par rivière
+	var fords: int = clampi(line.size() / 28 + 1, 1, 3)
+	for k in fords:
+		var idx: int = int(float(line.size()) * (float(k) + rr.randf_range(0.25, 0.75)) / float(fords))
+		idx = clampi(idx, 2, line.size() - 3)
+		for q in groups[idx]:
+			terrain[q.y * GW + q.x] = T.FORD
+
+
+## Prix du percement d'un passage : l'eau et la montagne sont chères mais franchissables ; gués et ponts existants peu chers.
+func _carve_cost(t: int) -> float:
+	match t:
+		T.WATER:
+			return 9.0
+		T.MOUNTAIN:
+			return 14.0
+	return COST[t] if COST[t] > 0.0 else 1.0
+
+
+## Relie chaque lieu isolé par l'eau ou la montagne : le passage le moins cher pose un pont sur l'eau (ou ouvre un col).
 func _ensure_connected() -> void:
 	var base: Vector2 = settlement_pos(settlements[0])
 	for i in range(1, settlements.size()):
 		var p: Vector2 = settlement_pos(settlements[i])
 		if not find_path(base, p).is_empty():
 			continue
-		var steps: int = int(base.distance_to(p) / (CELL * 0.5))
-		for k in steps + 1:
-			var q: Vector2 = base.lerp(p, float(k) / steps)
-			var c: Vector2i = cell_of(q)
-			for dx in [-1, 0, 1]:
-				for dy in [-1, 0]:
-					var n := Vector2i(c.x + dx, c.y + dy)
-					if n.x > 0 and n.y > 0 and n.x < GW - 1 and n.y < GH - 1 and COST[terrain[n.y * GW + n.x]] <= 0.0:
-						terrain[n.y * GW + n.x] = T.PLAIN
-		_build_astar()
+		var carve := AStarGrid2D.new()
+		carve.region = Rect2i(1, 1, GW - 2, GH - 2)
+		carve.cell_size = Vector2(CELL, CELL)
+		carve.offset = Vector2(CELL / 2.0, CELL / 2.0)
+		carve.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
+		carve.update()
+		for y in range(1, GH - 1):
+			for x in range(1, GW - 1):
+				carve.set_point_weight_scale(Vector2i(x, y), _carve_cost(terrain[y * GW + x]))
+		var pts: PackedVector2Array = carve.get_point_path(cell_of(base), cell_of(p))
+		for v in pts:
+			var c: Vector2i = cell_of(v)
+			var k: int = c.y * GW + c.x
+			if terrain[k] == T.WATER:
+				terrain[k] = T.BRIDGE
+			elif terrain[k] == T.MOUNTAIN:
+				terrain[k] = T.HILLS
+		_build_astar(false)
+		if find_path(base, p).is_empty():  # repli : l'ancien creusage en ligne droite
+			_carve_straight(base, p)
+			_build_astar(false)
+
+
+func _carve_straight(base: Vector2, p: Vector2) -> void:
+	var steps: int = int(base.distance_to(p) / (CELL * 0.5))
+	for k in steps + 1:
+		var q: Vector2 = base.lerp(p, float(k) / steps)
+		var c: Vector2i = cell_of(q)
+		for dx in [-1, 0, 1]:
+			for dy in [-1, 0]:
+				var n := Vector2i(c.x + dx, c.y + dy)
+				if n.x > 0 and n.y > 0 and n.x < GW - 1 and n.y < GH - 1 and COST[terrain[n.y * GW + n.x]] <= 0.0:
+					terrain[n.y * GW + n.x] = T.PLAIN
+
+
+# --- Routes ---
+
+func _cell_cost(x: int, y: int) -> float:
+	var c: float = COST[terrain[y * GW + x]]
+	if c > 0.0 and road_cells.has(Vector2i(x, y)):
+		return minf(c, ROAD_COST)
+	return c
+
+
+## Réseau routier décoratif : chaque lieu est relié à ses deux plus proches voisins par le chemin le moins cher.
+## Un gué traversé par une route devient un pont. Fixe `road_paths` et `road_cells` puis reconstruit la grille de chemins
+## (cases de route moins chères). Déterministe : même résultat à la génération et au chargement d'une sauvegarde.
+func build_roads() -> void:
+	road_paths.clear()
+	road_cells.clear()
+	_build_astar(false)
+	for y in GH:  # gués et ponts au même prix, pour que la transformation gué -> pont ne change pas les routes
+		for x in GW:
+			var t: int = terrain[y * GW + x]
+			if t == T.FORD or t == T.BRIDGE:
+				_astar.set_point_weight_scale(Vector2i(x, y), 1.5)
+	var done: Dictionary = {}
+	for i in settlements.size():
+		var a: Vector2 = settlement_pos(settlements[i])
+		var order: Array = range(settlements.size())
+		order.erase(i)
+		order.sort_custom(func(p: int, q: int) -> bool: return a.distance_to(settlement_pos(settlements[p])) < a.distance_to(settlement_pos(settlements[q])))
+		for j in order.slice(0, 2):
+			var key: String = "%d-%d" % [mini(i, j), maxi(i, j)]
+			if done.has(key):
+				continue
+			done[key] = true
+			var pts: PackedVector2Array = _astar.get_point_path(cell_of(a), cell_of(settlement_pos(settlements[j])))
+			if pts.size() < 2:
+				continue
+			pts[0] = a
+			pts[pts.size() - 1] = settlement_pos(settlements[j])
+			road_paths.append(pts)
+			for v in pts:
+				var c: Vector2i = cell_of(v)
+				road_cells[c] = true
+				if terrain[c.y * GW + c.x] == T.FORD:
+					terrain[c.y * GW + c.x] = T.BRIDGE
+	_build_astar(true)
+
+
+func is_road(p: Vector2) -> bool:
+	return road_cells.has(cell_of(p))
+
+
+## Nom du terrain sous le point (« Route » si une route le traverse).
+func terrain_label(p: Vector2) -> String:
+	var t: int = terrain_at(p)
+	if is_road(p) and t != T.BRIDGE:
+		return "Route"
+	return TERRAIN_NAMES[t]
 
 
 # --- Lieux hostiles ---
@@ -209,13 +392,14 @@ func biome_at(p: Vector2) -> String:
 			return "forest"
 		T.HILLS, T.MOUNTAIN:
 			return "hills"
-		T.WATER:
+		T.WATER, T.FORD:
 			return "water"
 	return "plain"
 
 
 func cost_at(p: Vector2) -> float:
-	return COST[terrain_at(p)]
+	var c: Vector2i = cell_of(p)
+	return _cell_cost(c.x, c.y)
 
 
 func passable(p: Vector2) -> bool:
@@ -404,6 +588,8 @@ func spawn_party(type: String, d: int, srng: RandomNumberGenerator) -> Dictionar
 
 
 func party_title(p: Dictionary) -> String:
+	if p.has("title"):
+		return str(p["title"])
 	return str(Data.FACTION_PARTY_TITLES.get(str(p["faction"]), "Bande errante"))
 
 
@@ -511,5 +697,5 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> World:
 	w.next_party_id = int(d["next_party_id"])
 	for sd in d.get("sites", []):
 		w.sites.append(Campaign.clean_site(sd))
-	w._build_astar()
+	w.build_roads()  # les routes se recalculent (anciennes sauvegardes comprises) ; le terrain enregistré reste tel quel
 	return w

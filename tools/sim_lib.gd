@@ -3,7 +3,7 @@ extends RefCounted
 ## tests/suites/suite_regression.gd). Détecte des BUGS (blocages, états invalides), pas l'équilibrage.
 ## Charger avec : var lib = load("res://tools/sim_lib.gd").new()
 
-const FACTION_SETS: Array = [["b"], ["g"], ["o"], ["u"], ["b", "g"], ["o", "u"], ["b", "o"], ["g", "u"]]
+const FACTION_SETS: Array = [["b"], ["g"], ["o"], ["u"], ["m"], ["b", "g"], ["o", "u"], ["b", "o"], ["g", "u"], ["m", "b"]]
 const MAX_ROUNDS: int = 150
 const MAX_TURNS: int = 8000
 
@@ -16,6 +16,7 @@ func params_for(seed_value: int) -> Dictionary:
 		"factions": FACTION_SETS[(seed_value / 4) % FACTION_SETS.size()],
 		"danger": (seed_value / 32) % 3 + 1,
 		"men": 1 + (seed_value * 7 + seed_value / 5) % 8,
+		"btype": Data.BATTLE_TYPES[(seed_value * 3 + seed_value / 7) % Data.BATTLE_TYPES.size()],
 	}
 
 
@@ -52,7 +53,7 @@ func make_party(rng: RandomNumberGenerator, n: int) -> Array:
 	return out
 
 
-func make_contract(factions: Array, danger: int, biome: String) -> Dictionary:
+func make_contract(factions: Array, danger: int, biome: String, btype: String = "pitched") -> Dictionary:
 	var foes: Array = []
 	for i in factions.size():
 		var list: Array = Contracts.foes_for(str(factions[i]), danger)
@@ -61,7 +62,7 @@ func make_contract(factions: Array, danger: int, biome: String) -> Dictionary:
 	return {
 		"kind": "contract", "type": str(factions[0]), "type_contract": "kill", "d": danger, "foes": foes,
 		"title": "Simulation", "desc": "", "employer": "x", "origin": "x", "origin_id": "", "pay": 300 * danger,
-		"days": 1, "tx": 0.0, "ty": 0.0, "ox": 0.0, "oy": 0.0, "target_name": "x", "biome": biome,
+		"days": 1, "tx": 0.0, "ty": 0.0, "ox": 0.0, "oy": 0.0, "target_name": "x", "biome": biome, "battle_type": btype, "traps": btype == "ambush",
 	}
 
 
@@ -90,7 +91,7 @@ func check_state(s: BattleState) -> Array[String]:
 		if u.is_live():
 			if not s.cells.has(u.hex):
 				bad.append("%s hors du plateau %s" % [tag, str(u.hex)])
-			elif Pathfinding.blocked(s.cells, u.hex):
+			elif Pathfinding.blocked(s.cells, u.hex) and not bool(Scenery.obj_at(s.cells, u.hex).get("top", false)):
 				bad.append("%s sur une case bloquée %s (%s)" % [tag, str(u.hex), str(s.cells[u.hex]["t"])])
 			if occ.has(u.hex):
 				bad.append("%s et %s sur la même case %s" % [tag, occ[u.hex], str(u.hex)])
@@ -157,6 +158,7 @@ func check_finish(g: Node, s: BattleState, roster: Array) -> Array[String]:
 	for m in roster:
 		g.roster.append(m)
 	g.fallen.clear()
+	g.inventory.clear()  # réserve pleine = trop-plein vendu d'office, ce qui fausse le compte d'or
 	g.active_contract = s.contract.duplicate(true)
 	g.battle = s
 	g.game_over = false
@@ -169,9 +171,10 @@ func check_finish(g: Node, s: BattleState, roster: Array) -> Array[String]:
 		ids_before.append(m.id)
 	var dead_ids: Array = []
 	for u in s.units:
-		if u.side == "p" and u.dead:
+		if u.side == "p" and u.dead and not u.immobile:
 			dead_ids.append(u.id)
 	var win: bool = s.over == "win"
+	var obj: Dictionary = s.objective_bonus() if win else {"gold": 0, "renown": 0}
 	g.finish_battle()
 	if g.battle != null:
 		bad.append("finish_battle n'a pas vidé la bataille")
@@ -180,12 +183,12 @@ func check_finish(g: Node, s: BattleState, roster: Array) -> Array[String]:
 	if g.fallen.size() != dead_ids.size():
 		bad.append("mémorial %d, morts %d" % [g.fallen.size(), dead_ids.size()])
 	var pay: int = int(s.contract["pay"])
-	if win and g.gold != gold0 + pay:
-		bad.append("or après victoire %d, attendu %d" % [g.gold, gold0 + pay])
+	if win and g.gold != gold0 + pay + int(obj["gold"]):
+		bad.append("or après victoire %d, attendu %d (prime %d, objectifs %d)" % [g.gold, gold0 + pay + int(obj["gold"]), pay, int(obj["gold"])])
 	if not win and g.gold != gold0:
 		bad.append("or modifié par une défaite (%d → %d)" % [gold0, g.gold])
 	var want_renown: int = renown0 + 40 * int(s.contract["d"]) if win else maxi(0, renown0 - 15)
-	if g.renown != want_renown:
+	if g.renown < want_renown or g.renown > want_renown + 3 * int(obj["renown"]):
 		bad.append("renom %d, attendu %d" % [g.renown, want_renown])
 	if not g.active_contract.is_empty():
 		bad.append("contrat actif non vidé")
@@ -216,7 +219,7 @@ func run_battle(g: Node, seed_value: int) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var party: Array = make_party(rng, int(p["men"]))
-	var contract: Dictionary = make_contract(p["factions"], int(p["danger"]), str(p["biome"]))
+	var contract: Dictionary = make_contract(p["factions"], int(p["danger"]), str(p["biome"]), str(p["btype"]))
 	var s: BattleState = BattleState.create(contract, party, rng)
 	var errors: Array[String] = check_state(s)
 	var r: Dictionary = play(s, seed_value % 2 == 0)

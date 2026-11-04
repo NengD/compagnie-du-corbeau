@@ -17,6 +17,7 @@ var _walk: float = 0.0  ## 0..1 : avancement du pas en cours (balancement)
 var _walk_amp: float = 1.0  ## 1 = marche, ~1.7 = course (fuite)
 var _step_dir: float = 1.0  ## alterne à chaque pas : l'inclinaison bascule d'un côté à l'autre
 var _fall: float = 0.0  ## 0..1 : chute de la figurine qui meurt
+var _arrows: Array[float] = []  ## angles des flèches plantées dans la figurine
 
 
 func setup(u: Unit) -> UnitView:
@@ -27,6 +28,24 @@ func setup(u: Unit) -> UnitView:
 	set_process(true)
 	refresh()
 	return self
+
+
+## Flèche ou carreau planté dans la figurine (angle de tir ; 4 au plus, les plus anciennes disparaissent).
+func add_arrow(angle: float) -> void:
+	_arrows.append(angle)
+	while _arrows.size() > 4:
+		_arrows.remove_at(0)
+	queue_redraw()
+
+
+func clear_arrows() -> void:
+	if not _arrows.is_empty():
+		_arrows.clear()
+		queue_redraw()
+
+
+func arrow_count() -> int:
+	return _arrows.size()
 
 
 func set_current(on: bool) -> void:
@@ -170,5 +189,11 @@ func _draw() -> void:
 		draw_rect(Rect2(-12, 15, 26.0 * unit.arm_h / ha, 2.5), Color("cfc8b8"))
 	if ba > 0:
 		draw_rect(Rect2(-12, 18 if ha > 0 else 16, 26.0 * unit.arm_b / ba, 2.5), GameTheme.STEEL)
+	for i in _arrows.size():  # flèches plantées, piquées dans le buste
+		var base := Vector2(-3.0 + i * 3.0, -18.0 + (i % 2) * 5.0)
+		var dir := Vector2.from_angle(_arrows[i] + PI).normalized() * 9.0
+		draw_line(base, base + dir, Color("d9c79a"), 1.6)
+		draw_line(base + dir, base + dir + dir.rotated(0.5) * 0.4, Color("b04a3a"), 1.3)
+		draw_line(base + dir, base + dir + dir.rotated(-0.5) * 0.4, Color("b04a3a"), 1.3)
 	var hp_y: float = 21.0 if ha > 0 else (19.0 if ba > 0 else 16.0)
 	draw_rect(Rect2(-12, hp_y, 26.0 * maxf(0.0, unit.hp) / unit.hp_max, 2.5), Color("c4483a"))

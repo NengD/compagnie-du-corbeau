@@ -9,7 +9,7 @@ const SIDE_W := 350
 const ZOOM_MIN := 1.0
 const ZOOM_MAX := 2.5
 const ZOOM_STEP := 1.15
-const FACTION_COLORS := {"p": Color("8fb0d0"), "b": Color("d9705f"), "g": Color("a99bb5"), "o": Color("8fb45f"), "u": Color("cbc6b0")}
+const FACTION_COLORS := {"p": Color("8fb0d0"), "b": Color("d9705f"), "g": Color("a99bb5"), "o": Color("8fb45f"), "u": Color("cbc6b0"), "m": Color("c9a25a"), "c": Color("b59a6a")}
 const LOG_COLORS := {"hit": "#e9d6b4", "miss": "#9c8f78", "death": "#ff8a78", "mor": "#e0c85e", "sys": "#7fb6d8", "": "#ece1c9"}
 const LOG_FILTERS := [["all", "Tout"], ["combat", "Combat"], ["mor", "Moral"], ["sys", "Système"]]
 const LOG_SHOWN := 200
@@ -42,6 +42,7 @@ var _pips: Pips
 var _pips_row: HBoxContainer
 var _actions: HFlowContainer
 var _hint: Label
+var _obj_box: VBoxContainer
 var _inspect_box: VBoxContainer
 var _log: RichTextLabel
 
@@ -126,6 +127,8 @@ func _ready() -> void:
 	side.add_child(_actions)
 	_hint = UiKit.sub("")
 	side.add_child(_hint)
+	_obj_box = UiKit.vbox(2)
+	side.add_child(_obj_box)
 	_inspect_box = UiKit.vbox(6)
 	side.add_child(_inspect_box)
 	var log_panel := PanelContainer.new()
@@ -249,6 +252,10 @@ func _ai_turn(u: Unit) -> void:
 				await _pause(0.2)
 			"ability":
 				await _attack(u, a["target"], false, str(a["id"]))
+			"hit_object", "open", "heal", "raise":
+				state.execute(u, a)
+				_refresh_all()
+				await _pause(0.3)
 			_:
 				break
 		if not _alive or state.check_end():
@@ -271,15 +278,13 @@ func _flee_turn(u: Unit) -> void:
 
 
 func _attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dictionary:
-	board.strike(a.hex, d.hex, a.is_ranged())
-	var av: UnitView = board.view_of(a)
-	if av != null and not a.is_ranged():
-		av.lunge(board.hex_px(d.hex))
-	await _pause(0.22)
 	var morale_before: Dictionary = {}
 	for u in state.units:
 		morale_before[u.id] = u.morale
 	var res: Dictionary = state.attack(a, d, free, ability)
+	await board.attack_anim(a, d, bool(res["hit"]), ability)  # animation propre à l'arme (le résultat est déjà connu)
+	await _pause(0.1)
+	board.after_attack(a, d, res, ability)  # traces au sol, flèches plantées, poussière
 	var dv: UnitView = board.view_of(d)
 	if a.is_ranged():
 		Sfx.play("bow")
@@ -332,12 +337,14 @@ func _move_along(u: Unit, path: Array[Vector2i], run: bool = false) -> void:
 			state.say("%s est retenu." % u.unit_name, "miss")
 			return
 	for h in path:
-		state.step(u, h)
+		var stop: bool = state.step(u, h)
 		Sfx.play("step")
 		await board.move_unit(u, h, (0.09 if run else 0.14) * speed, run)
 		if not _alive:
 			return
 		board.refresh_units()
+		if stop:
+			break
 	_refresh_all()
 
 
@@ -584,6 +591,24 @@ func _on_stage_input(event: InputEvent) -> void:
 			_refresh_inspect()
 		elif _reach.has(h):
 			_player_move(h)
+		elif cur != null and cur.side == "p" and Scenery.kind_at(state.cells, h) != "":
+			_player_object(cur, h)
+
+
+## Clic sur un objet de décor : ouvre la porte voisine (2 PA) ou frappe l'obstacle destructible à portée.
+func _player_object(u: Unit, h: Vector2i) -> void:
+	var done: bool = false
+	if Scenery.can_open(state, u, h):
+		done = Scenery.open_door(state, u, h)
+	elif Scenery.can_hit_object(state, u, h):
+		_busy = true
+		var r: Dictionary = Scenery.hit_object(state, u, h)
+		done = true
+		Sfx.play("hit_flesh" if r["hit"] else "miss")
+		_refresh_all()
+		await _pause(0.25)
+	if done and _alive:
+		_after_player_action()
 
 
 # --- Affichage ---
@@ -647,6 +672,9 @@ func _player_turn() -> bool:
 func _refresh_all() -> void:
 	var prize: String = " · Prime %d couronnes" % state.contract["pay"] if state.contract.get("kind", "contract") == "contract" else (" · Assaut" if state.contract.get("kind", "") == "assault" else " · Embuscade")
 	_subtitle.text = "Manche %d · Danger %d/3%s" % [state.round_no, state.contract["d"], prize]
+	if state.battle_type != "pitched":
+		_subtitle.text += " · " + str(Data.BATTLE_TYPE_NAMES[state.battle_type])
+	_refresh_objectives()
 	board.refresh_units()
 	_refresh_queue()
 	_refresh_current()
@@ -654,6 +682,22 @@ func _refresh_all() -> void:
 	_refresh_inspect()
 	_refresh_marks()
 	_refresh_log()
+
+
+## Panneau des objectifs secondaires (liste cochée).
+func _refresh_objectives() -> void:
+	if _obj_box == null:
+		return
+	_clear(_obj_box)
+	_obj_box.visible = not state.objectives.is_empty()
+	if state.objectives.is_empty():
+		return
+	_obj_box.add_child(UiKit.sub("Objectifs", 13, false))
+	for o in state.objectives:
+		var mark: String = "☑" if bool(o["done"]) else ("☒" if bool(o["failed"]) else "☐")
+		var b: Dictionary = o["bonus"]
+		var gain: String = " (+%d couronnes)" % int(b["gold"]) if int(b["gold"]) > 0 else (" (+%d renom)" % int(b["renown"]) if int(b["renown"]) > 0 else "")
+		_obj_box.add_child(UiKit.sub("%s %s%s" % [mark, o["label"], gain], 13))
 
 
 func _refresh_marks() -> void:
@@ -696,11 +740,13 @@ func _refresh_queue() -> void:
 		if not u.is_live():
 			continue
 		var p := PanelContainer.new()
-		var col: Color = FACTION_COLORS[u.faction]
+		var col: Color = FACTION_COLORS.get(u.faction, Color("b59a6a"))
 		var sb := GameTheme.box(Color.TRANSPARENT, _border_color(u == state.current, col), 2, 3, Vector4(0, 0, 0, 0))
 		p.add_theme_stylebox_override("panel", sb)
 		p.tooltip_text = u.unit_name
-		p.add_child(PortraitView.new(u, 34))
+		var qpv := PortraitView.new(u, 34)
+		qpv.set_active(u == state.current)
+		p.add_child(qpv)
 		_queue_box.add_child(p)
 
 
@@ -711,7 +757,9 @@ func _border_color(cond: bool, col: Color) -> Color:
 func _unit_block(parent: Node, u: Unit, tag: String) -> void:
 	var c := UiKit.card(parent)
 	var h := UiKit.hbox(10)
-	h.add_child(PortraitView.new(u, 54))
+	var upv := PortraitView.new(u, 64)
+	upv.set_active(u == state.current)
+	h.add_child(upv)
 	var v := UiKit.vbox(2)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var top := UiKit.hbox(6)
@@ -757,7 +805,8 @@ func _add_ability_buttons(u: Unit) -> void:
 		var ab: Dictionary = Data.ABILITIES[id]
 		var ap: int = CombatRules.ability_ap(u, id)
 		var fat: int = CombatRules.ability_fat(u, id)
-		var b := UiKit.button("%s (%d PA)" % [ab["n"], ap], "pri" if _ability == id else "")
+		var left: String = " ×%d" % CombatRules.tool_left(u, str(ab["tool"])) if ab.has("tool") else ""
+		var b := UiKit.button("%s%s (%d PA)" % [ab["n"], left, ap], "pri" if _ability == id else "")
 		b.tooltip_text = "%s
 Coût : %d PA, %d fatigue." % [ab["d"], ap, fat]
 		b.disabled = u.ap < ap or u.fat + fat > u.fat_max_eff()
@@ -796,7 +845,7 @@ func _refresh_actions() -> void:
 		_actions.add_child(sw)
 	_add_ability_buttons(u)
 	for bi in u.bag.size():  # changement d'arme : objets du sac
-		if (u.bag[bi] as Dictionary).is_empty():
+		if (u.bag[bi] as Dictionary).is_empty() or str(u.bag[bi]["kind"]) == "tool":
 			continue
 		var swap_b := UiKit.button("Changer : %s (%d PA)" % [Loot.item_name(u.bag[bi]), Data.SWAP_AP])
 		var block: String = Inventory.bag_swap_block(u, bi)
@@ -920,7 +969,7 @@ func _show_end() -> void:
 		box.add_child(UiKit.para("Pas un sou pour ce contrat." if is_contract else "Les survivants s'enfuient à travers champs."))
 	var dead: Array = []
 	for u in state.units:
-		if u.side == "p" and u.dead:
+		if u.side == "p" and u.dead and not u.immobile:
 			dead.append(u.unit_name)
 	if dead.is_empty():
 		box.add_child(UiKit.sub("Aucun mort à déplorer."))

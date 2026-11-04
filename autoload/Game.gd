@@ -41,6 +41,14 @@ var unlocked: Dictionary = {}  ## succès débloqués {id: jour}, conservés ent
 var achievements_path: String = Achievements.FILE_PATH
 var banner: Dictionary = Data.BANNER_DEFAULT.duplicate()  ## bannière de la compagnie (voir core/banner.gd)
 var company_name: String = Data.COMPANY_NAME_DEFAULT
+var provisions: int = Data.PROVISIONS_START  ## vivres (rations) : un homme mange une ration par jour de route
+var company_morale: float = Data.MORALE_START  ## moral de la compagnie, 0 à 100 (voir battle_start_morale)
+var starve_days: int = 0  ## jours consécutifs sans de quoi manger
+var buildings: Dictionary = {}  ## niveaux des bâtiments du camp {clé de Data.CAMP_BUILDINGS: 1 à 3} (voir core/camp_buildings.gd)
+var faction_standing: Dictionary = Factions.default_standing()  ## réputation auprès de chaque faction humaine (Data.FACTIONS)
+var story_flags: Dictionary = {}  ## histoires : "story_<id>" = jour de début, et les repères posés par leurs choix {clé: jour}
+var pending_events: Array = []  ## suites d'histoires programmées : [{"id": étape, "due_day": jour}]
+var _food_warned: bool = false
 
 
 func _ready() -> void:
@@ -77,6 +85,14 @@ func new_game(seed_value: int = -1) -> void:
 	stats = Achievements.default_stats()
 	banner = Data.BANNER_DEFAULT.duplicate()
 	company_name = Data.COMPANY_NAME_DEFAULT
+	provisions = Data.PROVISIONS_START
+	company_morale = Data.MORALE_START
+	starve_days = 0
+	buildings = {}
+	faction_standing = Factions.default_standing()
+	story_flags = {}
+	pending_events = []
+	_food_warned = false
 	news = ["La Compagnie du Corbeau est fondée. Cinq lames, peu de couronnes, beaucoup de routes."]
 	for k in ["milicien", "bucheron", "braconnier", "fermier", "deserteur"]:
 		roster.append(Contracts.make_merc(k, rng, _names()))
@@ -84,6 +100,7 @@ func new_game(seed_value: int = -1) -> void:
 	campaign = Campaign.new_state("o" if cseed % 2 == 0 else "u")
 	campaign_rng.seed = cseed + 104729
 	world = World.generate(rng, renown)
+	Factions.assign_owners(world)
 	for s in world.settlements:
 		_restock(s)
 	location = str(world.settlements[0]["id"])
@@ -177,7 +194,7 @@ func repair_cost() -> int:
 	var gear: int = 0
 	for m in roster:
 		gear += gear_repair_cost(m)
-	return int(ceil(missing * 0.5)) + gear
+	return int(ceil(float(int(ceil(missing * 0.5)) + gear) * CampBuildings.repair_mult(buildings)))  ## la forge du camp rabat le prix
 
 
 ## Remise en état de l'arme et du bouclier d'un homme (proportionnelle à l'usure et au prix).
@@ -204,6 +221,358 @@ func member(id: int) -> Unit:
 	return null
 
 
+# --- Quartier général, vivres, moral, factions ---
+
+func building_level(key: String) -> int:
+	return CampBuildings.level_of(buildings, key)
+
+
+## Capacité de la compagnie (tentes).
+func max_roster() -> int:
+	return mini(Data.MAX_ROSTER_CAP, Data.MAX_ROSTER + CampBuildings.roster_bonus(buildings))
+
+
+## Emplacements de la réserve (entrepôt).
+func stash_size() -> int:
+	return Data.STASH_SIZE + CampBuildings.stash_bonus(buildings)
+
+
+## Rayon de vue de la carte en pixels (poste de guet) : à lire par MapView à la place de sa constante VISION.
+func vision_radius() -> float:
+	return Data.MAP_VISION * CampBuildings.vision_mult(buildings)
+
+
+func can_buy_building(key: String) -> bool:
+	var c: int = CampBuildings.next_cost(buildings, key)
+	return c >= 0 and gold >= c and not game_over and battle == null
+
+
+## Achète le niveau suivant d'un bâtiment du camp (partout : le camp suit la compagnie).
+func buy_building(key: String) -> bool:
+	if not can_buy_building(key):
+		return false
+	var cost: int = CampBuildings.next_cost(buildings, key)
+	_spend(cost)
+	buildings[key] = building_level(key) + 1
+	add_news(["%s : niveau %d (−%d couronnes)." % [Data.CAMP_BUILDINGS[key]["n"], building_level(key), cost]])
+	_sfx("coins")
+	_after_change()
+	return true
+
+
+## Ajoute du renom (l'enseigne majore les gains) ; renvoie le renom réellement ajouté.
+func gain_renown(n: int) -> int:
+	var g: int = n
+	if n > 0:
+		g = int(round(float(n) * CampBuildings.renown_mult(buildings)))
+	var before: int = renown
+	renown = maxi(0, renown + g)
+	return renown - before
+
+
+# Vivres
+
+func provisions_cap() -> int:
+	return Data.PROVISIONS_PER_MAN_CAP * maxi(1, roster.size())
+
+
+## Jours de route que les vivres permettent de tenir.
+func provisions_days() -> float:
+	return float(provisions) / float(maxi(1, roster.size()))
+
+
+## Prix de `n` rations ici (coefficient de lieu, réputation, cantine).
+func food_cost(n: int) -> int:
+	return int(ceil(float(price_of(Data.PROVISIONS_PRICE * n)) * CampBuildings.food_mult(buildings)))
+
+
+func buy_provisions(n: int) -> bool:
+	if not in_settlement() or game_over:
+		return false
+	n = mini(n, provisions_cap() - provisions)
+	if n <= 0:
+		return false
+	var cost: int = food_cost(n)
+	if gold < cost:
+		return false
+	_spend(cost)
+	provisions += n
+	_food_warned = false
+	add_news(["Vivres : +%d rations pour %d couronnes." % [n, cost]])
+	_sfx("coins")
+	_after_change()
+	return true
+
+
+func buy_provisions_full() -> bool:
+	return buy_provisions(provisions_cap() - provisions)
+
+
+## Les hommes mangent sur la route : une ration chacun ; à court de vivres, la faim les affaiblit. Renvoie les lignes de nouvelles.
+func _eat_on_road() -> Array:
+	var lines: Array = []
+	var n: int = roster.size()
+	if n == 0:
+		return lines
+	if provisions >= n:
+		provisions -= n
+		starve_days = 0
+		morale_add(CampBuildings.meal_morale(buildings))
+		var left_days: float = provisions_days()
+		if left_days <= float(Data.PROVISIONS_WARN_DAYS) and not _food_warned:
+			_food_warned = true
+			lines.append("Les vivres s'épuisent : il n'en reste que pour %d jour%s de route." % [int(left_days), "s" if int(left_days) > 1 else ""])
+		elif left_days > float(Data.PROVISIONS_WARN_DAYS):
+			_food_warned = false
+		return lines
+	var fed: int = provisions
+	provisions = 0
+	starve_days += 1
+	for i in range(fed, n):
+		var m: Unit = roster[i]
+		m.hp = maxi(1, m.hp - Data.STARVE_HP)
+	morale_add(-Data.STARVE_MORALE)
+	lines.append("Plus de vivres : %d homme%s à jeun (−%d PV, le moral chute)." % [n - fed, "s" if n - fed > 1 else "", Data.STARVE_HP])
+	if starve_days >= 2 and roster.size() > 1 and rng.randf() < Data.STARVE_DESERT_CHANCE:
+		var d: Unit = roster[rng.randi() % roster.size()]
+		roster.erase(d)
+		Bonds.prune(roster)
+		lines.append("Affamé, %s déserte pendant la nuit." % d.unit_name)
+	return lines
+
+
+# Moral de compagnie
+
+func morale_add(n: float) -> void:
+	company_morale = clampf(company_morale + n, 0.0, 100.0)
+
+
+## Moral de départ des hommes en bataille : 2 (Hésitant) si la compagnie est abattue, 4 (Confiant) si elle est au sommet, sinon 3.
+func battle_start_morale() -> int:
+	if company_morale < Data.MORALE_LOW:
+		return 2
+	if company_morale > Data.MORALE_HIGH:
+		return 4
+	return 3
+
+
+func morale_label() -> String:
+	if company_morale < Data.MORALE_LOW:
+		return "Abattue"
+	if company_morale < 45.0:
+		return "Morose"
+	if company_morale <= Data.MORALE_HIGH:
+		return "Correcte"
+	return "Enthousiaste"
+
+
+# Factions humaines
+
+func standing_with(key: String) -> int:
+	return int(faction_standing.get(key, 0))
+
+
+func change_faction_standing(key: String, delta: int) -> void:
+	if Data.FACTIONS.has(key):
+		faction_standing[key] = clampi(standing_with(key) + delta, -Data.FACTION_STAND_MAX, Data.FACTION_STAND_MAX)
+
+
+## Faction propriétaire du lieu où l'on se trouve ("" sur la carte).
+func faction_here() -> String:
+	return Factions.owner_of(settlement())
+
+
+## Suites d'un contrat pour les factions (employeur, et rivale s'il y en a une). `result` : "win", "lost", "abandon".
+func _faction_result(c: Dictionary, result: String) -> Array:
+	var lines: Array = []
+	var f: String = str(c.get("faction", ""))
+	if not Data.FACTIONS.has(f) or c.get("kind", "contract") != "contract":
+		return lines
+	var delta: int = 0
+	match result:
+		"win":
+			delta = Factions.GAIN_BASE + int(c.get("d", 1))
+		"abandon":
+			delta = -Factions.ABANDON_LOSS
+		_:
+			delta = -Factions.DEFEAT_LOSS
+	change_faction_standing(f, delta)
+	lines.append("%s : %+d de réputation." % [Factions.name_of(f), delta])
+	var vs: String = str(c.get("vs_faction", ""))
+	if result == "win" and Data.FACTIONS.has(vs):
+		change_faction_standing(vs, -Factions.VS_LOSS)
+		lines.append("%s : −%d de réputation." % [Factions.name_of(vs), Factions.VS_LOSS])
+	return lines
+
+
+## Mauvaise réputation : une patrouille de la faction ennemie parcourt la carte. Renvoie une ligne de nouvelles ou "".
+func _maybe_spawn_patrol() -> String:
+	if location != "" or world == null:
+		return ""
+	for k in Factions.keys():
+		if standing_with(str(k)) > Data.FACTION_STAND_WORST or campaign_rng.randf() >= Data.FACTION_PATROL_CHANCE:
+			continue
+		var present: bool = false
+		for p in world.parties:
+			if str(p.get("patrol", "")) == str(k):
+				present = true
+		if present:
+			continue
+		var d: int = clampi(mini(3, 1 + renown / 160), 1, 3)
+		var party: Dictionary = world.spawn_party("b", d, campaign_rng)
+		if party.is_empty():
+			continue
+		party["patrol"] = str(k)
+		party["title"] = "Patrouille : " + Factions.name_of(str(k))
+		party["aggressive"] = true
+		return "Une patrouille de la %s est lancée à vos trousses." % Factions.name_of(str(k))
+	return ""
+
+
+# Histoires et suites programmées
+
+## Si une suite d'histoire est due (et qu'aucun événement n'attend), en fait l'événement en attente. Renvoie {"type": "event", ...} ou {}.
+func pop_due_event() -> Dictionary:
+	if not pending_event.is_empty() or battle != null or location != "":
+		return {}
+	var i: int = 0
+	while i < pending_events.size():
+		var pe: Dictionary = pending_events[i]
+		if int(pe["due_day"]) > day:
+			i += 1
+			continue
+		pending_events.remove_at(i)
+		var def: Dictionary = Events.get_def(str(pe["id"]))
+		if def.is_empty():
+			continue
+		last_event_day = day
+		last_event_id = str(def["id"])
+		pending_event = {"id": last_event_id}
+		world.stop()
+		save()
+		return {"type": "event", "event": def}
+	return {}
+
+
+## Effets d'une issue d'événement propres à la vie de la compagnie et aux histoires (voir Data.STORIES).
+func _apply_story_outcome(o: Dictionary, lines: Array) -> void:
+	var recruit: Unit = null
+	if o.has("food"):
+		var f: int = int(o["food"])
+		provisions = clampi(provisions + f, 0, maxi(provisions_cap(), provisions))
+		lines.append("%+d rations" % f)
+	if o.has("morale"):
+		morale_add(float(o["morale"]))
+		lines.append("moral %+d" % int(o["morale"]))
+	if o.has("standing"):
+		for k in o["standing"]:
+			change_faction_standing(str(k), int(o["standing"][k]))
+			lines.append("%s : %+d" % [Factions.name_of(str(k)), int(o["standing"][k])])
+	if o.has("threat"):
+		campaign["threat"] = clampf(float(campaign.get("threat", 0.0)) + float(o["threat"]), 0.0, Campaign.THREAT_MAX)
+		lines.append("menace %+d" % int(o["threat"]))
+	if o.has("recruit_story"):
+		recruit = _recruit_story(str(o["recruit_story"]), lines)
+	if o.has("bond"):
+		var friends: bool = str(o["bond"]) == "friends"
+		var pair: Array = []
+		if recruit != null and roster.size() >= 2:
+			var other: Unit = recruit
+			for i in 6:
+				other = roster[rng.randi() % roster.size()]
+				if other != recruit:
+					break
+			if other != recruit:
+				Bonds.add(recruit, other, 16 if friends else -12)
+				pair = [recruit, other]
+		else:
+			pair = Bonds.random_pair(roster, rng, 16 if friends else -12)
+		if pair.size() == 2:
+			lines.append("%s et %s %s" % [pair[0].unit_name, pair[1].unit_name, "deviennent amis" if friends else "se prennent en grippe"])
+	if o.has("unique"):
+		var uk: String = str(o["unique"])
+		if Data.UNIQUES.has(uk) and not (campaign["uniques_taken"] as Array).has(uk):
+			var it: Dictionary = Uniques.item_of(uk)
+			add_to_stash([it])
+			_note_uniques([it])
+			lines.append("objet unique : %s" % Loot.item_name(it))
+		else:
+			_earn(150)
+			lines.append("+150 couronnes")
+	if o.has("contract"):
+		var where: String = _post_special_contract(o["contract"])
+		if where != "":
+			lines.append("nouveau contrat à %s" % where)
+	if o.has("flag"):
+		story_flags[str(o["flag"])] = day
+	if o.has("schedule"):
+		var sc: Dictionary = o["schedule"]
+		pending_events.append({"id": str(sc["id"]), "due_day": day + int(sc.get("days", 1))})
+
+
+## Recrue unique d'une histoire (Data.STORY_RECRUITS) : talents, traits et niveau prédéfinis. Renvoie l'homme, ou null si la compagnie est pleine.
+func _recruit_story(key: String, lines: Array) -> Unit:
+	if not Data.STORY_RECRUITS.has(key):
+		return null
+	if roster.size() >= max_roster():
+		_earn(100)
+		lines.append("compagnie au complet : +100 couronnes à la place")
+		return null
+	var def: Dictionary = Data.STORY_RECRUITS[key]
+	var t: Dictionary = Data.BG[str(def["bg"])]
+	var u: Unit = Contracts.make_unit(t, "p", str(def["name"]), rng)
+	u.faction = "p"
+	u.wage = int(t["wage"])
+	Traits.set_fixed(u, def["traits"])
+	u.level = int(def["level"])
+	u.xp = int(Data.XP_THRESHOLDS[clampi(u.level, 0, Data.XP_THRESHOLDS.size() - 1)])
+	u.perks.assign(def["perks"])
+	u.perk_points = maxi(0, Perks.points_for_level(u.level) - u.perks.size())
+	for k in def["stats"]:
+		u.set(str(k), int(u.get(str(k))) + int(def["stats"][k]))
+	u.hp = u.hp_max
+	u.wage = int(round(float(u.wage) * (1.0 + 0.12 * float(u.level - 1))))
+	roster.append(u)
+	lines.append("%s rejoint la compagnie" % u.unit_name)
+	if key == "jumeau_a" or key == "jumeau_b":  # les jumeaux sont inséparables
+		var twin: String = str(Data.STORY_RECRUITS["jumeau_b" if key == "jumeau_a" else "jumeau_a"]["name"])
+		for m in roster:
+			if m.unit_name == twin:
+				Bonds.set_bond(u, m, 30)
+	return u
+
+
+## Poste un contrat spécial (issue d'histoire) dans le lieu le plus proche. Renvoie le nom du lieu, ou "" s'il n'y a pas de place sur la carte.
+func _post_special_contract(spec: Dictionary) -> String:
+	var best: Dictionary = {}
+	var bd: float = 1e12
+	for s in world.settlements:
+		var d: float = world.settlement_pos(s).distance_to(world.player_pos)
+		if d < bd:
+			bd = d
+			best = s
+	if best.is_empty():
+		return ""
+	var origin: Vector2 = world.settlement_pos(best)
+	var target: Vector2 = world.random_target(origin, 150.0, 480.0)
+	if target == Vector2.ZERO:
+		_earn(int(spec["pay"]) / 2)
+		return ""
+	var type: String = str(spec["type"])
+	var d3: int = int(spec["d"])
+	var c: Dictionary = {
+		"kind": "contract", "type": type, "type_contract": "kill", "d": d3, "foes": Contracts.foes_for(type, d3), "title": str(spec["title"]),
+		"desc": str(spec["desc"]), "employer": str(spec["employer"]), "origin": str(best["name"]), "origin_id": str(best["id"]),
+		"pay": int(spec["pay"]), "days": maxi(1, int(ceil(origin.distance_to(target) / World.DAY_PX))), "tx": target.x, "ty": target.y,
+		"ox": origin.x, "oy": origin.y, "target_name": str(Contracts.pick(Data.TARGET_NAMES[type], rng)), "biome": world.biome_at(target),
+		"special": true,
+	}
+	if Data.FACTIONS.has(str(spec.get("faction", ""))):
+		c["faction"] = str(spec["faction"])
+	(best["contracts"] as Array).insert(0, c)
+	return str(best["name"])
+
+
 # --- Lieux ---
 
 func settlement() -> Dictionary:
@@ -228,6 +597,25 @@ func _restock(s: Dictionary) -> void:
 		if not s["contracts"][ci].has("arc"):
 			s["contracts"].remove_at(ci)
 		ci -= 1
+	_apply_factions(s)
+
+
+## Employeur des contrats, primes selon la réputation, recrues d'élite et marchand rare chez un allié. Aléa local : `rng` reste intact.
+func _apply_factions(s: Dictionary) -> void:
+	var owner: String = Factions.owner_of(s)
+	if not Data.FACTIONS.has(owner):
+		return
+	var r := RandomNumberGenerator.new()
+	r.seed = day * 7919 + int(str(s["id"]).trim_prefix("s")) * 331 + 29
+	var standing: int = standing_with(owner)
+	for c in s["contracts"]:
+		if not c.has("faction"):
+			Factions.tag_contract(c, owner, r)
+			Factions.apply_pay(c, standing)
+	if standing >= Data.FACTION_STAND_GOOD:
+		(s["recruits"] as Array).append(Factions.make_elite_recruit(r, _names()))
+	if standing >= Data.FACTION_STAND_BEST and (s.get("rare", []) as Array).is_empty():
+		s["rare"] = Factions.forced_rare(s, day, campaign["uniques_taken"])
 
 
 func enter_settlement(id: String) -> void:
@@ -258,7 +646,7 @@ func leave_settlement() -> void:
 
 func price_of(base: int) -> int:
 	var s: Dictionary = settlement()
-	return int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s))))
+	return int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s)))))
 
 
 func in_stock(kind: String, key: String = "") -> bool:
@@ -291,6 +679,7 @@ func abandon_contract() -> void:
 	renown = maxi(0, renown - 5)
 	world.change_standing(str(active_contract.get("origin_id", "")), -2)
 	add_news(["Contrat abandonné : %s (−5 renom)." % active_contract["title"]])
+	add_news(_faction_result(active_contract, "abandon"))
 	add_news(_arc_result(active_contract, false))
 	active_contract = {}
 	_after_change()
@@ -305,6 +694,7 @@ func contract_target() -> Vector2:
 func _pay_or_desert(days: int) -> String:
 	_spend(wages() * days)
 	if gold < 0 and not roster.is_empty():
+		morale_add(-8.0)  ## paie en retard
 		var m: Unit = roster[rng.randi() % roster.size()]
 		roster.erase(m)
 		gold = 0
@@ -326,14 +716,23 @@ func advance_time(days: float) -> void:
 		rolled = true
 		if location == "":
 			for m in roster:
-				m.hp = mini(m.hp_max, m.hp + ROAD_HEAL)
-		for m in roster:  # blessures : un jour de soins sur la route, deux en ville (repos)
-			for n in Injuries.heal(m, 1 if location == "" else 2):
+				m.hp = mini(m.hp_max, m.hp + ROAD_HEAL + CampBuildings.road_heal_bonus(buildings))
+			lines.append_array(_eat_on_road())
+			morale_add(-0.2)  ## la route use
+		else:
+			morale_add(0.5)  ## on mange sur place, à l'abri
+		for m in roster:  # blessures : un jour de soins sur la route, deux en ville (repos), plus l'infirmerie
+			for n in Injuries.heal(m, (1 if location == "" else 2) + CampBuildings.injury_days_bonus(buildings)):
 				lines.append("%s est remis de sa blessure (%s)." % [m.unit_name, n.to_lower()])
 		lines.append_array(Campaign.daily(campaign, world, campaign_rng, day, renown))
 		var deserter: String = _pay_or_desert(1)
 		if deserter != "":
 			lines.append(deserter)
+		else:
+			morale_add(0.3)  ## solde à jour
+		var patrol: String = _maybe_spawn_patrol()
+		if patrol != "":
+			lines.append(patrol)
 		if rng.randf() < 0.35:
 			world.fill_parties(renown, World.MAX_PARTIES)
 	if not lines.is_empty():
@@ -372,6 +771,10 @@ func map_step(days: float) -> Dictionary:
 		elif world.player_pos.distance_to(contract_target()) <= World.ARRIVE_PX:
 			world.stop()
 			return {"type": "target"}
+	if random_events and day > day_before and not game_over:
+		var due: Dictionary = pop_due_event()  # suite d'une histoire programmée
+		if not due.is_empty():
+			return due
 	if world.path.is_empty() and not world.dest.is_empty():
 		var d: Dictionary = world.dest
 		world.stop()
@@ -395,7 +798,7 @@ func _transport_progress() -> float:
 
 
 func _start_event() -> Dictionary:
-	var def: Dictionary = Events.pick(rng, last_event_id)
+	var def: Dictionary = Events.pick(rng, last_event_id, story_flags, day)
 	last_event_day = day
 	last_event_id = str(def["id"])
 	pending_event = {"id": last_event_id}
@@ -436,8 +839,7 @@ func resolve_event(choice_id: String) -> Dictionary:
 		v.hp = clampi(v.hp + h2, 1, v.hp_max)
 		lines.append("%s : %+d PV" % [v.unit_name, h2])
 	if o.has("renown"):
-		var r: int = int(o["renown"])
-		renown = maxi(0, renown + r)
+		var r: int = gain_renown(int(o["renown"]))
 		lines.append("%+d renom" % r)
 	if o.has("xp_all"):
 		for m in roster:
@@ -452,7 +854,7 @@ func resolve_event(choice_id: String) -> Dictionary:
 			m.shield_dur = -1
 		lines.append("armures réparées")
 	if o.has("recruit"):
-		if roster.size() >= Data.MAX_ROSTER:
+		if roster.size() >= max_roster():
 			gold += 30
 			lines.append("compagnie au complet : +30 couronnes à la place")
 		else:
@@ -468,6 +870,10 @@ func resolve_event(choice_id: String) -> Dictionary:
 		lines.append("−%d jour%s" % [int(o["days"]), "s" if int(o["days"]) > 1 else ""])
 		if roster.size() < before:
 			lines.append("un homme a déserté faute de paie")
+	_apply_story_outcome(o, lines)
+	var story: String = Events.story_of(ev_id)
+	if story != "" and not story_flags.has("story_" + story):
+		story_flags["story_" + story] = day  ## l'histoire est commencée : elle ne sera plus tirée au hasard
 	var fight: bool = o.has("battle") and not game_over
 	var summary: String = text + (" (" + ", ".join(lines) + ")" if not lines.is_empty() else "")
 	add_news([summary if summary != "" else "Événement de route."])
@@ -476,7 +882,7 @@ func resolve_event(choice_id: String) -> Dictionary:
 	if fight:
 		var bd: Dictionary = o["battle"]
 		start_battle({
-			"kind": "ambush", "party_id": -1, "type": str(bd["type"]), "d": int(bd["d"]), "foes": Contracts.foes_for(str(bd["type"]), int(bd["d"])),
+			"kind": "ambush", "battle_type": "ambush", "party_id": -1, "type": str(bd["type"]), "d": int(bd["d"]), "foes": Contracts.foes_for(str(bd["type"]), int(bd["d"])),
 			"title": "Embuscade en chemin", "desc": "", "employer": "", "origin": "", "pay": 0, "days": 0, "biome": world.biome_at(world.player_pos),
 		})
 	_after_change()
@@ -492,10 +898,12 @@ func _complete_transport(id: String) -> void:
 	_earn(int(c["pay"]))
 	stat_add("contracts_done")
 	stat_add("transports_done")
-	renown += 25 * d
+	var rg: int = gain_renown(25 * d)
 	world.change_standing(str(c.get("origin_id", "")), 2)
 	world.change_standing(id, 1)
-	add_news(["Contrat rempli : %s. +%d couronnes, +%d renom." % [c["title"], int(c["pay"]), 25 * d]])
+	add_news(["Contrat rempli : %s. +%d couronnes, +%d renom." % [c["title"], int(c["pay"]), rg]])
+	add_news(_faction_result(c, "win"))
+	morale_add(4.0)
 	active_contract = {}
 
 
@@ -506,9 +914,10 @@ func rest() -> void:
 		return
 	var w: int = wages()
 	for m in roster:
-		m.hp = mini(m.hp_max, m.hp + 15 + Traits.rest_bonus(m))
+		m.hp = mini(m.hp_max, m.hp + 15 + Traits.rest_bonus(m) + CampBuildings.rest_heal_bonus(buildings))
 	var before: int = roster.size()
 	advance_time(1.0)
+	morale_add(3.0)
 	var lines: Array = ["Un jour de repos. −%d couronnes de solde." % w]
 	if roster.size() < before:
 		lines.push_front("Faute de paie, un homme a déserté.")
@@ -554,7 +963,7 @@ func hire(index: int) -> bool:
 	if s.is_empty() or index < 0 or index >= s["recruits"].size():
 		return false
 	var r: Dictionary = s["recruits"][index]
-	if gold < int(r["price"]) or roster.size() >= Data.MAX_ROSTER:
+	if gold < int(r["price"]) or roster.size() >= max_roster():
 		return false
 	_spend(int(r["price"]))
 	stat_add("men_hired")
@@ -608,6 +1017,18 @@ func buy(m: Unit, kind: String, key: String = "") -> bool:
 			m.body = key
 			m.arm_b = int(b["a"])
 			line = "%s s'équipe : %s." % [m.unit_name, b["n"]]
+		"tool":  # outil de jet : va dans le sac de l'homme (sinon dans la réserve)
+			var tl: Dictionary = Data.TOOLS[key]
+			var price: int = price_of(int(tl["price"]))
+			var slot: int = Inventory.bag_free_slot(m)
+			if gold < price or (slot < 0 and inventory.size() >= Data.STASH_SIZE):
+				return false
+			_spend(price)
+			if slot >= 0:
+				m.bag[slot] = Loot.item("tool", key)
+			else:
+				inventory.append(Loot.item("tool", key))
+			line = "%s prend : %s." % [m.unit_name, tl["n"]]
 		_:
 			return false
 	add_news([line])
@@ -654,7 +1075,7 @@ func equip_from_inventory(m: Unit, index: int) -> bool:
 	if not can_equip_from_inventory(m, index):
 		return false
 	var iname: String = Loot.item_name(inventory[index])
-	var res: Dictionary = Inventory.equip(inventory, m, index)
+	var res: Dictionary = Inventory.equip(inventory, m, index, stash_size())
 	if not bool(res["ok"]):
 		return false
 	add_news(["%s s'équipe : %s." % [m.unit_name, iname]])
@@ -665,7 +1086,7 @@ func equip_from_inventory(m: Unit, index: int) -> bool:
 ## Ajoute des objets à la réserve (Data.STASH_SIZE emplacements). Le trop-plein est vendu d'office à son prix de revente de base
 ## (40 % du prix, sans coefficient de lieu) : un message le signale. Renvoie le nombre d'objets vendus d'office.
 func add_to_stash(items: Array) -> int:
-	var overflow: Array = Inventory.add_items(inventory, items)
+	var overflow: Array = Inventory.add_items(inventory, items, stash_size())
 	var total: int = 0
 	for it in overflow:
 		total += Loot.sell_base(it)
@@ -684,7 +1105,7 @@ func can_edit_inventory() -> bool:
 func inv_move(from: Dictionary, to: Dictionary) -> Dictionary:
 	if not can_edit_inventory():
 		return Inventory.fail("Impossible pendant une bataille.")
-	var res: Dictionary = Inventory.move(inventory, from, to)
+	var res: Dictionary = Inventory.move(inventory, from, to, stash_size())
 	if bool(res["ok"]):
 		_after_change()
 	return res
@@ -694,7 +1115,7 @@ func inv_move(from: Dictionary, to: Dictionary) -> Dictionary:
 func inv_equip(m: Unit, index: int) -> Dictionary:
 	if not can_edit_inventory():
 		return Inventory.fail("Impossible pendant une bataille.")
-	var res: Dictionary = Inventory.equip(inventory, m, index)
+	var res: Dictionary = Inventory.equip(inventory, m, index, stash_size())
 	if bool(res["ok"]):
 		_after_change()
 	return res
@@ -707,7 +1128,7 @@ func inv_unequip(m: Unit, slot: String) -> Dictionary:
 func inv_give(from_m: Unit, slot: String, to_m: Unit) -> Dictionary:
 	if not can_edit_inventory():
 		return Inventory.fail("Impossible pendant une bataille.")
-	var res: Dictionary = Inventory.give(inventory, from_m, slot, to_m)
+	var res: Dictionary = Inventory.give(inventory, from_m, slot, to_m, stash_size())
 	if bool(res["ok"]):
 		_after_change()
 	return res
@@ -817,7 +1238,7 @@ func start_battle(contract: Dictionary) -> void:
 	if roster.is_empty() or battle != null:
 		return
 	world.stop()
-	battle = BattleState.create(contract, roster, rng)
+	battle = BattleState.create(contract, roster, rng, battle_start_morale(), CampBuildings.wear_mult(buildings))
 	save()
 	battle_started.emit()
 
@@ -835,7 +1256,7 @@ func engage_party(id: int) -> void:
 		return
 	start_battle({
 		"kind": "encounter", "party_id": id, "type": p["faction"], "d": p["d"], "foes": p["foes"].duplicate(),
-		"title": "Embuscade : " + world.party_title(p).to_lower(), "desc": "", "employer": "", "origin": "", "pay": 0, "days": 0,
+		"title": "Embuscade : " + world.party_title(p).to_lower(), "desc": "", "employer": "", "origin": "", "pay": 0, "days": 0, "battle_type": "ambush", "traps": str(p["faction"]) == "b",
 		"biome": world.biome_at(world.player_pos),
 	})
 
@@ -846,9 +1267,9 @@ func engage_ambush() -> void:
 		return
 	var c: Dictionary = active_contract
 	start_battle({
-		"kind": "ambush", "transport": true, "party_id": -1, "type": c["type"], "d": c["d"], "foes": c["foes"].duplicate(),
+		"kind": "ambush", "battle_type": "ambush", "transport": true, "party_id": -1, "type": c["type"], "d": c["d"], "foes": c["foes"].duplicate(),
 		"title": "Embuscade sur la route de %s" % c["target_name"], "desc": "", "employer": "", "origin": c.get("origin", ""),
-		"origin_id": c.get("origin_id", ""), "pay": 0, "days": 0, "biome": world.biome_at(world.player_pos),
+		"origin_id": c.get("origin_id", ""), "faction": c.get("faction", ""), "pay": 0, "days": 0, "biome": world.biome_at(world.player_pos),
 	})
 
 
@@ -869,9 +1290,10 @@ func rest_at_site(id: String) -> bool:
 		return false
 	var w: int = wages()
 	for m in roster:
-		m.hp = mini(m.hp_max, m.hp + Campaign.SITE_REST_HEAL)
+		m.hp = mini(m.hp_max, m.hp + Campaign.SITE_REST_HEAL + CampBuildings.rest_heal_bonus(buildings))
 	var before: int = roster.size()
 	advance_time(1.0)
+	morale_add(3.0)
 	var lines: Array = ["Un jour de repos à %s. −%d couronnes de solde." % [s["name"], w]]
 	if roster.size() < before:
 		lines.push_front("Faute de paie, un homme a déserté.")
@@ -887,7 +1309,7 @@ func buy_rare(index: int) -> bool:
 		return false
 	var r: Dictionary = s["rare"][index]
 	var price: int = rare_price_of(r)
-	if gold < price or inventory.size() >= Data.STASH_SIZE:
+	if gold < price or inventory.size() >= stash_size():
 		return false
 	_spend(price)
 	inventory.append(r["item"])
@@ -916,7 +1338,7 @@ func _arc_result(c: Dictionary, win: bool) -> Array:
 	if not c.has("arc"):
 		return []
 	var res: Dictionary = Campaign.on_result(campaign, world, c, win, campaign_rng)
-	renown += int(res["renown"])
+	gain_renown(int(res["renown"]))
 	if not (res["item"] as Dictionary).is_empty():
 		add_to_stash([res["item"]])
 		_note_uniques([res["item"]])
@@ -929,8 +1351,8 @@ func _assault_won(c: Dictionary) -> Array:
 		return ["Vague repoussée : une autre arrive aussitôt !"]
 	var lines: Array = []
 	_earn(int(c["pay"]))
-	renown += int(c.get("renown", 0))
-	lines.append("%s : +%d couronnes, +%d renom." % [str(c["title"]).split(" (vague")[0].replace("Assaut", "Lieu pris"), int(c["pay"]), int(c.get("renown", 0))])
+	var rg: int = gain_renown(int(c.get("renown", 0)))
+	lines.append("%s : +%d couronnes, +%d renom." % [str(c["title"]).split(" (vague")[0].replace("Assaut", "Lieu pris"), int(c["pay"]), rg])
 	var s: Dictionary = world.site_by_id(str(c.get("site_id", "")))
 	if not s.is_empty():
 		lines.append_array(Campaign.site_conquered(campaign, s, day))
@@ -980,6 +1402,7 @@ func finish_battle() -> void:
 	var dead_names: Array = []
 	var survivors: Array[Unit] = []
 	var men_report: Array = []
+	var fought: Array = []  ## hommes ayant combattu et survécu (liens d'amitié)
 	var gold_before: int = gold
 	var renown_before: int = renown
 	for m in roster:
@@ -1019,7 +1442,11 @@ func finish_battle() -> void:
 		men_report.append({"u": m.to_dict(), "dead": false, "hp_before": rep_hp_before, "hp_after": m.hp, "xp": int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5),
 			"kills": bu.kills - rep_kills_before, "lvl_before": rep_lvl_before, "lvl_after": m.level, "wounds": rep_wounds})
 		survivors.append(m)
+		fought.append(m)
 	roster = survivors
+	Bonds.battle_gain(fought, win)
+	Bonds.prune(roster)
+	morale_add((6.0 if win else (-6.0 if b.over == "retreat" else -10.0)) - minf(12.0, 3.0 * float(dead_names.size())))
 	var lines: Array = []
 	if win:
 		stat_add("battles_won")
@@ -1032,22 +1459,21 @@ func finish_battle() -> void:
 	if win:
 		if is_contract:
 			_earn(int(c["pay"]))
-			renown += 40 * int(c["d"])
+			var rg: int = gain_renown(40 * int(c["d"]))
 			stat_add("contracts_done")
 			if c.get("type_contract", "kill") == "hunt":
 				stat_add("hunts_done")
-			lines.append("Contrat rempli : +%d couronnes, +%d renom." % [c["pay"], 40 * int(c["d"])])
+			lines.append("Contrat rempli : +%d couronnes, +%d renom." % [c["pay"], rg])
+			lines.append_array(_faction_result(c, "win"))
 			world.change_standing(str(c.get("origin_id", "")), 3 if c.get("type_contract", "kill") == "hunt" else 2)
 			lines.append_array(_arc_result(c, true))
 			active_contract = {}
 		elif is_assault:
 			lines.append_array(_assault_won(c))
 		elif is_ambush:
-			renown += 15 * int(c["d"])
-			lines.append("Embuscade repoussée : +%d renom." % (15 * int(c["d"])))
+			lines.append("Embuscade repoussée : +%d renom." % gain_renown(15 * int(c["d"])))
 		else:
-			renown += 15 * int(c["d"])
-			lines.append("Bande dispersée : +%d renom." % (15 * int(c["d"])))
+			lines.append("Bande dispersée : +%d renom." % gain_renown(15 * int(c["d"])))
 			var p: Dictionary = world.party_by_id(int(c["party_id"]))
 			world.parties.erase(p)
 	else:
@@ -1057,6 +1483,7 @@ func finish_battle() -> void:
 		lines[0] += "Le contrat est perdu." if contract_lost else "Les survivants s'enfuient."
 		if contract_lost:
 			world.change_standing(str(c.get("origin_id", "")), -1)
+			lines.append_array(_faction_result(c, "lost"))
 			lines.append_array(_arc_result(c, false))
 			active_contract = {}
 		elif is_ambush or is_assault:
@@ -1072,8 +1499,19 @@ func finish_battle() -> void:
 		add_to_stash(loot)
 		_note_uniques(loot)
 		lines.append("Butin récupéré : %d objet%s." % [loot.size(), "s" if loot.size() > 1 else ""])
+	var obj_report: Array = []
+	for o in b.objectives:  # objectifs secondaires : primes versées seulement en cas de victoire
+		obj_report.append({"label": str(o["label"]), "done": bool(o["done"]) and win, "gold": int(o["bonus"]["gold"]), "renown": int(o["bonus"]["renown"])})
+	if win and (is_contract or is_assault):  # embuscades et rencontres de route : pas de primes d'objectifs
+		var ob: Dictionary = b.objective_bonus()
+		if int(ob["gold"]) > 0:
+			_earn(int(ob["gold"]))
+		if int(ob["renown"]) > 0:
+			gain_renown(int(ob["renown"]))
+		if int(ob["gold"]) > 0 or int(ob["renown"]) > 0:
+			lines.append("Objectifs remplis : +%d couronnes, +%d renom." % [int(ob["gold"]), int(ob["renown"])])
 	last_battle_report = {"result": b.over, "title": str(c.get("title", "")), "day": day, "men": men_report, "loot": loot.duplicate(true),
-		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate()}
+		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate(), "objectives": obj_report}
 	pending_loot = []
 	pending_loot_ready = false
 	battle = null
@@ -1097,6 +1535,7 @@ func _after_change() -> void:
 # --- Sauvegarde (user://savegame.json) ---
 
 func to_dict() -> Dictionary:
+	Bonds.prune(roster)  ## liens vers des hommes partis : oubliés
 	var ros: Array = []
 	for m in roster:
 		ros.append(m.to_dict())
@@ -1110,6 +1549,8 @@ func to_dict() -> Dictionary:
 		"inventory": inventory.duplicate(true), "pending_loot": pending_loot.duplicate(true), "pending_loot_ready": pending_loot_ready,
 		"stats": stats.duplicate(), "banner": banner.duplicate(), "company_name": company_name,
 		"last_battle_report": last_battle_report,
+		"provisions": provisions, "company_morale": company_morale, "starve_days": starve_days, "buildings": buildings.duplicate(),
+		"faction_standing": faction_standing.duplicate(), "story_flags": story_flags.duplicate(), "pending_events": pending_events.duplicate(true),
 	}
 
 
@@ -1155,6 +1596,25 @@ func from_dict(d: Dictionary) -> void:
 	stats = Achievements.normalize_stats(d.get("stats", {}))
 	banner = Banner.clean(d.get("banner", {}))
 	company_name = Banner.clean_name(str(d.get("company_name", Data.COMPANY_NAME_DEFAULT)))
+	# Vie de la compagnie : une ancienne sauvegarde reçoit vivres et moral par défaut, aucun bâtiment, aucune relation ni histoire
+	provisions = clampi(int(d.get("provisions", Data.PROVISIONS_START)), 0, 100000)
+	company_morale = clampf(float(d.get("company_morale", Data.MORALE_START)), 0.0, 100.0)
+	starve_days = maxi(0, int(d.get("starve_days", 0)))
+	buildings = CampBuildings.normalize(d.get("buildings", {}))
+	faction_standing = Factions.normalize_standing(d.get("faction_standing", {}))
+	story_flags = {}
+	var sf: Variant = d.get("story_flags", {})
+	if typeof(sf) == TYPE_DICTIONARY:
+		for k in sf:
+			story_flags[str(k)] = int(sf[k])
+	pending_events = []
+	var pes: Variant = d.get("pending_events", [])
+	if typeof(pes) == TYPE_ARRAY:
+		for pe in pes:
+			if typeof(pe) == TYPE_DICTIONARY and not Events.get_def(str((pe as Dictionary).get("id", ""))).is_empty():
+				pending_events.append({"id": str(pe["id"]), "due_day": int(pe.get("due_day", day))})
+	_food_warned = false
+	Factions.assign_owners(world)  ## propriétaires des lieux (anciennes sauvegardes)
 	last_battle_report = {}
 	var lbr: Variant = d.get("last_battle_report", {})
 	if typeof(lbr) == TYPE_DICTIONARY and not (lbr as Dictionary).is_empty():

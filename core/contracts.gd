@@ -61,6 +61,8 @@ static func make_foe(key: String, rng: RandomNumberGenerator) -> Unit:
 	u.xp_value = int(t["xp"])
 	u.leader = bool(t["leader"])
 	u.perks.assign(t.get("perks", []))  ## chefs : talents fixes
+	u.foe_key = key
+	u.sprite = str(t.get("sprite", ""))
 	return u
 
 
@@ -101,6 +103,12 @@ const _ORCS: Array = [
 	["orc_jeune", "orc_jeune", "orc_jeune", "orc_guerrier", "orc_guerrier", "berserker"],
 	["orc_jeune", "orc_jeune", "orc_guerrier", "orc_guerrier", "orc_guerrier", "berserker", "berserker", "orc_chef"],
 ]
+const _BEASTS: Array = [
+	[],
+	["loup", "loup", "loup", "loup"],
+	["loup", "loup", "loup", "loup", "cavalier_loup", "cavalier_loup"],
+	["loup", "loup", "loup", "cavalier_loup", "cavalier_loup", "ogre", "troll"],
+]
 const _UNDEAD: Array = [
 	[],
 	["squelette", "squelette", "squelette", "zombie"],
@@ -121,6 +129,8 @@ static func foes_for(type: String, danger: int) -> Array:
 			table = _ORCS
 		"u":
 			table = _UNDEAD
+		"m":
+			table = _BEASTS
 		_:
 			table = _BANDITS
 	return (table[clampi(danger, 1, 3)] as Array).duplicate()
@@ -145,7 +155,26 @@ static func factions_for(renown: int) -> Array:
 		out.append("u")
 	if renown >= int(Data.FACTION_MIN_RENOWN["o"]):
 		out.append("o")
+	if renown >= int(Data.FACTION_MIN_RENOWN["m"]):
+		out.append("m")
 	return out
+
+
+const _BEAST_TITLES: Array = ["Chasse aux monstres : la meute de {town}", "Bêtes sur les chemins de {town}", "Les loups de {town}"]
+const _BEAST_DESCS: Array = [
+	"Des bêtes énormes rôdent autour de {town}. Les bergers n'osent plus sortir.",
+	"On a retrouvé des troupeaux entiers dévorés. Le syndic paie pour qu'on en finisse.",
+	"Quelque chose hurle la nuit près de {town}. Rapportez des preuves.",
+]
+
+
+## Type de bataille d'un contrat : convoi pour une escorte, nuit pour environ un contrat sur six (tirage déterministe, sans toucher à l'aléa de la partie).
+static func battle_type_for(c: Dictionary) -> String:
+	if str(c.get("type_contract", "kill")) == "escort":
+		return "convoy"
+	if (hash(str(c.get("title", ""))) + int(c.get("pay", 0))) % 100 < 16:
+		return "night"
+	return "pitched"
 
 
 ## Rend un contrat lu depuis du JSON utilisable (nombres entiers / flottants).
@@ -230,6 +259,9 @@ static func gen_contracts(renown: int, rng: RandomNumberGenerator, town: String,
 			var title: String = fl[0]
 			var desc: String = fl[1]
 			var foes: Array = foes_for(type, d)
+			if type == "m":
+				title = str(pick(_BEAST_TITLES, rng)).replace("{town}", town)
+				desc = str(pick(_BEAST_DESCS, rng)).replace("{town}", town)
 			var days: int = maxi(1, int(ceil(origin.distance_to(target) / World.DAY_PX)))
 			var pay: int = d * 320 + rng.randi_range(0, 30) * 5 + (d * 60 if type != "b" else 0) + days * 20
 			if kind == "hunt":
@@ -245,5 +277,6 @@ static func gen_contracts(renown: int, rng: RandomNumberGenerator, town: String,
 				"pay": pay, "days": days, "tx": target.x, "ty": target.y, "ox": origin.x, "oy": origin.y,
 				"target_name": str(pick(Data.TARGET_NAMES[type], rng)), "biome": world.biome_at(target),
 			}
+		c["battle_type"] = battle_type_for(c)
 		out.append(c)
 	return out

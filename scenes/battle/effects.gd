@@ -58,6 +58,28 @@ func impact(pos: Vector2, armor_hit: bool, hp_hit: bool, dir: Vector2, head: boo
 		_burst(at, 5, 0.35, blood.darkened(0.25), 20.0, 60.0, 3.2, Vector2.UP, 150.0, 200.0)
 
 
+## Coup d'une arme lourde : éclat de poussière et gravats au sol.
+func heavy_hit(pos: Vector2) -> void:
+	if not enabled() or not is_inside_tree():
+		return
+	_burst(pos + Vector2(0.0, 8.0), 12, 0.7, Color(DUST, 0.6), 12.0, 50.0, 4.5, Vector2.UP, 170.0, -8.0)
+	_burst(pos + Vector2(0.0, 4.0), 6, 0.4, Color("6c665a"), 40.0, 90.0, 1.8, Vector2.UP, 150.0, 320.0)
+
+
+## Éclats de bois (palissade, porte, barricade).
+func splinters(pos: Vector2) -> void:
+	if not enabled() or not is_inside_tree():
+		return
+	_burst(pos + Vector2(0.0, -6.0), 9, 0.5, Color("9a7a4a"), 50.0, 120.0, 2.2, Vector2.UP, 160.0, 280.0)
+
+
+## Chute ou mort : poussière qui se lève du sol.
+func thud(pos: Vector2) -> void:
+	if not enabled() or not is_inside_tree():
+		return
+	_burst(pos + Vector2(0.0, 9.0), 8, 0.8, Color(DUST, 0.5), 8.0, 28.0, 4.0, Vector2.UP, 160.0, -6.0)
+
+
 ## Nuage de poussière sous les pieds d'une unité qui se déplace.
 func dust(pos: Vector2) -> void:
 	if not enabled() or not is_inside_tree():

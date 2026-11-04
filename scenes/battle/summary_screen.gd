@@ -20,6 +20,7 @@ static func build(box: VBoxContainer, report: Dictionary, on_close: Callable) ->
 	var result: String = str(report.get("result", ""))
 	var win: bool = result == "win"
 	var heading: String = "Victoire" if win else ("Retraite" if result == "retreat" else "Défaite")
+	box.add_child(Illustrations.banner("victory" if win else "defeat", 90))
 	box.add_child(UiKit.title(heading, 38, GameTheme.GOLD if win else GameTheme.BLOOD))
 	box.add_child(UiKit.sub(str(report.get("title", "")), 14))
 	var gold: int = int(report.get("gold", 0))

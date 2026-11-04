@@ -21,6 +21,7 @@ func _ready() -> void:
 	box.custom_minimum_size = Vector2(620, 0)
 	center.add_child(box)
 	var st: Dictionary = Game.ending_stats()
+	box.add_child(Illustrations.banner("victory", 150))
 	var t := UiKit.title("Victoire !", 64, GameTheme.GOLD)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(t)

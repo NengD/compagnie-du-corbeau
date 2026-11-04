@@ -489,7 +489,7 @@ func test_world() -> void:
 		total += w2.step_player(0.25)
 		guard += 1
 	eq(w2.player_pos, tp, "arrivée à destination")
-	check(total >= straight / World.DAY_PX - 0.001, "au moins la durée en ligne droite (%.2f jours)" % total)
+	check(total >= straight / World.DAY_PX * World.ROAD_COST - 0.001,"au moins la durée en ligne droite (%.2f jours)" % total)
 	check(total <= straight / World.DAY_PX * 3.0, "pas absurdement long")
 	eq(w2.step_player(1.0), 0.0, "pas de temps consommé sans chemin")
 	check(not w2.set_destination(Vector2(5, 5), {}), "destination infranchissable refusée")
@@ -720,11 +720,12 @@ func test_game_battle_results() -> void:
 	eq(b.over, "win", "victoire")
 	var gold_before: int = g.gold
 	var day_before: int = g.day
+	var ob_gold: int = int(b.objective_bonus()["gold"])
 	g.finish_battle()
 	eq(g.battle, null, "bataille terminée")
 	eq(g.roster.size(), 4, "un mort de moins")
 	eq(g.fallen[0]["name"], dead_name, "nom au mémorial")
-	eq(g.gold, gold_before + c["pay"], "prime versée")
+	eq(g.gold, gold_before + c["pay"] + ob_gold, "prime versée (+ objectifs)")
 	eq(g.day, day_before, "pas de jour perdu au retour")
 	eq(g.renown, 40 * c["d"], "renom")
 	check(g.active_contract.is_empty(), "contrat terminé")

@@ -202,8 +202,9 @@ func test_chasse_au_chef_et_reputation() -> void:
 					u.morale = 0
 			g.battle.check_end()
 			var gold0: int = g.gold
+			var ob_gold: int = int(g.battle.objective_bonus()["gold"])
 			g.finish_battle()
-			t.eq(g.gold, gold0 + int(c["pay"]), "prime de la chasse au chef")
+			t.eq(g.gold, gold0 + int(c["pay"]) + ob_gold, "prime de la chasse au chef (+ objectifs)")
 			t.eq(g.world.standing_of(g.world.settlement_by_id(c["origin_id"])), 3, "réputation +3 pour une chasse")
 			break
 	t.check(found, "chasse au chef trouvée")
