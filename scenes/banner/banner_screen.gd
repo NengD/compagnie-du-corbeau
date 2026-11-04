@@ -7,7 +7,7 @@ extends RefCounted
 static func open(host: Node) -> ModalOverlay:
 	var modal: ModalOverlay = ModalOverlay.open(host, 560)
 	var box: VBoxContainer = modal.content
-	var state: Dictionary = {"primary": str(Game.banner["primary"]), "secondary": str(Game.banner["secondary"]), "emblem": int(Game.banner["emblem"])}
+	var state: Dictionary = {"primary": str(Game.banner["primary"]), "secondary": str(Game.banner["secondary"]), "emblem": int(Game.banner["emblem"]), "pattern": int(Game.banner.get("pattern", 0))}
 	box.add_child(UiKit.title("Bannière de la compagnie", 32))
 
 	var head := UiKit.hbox(16)
@@ -28,17 +28,17 @@ static func open(host: Node) -> ModalOverlay:
 
 	var apply := func() -> void:
 		preview.set_banner(state)
-		Game.set_banner(str(state["primary"]), str(state["secondary"]), int(state["emblem"]))
+		Game.set_banner(str(state["primary"]), str(state["secondary"]), int(state["emblem"]), int(state["pattern"]))
 	var swatch_rows: Array = []
 	box.add_child(UiKit.label("Couleur principale", 15, GameTheme.GOLD, true))
-	var prow := _swatches(state, "primary", true, apply, swatch_rows)
-	box.add_child(prow)
+	var prow0 := _swatches(state, "primary", true, apply, swatch_rows)
+	box.add_child(prow0)
 	box.add_child(UiKit.label("Couleur secondaire (emblème et chevron)", 15, GameTheme.GOLD, true))
 	var srow := _swatches(state, "secondary", false, apply, swatch_rows)
 	box.add_child(srow)
 	box.add_child(UiKit.label("Emblème", 15, GameTheme.GOLD, true))
 	var grid := GridContainer.new()
-	grid.columns = 4
+	grid.columns = 5
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 6)
 	var emblem_buttons: Array[Button] = []
@@ -55,6 +55,22 @@ static func open(host: Node) -> ModalOverlay:
 		emblem_buttons.append(b)
 		grid.add_child(b)
 	box.add_child(grid)
+	box.add_child(UiKit.label("Motif du champ", 15, GameTheme.GOLD, true))
+	var prow := UiKit.hbox(6)
+	var pattern_buttons: Array[Button] = []
+	for i in Data.BANNER_PATTERNS.size():
+		var pb := UiKit.button(str(Data.BANNER_PATTERNS[i]), "", true)
+		pb.toggle_mode = true
+		pb.button_pressed = i == int(state["pattern"])
+		pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pb.pressed.connect(func() -> void:
+			state["pattern"] = i
+			for j in pattern_buttons.size():
+				pattern_buttons[j].set_pressed_no_signal(j == i)
+			apply.call())
+		pattern_buttons.append(pb)
+		prow.add_child(pb)
+	box.add_child(prow)
 
 	var commit_name := func() -> void:
 		if name_edit.text.strip_edges() != Game.company_name:
@@ -68,6 +84,9 @@ static func open(host: Node) -> ModalOverlay:
 		state["primary"] = str(d["primary"])
 		state["secondary"] = str(d["secondary"])
 		state["emblem"] = int(d["emblem"])
+		state["pattern"] = int(d["pattern"])
+		for j in pattern_buttons.size():
+			pattern_buttons[j].set_pressed_no_signal(j == int(d["pattern"]))
 		for j in emblem_buttons.size():
 			emblem_buttons[j].set_pressed_no_signal(j == int(d["emblem"]))
 		for sr in swatch_rows:

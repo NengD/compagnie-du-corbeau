@@ -1,27 +1,25 @@
 class_name MapScreen
-extends HBoxContainer
-## Écran de la carte : on clique pour se déplacer, le temps passe en marchant.
-## Le déplacement, la solde et les rencontres sont gérés par `Game.map_step`.
+extends Control
+## Écran de la carte : la carte occupe tout l'écran de jeu, le HUD (MapHud) et le tiroir « Détails » (MapDrawer) se superposent.
+## On clique pour se déplacer, le temps passe en marchant. Le déplacement, la solde et les rencontres sont gérés par `Game.map_step`.
 
 signal company_requested
 
 const DAYS_PER_SEC := 0.5  ## jours de jeu par seconde réelle à vitesse ×1
-const SIDE_W := 330
 
 var view: MapView
+var hud: MapHud
+var drawer: MapDrawer
 
 var _speed: int = 1  ## 0 pause, 1 à 3 : vitesse
-var _side: VBoxContainer
-var _status: Label
-var _speed_buttons: Array[Button] = []
 var _repath_timer: float = 0.0
-var _confirm_abandon: bool = false
+var _pill_timer: float = 0.0
 var _event_modal: ModalOverlay
 var _site_modal: ModalOverlay
 var _help: ModalOverlay
 var _legend_panel: PanelContainer
-var _legend_btn: Button
 var _focus_i: int = -1  ## lieu mis en avant par Tab
+var _focus_n: int = 0
 
 ## Pictogramme de la légende, dessiné comme sur la carte (en miniature).
 class LegendIcon extends Control:
@@ -56,45 +54,58 @@ class LegendIcon extends Control:
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -9), c + Vector2(8, -6), c + Vector2(0, -3)]), Color("b03a2e"))
 				draw_arc(c + Vector2(0, 8), 5.0, 0.0, TAU, 12, Color(0.8, 0.25, 0.2, 0.8), 1.4)
 			"company":
-				draw_circle(c, 9.0, ol)
-				draw_circle(c, 7.8, GameTheme.GOLD)
+				draw_line(c + Vector2(0, 10), c + Vector2(0, -10), ol, 2.4)
+				draw_line(c + Vector2(-6, -9), c + Vector2(6, -9), ol, 2.0)
+				var cloth := PackedVector2Array([c + Vector2(-5, -8), c + Vector2(5, -8), c + Vector2(5, 3), c + Vector2(0, 0), c + Vector2(-5, 3)])
+				draw_colored_polygon(cloth, Banner.primary(Game.banner))
+				draw_polyline(PackedVector2Array([cloth[0], cloth[1], cloth[2], cloth[3], cloth[4], cloth[0]]), ol, 1.0)
+				draw_circle(c + Vector2(0, -4), 1.8, Banner.secondary(Game.banner))
 			"visited":
 				draw_circle(c, 6.5, ol)
 				draw_circle(c, 5.2, Color("8aa05a"))
 				draw_polyline(PackedVector2Array([c + Vector2(-2.6, 0.2), c + Vector2(-0.6, 2.4), c + Vector2(2.8, -2.2)]), ol, 1.6, true)
 
 
+
 func _ready() -> void:
 	Sfx.music("map")
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_theme_constant_override("separation", 14)
-	var frame := PanelContainer.new()
-	frame.theme_type_variation = "Card"
-	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(frame)
 	view = MapView.new()
-	view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	view.custom_minimum_size = Vector2(420, 300)
-	frame.add_child(view)
+	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(view)
 	view.travel_requested.connect(_travel)
 	view.stop_requested.connect(_stop)
+	hud = MapHud.new()
+	add_child(hud)
+	hud.speed_chosen.connect(_set_speed)
+	hud.company_pressed.connect(func() -> void: company_requested.emit())
+	hud.inventory_pressed.connect(func() -> void: InventoryScreen.open(self))
+	hud.details_pressed.connect(func() -> void: drawer.toggle())
+	hud.legend_pressed.connect(func() -> void:
+		_legend_panel.visible = not _legend_panel.visible
+		hud.set_legend_open(_legend_panel.visible)
+		_sync_overlay_group())
+	hud.help_pressed.connect(_open_help)
+	hud.contract_go_pressed.connect(func() -> void:
+		if not Game.active_contract.is_empty():
+			_travel(Game.contract_target(), {"kind": "target", "title": str(Game.active_contract["target_name"])}))
 	_build_legend()
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(SIDE_W, 0)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(scroll)
-	_side = UiKit.vbox(10)
-	_side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_side)
-	Game.changed.connect(_refresh_side)
-	_refresh_side()
+	drawer = MapDrawer.new()
+	add_child(drawer)
+	drawer.travel_requested.connect(_travel)
+	drawer.toggled.connect(func(on: bool) -> void:
+		hud.set_details_open(on)
+		_sync_overlay_group())
+	Game.changed.connect(hud.refresh)
+	hud.set_speed(_speed)
+	_update_status()
+	_update_time()
 
 
 func _exit_tree() -> void:
-	if Game.changed.is_connected(_refresh_side):
-		Game.changed.disconnect(_refresh_side)
+	if Game.changed.is_connected(hud.refresh):
+		Game.changed.disconnect(hud.refresh)
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -108,11 +119,23 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		if event.keycode == KEY_F1 or event.keycode == KEY_QUESTION or event.unicode == 63:
 			_open_help()
 			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_D:
+			drawer.toggle()
+			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_SPACE:
 			_set_speed(0 if _speed > 0 else 1)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
-			_stop()
+			if drawer.is_open:
+				drawer.close()
+				get_viewport().set_input_as_handled()
+			elif _legend_panel.visible:
+				_legend_panel.visible = false
+				hud.set_legend_open(false)
+				_sync_overlay_group()
+				get_viewport().set_input_as_handled()
+			else:
+				_stop()
 		elif event.keycode == KEY_C or event.keycode == KEY_H or event.keycode == KEY_HOME:
 			view.center_on_player()
 			get_viewport().set_input_as_handled()
@@ -136,17 +159,12 @@ func _focus_next_place(dir: int) -> void:
 	_focus_i = posmod(_focus_i + dir, places.size())
 	var s: Dictionary = places[_focus_i]
 	view.center_on(Game.world.settlement_pos(s), true)
-	if _status != null:
-		var v: int = Visits.day_of(s)
-		_status.text = "%s%s" % [s["name"], " — visité le jour %d." % v if v > 0 else ""]
+	var v: int = Visits.day_of(s)
+	_focus_n += 1
+	hud.say("%s%s" % [s["name"], " — visité le jour %d." % v if v > 0 else ""], "focus%d" % _focus_n)
 
 
 func _build_legend() -> void:
-	var box := UiKit.vbox(4)
-	box.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	box.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	box.position = Vector2(8, -8)
-	view.add_child(box)
 	_legend_panel = PanelContainer.new()
 	_legend_panel.theme_type_variation = "Card"
 	_legend_panel.visible = false
@@ -164,23 +182,21 @@ func _build_legend() -> void:
 	terr_cb.add_theme_font_size_override("font_size", 13)
 	terr_cb.toggled.connect(view.set_show_territories)
 	lv.add_child(terr_cb)
-	box.add_child(_legend_panel)
-	var row2 := UiKit.hbox(4)
-	_legend_btn = UiKit.button("Légende ▸", "ghost", true)
-	_legend_btn.pressed.connect(func() -> void:
-		_legend_panel.visible = not _legend_panel.visible
-		_legend_btn.text = "Légende ▾" if _legend_panel.visible else "Légende ▸")
-	row2.add_child(_legend_btn)
-	var hb := UiKit.button("?", "ghost", true)
-	hb.tooltip_text = "Raccourcis clavier (? ou F1)"
-	hb.pressed.connect(_open_help)
-	row2.add_child(hb)
-	box.add_child(row2)
+	hud.legend_anchor.add_child(_legend_panel)
+
+
+func _update_time() -> void:
+	hud.set_time(Game.day, Game.day_fraction, int(Quality.value("weather")) > 0)
 
 
 func _process(delta: float) -> void:
 	if Game.battle != null or Game.location != "" or Game.world == null:
 		return
+	_update_time()
+	_pill_timer += delta
+	if _pill_timer > 0.5:
+		_pill_timer = 0.0
+		hud.refresh_pill()
 	if not Game.pending_event.is_empty():
 		_open_event()  ## le temps est en pause tant qu'un événement attend un choix
 		return
@@ -313,12 +329,6 @@ func _close_site() -> void:
 	_site_modal = null
 
 
-func _travel_to_site(id: String) -> void:
-	var s: Dictionary = Game.world.site_by_id(id)
-	if not s.is_empty():
-		_travel(Game.world.settlement_pos(s), {"kind": "site", "id": id, "title": str(s["name"])})
-
-
 func _travel(target: Vector2, info: Dictionary) -> void:
 	if Game.world.set_destination(target, info):
 		_update_status()
@@ -331,8 +341,7 @@ func _stop() -> void:
 
 func _set_speed(v: int) -> void:
 	_speed = v
-	for i in _speed_buttons.size():
-		_speed_buttons[i].set_pressed_no_signal(i == v)
+	hud.set_speed(v)
 
 
 func _eta_days() -> float:
@@ -342,163 +351,20 @@ func _eta_days() -> float:
 
 
 func _update_status() -> void:
-	if _status == null:
+	if hud == null or Game.world == null:
 		return
 	if Game.world.path.is_empty():
-		_status.text = "Halte. Cliquez sur la carte pour avancer (clic droit ou Échap : s'arrêter, Espace : pause, Tab : lieu suivant, H : recentrer, ? : raccourcis)."
+		hud.say("Halte. Cliquez sur la carte pour avancer.", "halt")
 	else:
 		var d: Dictionary = Game.world.dest
 		var where: String = str(d.get("title", "")) if d.get("title", "") != "" else "un point de la carte"
-		_status.text = "En route vers %s — encore ≈ %.1f jour%s." % [where, _eta_days(), "s" if _eta_days() >= 1.5 else ""]
+		hud.say("En route vers %s — encore ≈ %.1f jour%s." % [where, _eta_days(), "s" if _eta_days() >= 1.5 else ""], "route:" + where)
 
 
-func _travel_to_settlement(id: String) -> void:
-	var s: Dictionary = Game.world.settlement_by_id(id)
-	_travel(Game.world.settlement_pos(s), {"kind": "settlement", "id": id, "title": str(s["name"])})
-
-
-## Cartes « Menace » (crise finale) et « Arcs » (contrats liés) du panneau latéral.
-func _build_campaign_panels() -> void:
-	var st: Dictionary = Game.campaign
-	var c := UiKit.card(_side)
-	if st["final"] == "won" or bool(st["free_mode"]):
-		c.add_child(UiKit.label("Menace écrasée", 13, GameTheme.GOLD, true))
-		c.add_child(UiKit.sub("%s est vaincu. Le monde est à vous : mode libre." % Campaign.threat_title(st)))
-	else:
-		c.add_child(UiKit.label("Menace montante", 13, GameTheme.GOLD, true))
-		c.add_child(UiKit.title(Campaign.threat_title(st), 19))
-		c.add_child(StatBar.new("Menace", int(float(st["threat"])), 100.0, GameTheme.BLOOD))
-		c.add_child(UiKit.sub("Palier %d/%d : %s" % [int(st["stage"]), Campaign.STAGES.size(), Campaign.stage_name(st)]))
-		if st["final"] == "open":
-			var fs: Dictionary = Campaign.final_site(Game.world)
-			if not fs.is_empty():
-				c.add_child(UiKit.para("Contrat final : abattre %s." % fs["name"], 14))
-				var go := UiKit.button("Marcher sur " + str(fs["name"]), "pri", true)
-				go.pressed.connect(_travel_to_site.bind(str(fs["id"])))
-				c.add_child(go)
-		else:
-			c.add_child(UiKit.sub("Le contrat final s'ouvre à %d de renom (menace ≥ %d) ou si la menace atteint 100. Prendre les lieux de %s la fait reculer." % [Campaign.FINAL_RENOWN, int(Campaign.FINAL_MIN_THREAT), Data.FACTION_NAMES[st["faction"]]], 12))
-	var arcs: Array = Campaign.arc_summary(st)
-	if not arcs.is_empty():
-		var a := UiKit.card(_side)
-		a.add_child(UiKit.label("Affaires en cours", 13, GameTheme.GOLD, true))
-		for ar in arcs:
-			a.add_child(UiKit.label("%s — étape %d/%d%s" % [ar["title"], mini(int(ar["step"]) + (0 if ar["phase"] == "done" else 1), int(ar["total"])), ar["total"], " ✓" if ar["phase"] == "done" else ""], 14, GameTheme.INK, true))
-			a.add_child(UiKit.sub(str(ar["text"]), 12))
-
-
-## Vivres, moral de compagnie et réputation des factions.
-func _build_company_panel() -> void:
-	var c := UiKit.card(_side)
-	c.add_child(UiKit.label("Compagnie", 13, GameTheme.GOLD, true))
-	var low: bool = Game.provisions_days() <= float(Data.PROVISIONS_WARN_DAYS)
-	var food := StatBar.new("Vivres", Game.provisions, Game.provisions_cap(), GameTheme.BLOOD if low else GameTheme.GOLD)
-	food.tooltip_text = "%d rations, ≈ %.1f jours de route. Une ration par homme et par jour de route ; achat au marché." % [Game.provisions, Game.provisions_days()]
-	c.add_child(food)
-	if low:
-		c.add_child(UiKit.label("Vivres presque épuisés !", 13, GameTheme.BLOOD, true))
-	var mo := StatBar.new("Moral", int(Game.company_morale), 100, GameTheme.GOLD)
-	mo.tooltip_text = "Moral de la compagnie : %s. Il fixe le moral de départ des hommes en bataille (< 25 : Hésitant, > 80 : Confiant)." % Game.morale_label()
-	c.add_child(mo)
-	for k in Factions.keys():
-		var n: int = Game.standing_with(str(k))
-		var l := UiKit.label("%s %s : %s (%+d)" % [Data.FACTIONS[k]["ic"], Factions.name_of(str(k)), Factions.label(n), n], 12, Factions.color_of(str(k)))
-		l.tooltip_text = Factions.effects_text(n)
-		c.add_child(l)
-
-
-func _refresh_side() -> void:
-	if _side == null or Game.world == null:
-		return
-	for c in _side.get_children():
-		_side.remove_child(c)
-		c.queue_free()
-	_speed_buttons.clear()
-	_side.add_child(UiKit.title("En route", 26))
-	var row := UiKit.hbox(6)
-	row.add_child(UiKit.sub("Temps", 13, false))
-	var group := ButtonGroup.new()
-	for i in 4:
-		var b := UiKit.button(["II", "▶", "▶▶", "▶▶▶"][i], "", true)
-		b.toggle_mode = true
-		b.button_group = group
-		b.button_pressed = i == _speed
-		b.pressed.connect(_set_speed.bind(i))
-		b.tooltip_text = "Pause (Espace)" if i == 0 else "Vitesse ×%d" % i
-		row.add_child(b)
-		_speed_buttons.append(b)
-	_side.add_child(row)
-	_status = UiKit.sub("")
-	_side.add_child(_status)
-	_update_status()
-	# Contrat en cours
-	if not Game.active_contract.is_empty():
-		var ac: Dictionary = Game.active_contract
-		var c := UiKit.card(_side)
-		c.add_child(UiKit.label("Contrat en cours", 13, GameTheme.GOLD, true))
-		c.add_child(UiKit.title(str(ac["title"]), 19))
-		var to: Vector2 = Game.contract_target()
-		var pts: Array[Vector2] = Game.world.find_path(Game.world.player_pos, to)
-		var kind_name: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison"}.get(str(ac.get("type_contract", "kill")), "Éliminer")
-		c.add_child(UiKit.sub("%s · %s : %s · ≈ %.1f j · prime %d couronnes%s" % [kind_name, "Destination" if Contracts.is_transport(ac) else "Lieu", ac["target_name"], Game.world.path_days(pts), ac["pay"], " (à l'arrivée)" if Contracts.is_transport(ac) else ""]))
-		var r2 := UiKit.hbox(6)
-		var go := UiKit.button("Aller sur place", "pri", true)
-		go.pressed.connect(func() -> void: _travel(to, {"kind": "target", "title": str(ac["target_name"])}))
-		r2.add_child(go)
-		if _confirm_abandon:
-			var yes := UiKit.button("Confirmer (−5 renom)", "pri", true)
-			yes.pressed.connect(func() -> void:
-				_confirm_abandon = false
-				Game.abandon_contract())
-			r2.add_child(yes)
-		else:
-			var ab := UiKit.button("Abandonner", "ghost", true)
-			ab.pressed.connect(func() -> void:
-				_confirm_abandon = true
-				_refresh_side())
-			r2.add_child(ab)
-		c.add_child(r2)
-	_build_company_panel()
-	_build_campaign_panels()
-	# Destinations
-	_side.add_child(UiKit.title("Lieux", 20))
-	var places: Array[Dictionary] = []
-	places.assign(Game.world.settlements)
-	places.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return Game.world.player_pos.distance_squared_to(Game.world.settlement_pos(a)) < Game.world.player_pos.distance_squared_to(Game.world.settlement_pos(b)))
-	for s in places:
-		var pts2: Array[Vector2] = Game.world.find_path(Game.world.player_pos, Game.world.settlement_pos(s))
-		var b := UiKit.button("%s %s · ≈ %.1f j" % ["▣" if s["kind"] == "city" else "⌂", s["name"], Game.world.path_days(pts2)], "", true)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		var st: int = Game.world.standing_of(s)
-		var vd: int = Visits.day_of(s)
-		b.tooltip_text = ("Visité le jour %d\n" % vd if vd > 0 else "Jamais visité\n") + "%s · %d contrat(s) · prix ×%.2f\nRéputation : %s (%+d)" % ["Ville" if s["kind"] == "city" else "Village", s["contracts"].size(), float(s["price_mult"]) * World.standing_price_mult(st), World.standing_label(st), st]
-		b.pressed.connect(_travel_to_settlement.bind(str(s["id"])))
-		_side.add_child(b)
-	if not Game.world.sites.is_empty():
-		_side.add_child(UiKit.title("Lieux hostiles", 20))
-		for site in Game.world.sites:
-			var spts: Array[Vector2] = Game.world.find_path(Game.world.player_pos, Game.world.settlement_pos(site))
-			var mark: String = {"hostile": "☠", "friendly": "⚑", "cleared": "✓"}.get(str(site["state"]), "☠")
-			var sb := UiKit.button("%s %s · ≈ %.1f j" % [mark, site["name"], Game.world.path_days(spts)], "", true)
-			sb.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			sb.tooltip_text = Campaign.site_tooltip(site, Game.renown)
-			sb.pressed.connect(_travel_to_site.bind(str(site["id"])))
-			_side.add_child(sb)
-	var comp := UiKit.button("Compagnie", "pri")
-	comp.pressed.connect(func() -> void: company_requested.emit())
-	_side.add_child(comp)
-	var inv_b := UiKit.button("Inventaire (I)")
-	inv_b.pressed.connect(func() -> void: InventoryScreen.open(self))
-	_side.add_child(inv_b)
-	# Hommes
-	_side.add_child(UiKit.title("Hommes", 20))
-	for m in Game.roster:
-		var h := UiKit.hbox(8)
-		h.add_child(PortraitView.new(m, 34))
-		var v := UiKit.vbox(1)
-		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		v.add_child(UiKit.label(m.unit_name, 14, GameTheme.INK, true))
-		v.add_child(StatBar.new("PV", m.hp, m.hp_max, GameTheme.BLOOD))
-		h.add_child(v)
-		_side.add_child(h)
+## Le menu pause (Main) ne doit pas prendre Échap quand le tiroir ou la légende est ouvert : la carte les ferme d'abord.
+func _sync_overlay_group() -> void:
+	var open: bool = (drawer != null and drawer.is_open) or (_legend_panel != null and _legend_panel.visible)
+	if open:
+		add_to_group("map_overlay_open")
+	elif is_in_group("map_overlay_open"):
+		remove_from_group("map_overlay_open")

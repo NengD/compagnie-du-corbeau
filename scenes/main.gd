@@ -18,6 +18,10 @@ var _in_menu: bool = false
 var _menu: MainMenu
 var _banner_view: BannerView
 var _title_label: RichTextLabel
+var _margin: MarginContainer
+var _root_box: VBoxContainer
+var _key_labels: Array = []
+var _compact: bool = false
 var _toast: AchievementToast
 var _pause_modal: ModalOverlay
 var _fade: ColorRect
@@ -36,11 +40,13 @@ func _ready() -> void:
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
 	var margin := MarginContainer.new()
+	_margin = margin
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 16)
 	add_child(margin)
 	var root := UiKit.vbox(12)
+	_root_box = root
 	margin.add_child(root)
 	_header = _build_header()
 	root.add_child(_header)
@@ -153,6 +159,7 @@ func _build_header() -> Control:
 	for key in ["Jour", "Couronnes", "Renom", "Solde/jour"]:
 		var pair := UiKit.hbox(5)
 		var k := UiKit.label(key.to_upper(), 12, GameTheme.MUTE)
+		_key_labels.append(k)
 		k.size_flags_vertical = Control.SIZE_SHRINK_END
 		pair.add_child(k)
 		var v := UiKit.label("0", 17, GameTheme.GOLD, true)
@@ -164,6 +171,37 @@ func _build_header() -> Control:
 	row.add_child(_actions)
 	panel.add_child(row)
 	return panel
+
+
+## En-tête compact (écran de la carte) : une seule ligne basse, nom de la compagnie en petit, marges réduites pour que la
+## carte occupe presque tout l'écran. Hors de la carte, le grand titre et les marges d'origine reviennent.
+func set_compact_header(on: bool) -> void:
+	if on == _compact and _title_label != null and _margin != null:
+		return
+	_compact = on
+	if _margin == null or _title_label == null:
+		return
+	var m: int = 8 if on else 16
+	for side in ["left", "right", "top", "bottom"]:
+		_margin.add_theme_constant_override("margin_" + side, m)
+	_root_box.add_theme_constant_override("separation", 4 if on else 12)
+	_title_label.add_theme_font_size_override("normal_font_size", 19 if on else 34)
+	_title_label.custom_minimum_size = Vector2(0 if on else 330, 0)
+	_banner_view.custom_minimum_size = Vector2(16, 24) if on else Vector2(26, 38)
+	_banner_view.size = _banner_view.custom_minimum_size
+	for k in _key_labels:
+		(k as Label).add_theme_font_size_override("font_size", 11 if on else 12)
+	for v in _values.values():
+		(v as Label).add_theme_font_size_override("font_size", 15 if on else 17)
+	var panel: PanelContainer = _header as PanelContainer
+	if on:
+		var head := GameTheme.box(Color.TRANSPARENT, Color.TRANSPARENT, 0, 0, Vector4(0, 0, 0, 3))
+		head.border_color = GameTheme.LINE
+		head.border_width_bottom = 1
+		panel.add_theme_stylebox_override("panel", head)
+	else:
+		panel.remove_theme_stylebox_override("panel")
+	_update_header()
 
 
 func _update_header() -> void:
@@ -219,6 +257,7 @@ func _route() -> void:
 	if Game.battle != null or _in_menu:
 		return
 	_clear_content()
+	set_compact_header(false)
 	if Game.ending_pending() and not Game.game_over:
 		var ending := EndingScreen.new()
 		ending.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -244,6 +283,7 @@ func _route() -> void:
 		_add_camp("company")
 		Tutorial.hint("company")
 	else:
+		set_compact_header(true)  # la carte prend presque tout l'écran
 		var m: MapScreen = MAP_SCENE.instantiate()
 		_content.add_child(m)
 		m.company_requested.connect(func() -> void:
@@ -266,6 +306,7 @@ func _add_camp(mode: String) -> void:
 func _show_battle(resumed: bool) -> void:
 	_in_menu = false
 	_header.visible = true
+	set_compact_header(false)
 	_clear_content()
 	_apply_battle_speed()
 	var screen: BattleScreen = BATTLE_SCENE.instantiate()
@@ -295,6 +336,7 @@ func _show_menu() -> void:
 	Tutorial.hide_card()
 	Sfx.music("menu")
 	_header.visible = false
+	set_compact_header(false)
 	_clear_content()
 	_menu = MainMenu.new()
 	_menu.action.connect(_on_menu_action)
@@ -303,9 +345,20 @@ func _show_menu() -> void:
 	_update_header()
 
 
-## Point d'entrée unique d'une nouvelle partie (menu principal ET en-tête) : même tutoriel, même fondu.
+## Point d'entrée unique d'une nouvelle partie (menu principal ET en-tête) : difficulté (déjà choisie), puis l'étape
+## « Votre compagnie » (nom, bannière), puis même tutoriel, même fondu. L'étape est sautée en tests (BattleScreen.speed == 0).
 func _start_new_game(level: String) -> void:
+	if BattleScreen.speed <= 0.0 or not is_inside_tree():
+		_begin_new_game(level, {})
+		return
+	CompanySetup.open(self, func(setup: Dictionary) -> void: _begin_new_game(level, setup),
+		func() -> void: DifficultyPanel.open(self, _start_new_game, level))
+
+
+func _begin_new_game(level: String, setup: Dictionary) -> void:
 	Game.new_game(-1, level)
+	if not setup.is_empty():
+		Game.set_company_identity(setup)
 	if not Settings.tutorial_seen:
 		Tutorial.start()  # première partie : le tutoriel accompagne les premiers écrans
 	_company_open = false
@@ -342,6 +395,8 @@ func _input(event: InputEvent) -> void:
 		return
 	if _in_menu or Game.battle != null:
 		return
+	if _pause_modal == null and not get_tree().get_nodes_in_group("map_overlay_open").is_empty() and _count_modals(self) == 0:
+		return  # tiroir « Détails » ou légende ouverts : la carte les referme d'abord
 	if _pause_modal != null:
 		if _count_modals(self) <= 1:
 			_cancel_pause()

@@ -151,12 +151,29 @@ func _advance(ctx: String) -> void:
 	shown = TutorialData.next_step(ctx, seen)
 
 
+## Sur la carte, le bas-gauche est occupé par la pastille du contrat : la carte d'aide passe sous les jauges, à gauche.
+func _place_card(ctx: String) -> void:
+	if ctx == "map":
+		_card.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_card.grow_vertical = Control.GROW_DIRECTION_END
+		_card.offset_left = 24
+		_card.offset_top = 84
+		_card.offset_bottom = 84
+	else:
+		_card.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+		_card.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		_card.offset_left = 24
+		_card.offset_top = 0
+		_card.offset_bottom = -24
+
+
 func _show_current() -> void:
 	if _card == null:
 		return
 	_card.visible = active and not shown.is_empty()
 	if not _card.visible:
 		return
+	_place_card(str(shown["ctx"]))
 	_title.text = str(shown["title"])
 	_text.text = str(shown["text"])
 	var last_of_ctx: bool = TutorialData.next_step(last_ctx, seen + [shown["id"]]).is_empty()

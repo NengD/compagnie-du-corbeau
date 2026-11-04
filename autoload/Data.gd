@@ -354,11 +354,14 @@ const TRAITS: Dictionary = {
 
 # --- Bannière de compagnie (écran « Bannière ») ---
 const COMPANY_NAME_DEFAULT: String = "Compagnie du Corbeau"
-const COMPANY_NAME_MAX: int = 26
-const BANNER_COLORS: Array = ["b8862e", "b03a2e", "3e526a", "4b5a3a", "5a4a6a", "2b2622", "d8cfb8", "7a4e2a", "8a3a6a", "3f7f7a"]
-const BANNER_COLOR_NAMES: Array = ["Ocre", "Rouge sang", "Bleu acier", "Vert mousse", "Violet", "Noir", "Parchemin", "Brun", "Prune", "Sarcelle"]
-const BANNER_EMBLEMS: Array = ["Corbeau", "Épées croisées", "Étoile", "Croix", "Tour", "Couronne", "Lune", "Chevron"]
-const BANNER_DEFAULT: Dictionary = {"primary": "", "secondary": "1d1a17", "emblem": 0}  ## primary "" = ocre d'origine des boucliers
+const COMPANY_NAME_MAX: int = 28
+const COMPANY_NAME_MIN: int = 3
+const BANNER_COLORS: Array = ["b8862e", "b03a2e", "3e526a", "4b5a3a", "5a4a6a", "2b2622", "d8cfb8", "7a4e2a", "8a3a6a", "3f7f7a", "a8552a", "6d7b86", "6f2f2f", "2f4a3a"]
+const BANNER_COLOR_NAMES: Array = ["Ocre", "Rouge sang", "Bleu acier", "Vert mousse", "Violet", "Noir", "Parchemin", "Brun", "Prune", "Sarcelle", "Rouille", "Ardoise", "Bordeaux", "Vert forêt"]
+const BANNER_EMBLEMS: Array = ["Corbeau", "Épées croisées", "Étoile", "Croix", "Tour", "Couronne", "Lune", "Chevron", "Loup", "Cerf", "Hache", "Crâne", "Soleil"]
+const BANNER_PATTERNS: Array = ["Uni", "Divisé", "Bandé", "Chevronné", "Écartelé"]  ## motif du champ (teinte plus sombre/claire de la couleur principale)
+const BANNER_DEFAULT: Dictionary = {"primary": "", "secondary": "1d1a17", "emblem": 0, "pattern": 0}  ## primary "" = ocre d'origine des boucliers
+const COMPANY_NAME_SUGGESTIONS: Array = ["Les Corbeaux de Fer", "La Compagnie du Gué", "Les Lames Grises", "Les Loups de la Lande", "La Main Rouge", "Les Sentinelles du Nord", "Les Épées Noires", "La Garde du Cerf", "Les Fils de la Cendre", "La Compagnie de l'Aube", "Les Hallebardes d'Argent", "Les Chiens de Guerre", "Les Veilleurs du Col", "La Bande du Chêne", "Les Faucheurs de Brume"]
 const ELITE_LEVEL: int = 6  ## niveau à partir duquel un homme porte une tenue de vétéran
 
 

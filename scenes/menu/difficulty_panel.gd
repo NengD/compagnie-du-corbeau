@@ -8,9 +8,11 @@ var selected: String = Data.DIFFICULTY_DEFAULT
 var on_start: Callable
 
 
-static func open(host: Node, p_on_start: Callable) -> DifficultyPanel:
+static func open(host: Node, p_on_start: Callable, p_selected: String = "") -> DifficultyPanel:
 	var p := DifficultyPanel.new()
 	p.on_start = p_on_start
+	if p_selected != "":
+		p.selected = Difficulty.clean(p_selected)
 	p.modal = ModalOverlay.open(host, 640)
 	p._rebuild()
 	return p
@@ -26,7 +28,7 @@ func _rebuild() -> void:
 	for k in Difficulty.keys():
 		box.add_child(_card(str(k)))
 	var row := UiKit.hbox(8)
-	var go := UiKit.button("Commencer", "pri")
+	var go := UiKit.button("Suivant", "pri")
 	go.pressed.connect(func() -> void:
 		modal.close()
 		if on_start.is_valid():

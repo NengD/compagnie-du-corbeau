@@ -217,11 +217,11 @@ func paint_frame(c: Control, day_px: float, zoom_px_per_world: float, day_frac: 
 		c.draw_circle(corner + dir * 8.0, 2.4, ink)
 		c.draw_circle(corner + dir * 8.0, 1.2, parch)
 	# rose des vents (bas à droite)
-	var rc := Vector2(s.x - 62.0, s.y - 62.0)
+	var rc := Vector2(s.x - 62.0, s.y - 112.0)  # au-dessus de la rangée de boutons du HUD
 	_compass(c, rc, 30.0)
 	# échelle
 	var px: float = day_px * zoom_px_per_world
-	var sc := Rect2(Vector2(s.x - 150.0, s.y - 38.0), Vector2(maxf(px + 16.0, 112.0), 24.0))
+	var sc := Rect2(Vector2(s.x - 150.0, s.y - 88.0), Vector2(maxf(px + 16.0, 112.0), 24.0))
 	sc.position.x = s.x - 108.0 - sc.size.x
 	c.draw_rect(sc, Color(0.72, 0.6, 0.38, 0.88))
 	c.draw_rect(sc, ink, false, 1.2)
@@ -266,3 +266,19 @@ func _compass(c: Control, p: Vector2, r: float) -> void:
 	c.draw_colored_polygon(PackedVector2Array([p + Vector2(0, -r), p + Vector2(-3, -r * 0.2), p]), Color("c8483a"))
 	c.draw_string(GameTheme.title_font(), p + Vector2(-8, -r - 8.0), "N", HORIZONTAL_ALIGNMENT_CENTER, 16, 15, ink)
 	c.draw_circle(p, 2.2, ink)
+
+
+## Moment de la journée pour la date du HUD (« Jour 12, matin »).
+static func time_label(f: float) -> String:
+	f = fposmod(f, 1.0)
+	if f < 0.10:
+		return "aube"
+	if f < 0.35:
+		return "matin"
+	if f < 0.5:
+		return "midi"
+	if f < 0.62:
+		return "après-midi"
+	if f < 0.78:
+		return "soir"
+	return "nuit"

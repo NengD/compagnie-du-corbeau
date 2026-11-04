@@ -197,7 +197,7 @@ func set_show_territories(on: bool) -> void:
 
 
 func _fit() -> void:
-	var k: float = minf(size.x / World.SIZE.x, size.y / World.SIZE.y)
+	var k: float = MapFrame.base_scale(size)
 	if k <= 0.0:
 		return
 	var anchor: Vector2 = _world_pos(size * 0.5) if _base_k > 0.0 else _initial_anchor()
@@ -218,7 +218,7 @@ func _initial_anchor() -> Vector2:
 		return Game.world.player_pos if Game.world != null else World.SIZE * 0.5
 	if _keep_center.x >= 0.0:
 		return _keep_center
-	return World.SIZE * 0.5
+	return Game.world.player_pos if Game.world != null else World.SIZE * 0.5
 
 
 func _remember_view() -> void:
@@ -339,7 +339,7 @@ func _paint_wx(c: Control) -> void:
 
 
 func _paint_frame(c: Control) -> void:
-	_fx.paint_frame(c, World.DAY_PX, _stage.scale.x, Game.day_fraction, Settings.day_night)
+	_fx.paint_frame(c, World.DAY_PX, _stage.scale.x, Game.day_fraction, false)  # l'heure est affichée par le HUD
 
 
 # --- Éléments mobiles ---
@@ -406,8 +406,18 @@ func _paint_dynamic(l: Node2D) -> void:
 		l.draw_polyline(pts, GameTheme.GOLD, 2.2, true)
 		l.draw_arc(pts[pts.size() - 1], 7.0, 0.0, TAU, 16, GameTheme.GOLD, 2.4, true)
 	# Compagnie
-	var bn2: Dictionary = {"primary": Banner.primary(Game.banner).to_html(false), "secondary": Banner.secondary(Game.banner).to_html(false), "emblem": int(Game.banner.get("emblem", 0))}
-	MapPlaces.paint_company(l, w.player_pos, bn2, _t, animate, not w.path.is_empty(), vis)
+	var heading: float = 0.0
+	if not w.path.is_empty():
+		heading = 1.0 if (w.path[0] as Vector2).x >= w.player_pos.x else -1.0
+	var bn2: Dictionary = Game.banner.duplicate()
+	bn2["primary"] = Banner.primary(Game.banner).to_html(false)  # ocre d'origine si aucune couleur choisie
+	var near_px: float = 45.0 / maxf(_stage.scale.x, 0.05)
+	var crowded: bool = false
+	for s2 in w.settlements + w.sites:
+		crowded = crowded or w.settlement_pos(s2).distance_to(w.player_pos) < near_px
+	for p2 in w.parties:
+		crowded = crowded or w.party_pos(p2).distance_to(w.player_pos) < near_px
+	CompanyMarker.paint(l, w.player_pos, bn2, Game.company_name, GameTheme.title_font(), _t, animate, heading, vis, _stage.scale.x, 1.0 + (zoom - 1.0) * 0.15, crowded)
 
 
 # --- Entrées ---

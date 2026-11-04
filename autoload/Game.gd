@@ -157,8 +157,18 @@ func check_achievements() -> Array[String]:
 	return fresh
 
 
-func set_banner(primary: String, secondary: String, emblem: int) -> void:
-	banner = Banner.clean({"primary": primary, "secondary": secondary, "emblem": emblem})
+## `pattern` < 0 : garde le motif actuel.
+func set_banner(primary: String, secondary: String, emblem: int, pattern: int = -1) -> void:
+	var pat: int = pattern if pattern >= 0 else int(banner.get("pattern", 0))
+	banner = Banner.clean({"primary": primary, "secondary": secondary, "emblem": emblem, "pattern": pat})
+	_after_change()
+
+
+## Nom et bannière choisis à la création de partie (étape « Votre compagnie »), validés par core/banner.gd.
+func set_company_identity(setup: Dictionary) -> void:
+	var r: Dictionary = Banner.resolve_setup(setup)
+	company_name = str(r["name"])
+	banner = r["banner"]
 	_after_change()
 
 

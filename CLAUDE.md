@@ -82,6 +82,11 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   puis renommage), lecture validée avec repli automatique sur le `.bak` (`Game._read_save`), `from_dict` tolérant aux clés
   manquantes. Fin de tour au clavier (Espace/Entrée) : confirmation s'il reste la moitié des PA ou plus. Un seul point d'entrée
   « Nouvelle partie » (`Main._start_new_game`). Le chaman orc (soigneur) figure dans les compositions orques.
+- **Carte plein cadre** : la carte remplit l'écran, HUD discret superposé (jauges vivres/moral/menace, temps et date, pastille du
+  contrat, boutons ronds Compagnie/Inventaire/Détails/Légende/Aide), tiroir « Détails » (touche D) qui reprend l'ancien panneau
+  latéral, en-tête compact sur la carte. **Bannière de compagnie** : étape « Votre compagnie » à la nouvelle partie
+  (`scenes/newgame/`, nom + couleurs + emblème + motif, `core/banner.gd`), étendard planté sur la carte à la place de l'ancien
+  marqueur (nom de la compagnie décalé près des lieux pour ne pas recouvrir leur nom).
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

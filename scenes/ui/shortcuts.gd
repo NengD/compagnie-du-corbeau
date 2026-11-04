@@ -16,10 +16,11 @@ const BATTLE: Array = [
 
 const MAP: Array = [
 	["Espace", "Pause / reprise du temps"],
-	["Échap", "S'arrêter (ou ouvrir le menu pause à l'arrêt)"],
+	["Échap", "Fermer le tiroir ou la légende, sinon s'arrêter (ou ouvrir le menu pause à l'arrêt)"],
 	["Tab / Maj+Tab", "Aller au lieu suivant / précédent (centre la vue)"],
 	["H / C / Début", "Recentrer sur la compagnie"],
 	["I", "Inventaire"],
+	["D", "Tiroir « Détails » (contrat, factions, lieux, hommes)"],
 	["Molette · clic milieu/droit", "Zoom · déplacer la carte"],
 	["? / F1", "Cette aide"],
 ]

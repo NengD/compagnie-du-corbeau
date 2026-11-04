@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://scenes/map/map_screen.gd" id="1"]
 
-[node name="MapScreen" type="HBoxContainer"]
+[node name="MapScreen" type="Control"]
 script = ExtResource("1")

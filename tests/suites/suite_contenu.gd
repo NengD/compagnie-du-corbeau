@@ -321,7 +321,7 @@ func test_banner_view_and_screen() -> void:
 	var v := BannerView.new({"primary": "b03a2e", "secondary": "d8cfb8", "emblem": 4}, Vector2(60, 80))
 	t.eq(v.banner["emblem"], 4, "vue de la bannière")
 	v.free()
-	t.eq(Data.BANNER_EMBLEMS.size(), 8, "huit emblèmes dessinés")
+	t.eq(Data.BANNER_EMBLEMS.size(), 13, "treize emblèmes dessinés")
 
 
 # --- D) Succès et statistiques ---
