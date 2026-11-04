@@ -679,6 +679,8 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> World:
 			rec.append({"u": Unit.from_dict(r["u"]), "price": int(r["price"])})
 		s["recruits"] = rec
 		s["rare"] = Campaign.clean_rare(sd.get("rare", []))
+		if sd.has("stock"):
+			s["stock"] = Market.clean(sd["stock"])  ## absent d'une ancienne sauvegarde : généré à la demande (Game.shop_stock)
 		s["contracts"] = []
 		for c in sd["contracts"]:
 			s["contracts"].append(Contracts.normalize(c))

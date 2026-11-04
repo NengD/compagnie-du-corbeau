@@ -23,6 +23,9 @@ static func abilities_of(u: Unit) -> Array[String]:
 		if ab.has("tool"):
 			if tool_left(u, str(ab["tool"])) > 0:
 				out.append(k)
+		elif ab.has("perk"):
+			if u.has_perk(str(ab["perk"])) and not u.is_ranged():
+				out.append(k)
 		elif bool(ab.get("needs_shield", false)):
 			if u.shield_ok() and not u.is_ranged():
 				out.append(k)
@@ -148,16 +151,16 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 			ch += Data.HILL_MELEE_BONUS
 		elif ha < hd:
 			ch -= Data.HILL_MELEE_BONUS
-	return clampi(ch + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units), 5, 95)
+	return clampi(ch - Perks.def_bonus(d, units, bool(w["ranged"])) + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + Perks.hit_bonus(a, d, units) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units), 5, 95)
 
 
 ## Tire les dégâts d'un coup qui touche. Retour : {head, hp, armor} (ne modifie pas la cible).
 ## `ab` : capacité utilisée (multiplicateurs `dmg` et `armor`). Arme ébréchée : dégâts réduits.
 static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictionary = {}) -> Dictionary:
 	var w: Dictionary = a.weapon_data()
-	var head: bool = rng.randf() < (0.35 if a.has_perk("coup_de_grace") else 0.25)
+	var head: bool = rng.randf() < (0.35 if a.has_perk("coup_de_grace") else 0.25) - Perks.head_shield(d)
 	var raw: float = float(rng.randi_range(int(w["min"]), int(w["max"]))) * (1.5 if head else 1.0)
-	raw *= float(ab.get("dmg", 1.0)) * Perks.weapon_field(a, "dmg")
+	raw *= float(ab.get("dmg", 1.0)) * Perks.weapon_field(a, "dmg") * Perks.dmg_mult(a)
 	if a.weapon_broken():
 		raw *= Data.BROKEN_WEAPON_DMG
 	var arm: int = d.arm_h if head else d.arm_b
@@ -169,7 +172,7 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 		hp_d = raw
 		arm_d = 0.0
 	else:
-		var eff_arm: float = float(w["arm"]) * Perks.weapon_field(a, "arm")
+		var eff_arm: float = float(w["arm"]) * Perks.weapon_field(a, "arm") * Perks.arm_mult(a)
 		var ign: float = float(w["ign"]) + Perks.weapon_field(a, "ign")
 		var ad: float = raw * eff_arm * float(ab.get("armor", 1.0))
 		arm_d = minf(float(arm), ad)

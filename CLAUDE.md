@@ -87,6 +87,14 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   latéral, en-tête compact sur la carte. **Bannière de compagnie** : étape « Votre compagnie » à la nouvelle partie
   (`scenes/newgame/`, nom + couleurs + emblème + motif, `core/banner.gd`), étendard planté sur la carte à la place de l'ancien
   marqueur (nom de la compagnie décalé près des lieux pour ne pas recouvrir leur nom).
+- **Écrans façon BB (disposition seulement ; aucun contenu du jeu commercial n'est repris)** : marché « Place du marché » à stock fini
+  (`scenes/market/market_screen.gd`, `core/market.gd`, `settlement["stock"]`, `Game.shop_stock/buy_item/sell_item`), fiche de
+  personnage à onglets Inventaire / Talents (`scenes/inventory/inventory_screen.gd`, poupée d'équipement, statistiques en barres,
+  formation en bas), cases d'objets (`scenes/ui/item_cell.gd`, `ItemIcons.get_icon_for_item`, icônes dans `assets/icons/`), formation
+  de combat (`core/formation.gd`, `Game.formation`, `Game.set_formation_slot`, `scenes/inventory/formation_panel.gd` : 3 rangées de
+  combat + réserve de 9 tentes ; `BattleState.create(..., formation)`), arbre de 50 talents sur 7 rangs [9, 8, 8, 12, 5, 4, 4]
+  (`Data.PERKS`, `scenes/perks/perk_tree.gd`, `assets/perk_icons/`). Résolution 2K (2560×1440) disponible dans les options.
+- **Provenance** : ne jamais lire ni copier le dossier d'une copie piratée de Battle Brothers (`E:\crack\…`) ; le dépôt est public.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

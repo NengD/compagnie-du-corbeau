@@ -25,3 +25,12 @@ Recolorées (parchemin) ; fond retiré. Auteurs : Lorc, Delapouite, Lucas (lucas
 - `icons/arbalete.svg` : dessin original réalisé pour le projet (aucune source externe).
 - `icons/poings.svg` : copie de `griffes.svg` (icône de repli pour « Poings nus », arme implicite d’un homme sans arme).
 - `icons/morsure.svg`, `icons/massue_geant.svg` : copies des icônes `griffes.svg` / `gourdin.svg` (armes naturelles de monstres, jamais en vente) — mêmes auteurs et licence (Delapouite, CC BY 3.0)
+
+## Icônes de talents (CC BY 3.0) — https://game-icons.net, dépôt github.com/game-icons/icons
+Lot « talents » : `assets/perk_icons/*.svg` (50 fichiers, un par talent ; fond noir retiré, silhouette blanche teintée au rendu par `PerkIcon`). Auteurs : Lorc, Delapouite, Skoll, Willdabeast, Sbed.
+- Lorc : crossed-swords, sword-clash, meditation, trade, open-book, bandage-roll, piercing-sword, plain-dagger, dodging, boot-prints, broadsword, target-arrows, bowman, wolf-howl, shouting, axe-swing, thrown-spear, thor-fist, foot-trip, visored-helm, footprint, anvil, spyglass, spiked-mace, sprint, beast-eye, half-heart, barbed-spear, helmet-head-shot, guarded-tower, mountains, sword-wound, wind-slap, breastplate, crowned-heart, lightning-frequency
+- Delapouite : biceps, lungs, team-upgrade, heart-shield, healing, spartan-helmet, coins-pile, charging-bull, rock-golem, stone-wall, eye-target
+- Skoll : bullseye — Willdabeast : round-shield — Sbed : duel
+
+## Icônes d'objets, jeu `icons_items/` (CC BY 3.0) — https://game-icons.net
+Généré par `tools/gen_item_icons.py` (contour sombre + dégradé or) : formes des icônes ci-dessus, plus, dans `tools/icon_src/` : `delapouite__stone-pile` (pierres de jet), `lorc__fire-bottle` (huile), `lorc__fishing-net` (filet), `delapouite__bread` (pain), `delapouite__steak` (viande), `lorc__cheese-wedge` (fromage), `lorc__knapsack` (ration). Auteurs : Lorc, Delapouite. Les icônes d'objets uniques sont les formes ordinaires ornées (halo, étincelles) ; l'icône « ? » est un dessin original.

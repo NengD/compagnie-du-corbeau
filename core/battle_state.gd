@@ -33,15 +33,16 @@ var reserve: Array = []  ## clés de Data.FOE des ennemis qui surgiront d'un fla
 var hold_rounds: int = 0  ## convoi : manches à tenir pour sauver les chariots
 var start_party: int = 0  ## effectif de la compagnie au début (objectifs)
 var raised: int = 0  ## morts relevés par les nécromants
+var deploy_slots: Dictionary = {}  ## formation de départ du joueur : id d'homme -> emplacement (vide : déploiement historique par rôle)
 const LOG_MAX: int = 200
 const LIT_SIGHT: int = 8  ## de nuit, une unité éclairée est visible de si loin
 const RAISE_MAX: int = 3
 const AMBUSH_RESERVE_MAX: int = 3
 
 
-## Crée une bataille : copie de la compagnie (les 8 premiers), ennemis du contrat, terrain, déploiement.
+## Crée une bataille : copie de la compagnie (selon la formation ; sans formation, les 8 premiers), ennemis du contrat, terrain, déploiement.
 ## `start_morale` : moral de départ des hommes du joueur (2 Hésitant, 3 Stable, 4 Confiant ; voir Game.battle_start_morale), `p_wear_mult` : forge du camp.
-static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGenerator, start_morale: int = 3, p_wear_mult: float = 1.0, p_difficulty: String = "normal") -> BattleState:
+static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGenerator, start_morale: int = 3, p_wear_mult: float = 1.0, p_difficulty: String = "normal", p_formation: Dictionary = {}) -> BattleState:
 	var s := BattleState.new()
 	s.rng = p_rng
 	s.difficulty = Difficulty.clean(p_difficulty)
@@ -54,8 +55,19 @@ static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGen
 	s.rain = bool(p_contract.get("rain", false))
 	s._build_terrain()
 	var party: Array[Unit] = []
-	for i in mini(roster.size(), Data.FIGHTERS):
-		var u: Unit = (roster[i] as Unit).duplicate_unit()
+	var chosen: Array[Unit] = []  ## hommes qui combattent : selon la formation, sinon les premiers de la compagnie
+	if not p_formation.is_empty():
+		var norm: Dictionary = Formation.normalize(p_formation, roster)
+		for m in roster:
+			if Formation.is_field(int(norm.get((m as Unit).id, -1))):
+				chosen.append(m)
+				s.deploy_slots[(m as Unit).id] = int(norm[(m as Unit).id])
+	if chosen.is_empty():
+		s.deploy_slots = {}
+		for i in mini(roster.size(), Data.FIGHTERS):
+			chosen.append(roster[i])
+	for m in chosen:
+		var u: Unit = m.duplicate_unit()
 		u.reset_for_battle()
 		u.morale = clampi(start_morale, 1, 4)
 		party.append(u)
@@ -90,7 +102,7 @@ func _layout(party: Array[Unit], foes: Array[Unit]) -> void:
 		"siege":
 			_layout_siege(party, foes)
 		_:
-			_deploy(party, 1, 0)
+			_deploy_party(party, 1, 0)
 			_deploy(foes, width - 2, width - 1)
 	if night:
 		TerrainGen.add_torches(cells, width, height, drng)
@@ -178,7 +190,7 @@ func _shuffle(arr: Array[Vector2i], drng: RandomNumberGenerator) -> void:
 
 ## Convoi : 2 à 3 chariots immobiles derrière la compagnie ; il faut les garder en vie.
 func _layout_convoy(party: Array[Unit], foes: Array[Unit], drng: RandomNumberGenerator) -> void:
-	_deploy(party, 4, 3)
+	_deploy_party(party, 4, 3)
 	_deploy(foes, width - 2, width - 1)
 	var n: int = 2 + drng.randi_range(0, 1)
 	var rows: Array[int] = []
@@ -218,7 +230,7 @@ static func make_cart(n: int) -> Unit:
 
 ## Siège : un rempart avec une porte destructible, des archers sur le chemin de ronde (huile bouillante), les défenseurs derrière.
 func _layout_siege(party: Array[Unit], foes: Array[Unit]) -> void:
-	_deploy(party, 1, 0)
+	_deploy_party(party, 1, 0)
 	_deploy(foes, 8, 9)
 	TerrainGen.add_fort(cells, width, height)
 	var tops: Array[Vector2i] = TerrainGen.fort_tops(width, height)
@@ -265,6 +277,66 @@ func _deploy(list: Array[Unit], col_melee: int, col_ranged: int) -> void:
 		_place(u, slots_m, used)
 	for u in rng_u:
 		_place(u, slots_r, used)
+
+
+## Déploiement du joueur : selon la formation (`deploy_slots`) si elle existe, sinon par rôle (mêlée devant, tireurs derrière).
+## Trois rangées : milieu = `mid_col`, arrière = `back_col`, avant = une colonne plus près de l'ennemi.
+## Un emplacement déjà pris ou une case bloquée bascule vers la case libre la plus proche de la même rangée.
+func _deploy_party(party: Array[Unit], mid_col: int, back_col: int) -> void:
+	if deploy_slots.is_empty():
+		_deploy(party, mid_col, back_col)
+		return
+	var used: Dictionary = {}
+	var late: Array[Unit] = []
+	var ordered: Array[Unit] = party.duplicate()
+	ordered.sort_custom(func(a: Unit, b: Unit) -> bool: return int(deploy_slots.get(a.id, 99)) < int(deploy_slots.get(b.id, 99)))
+	for u in ordered:
+		var slot: int = int(deploy_slots.get(u.id, -1))
+		var h: Vector2i = Formation.hex_for_slot(slot, width, height, mid_col, back_col)
+		if h != Formation.NO_HEX and _free_cell(h, used):
+			u.hex = h
+			used[h] = true
+		else:
+			late.append(u)
+	for u in late:
+		var slot: int = int(deploy_slots.get(u.id, Formation.MID_START))
+		var want: Vector2i = Formation.hex_for_slot(slot, width, height, mid_col, back_col)
+		if want == Formation.NO_HEX:
+			want = Formation.hex_for_slot(Formation.MID_START, width, height, mid_col, back_col)
+		var want_col: int = int(cells[want]["c"]) if cells.has(want) else mid_col
+		var want_row: int = want.y
+		var spot: Variant = _nearest_free(want_col, want_row, used)
+		if spot == null:
+			for c in [mid_col, back_col, 2 * mid_col - back_col]:
+				spot = _nearest_free(clampi(c, 0, width - 1), want_row, used)
+				if spot != null:
+					break
+		if spot == null:  # plateau très encombré : n'importe quelle colonne
+			for c in range(0, width):
+				spot = _nearest_free(c, want_row, used)
+				if spot != null:
+					break
+		if spot == null:  # dernier recours : dégager une case
+			spot = Hex.from_col_row(mid_col, want_row)
+			for r in height:
+				if not used.has(Hex.from_col_row(mid_col, r)):
+					spot = Hex.from_col_row(mid_col, r)
+					break
+			cells[spot]["t"] = "g"
+		u.hex = spot
+		used[spot] = true
+
+
+## Case libre (ni occupée ni bloquée) de la colonne `col` la plus proche de la ligne `row`.
+func _nearest_free(col: int, row: int, used: Dictionary) -> Variant:
+	for d in range(0, height):
+		for r in ([row - d, row + d] if d > 0 else [row]):
+			if r < 0 or r >= height:
+				continue
+			var h: Vector2i = Hex.from_col_row(col, r)
+			if _free_cell(h, used):
+				return h
+	return null
 
 
 func _place(u: Unit, slots: Array[Vector2i], used: Dictionary) -> void:
@@ -452,6 +524,8 @@ func begin_turn(u: Unit) -> void:
 	new_log_group()
 	u.ap = Data.AP_PER_TURN
 	u.fat = maxi(0, u.fat - 15 - (5 if u.has_perk("second_souffle") else 0))
+	if not u.perks.is_empty() and u.hp < u.hp_max:
+		u.hp = mini(u.hp_max, u.hp + Perks.turn_heal(u))  ## Cicatrisation
 	u.shield_wall = false
 	u.attacked_turn = false
 	u.exposed = false

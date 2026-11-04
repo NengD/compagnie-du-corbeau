@@ -21,7 +21,6 @@ var _inners: Array[VBoxContainer] = []
 var _over_box: VBoxContainer
 var _news_panel: PanelContainer
 var _head: Control
-var _market_member: int = -1
 var _confirm_dismiss: int = -1
 var _confirm_abandon: bool = false
 var _help_open: bool = false
@@ -57,7 +56,10 @@ func _ready() -> void:
 	_over_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_over_box)
 	_help_open = Game.day == 1 and Game.fallen.is_empty() and mode == "company"
-	_tabs.tab_changed.connect(func(_i: int) -> void: _rebuild())
+	_tabs.tab_changed.connect(func(i: int) -> void:
+		_rebuild()
+		if i >= 0 and i < _tab_names.size() and _tab_names[i] == "Marché" and mode == "town":
+			MarketScreen.open(self))
 	Game.changed.connect(_rebuild)
 	_rebuild()
 
@@ -211,7 +213,7 @@ func _build_company(root: VBoxContainer) -> void:
 	banner_open.tooltip_text = "Nom, couleurs et emblème de la compagnie"
 	banner_open.pressed.connect(func() -> void: BannerScreen.open(self))
 	actions.add_child(banner_open)
-	actions.add_child(UiKit.sub("%d/%d hommes · les %d premiers partent au combat" % [Game.roster.size(), Game.max_roster(), Data.FIGHTERS], 13, false))
+	actions.add_child(UiKit.sub("%d/%d hommes · %d au combat (maximum %d), les autres en réserve" % [Game.roster.size(), Game.max_roster(), Formation.field_count(Game.formation_slots()), Data.FIGHTERS], 13, false))
 	root.add_child(actions)
 	var flow := _flow(root)
 	for i in Game.roster.size():
@@ -243,7 +245,7 @@ func _who_header(parent: Node, m: Unit, sub_text: String, with_level: bool) -> v
 
 func _roster_card(flow: Node, m: Unit, index: int) -> void:
 	var c := UiKit.card(flow, CARD_W)
-	var reserve: String = " · en réserve" if index >= Data.FIGHTERS else ""
+	var reserve: String = " · en réserve" if Formation.is_reserve(int(Game.formation_slots().get(m.id, -1))) else ""
 	_who_header(c, m, "%s · %d victime%s · solde %d/jour%s" % [m.background, m.kills, "s" if m.kills > 1 else "", m.wage, reserve], true)
 	var prev: int = int(Data.XP_THRESHOLDS[m.level])
 	var nxt: int = int(Data.XP_THRESHOLDS[m.level + 1]) if m.level + 1 < Data.XP_THRESHOLDS.size() else prev + 1
@@ -413,174 +415,25 @@ func _build_recruits(root: VBoxContainer) -> void:
 
 # --- Marché ---
 
+## L'onglet Marché est un raccourci : l'écran « Place du marché » (scenes/market/market_screen.gd) s'ouvre en choisissant l'onglet.
 func _build_market(root: VBoxContainer) -> void:
-	if Game.roster.is_empty():
-		return
-	if Game.member(_market_member) == null:
-		_market_member = Game.roster[0].id
-	var m: Unit = Game.member(_market_member)
-	var shop: Dictionary = Data.SHOPS[Game.settlement()["kind"]]
-	var pick_row := UiKit.hbox(8)
-	pick_row.add_child(UiKit.sub("Équiper :", 13, false))
-	var opt := OptionButton.new()
-	opt.focus_mode = Control.FOCUS_NONE
-	for i in Game.roster.size():
-		opt.add_item("%s — %s" % [Game.roster[i].unit_name, Game.roster[i].background], Game.roster[i].id)
-		if Game.roster[i].id == m.id:
-			opt.select(i)
-	opt.item_selected.connect(func(idx: int) -> void:
-		_market_member = opt.get_item_id(idx)
-		_rebuild())
-	pick_row.add_child(opt)
-	root.add_child(pick_row)
-	var cur := UiKit.card(root)
-	var h := UiKit.hbox(10)
-	h.add_child(PortraitView.new(m, 54))
-	h.add_child(UiKit.sub("Équipement actuel de %s" % m.unit_name))
-	cur.add_child(h)
-	cur.add_child(UiKit.gear_list(m))
-	cur.add_child(UiKit.sub("Poids total %d : réduit l'endurance et l'initiative." % m.weight()))
-
-	_build_provisions(root)
-	_build_rare(root)
-	_build_inventory(root, m)
-
-	_section(root, "Armes")
-	var f := _flow(root)
-	for k in shop["weapon"]:
-		var w: Dictionary = Data.WPN[k]
-		_shop_item(f, str(w["n"]), "%d–%d dégâts · %d PA. %s" % [w["min"], w["max"], w["ap"], w["note"]], Game.price_of(int(w["price"])), true, m.weapon == k, func() -> void: Game.buy(m, "weapon", k))
-	if bool(shop["shield"]):
-		_section(root, "Bouclier")
-		f = _flow(root)
-		_shop_item(f, str(Data.SHIELD["n"]), "+15 déf. mêlée, +25 déf. distance. Permet le mur de boucliers. Une main requise.", Game.price_of(int(Data.SHIELD["price"])), bool(m.weapon_data()["h1"]), m.shield, func() -> void: Game.buy(m, "shield"))
-	_section(root, "Casques")
-	f = _flow(root)
-	for k in shop["head"]:
-		var a: Dictionary = Data.HEAD[k]
-		_shop_item(f, str(a["n"]), "Armure %d · poids %d" % [a["a"], a["w"]], Game.price_of(int(a["price"])), true, m.head == k, func() -> void: Game.buy(m, "head", k))
-	_section(root, "Armures")
-	f = _flow(root)
-	for k in shop["body"]:
-		var a: Dictionary = Data.BODY[k]
-		_shop_item(f, str(a["n"]), "Armure %d · poids %d" % [a["a"], a["w"]], Game.price_of(int(a["price"])), true, m.body == k, func() -> void: Game.buy(m, "body", k))
-
-
-## Vivres : une ration par homme et par jour de route ; prix variable selon le lieu.
-func _build_provisions(root: VBoxContainer) -> void:
-	_section(root, "Vivres")
-	root.add_child(UiKit.sub("%d rations (≈ %.1f jours de route) · stock max %d. En ville on mange sur place." % [Game.provisions, Game.provisions_days(), Game.provisions_cap()]))
+	_section(root, "Place du marché")
+	var card := UiKit.card(root)
+	var st: Array = Game.shop_stock()
+	card.add_child(UiKit.para("Le marchand de %s propose %d articles en rayon ; la réserve de la compagnie compte %d/%d emplacements." % [Game.settlement().get("name", ""), st.size(), Game.inventory.size(), Game.stash_size()]))
+	card.add_child(UiKit.sub("Achetez et vendez par double-clic ou en glissant un objet d'un panneau à l'autre. Les objets achetés rejoignent la réserve : équipez-les ensuite depuis l'inventaire (touche I)."))
 	var row := UiKit.hbox(8)
-	var n: int = mini(Data.PROVISIONS_PACK, Game.provisions_cap() - Game.provisions)
-	var b1 := UiKit.button("+%d rations (%d cr.)" % [Data.PROVISIONS_PACK, Game.food_cost(Data.PROVISIONS_PACK)], "pri", true)
-	b1.disabled = n <= 0 or Game.gold < Game.food_cost(Data.PROVISIONS_PACK)
-	b1.pressed.connect(func() -> void: Game.buy_provisions(Data.PROVISIONS_PACK))
-	row.add_child(b1)
-	var full_n: int = Game.provisions_cap() - Game.provisions
-	var b2 := UiKit.button("Faire le plein (%d cr.)" % Game.food_cost(maxi(0, full_n)), "", true)
-	b2.disabled = full_n <= 0 or Game.gold < Game.food_cost(full_n)
-	b2.pressed.connect(func() -> void: Game.buy_provisions_full())
-	row.add_child(b2)
-	root.add_child(row)
-
-
-## Marchand rare du lieu (quand il y en a un) : objets uniques à stock limité, vendus très cher.
-func _build_rare(root: VBoxContainer) -> void:
-	var rare: Array = Game.settlement().get("rare", [])
-	if rare.is_empty():
-		return
-	_section(root, "Marchand rare")
-	root.add_child(UiKit.sub("Un colporteur de pièces d'exception. Chaque objet est unique ; le stock change avec le temps. Achetés, ils rejoignent l'inventaire."))
-	var f := _flow(root)
-	for i in rare.size():
-		var r: Dictionary = rare[i]
-		var it: Dictionary = r["item"]
-		var p := PanelContainer.new()
-		p.theme_type_variation = "Card"
-		p.custom_minimum_size = Vector2(280, 0)
-		p.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		var v := UiKit.vbox(4)
-		v.add_child(ItemUi.row(it))
-		var story := UiKit.sub(Uniques.story(str(it["key"])), 12)
-		story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		v.add_child(story)
-		var d: Dictionary = Loot.data_of(it)
-		if d.has("note") and str(d["note"]) != "":
-			v.add_child(UiKit.sub(str(d["note"]), 12))
-		var row := UiKit.hbox(6)
-		var price: int = Game.rare_price_of(r)
-		row.add_child(UiKit.label("%d cr." % price, 14, GameTheme.GOLD, true))
-		row.add_child(UiKit.spacer())
-		var b := UiKit.button("Acheter", "pri", true)
-		b.disabled = Game.gold < price
-		b.pressed.connect(func() -> void: Game.buy_rare(i))
-		row.add_child(b)
-		v.add_child(row)
-		p.add_child(v)
-		f.add_child(p)
-
-
-## Butin et objets en réserve : vente au marchand du lieu, ou équipement sur l'homme sélectionné.
-func _build_inventory(root: VBoxContainer, m: Unit) -> void:
-	_section(root, "Inventaire")
-	var open_inv := UiKit.button("Ouvrir l'inventaire complet (glisser-déposer, sacs, tri) — touche I", "pri", true)
-	open_inv.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	open_inv.pressed.connect(func() -> void: InventoryScreen.open(self, m.id))
-	root.add_child(open_inv)
-	root.add_child(UiKit.sub("Réserve : %d/%d emplacements. Quand elle est pleine, le butin en trop est vendu d'office." % [Game.inventory.size(), Game.stash_size()]))
-	if Game.inventory.is_empty():
-		root.add_child(UiKit.sub("Rien en réserve. Le butin des batailles et les armes d'un homme renvoyé arrivent ici."))
-		return
-	root.add_child(UiKit.sub("Vente : 40 %% du prix de base × coefficient du lieu. « Équiper » vise %s." % m.unit_name))
-	var f := _flow(root)
-	for i in Game.inventory.size():
-		var it: Dictionary = Game.inventory[i]
-		var p := PanelContainer.new()
-		p.theme_type_variation = "Card"
-		p.custom_minimum_size = Vector2(260, 0)
-		p.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		var v := UiKit.vbox(4)
-		v.add_child(ItemUi.row(it))
-		var row := UiKit.hbox(6)
-		var price: int = Game.sell_price(it)
-		row.add_child(UiKit.label("%d cr." % price, 14, GameTheme.GOLD, true))
-		row.add_child(UiKit.spacer())
-		var eq := UiKit.button("Équiper", "", true)
-		eq.disabled = not Game.can_equip_from_inventory(m, i)
-		if eq.disabled and str(it["kind"]) == "shield":
-			eq.tooltip_text = "Une arme à une main est requise (et pas de bouclier déjà porté)."
-		eq.pressed.connect(func() -> void: Game.equip_from_inventory(m, i))
-		row.add_child(eq)
-		var sb := UiKit.button("Vendre", "pri", true)
-		sb.pressed.connect(func() -> void: Game.sell(i))
-		row.add_child(sb)
-		v.add_child(row)
-		p.add_child(v)
-		f.add_child(p)
+	var open_b := UiKit.button("Ouvrir le marché", "pri")
+	open_b.pressed.connect(func() -> void: MarketScreen.open(self))
+	row.add_child(open_b)
+	var inv_b := UiKit.button("Inventaire et fiches (I)")
+	inv_b.pressed.connect(func() -> void: InventoryScreen.open(self))
+	row.add_child(inv_b)
+	card.add_child(row)
 
 
 func _section(root: Node, text: String) -> void:
 	root.add_child(UiKit.title(text, 24))
-
-
-func _shop_item(flow: Node, item_name: String, desc: String, price: int, allowed: bool, owned: bool, on_buy: Callable) -> void:
-	var p := PanelContainer.new()
-	p.theme_type_variation = "Card"
-	p.custom_minimum_size = Vector2(240, 0)
-	p.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	var v := UiKit.vbox(4)
-	v.add_child(UiKit.label(item_name, 15, GameTheme.INK, true))
-	v.add_child(UiKit.sub(desc))
-	var row := UiKit.hbox(6)
-	row.add_child(UiKit.label("%d cr." % price, 14, GameTheme.GOLD, true))
-	row.add_child(UiKit.spacer())
-	var b := UiKit.button("Équipé" if owned else "Acheter", "", true)
-	b.disabled = owned or not allowed or Game.gold < price
-	b.pressed.connect(on_buy)
-	row.add_child(b)
-	v.add_child(row)
-	p.add_child(v)
-	flow.add_child(p)
 
 
 # --- Promotion ---

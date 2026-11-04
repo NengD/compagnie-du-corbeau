@@ -18,19 +18,20 @@ func _veteran(level: int = 11) -> Unit:
 # --- Structure ---
 
 func test_tree_structure() -> void:
-	t.eq(Data.PERKS.size(), 28, "28 talents")
+	t.eq(Data.PERKS.size(), 50, "50 talents")
 	for k in OLD_PERKS:
 		t.check(Data.PERKS.has(k), "talent existant conservé : %s" % k)
 	for tier in range(1, Data.PERK_TIERS + 1):
 		var row: Array[String] = Perks.in_tier(tier)
-		t.eq(row.size(), 4, "rang %d : 4 talents" % tier)
+		t.eq(row.size(), int(Data.PERK_ROWS[tier - 1]), "rang %d : taille de la rangée" % tier)
 		var cols: Dictionary = {}
 		for k in row:
 			cols[int(Data.PERKS[k]["col"])] = true
-		t.eq(cols.size(), 4, "rang %d : 4 colonnes distinctes" % tier)
+		t.eq(cols.size(), row.size(), "rang %d : colonnes distinctes" % tier)
+	t.eq(Data.PERK_ROWS, [9, 8, 8, 12, 5, 4, 4], "forme de la pyramide")
 	for k in Data.PERKS:
 		var pd: Dictionary = Data.PERKS[k]
-		t.check(str(pd["n"]) != "" and str(pd["d"]) != "" and str(pd["ic"]) != "", "%s : nom, description, sigle" % k)
+		t.check(str(pd["n"]) != "" and str(pd["d"]) != "" and str(pd["icon"]) != "", "%s : nom, description, icône" % k)
 		t.check(Data.PERK_FAMILIES.has(pd["fam"]), "%s : famille connue" % k)
 		var req: String = str(pd.get("req", ""))
 		if req != "":
@@ -338,19 +339,20 @@ func test_perk_screen_builds() -> void:
 	var g: Node = t.new_game(40)
 	g.roster[0].perk_points = 2
 	var scr: PerkScreen = PerkScreen.open(host, g.roster[0], g)
-	t.check(scr != null, "écran créé")
-	scr._on_click("bretteur")
-	scr._on_click("briseur")
-	t.eq(scr._plan, ["bretteur", "briseur"] as Array[String], "choix provisoires")
-	t.eq(g.roster[0].perks.size(), 0, "rien d'acquis avant confirmation")
-	scr._on_click("bretteur")
-	t.eq(scr._plan.size(), 0, "retirer un choix retire ceux qui en dépendent")
-	scr._on_click("vif")
-	scr._on_click("endurant")
-	scr._on_click("oeil_sur")
-	t.eq(scr._plan.size(), 2, "pas plus de choix que de points")
-	scr._on_confirm()
-	t.eq(g.roster[0].perks.size(), 2, "confirmation : talents acquis")
+	t.check(scr != null and scr.tree != null, "écran créé avec son arbre")
+	var tr: PerkTree = scr.tree
+	tr._on_click("briseur")
+	t.eq(tr.selected_key(), "briseur", "sélection d'un talent")
+	t.eq(g.roster[0].perks.size(), 0, "rien d'acquis tant qu'on n'a pas appris")
+	tr._on_click("bretteur")
+	tr._on_click("bretteur")
+	t.eq(g.roster[0].perks, ["bretteur"] as Array[String], "second clic : appris")
+	t.eq(g.roster[0].perk_points, 1, "un point dépensé")
+	tr._on_click("vif")
+	tr.learn("vif")
+	tr._on_click("endurant")
+	tr.learn("endurant")
+	t.eq(g.roster[0].perks.size(), 2, "pas plus de talents que de points")
 	t.eq(g.roster[0].perk_points, 0, "points dépensés")
 	var row: Control = PerkIcon.row(g.roster[0])
 	t.check(row != null and row.get_child_count() == 2, "rangée d'icônes des talents pris")

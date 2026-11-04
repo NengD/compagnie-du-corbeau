@@ -24,7 +24,8 @@ func _run() -> void:
 	for i in 4:
 		await process_frame
 	root.get_texture().get_image().save_png(out.path_join("inv1.png"))
-	inv.call("hover", inv.find_children("*", "InvSlot", true, false).filter(func(s): return s.item.get("key", "") == "mailles")[0])
+	var mailles: int = game.inventory.find_custom(func(it: Dictionary) -> bool: return it.get("key", "") == "mailles")
+	inv.call("hover", Inventory.in_stash(mailles))
 	for i in 3:
 		await process_frame
 	root.get_texture().get_image().save_png(out.path_join("inv2.png"))

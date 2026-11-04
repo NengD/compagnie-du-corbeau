@@ -304,8 +304,9 @@ static func from_dict(d: Dictionary) -> Unit:
 				v = str(v)
 		u.set(k, v)
 	u.perks.assign(d.get("perks", []))
+	var refund: int = Perks.migrate(u)  ## clés disparues : remplacées, ou point rendu
 	if d.has("perk_points"):
-		u.perk_points = int(d["perk_points"])
+		u.perk_points = int(d["perk_points"]) + refund
 	else:  # ancienne sauvegarde : un point par niveau gagné qui n'a pas de talent
 		u.perk_points = maxi(0, Perks.points_for_level(u.level) - u.perks.size())
 	u.bag = Unit.clean_bag(d.get("bag", []))

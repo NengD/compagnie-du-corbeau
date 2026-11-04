@@ -17,6 +17,7 @@ var day: int = 1
 var day_fraction: float = 0.0
 var renown: int = 0
 var roster: Array[Unit] = []
+var formation: Dictionary = {}  ## formation de départ en bataille : id d'homme -> emplacement 0..35 (voir Formation) ; vide = par défaut
 var fallen: Array = []
 var news: Array[String] = []
 var game_over: bool = false
@@ -41,6 +42,7 @@ var unlocked: Dictionary = {}  ## succès débloqués {id: jour}, conservés ent
 var achievements_path: String = Achievements.FILE_PATH
 var banner: Dictionary = Data.BANNER_DEFAULT.duplicate()  ## bannière de la compagnie (voir core/banner.gd)
 var company_name: String = Data.COMPANY_NAME_DEFAULT
+var shop_error: String = ""  ## raison du dernier achat/vente refusé (voir buy_item), "" si tout va bien
 var provisions: int = Data.PROVISIONS_START  ## vivres (rations) : un homme mange une ration par jour de route
 var company_morale: float = Data.MORALE_START  ## moral de la compagnie, 0 à 100 (voir battle_start_morale)
 var starve_days: int = 0  ## jours consécutifs sans de quoi manger
@@ -99,6 +101,7 @@ func new_game(seed_value: int = -1, p_difficulty: String = "normal") -> void:
 	for k in ["milicien", "bucheron", "braconnier", "fermier", "deserteur"]:
 		roster.append(Contracts.make_merc(k, rng, _names()))
 	var cseed: int = seed_value if seed_value >= 0 else int(randi() % 1000000)
+	formation = Formation.default_slots(roster)
 	campaign = Campaign.new_state("o" if cseed % 2 == 0 else "u")
 	campaign_rng.seed = cseed + 104729
 	world = World.generate(rng, renown)
@@ -206,7 +209,7 @@ func repair_cost() -> int:
 	var gear: int = 0
 	for m in roster:
 		gear += gear_repair_cost(m)
-	return int(ceil(float(int(ceil(missing * 0.5)) + gear) * CampBuildings.repair_mult(buildings)))  ## la forge du camp rabat le prix
+	return int(ceil(float(int(ceil(missing * 0.5)) + gear) * CampBuildings.repair_mult(buildings) * Perks.roster_mult(roster, "repair_mult", true)))  ## la forge du camp et le talent Armurier rabattent le prix
 
 
 ## Remise en état de l'arme et du bouclier d'un homme (proportionnelle à l'usure et au prix).
@@ -251,7 +254,7 @@ func stash_size() -> int:
 
 ## Rayon de vue de la carte en pixels (poste de guet) : à lire par MapView à la place de sa constante VISION.
 func vision_radius() -> float:
-	return Data.MAP_VISION * CampBuildings.vision_mult(buildings)
+	return Data.MAP_VISION * CampBuildings.vision_mult(buildings) * Perks.roster_mult(roster, "vision_mult")  ## talent Éclaireur
 
 
 func can_buy_building(key: String) -> bool:
@@ -603,6 +606,7 @@ func _restock(s: Dictionary) -> void:
 	s["contracts"] = Contracts.gen_contracts(renown, rng, str(s["name"]), world.settlement_pos(s), world, n_contracts, standing, str(s["id"]))
 	s["recruits"] = Contracts.gen_recruits(rng, _names(), shop["recruits"], 4 if s["kind"] == "city" else 3)
 	s["restock_day"] = day + Data.RESTOCK_DAYS
+	s["stock"] = Market.generate(str(s["kind"]), _stock_rng(s))
 	s["rare"] = Campaign.rare_stock(s, day, campaign["uniques_taken"])
 	Campaign.post_arcs(campaign, world, s, day, renown)
 	var ci: int = s["contracts"].size() - 1  # les contrats d'arc prennent la place d'un contrat ordinaire
@@ -659,9 +663,10 @@ func leave_settlement() -> void:
 	changed.emit()
 
 
-func price_of(base: int) -> int:
+func price_of(base: int, buying: bool = true) -> int:
 	var s: Dictionary = settlement()
-	return Difficulty.price(difficulty, int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s))))))
+	var trade: float = Perks.roster_mult(roster, "buy_mult", true) if buying else Perks.roster_mult(roster, "sell_mult")  ## talent Marchandeur
+	return Difficulty.price(difficulty, int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s))) * trade)))
 
 
 func in_stock(kind: String, key: String = "") -> bool:
@@ -929,7 +934,7 @@ func rest() -> void:
 		return
 	var w: int = wages()
 	for m in roster:
-		m.hp = mini(m.hp_max, m.hp + 15 + Traits.rest_bonus(m) + CampBuildings.rest_heal_bonus(buildings))
+		m.hp = mini(m.hp_max, m.hp + 15 + Traits.rest_bonus(m) + CampBuildings.rest_heal_bonus(buildings) + Perks.roster_best(roster, "rest_heal"))
 	var before: int = roster.size()
 	advance_time(1.0)
 	morale_add(3.0)
@@ -1064,17 +1069,123 @@ func _sfx(event: String) -> void:
 
 ## Prix de vente d'un objet ici : 40 % du prix de base × coefficient du lieu.
 func sell_price(it: Dictionary) -> int:
-	return price_of(Loot.sell_base(it))
+	return price_of(Loot.sell_base(it), false)
 
 
-## Vend l'objet n° `index` de l'inventaire au marchand du lieu.
+## Vend l'objet n° `index` de l'inventaire au marchand du lieu (voir sell_item).
 func sell(index: int) -> bool:
+	return sell_item(index)
+
+
+# --- Boutique à stock fini (core/market.gd) ---
+
+## Aléa local (graine = jour, lieu) : le générateur de la partie reste intact.
+func _stock_rng(s: Dictionary) -> RandomNumberGenerator:
+	var r := RandomNumberGenerator.new()
+	r.seed = day * 104729 + int(str(s["id"]).trim_prefix("s")) * 977 + 13
+	return r
+
+
+## Stock du lieu où l'on se trouve (généré à la volée pour une ancienne sauvegarde). [] hors d'un lieu.
+func shop_stock() -> Array:
+	var s: Dictionary = settlement()
+	if s.is_empty():
+		return []
+	if not s.has("stock"):
+		s["stock"] = Market.generate(str(s["kind"]), _stock_rng(s))
+	return s["stock"]
+
+
+## Prix d'achat d'une entrée du stock (vivres : le lot de rations qu'un achat prend).
+func stock_price(e: Dictionary) -> int:
+	if Market.is_food(e):
+		return food_cost(food_lot(e))
+	return price_of(Market.base_price(e))
+
+
+## Nombre de rations qu'un achat de cette entrée de vivres prend (un lot, dans la limite du stock et de la place).
+func food_lot(e: Dictionary) -> int:
+	return mini(mini(Data.PROVISIONS_PACK, int(e.get("qty", 0))), maxi(1, provisions_cap() - provisions))
+
+
+## Rayon affichable : stock ordinaire puis objets du marchand rare. Entrées {"item", "qty", "price", "rare", "index", "food"} ;
+## `index` est celui à passer à buy_item.
+func shop_view() -> Array:
+	var out: Array = []
+	var stock: Array = shop_stock()
+	for i in stock.size():
+		var e: Dictionary = stock[i]
+		out.append({"item": e, "qty": int(e.get("qty", 1)), "price": stock_price(e), "rare": false, "index": i, "food": Market.is_food(e)})
+	var rare: Array = settlement().get("rare", [])
+	for j in rare.size():
+		out.append({"item": rare[j]["item"], "qty": 1, "price": rare_price_of(rare[j]), "rare": true, "index": stock.size() + j, "food": false})
+	return out
+
+
+func _shop_fail(msg: String) -> bool:
+	shop_error = msg
+	return false
+
+
+## Achat de l'entrée n° `index` du rayon (voir shop_view) : l'objet entre dans l'inventaire ; les vivres augmentent le compteur.
+## Renvoie false (et pose `shop_error`) si l'achat est impossible.
+func buy_item(index: int) -> bool:
+	shop_error = ""
+	if not in_settlement() or game_over:
+		return _shop_fail("Aucun marchand ici.")
+	var stock: Array = shop_stock()
+	if index < 0:
+		return _shop_fail("Objet introuvable.")
+	if index >= stock.size():
+		var ri: int = index - stock.size()
+		var rare: Array = settlement().get("rare", [])
+		if ri >= rare.size():
+			return _shop_fail("Objet introuvable.")
+		if gold < rare_price_of(rare[ri]):
+			return _shop_fail("Pas assez de couronnes.")
+		if inventory.size() >= stash_size():
+			return _shop_fail("Réserve pleine.")
+		return buy_rare(ri)
+	var e: Dictionary = stock[index]
+	var price: int = stock_price(e)
+	if Market.is_food(e):
+		var n: int = food_lot(e)
+		if provisions >= provisions_cap():
+			return _shop_fail("Les vivres sont au maximum.")
+		if gold < price:
+			return _shop_fail("Pas assez de couronnes.")
+		_spend(price)
+		provisions += n
+		_food_warned = false
+		e["qty"] = int(e["qty"]) - n
+		if int(e["qty"]) <= 0:
+			stock.remove_at(index)
+		add_news(["Vivres : +%d rations pour %d couronnes." % [n, price]])
+	else:
+		if gold < price:
+			return _shop_fail("Pas assez de couronnes.")
+		if inventory.size() >= stash_size():
+			return _shop_fail("Réserve pleine.")
+		_spend(price)
+		var it: Dictionary = Market.take(stock, index)
+		inventory.append(it)
+		_note_uniques([it])
+		add_news(["%s acheté : −%d couronnes." % [Loot.item_name(it), price]])
+	_sfx("coins")
+	_after_change()
+	return true
+
+
+## Vend l'objet n° `index` de l'inventaire au marchand du lieu : il rejoint son rayon, au prix de revente (40 %).
+func sell_item(index: int) -> bool:
+	shop_error = ""
 	if not in_settlement() or index < 0 or index >= inventory.size():
-		return false
+		return _shop_fail("Rien à vendre ici.")
 	var it: Dictionary = inventory[index]
 	var price: int = sell_price(it)
 	_earn(price)
 	inventory.remove_at(index)
+	Market.add_sold(shop_stock(), it)
 	add_news(["%s vendu : +%d couronnes." % [Loot.item_name(it), price]])
 	_sfx("coins")
 	_after_change()
@@ -1173,7 +1284,7 @@ func prepare_loot() -> Array:
 		pending_loot_ready = true
 		pending_loot = []
 		if battle.over == "win":
-			pending_loot = Loot.roll_battle(battle.units, loot_rng, Difficulty.loot_mult(difficulty))
+			pending_loot = Loot.roll_battle(battle.units, loot_rng, Difficulty.loot_mult(difficulty) * Perks.roster_mult(roster, "loot_mult"))
 			if battle.contract.get("kind", "contract") == "contract":
 				var rare: Dictionary = Loot.roll_contract_bonus(int(battle.contract.get("d", 1)), loot_rng)
 				if not rare.is_empty():
@@ -1253,7 +1364,7 @@ func start_battle(contract: Dictionary) -> void:
 	if roster.is_empty() or battle != null:
 		return
 	world.stop()
-	battle = BattleState.create(contract, roster, rng, battle_start_morale(), CampBuildings.wear_mult(buildings), difficulty)
+	battle = BattleState.create(contract, roster, rng, battle_start_morale(), CampBuildings.wear_mult(buildings), difficulty, formation_slots())
 	save()
 	battle_started.emit()
 
@@ -1449,7 +1560,7 @@ func finish_battle() -> void:
 		var scar: String = Injuries.roll_permanent(m, rng, difficulty)
 		if scar != "":
 			add_news(["%s garde une séquelle : %s." % [m.unit_name, str(Data.INJURIES[scar]["n"]).to_lower()]])
-		var xp_gain: int = Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))
+		var xp_gain: int = int(round(float(Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))) * Perks.fx_mult(m, "xp_mult")))  ## talent Studieux
 		m.xp += xp_gain
 		level_check(m)
 		var rep_wounds: Array = []
@@ -1542,7 +1653,36 @@ func finish_battle() -> void:
 		start_battle(next_wave)  # assaut en plusieurs vagues : la suivante enchaîne, sans soin entre-temps
 
 
+## Formation de départ normalisée à la volée avec la compagnie (embauche, renvoi, mort, désertion...) ; copie.
+func formation_slots() -> Dictionary:
+	formation = Formation.normalize(formation, roster) if not formation.is_empty() else Formation.default_slots(roster)
+	return formation.duplicate()
+
+
+## Place un homme sur un emplacement (échange avec l'occupant). Refusé en bataille ou si le champ est plein. Sauvegarde et signale `changed`.
+func set_formation_slot(unit_id: int, slot: int) -> bool:
+	if battle != null or member(unit_id) == null:
+		return false
+	var res: Dictionary = Formation.move(formation_slots(), unit_id, slot)
+	if not bool(res["ok"]):
+		return false
+	formation = res["slots"]
+	save()
+	changed.emit()
+	return true
+
+
+## « Disposition automatique » : mêlée devant, tireurs derrière (la réserve ne change pas).
+func auto_arrange_formation() -> void:
+	if battle != null:
+		return
+	formation = Formation.auto_arrange(roster, formation_slots())
+	save()
+	changed.emit()
+
+
 func _after_change() -> void:
+	formation = Formation.normalize(formation, roster) if not formation.is_empty() else Formation.default_slots(roster)
 	check_achievements()
 	save()
 	changed.emit()
@@ -1566,7 +1706,7 @@ func to_dict() -> Dictionary:
 		"stats": stats.duplicate(), "banner": banner.duplicate(), "company_name": company_name,
 		"last_battle_report": last_battle_report,
 		"provisions": provisions, "company_morale": company_morale, "starve_days": starve_days, "buildings": buildings.duplicate(),
-		"faction_standing": faction_standing.duplicate(), "story_flags": story_flags.duplicate(), "pending_events": pending_events.duplicate(true),
+		"formation": Formation.to_dict(formation_slots()), "faction_standing": faction_standing.duplicate(), "story_flags": story_flags.duplicate(), "pending_events": pending_events.duplicate(true),
 	}
 
 
@@ -1579,6 +1719,7 @@ func from_dict(d: Dictionary) -> void:
 	roster.clear()
 	for ud in d.get("roster", []):
 		roster.append(Unit.from_dict(ud))
+	formation = Formation.from_dict(d.get("formation"), roster)  ## absente ou invalide (anciennes sauvegardes) : formation par défaut
 	fallen = []
 	for f in d.get("fallen", []):
 		fallen.append({"name": str(f.get("name", "?")), "bg": str(f.get("bg", "")), "lvl": int(f.get("lvl", 1)), "kills": int(f.get("kills", 0)), "day": int(f.get("day", 1))})

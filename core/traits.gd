@@ -111,6 +111,7 @@ static func lucky_save(u: Unit, rng: RandomNumberGenerator) -> bool:
 	var chance: int = 0
 	for k in u.traits:
 		chance = maxi(chance, int(Data.TRAITS.get(k, {}).get("lucky", 0)))
+	chance = maxi(chance, Perks.survive_chance(u))  ## talent Increvable
 	if chance <= 0:
 		return false
 	u.lucky_used = true

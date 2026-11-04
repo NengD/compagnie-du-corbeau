@@ -121,6 +121,9 @@ const ABILITIES: Dictionary = {
 	"croc": {"n": "Croc", "weapons": ["hallebarde"], "ap_extra": 1, "fat_extra": 5, "dmg": 0.7, "expose": true, "d": "Si le coup touche, la cible est désarçonnée : −10 en défense jusqu'au début de son prochain tour."},
 	"briser_bouclier": {"n": "Briser le bouclier", "weapons": ["fleau"], "ap_extra": 1, "fat_extra": 5, "dmg": 0.9, "shield_break": 30, "needs_target_shield": true, "d": "Si le coup touche, abîme fortement le bouclier de la cible."},
 	"fleche_feu": {"n": "Flèche enflammée", "weapons": ["arc"], "ap_extra": 1, "fat_extra": 3, "hit": -5, "dmg": 0.8, "fire": true, "d": "Si le tir touche, enflamme la case de la cible (herbe et forêt)."},
+	# Capacités ouvertes par un talent (`perk`) : toute arme de mêlée.
+	"coup_puissant": {"n": "Coup puissant", "weapons": [], "perk": "force_brute", "ap_extra": 1, "fat_extra": 6, "hit": -10, "dmg": 1.35, "d": "+35 % de dégâts, −10 % au toucher."},
+	"croc_jambe": {"n": "Croc-en-jambe", "weapons": [], "perk": "croc_en_jambe", "ap_extra": 1, "fat_extra": 4, "dmg": 0.6, "expose": true, "d": "Si le coup touche, la cible a −10 en défense jusqu'au début de son prochain tour."},
 	# Lancers : un outil du sac (voir TOOLS). `tool` : clé de l'outil ; `rng` / `min_rng` : portée ; `dmg_range` : dégâts fixes aux PV (l'armure ne compte pas) ;
 	# `splash` : touche aussi les cases voisines (amis compris) ; `net` : immobilise ; `fire` : enflamme.
 	"lancer_pierre": {"n": "Lancer : pierre", "weapons": [], "tool": "pierre", "ap": 4, "fat": 8, "rng": 3, "min_rng": 1, "hit": 10, "dmg_range": [8, 14], "stun": true, "d": "Portée 3. Si la pierre touche, la cible est étourdie."},
@@ -254,57 +257,83 @@ const LINE_UNIT_MALUS: int = 15  ## par unité sur la ligne de tir
 const BIOMES: Array = ["plain", "forest", "hills", "water"]
 const BIOME_WEIGHTS: Dictionary = {"plain": 4, "forest": 2, "hills": 2, "water": 2}
 
-# --- Talents : arbre de 7 rangs x 4 colonnes (voir core/perks.gd) ---
+# --- Talents : arbre de 50 talents sur 7 rangs [9, 8, 8, 12, 5, 4, 4] (voir core/perks.gd) ---
 ## Chaque niveau (2 à 11) donne 1 point de talent. Un talent du rang N exige d'avoir déjà pris N-1 talents.
-## `tier` : rang 1..7 ; `col` : colonne 0..3 ; `req` : talent précis à avoir pris avant (facultatif) ; `fam` : famille (couleur) ;
-## `ic` : sigle de la pastille. Effets : `stat` (attributs), `shield_stat` (avec un bouclier utilisable), `light_stat` (équipement léger,
-## poids <= PERK_LIGHT_WEIGHT), `wp` (spécialisation d'arme : `weapons`, `hit`, `dmg`, `arm`, `ign`, `ammo`) ; le reste est lu par `Unit.has_perk`.
+## `tier` : rang 1..7 (1 = en haut, le plus accessible) ; `col` : position dans la rangée (0 = à gauche) ; `req` : talent précis à avoir pris avant
+## (facultatif) ; `fam` : famille (couleur de l'icône) ; `icon` : fichier de `assets/perk_icons/` ; `d` : description chiffrée.
+## Effets : `stat` (attributs), `shield_stat` (avec un bouclier utilisable), `light_stat` (équipement léger, poids <= PERK_LIGHT_WEIGHT),
+## `wp` (spécialisation d'arme : `weapons`, `hit`, `dmg`, `arm`, `ign`, `ammo`), `fx` (effets nommés lus par `Perks.*` : voir ce fichier) ;
+## les talents les plus anciens sont aussi lus par `Unit.has_perk` (pas de `fx`). `ability` : capacité active ouverte (clé de ABILITIES).
 const PERK_TIERS: int = 7
-const PERK_COLS: int = 4
+const PERK_COLS: int = 12  ## largeur de la rangée la plus large
+const PERK_ROWS: Array = [9, 8, 8, 12, 5, 4, 4]  ## nombre de talents par rang
 const PERK_LIGHT_WEIGHT: int = 10
 const PERK_RESET_BASE: int = 50  ## entraîneur : coût de réinitialisation = base + par niveau x niveau
 const PERK_RESET_PER_LEVEL: int = 30
+## Anciennes clés de talents supprimées -> clé qui les remplace (migration des sauvegardes ; une clé inconnue sans remplaçant rend son point).
+const PERK_MIGRATE: Dictionary = {}
 const PERK_FAMILIES: Dictionary = {
-	"melee": {"n": "Mêlée", "c": "c0553f"}, "ranged": {"n": "Distance", "c": "7f9a4f"}, "def": {"n": "Défense", "c": "5f84a8"},
-	"move": {"n": "Mobilité", "c": "b98a3e"}, "moral": {"n": "Moral", "c": "9a6aa0"}, "weapon": {"n": "Arme", "c": "a8997e"},
-	"gear": {"n": "Équipement", "c": "6f8f8a"},
+	"off": {"n": "Offensive", "c": "c0553f"}, "def": {"n": "Défense", "c": "5f84a8"}, "mob": {"n": "Mobilité", "c": "7f9a4f"},
+	"mor": {"n": "Moral et commandement", "c": "d4a63a"}, "esp": {"n": "Équipe et campagne", "c": "9a6aa8"},
 }
 const PERKS: Dictionary = {
-	# Rang 1
-	"bretteur": {"n": "Bretteur", "d": "+5 en attaque de mêlée.", "stat": {"melee_skill": 5}, "tier": 1, "col": 0, "fam": "melee", "ic": "Br"},
-	"oeil_sur": {"n": "Œil sûr", "d": "+10 en attaque à distance.", "stat": {"ranged_skill": 10}, "tier": 1, "col": 1, "fam": "ranged", "ic": "Œs"},
-	"endurant": {"n": "Endurant", "d": "Chaque attaque coûte 3 fatigue de moins.", "tier": 1, "col": 2, "fam": "def", "ic": "En"},
-	"vif": {"n": "Vif", "d": "+10 d'initiative.", "stat": {"initiative": 10}, "tier": 1, "col": 3, "fam": "move", "ic": "Vf"},
-	# Rang 2
-	"briseur": {"n": "Coup d'estoc", "d": "+10 % de dégâts contre une armure légère (moins de 70).", "tier": 2, "col": 0, "fam": "melee", "ic": "Es"},
-	"esquive": {"n": "Esquive", "d": "+10 en défense à distance.", "stat": {"ranged_def": 10}, "tier": 2, "col": 1, "fam": "def", "ic": "Eq"},
-	"souffle_long": {"n": "Souffle long", "d": "+15 d'endurance.", "stat": {"fat_max": 15}, "tier": 2, "col": 2, "fam": "def", "ic": "Sl"},
-	"pied_sur": {"n": "Pied sûr", "d": "Chaque case parcourue coûte 1 fatigue de moins.", "tier": 2, "col": 3, "fam": "move", "ic": "Ps"},
-	# Rang 3
-	"spec_epee": {"n": "Maître d'épée", "d": "Épées : +10 % au toucher.", "wp": {"weapons": ["epee", "u_epee_corbeau"], "hit": 10}, "tier": 3, "col": 0, "fam": "weapon", "ic": "Ép"},
-	"spec_arc": {"n": "Tireur d'élite", "d": "Arcs et arbalètes : +10 % de dégâts.", "wp": {"weapons": ["arc", "arbalete", "u_arc_ronce"], "dmg": 1.1}, "tier": 3, "col": 1, "fam": "weapon", "ic": "Ta"},
-	"garde_ferme": {"n": "Garde ferme", "d": "+10 en défense de mêlée avec un bouclier.", "shield_stat": {"melee_def": 10}, "tier": 3, "col": 2, "fam": "def", "ic": "Gf"},
-	"cran": {"n": "Cran", "d": "+15 aux tests de moral.", "stat": {"resolve": 15}, "tier": 3, "col": 3, "fam": "moral", "ic": "Cr"},
-	# Rang 4
-	"spec_hache": {"n": "Fendeur", "d": "Haches : +15 % de dégâts à l'armure.", "wp": {"weapons": ["hache", "u_hache_fendcrane"], "arm": 1.15}, "tier": 4, "col": 0, "fam": "weapon", "ic": "Fd"},
-	"spec_javelot": {"n": "Lanceur", "d": "Javelots : +10 % au toucher et 2 javelots de plus.", "wp": {"weapons": ["javelot"], "hit": 10, "ammo": 2}, "tier": 4, "col": 1, "fam": "weapon", "ic": "Jv"},
-	"dur_a_cuire": {"n": "Dur à cuire", "d": "Deux fois moins de risques d'être blessé.", "tier": 4, "col": 2, "fam": "def", "ic": "Dc"},
-	"legerete": {"n": "Pas léger", "d": "+15 d'initiative et +5 en défense tant que le poids de l'équipement est de 10 ou moins.", "light_stat": {"initiative": 15, "melee_def": 5, "ranged_def": 5}, "tier": 4, "col": 3, "fam": "gear", "ic": "Pl"},
-	# Rang 5
-	"spec_masse": {"n": "Fracasseur", "d": "Masses, gourdins et fléaux : traversent 10 points de plus l'armure.", "wp": {"weapons": ["masse", "gourdin", "fleau", "u_masse_glas"], "ign": 0.1}, "tier": 5, "col": 0, "fam": "weapon", "ic": "Fr"},
-	"oeil_de_lynx": {"n": "Œil de lynx", "d": "+2 de portée avec un arc.", "req": "spec_arc", "tier": 5, "col": 1, "fam": "ranged", "ic": "Lx"},
-	"second_souffle": {"n": "Second souffle", "d": "Récupère 5 points de fatigue de plus par tour.", "tier": 5, "col": 2, "fam": "def", "ic": "Ss"},
-	"intimidant": {"n": "Regard glaçant", "d": "Un coup qui laisse l'ennemi sous 60 % de ses PV lui impose un test de moral à −10.", "tier": 5, "col": 3, "fam": "moral", "ic": "Rg"},
-	# Rang 6
-	"spec_lance": {"n": "Lancier", "d": "Lances, fourches et hallebardes : +10 % au toucher.", "wp": {"weapons": ["lance", "fourche", "hallebarde", "u_lance_aigle"], "hit": 10}, "tier": 6, "col": 0, "fam": "weapon", "ic": "Ln"},
-	"coup_de_grace": {"n": "Coup de grâce", "d": "35 % de chances de viser la tête au lieu de 25 %.", "tier": 6, "col": 1, "fam": "melee", "ic": "Cg"},
-	"spec_bouclier": {"n": "Rempart", "d": "Avec un bouclier : +5 en défense de mêlée et +10 en défense à distance.", "req": "garde_ferme", "shield_stat": {"melee_def": 5, "ranged_def": 10}, "tier": 6, "col": 2, "fam": "weapon", "ic": "Rp"},
-	"montagnard": {"n": "Montagnard", "d": "Ignore les pénalités de forêt, de colline et de gué.", "tier": 6, "col": 3, "fam": "move", "ic": "Mt"},
-	# Rang 7
-	"frappe_vive": {"n": "Frappe vive", "d": "La première attaque de chaque tour coûte 1 PA de moins.", "tier": 7, "col": 0, "fam": "melee", "ic": "Fv"},
-	"insaisissable": {"n": "Insaisissable", "d": "Ignore une zone de contrôle ennemie isolée.", "tier": 7, "col": 1, "fam": "move", "ic": "In"},
-	"armure_lourde": {"n": "Port d'armure", "d": "Le poids de l'équipement est réduit de 30 % (fatigue, initiative, déplacement).", "req": "dur_a_cuire", "tier": 7, "col": 2, "fam": "gear", "ic": "Pa"},
-	"chef_ne": {"n": "Chef-né", "d": "Les alliés adjacents ont +10 à leurs tests de moral.", "req": "cran", "tier": 7, "col": 3, "fam": "moral", "ic": "Ch"},
+	# Rang 1 (9)
+	"bretteur": {"n": "Bretteur", "d": "+5 en attaque de mêlée.", "stat": {"melee_skill": 5}, "tier": 1, "col": 0, "fam": "off", "icon": "bretteur.svg", "fx": {}},
+	"oeil_sur": {"n": "Œil sûr", "d": "+10 en attaque à distance.", "stat": {"ranged_skill": 10}, "tier": 1, "col": 1, "fam": "off", "icon": "oeil_sur.svg", "fx": {}},
+	"parade": {"n": "Parade", "d": "+5 en défense de mêlée.", "stat": {"melee_def": 5}, "tier": 1, "col": 2, "fam": "def", "icon": "parade.svg", "fx": {}},
+	"endurant": {"n": "Endurant", "d": "Chaque attaque coûte 3 fatigue de moins.", "tier": 1, "col": 3, "fam": "def", "icon": "endurant.svg", "fx": {}},
+	"vif": {"n": "Vif", "d": "+10 d'initiative.", "stat": {"initiative": 10}, "tier": 1, "col": 4, "fam": "mob", "icon": "vif.svg", "fx": {}},
+	"tete_froide": {"n": "Tête froide", "d": "+8 en détermination (tests de moral).", "stat": {"resolve": 8}, "tier": 1, "col": 5, "fam": "mor", "icon": "tete_froide.svg", "fx": {}},
+	"marchandeur": {"n": "Marchandeur", "d": "Le meilleur marchandeur de la compagnie : −5 % sur les achats, +5 % sur les ventes.", "tier": 1, "col": 6, "fam": "esp", "icon": "marchandeur.svg", "fx": {"buy_mult": 0.95, "sell_mult": 1.05}},
+	"studieux": {"n": "Studieux", "d": "Gagne 10 % d'expérience en plus après chaque bataille.", "tier": 1, "col": 7, "fam": "esp", "icon": "studieux.svg", "fx": {"xp_mult": 1.1}},
+	"infirmier": {"n": "Mains douces", "d": "Chaque jour de repos, toute la compagnie récupère 4 PV de plus (le meilleur infirmier compte).", "tier": 1, "col": 8, "fam": "esp", "icon": "infirmier.svg", "fx": {"rest_heal": 4}},
+	# Rang 2 (8)
+	"briseur": {"n": "Coup d'estoc", "d": "+10 % de dégâts contre une armure légère (moins de 70).", "tier": 2, "col": 0, "fam": "off", "icon": "briseur.svg", "fx": {}},
+	"lame_affutee": {"n": "Lame affûtée", "d": "+8 % de dégâts d'armure avec toutes les armes.", "tier": 2, "col": 1, "fam": "off", "icon": "lame_affutee.svg", "fx": {"arm_dmg": 1.08}},
+	"esquive": {"n": "Esquive", "d": "+10 en défense à distance.", "stat": {"ranged_def": 10}, "tier": 2, "col": 2, "fam": "def", "icon": "esquive.svg", "fx": {}},
+	"souffle_long": {"n": "Souffle long", "d": "+15 d'endurance.", "stat": {"fat_max": 15}, "tier": 2, "col": 3, "fam": "def", "icon": "souffle_long.svg", "fx": {}},
+	"cicatrisation": {"n": "Cicatrisation", "d": "Récupère 3 PV au début de chacun de ses tours de combat.", "tier": 2, "col": 4, "fam": "def", "icon": "cicatrisation.svg", "fx": {"turn_heal": 3}},
+	"pied_sur": {"n": "Pied sûr", "d": "Chaque case parcourue coûte 1 fatigue de moins.", "tier": 2, "col": 5, "fam": "mob", "icon": "pied_sur.svg", "fx": {}},
+	"camaraderie": {"n": "Camaraderie", "d": "+3 en défense de mêlée par allié adjacent (jusqu'à 3 alliés, soit +9).", "tier": 2, "col": 6, "fam": "esp", "icon": "camaraderie.svg", "fx": {"adj_def": 3, "adj_max": 3}},
+	"gardien": {"n": "Gardien", "d": "Les alliés adjacents ont +5 en défense de mêlée et à distance.", "tier": 2, "col": 7, "fam": "esp", "icon": "gardien.svg", "fx": {"aura_def": 5}},
+	# Rang 3 (8)
+	"spec_epee": {"n": "Maître d'épée", "d": "Épées : +10 % au toucher.", "wp": {"weapons": ["epee", "u_epee_corbeau"], "hit": 10}, "tier": 3, "col": 0, "fam": "off", "icon": "spec_epee.svg", "fx": {}},
+	"spec_arc": {"n": "Tireur d'élite", "d": "Arcs et arbalètes : +10 % de dégâts.", "wp": {"weapons": ["arc", "arbalete", "u_arc_ronce"], "dmg": 1.1}, "tier": 3, "col": 1, "fam": "off", "icon": "spec_arc.svg", "fx": {}},
+	"archer_pose": {"n": "Tireur posté", "d": "+10 au toucher à distance s'il n'a pas bougé de ce tour.", "tier": 3, "col": 2, "fam": "off", "icon": "archer_pose.svg", "fx": {"still_ranged_hit": 10}},
+	"predateur": {"n": "Prédateur", "d": "+10 au toucher contre un ennemi brisé ou en fuite.", "tier": 3, "col": 3, "fam": "off", "icon": "predateur.svg", "fx": {"vs_broken_hit": 10}},
+	"garde_ferme": {"n": "Garde ferme", "d": "+10 en défense de mêlée avec un bouclier.", "shield_stat": {"melee_def": 10}, "tier": 3, "col": 4, "fam": "def", "icon": "garde_ferme.svg", "fx": {}},
+	"cran": {"n": "Cran", "d": "+15 aux tests de moral.", "stat": {"resolve": 15}, "tier": 3, "col": 5, "fam": "mor", "icon": "cran.svg", "fx": {}},
+	"voix_claire": {"n": "Voix claire", "d": "Les alliés à 3 cases ou moins ont +5 à leurs tests de moral.", "tier": 3, "col": 6, "fam": "mor", "icon": "voix_claire.svg", "fx": {"voice": 5, "voice_rng": 3}},
+	"pilleur": {"n": "Pilleur", "d": "+15 % de butin après chaque bataille (le meilleur pilleur compte).", "tier": 3, "col": 7, "fam": "esp", "icon": "pilleur.svg", "fx": {"loot_mult": 1.15}},
+	# Rang 4 (12)
+	"spec_hache": {"n": "Fendeur", "d": "Haches : +15 % de dégâts à l'armure.", "wp": {"weapons": ["hache", "u_hache_fendcrane"], "arm": 1.15}, "tier": 4, "col": 0, "fam": "off", "icon": "spec_hache.svg", "fx": {}},
+	"spec_javelot": {"n": "Lanceur", "d": "Javelots : +10 % au toucher et 2 javelots de plus.", "wp": {"weapons": ["javelot"], "hit": 10, "ammo": 2}, "tier": 4, "col": 1, "fam": "off", "icon": "spec_javelot.svg", "fx": {}},
+	"elan": {"n": "Élan", "d": "Mêlée : +10 au toucher et +10 % de dégâts après avoir parcouru au moins 2 cases ce tour.", "tier": 4, "col": 2, "fam": "off", "icon": "elan.svg", "fx": {"charge_hit": 10, "charge_dmg": 1.1, "charge_cells": 2}},
+	"force_brute": {"n": "Force brute", "d": "Ouvre la capacité « Coup puissant » (mêlée) : +35 % de dégâts, −10 au toucher, 1 PA de plus.", "tier": 4, "col": 3, "fam": "off", "icon": "force_brute.svg", "fx": {}, "ability": "coup_puissant"},
+	"croc_en_jambe": {"n": "Croc-en-jambe", "d": "Ouvre la capacité « Croc-en-jambe » (mêlée) : si le coup touche, la cible a −10 en défense jusqu'à son prochain tour.", "tier": 4, "col": 4, "fam": "off", "icon": "croc_en_jambe.svg", "fx": {}, "ability": "croc_jambe"},
+	"duelliste": {"n": "Duelliste", "d": "Sans allié adjacent : +8 en attaque et +8 en défense de mêlée.", "tier": 4, "col": 5, "fam": "off", "icon": "duelliste.svg", "fx": {"solo_hit": 8, "solo_def": 8}},
+	"dur_a_cuire": {"n": "Dur à cuire", "d": "Deux fois moins de risques d'être blessé.", "tier": 4, "col": 6, "fam": "def", "icon": "dur_a_cuire.svg", "fx": {}},
+	"mur_vivant": {"n": "Mur vivant", "d": "Le mur de boucliers donne +10 en défense de plus (mêlée et distance).", "req": "garde_ferme", "tier": 4, "col": 7, "fam": "def", "icon": "mur_vivant.svg", "fx": {"wall_def": 10}},
+	"nuque_protegee": {"n": "Nuque protégée", "d": "Les coups à la tête contre lui sont 10 points moins fréquents (15 % au lieu de 25 %).", "tier": 4, "col": 8, "fam": "def", "icon": "nuque_protegee.svg", "fx": {"head_safe": 0.10}},
+	"legerete": {"n": "Pas léger", "d": "+15 d'initiative et +5 en défense tant que le poids de l'équipement est de 10 ou moins.", "light_stat": {"initiative": 15, "melee_def": 5, "ranged_def": 5}, "tier": 4, "col": 9, "fam": "mob", "icon": "legerete.svg", "fx": {}},
+	"armurier": {"n": "Armurier", "d": "Les réparations de la compagnie coûtent 20 % de moins (le meilleur armurier compte).", "tier": 4, "col": 10, "fam": "esp", "icon": "armurier.svg", "fx": {"repair_mult": 0.8}},
+	"eclaireur": {"n": "Éclaireur", "d": "La compagnie voit 15 % plus loin sur la carte (le meilleur éclaireur compte).", "tier": 4, "col": 11, "fam": "mob", "icon": "eclaireur.svg", "fx": {"vision_mult": 1.15}},
+	# Rang 5 (5)
+	"spec_masse": {"n": "Fracasseur", "d": "Masses, gourdins et fléaux : traversent 10 points de plus l'armure.", "wp": {"weapons": ["masse", "gourdin", "fleau", "u_masse_glas"], "ign": 0.1}, "tier": 5, "col": 0, "fam": "off", "icon": "spec_masse.svg", "fx": {}},
+	"oeil_de_lynx": {"n": "Œil de lynx", "d": "+2 de portée avec un arc.", "req": "spec_arc", "tier": 5, "col": 1, "fam": "off", "icon": "oeil_de_lynx.svg", "fx": {}},
+	"second_souffle": {"n": "Second souffle", "d": "Récupère 5 points de fatigue de plus par tour.", "tier": 5, "col": 2, "fam": "def", "icon": "second_souffle.svg", "fx": {}},
+	"increvable": {"n": "Increvable", "d": "Une fois par bataille, 40 % de chances d'encaisser un coup mortel et de rester à 1 PV.", "tier": 5, "col": 3, "fam": "def", "icon": "increvable.svg", "fx": {"survive": 40}},
+	"intimidant": {"n": "Regard glaçant", "d": "Un coup qui laisse l'ennemi sous 60 % de ses PV lui impose un test de moral à −10.", "tier": 5, "col": 4, "fam": "mor", "icon": "intimidant.svg", "fx": {}},
+	# Rang 6 (4)
+	"spec_lance": {"n": "Lancier", "d": "Lances, fourches et hallebardes : +10 % au toucher.", "wp": {"weapons": ["lance", "fourche", "hallebarde", "u_lance_aigle"], "hit": 10}, "tier": 6, "col": 0, "fam": "off", "icon": "spec_lance.svg", "fx": {}},
+	"coup_de_grace": {"n": "Coup de grâce", "d": "35 % de chances de viser la tête au lieu de 25 %.", "tier": 6, "col": 1, "fam": "off", "icon": "coup_de_grace.svg", "fx": {}},
+	"spec_bouclier": {"n": "Rempart", "d": "Avec un bouclier : +5 en défense de mêlée et +10 en défense à distance.", "req": "garde_ferme", "shield_stat": {"melee_def": 5, "ranged_def": 10}, "tier": 6, "col": 2, "fam": "def", "icon": "spec_bouclier.svg", "fx": {}},
+	"montagnard": {"n": "Montagnard", "d": "Ignore les pénalités de forêt, de colline et de gué.", "tier": 6, "col": 3, "fam": "mob", "icon": "montagnard.svg", "fx": {}},
+	# Rang 7 (4)
+	"frappe_vive": {"n": "Frappe vive", "d": "La première attaque de chaque tour coûte 1 PA de moins.", "tier": 7, "col": 0, "fam": "off", "icon": "frappe_vive.svg", "fx": {}},
+	"insaisissable": {"n": "Insaisissable", "d": "Ignore une zone de contrôle ennemie isolée.", "tier": 7, "col": 1, "fam": "mob", "icon": "insaisissable.svg", "fx": {}},
+	"armure_lourde": {"n": "Port d'armure", "d": "Le poids de l'équipement est réduit de 30 % (fatigue, initiative, déplacement).", "req": "dur_a_cuire", "tier": 7, "col": 2, "fam": "def", "icon": "armure_lourde.svg", "fx": {}},
+	"chef_ne": {"n": "Chef-né", "d": "Les alliés adjacents ont +10 à leurs tests de moral.", "req": "cran", "tier": 7, "col": 3, "fam": "mor", "icon": "chef_ne.svg", "fx": {}},
 }
 
 # --- Blessures ---

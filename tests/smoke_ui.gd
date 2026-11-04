@@ -31,6 +31,8 @@ func _run() -> void:
 	root.add_child(main)
 	await _frames(2)
 	await _check_company_setup(main)
+	await _check_formation_panel(main)
+	await _check_perk_tree(main)
 	# --- Ville ---
 	var camp: Node = _find(main, "Camp")
 	_check(camp != null, "l'écran de ville s'affiche au départ")
@@ -142,6 +144,37 @@ func _run() -> void:
 	inv.call("close")
 	await _frames(2)
 	_check(get_nodes_in_group("inventory_screen").is_empty(), "plus d'inventaire ouvert")
+	# --- Fiche de personnage : onglets et formation ---
+	var inv2: Node = inv_cls.call("open", main)
+	await _frames(2)
+	inv2.call("set_tab", "perks")
+	await _frames(2)
+	_check(not _find_all(inv2, func(n: Node) -> bool: return n.get_script() != null and n.get_script().get_global_name() == "PerkTree").is_empty(), "onglet Talents : arbre présent")
+	inv2.call("set_tab", "inventory")
+	var fps: Array = _find_all(inv2, func(n: Node) -> bool: return n.get_script() != null and n.get_script().get_global_name() == "FormationPanel")
+	_check(not fps.is_empty(), "formation présente sous la fiche")
+	if game.roster.size() > 1 and not fps.is_empty():
+		fps[0].emit_signal("unit_selected", game.roster[1].id)
+		await _frames(2)
+		_check(inv2.call("selected") == game.roster[1], "la formation change l'homme affiché")
+	inv2.call("close")
+	await _frames(2)
+	# --- Marché : achat et vente ---
+	if game.in_settlement():
+		game.gold = 5000
+		game.inventory.clear()
+		var mk: Node = load("res://scenes/market/market_screen.gd").call("open", main)
+		await _frames(3)
+		_check(mk != null and mk.is_inside_tree(), "le marché s'ouvre")
+		var wi: int = Market.filtered(game.shop_stock(), "weapon")[0]
+		_check(mk.call("act_buy", wi), "marché : achat")
+		_check(game.inventory.size() == 1, "marché : l'objet est en réserve")
+		await _frames(2)
+		mk.call("set_filter", "weapon")
+		_check(mk.call("act_sell", 0), "marché : revente")
+		mk.call("close")
+		await _frames(2)
+		_check(get_nodes_in_group("market_screen").is_empty(), "plus de marché ouvert")
 	_step("jour %d, or %d, %d hommes" % [game.day, game.gold, game.roster.size()])
 	print("\nSmoke UI : %s" % ("OK" if _errors == 0 else "%d erreur(s)" % _errors))
 	quit(0 if _errors == 0 else 1)
@@ -226,3 +259,74 @@ func _count(n: Node) -> int:
 	for c in n.get_children():
 		t += _count(c)
 	return t
+
+
+## Composant FormationPanel (scenes/inventory/formation_panel.gd) : affichage, sélection, glisser-déposer, plafond du champ.
+func _check_formation_panel(main: Node) -> void:
+	var panel: Control = load("res://scenes/inventory/formation_panel.gd").new()
+	panel.position = Vector2(20, 20)
+	panel.size = Vector2(700, 340)
+	main.add_child(panel)
+	await _frames(2)
+	var selected: Array = []
+	panel.connect("unit_selected", func(id: int) -> void: selected.append(id))
+	var slots: Dictionary = game.formation_slots()
+	var field: Array = Formation.field_ids(slots)
+	_check(field.size() == mini(game.roster.size(), Data.FIGHTERS), "formation : les hommes du champ sont affichés")
+	var first: int = int(field[0])
+	var from_slot: int = int(slots[first])
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = (panel.call("slot_rect", from_slot) as Rect2).get_center()
+	panel.call("_gui_input", click)
+	_check(selected == [first], "formation : un clic sélectionne l'homme")
+	var target: int = Formation.FRONT_START + 8
+	var data: Variant = {"formation_unit": first, "from": from_slot}  # (_get_drag_data exige un vrai glisser dans le moteur)
+	_check(int(panel.call("_man_at", from_slot).id) == first, "formation : le bon homme occupe la case")
+	var drop_pos: Vector2 = (panel.call("slot_rect", target) as Rect2).get_center()
+	_check(bool(panel.call("_can_drop_data", drop_pos, data)), "formation : dépôt sur une case vide permis")
+	panel.call("_drop_data", drop_pos, data)
+	_check(int(game.formation_slots()[first]) == target, "formation : l'homme est déplacé")
+	var occupant: int = int(field[1])
+	var occ_slot: int = int(game.formation_slots()[occupant])
+	var data2: Variant = {"formation_unit": first, "from": target}
+	panel.call("_drop_data", (panel.call("slot_rect", occ_slot) as Rect2).get_center(), data2)
+	_check(int(game.formation_slots()[first]) == occ_slot and int(game.formation_slots()[occupant]) == target, "formation : dépôt sur un occupant = échange")
+	panel.call("set_selected", occupant)
+	panel.queue_free()
+	await _frames(1)
+	game.formation = {}
+	game.formation_slots()
+
+
+## Arbre de talents : PerkTree seul dans un hôte (taille libre), apprentissage, puis PerkScreen modal (talents refondus).
+func _check_perk_tree(main: Node) -> void:
+	var host := Control.new()
+	host.size = Vector2(1000, 600)
+	main.add_child(host)
+	var u: Unit = game.roster[0]
+	var saved_perks: Array[String] = u.perks.duplicate()
+	var saved_pts: int = u.perk_points
+	u.perks.clear()
+	u.perk_points = 2
+	var tr := PerkTree.new()
+	tr.size = Vector2(1000, 600)
+	host.add_child(tr)
+	tr.set_unit(u)
+	await _frames(2)
+	_check(tr.icon_of("bretteur") != null and tr.icon_of("chef_ne") != null, "arbre de talents : pastilles présentes")
+	var taken: Array = []
+	tr.perk_taken.connect(func(k: String) -> void: taken.append(k))
+	tr.icon_of("vif").clicked.emit("vif")
+	tr.icon_of("vif").clicked.emit("vif")
+	await _frames(2)
+	_check(u.has_perk("vif") and taken == ["vif"], "arbre de talents : sélection puis apprentissage au second clic")
+	var scr: PerkScreen = PerkScreen.open(main, u)
+	await _frames(2)
+	_check(scr.tree != null and scr.tree.icon_of("parade") != null, "écran de talents : arbre hébergé dans la modale")
+	scr.close()
+	await _frames(2)
+	host.queue_free()
+	u.perks.assign(saved_perks)
+	u.perk_points = saved_pts
