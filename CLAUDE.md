@@ -119,6 +119,11 @@ Piège : dans un script `-s` (SceneTree), les autoloads (`Game`, `Data`) ne sont
 chargement ; passer par `root.get_node("/root/Game")` et ne pas typer avec des `class_name` qui les utilisent
 (voir `tests/smoke_ui.gd`).
 
+Piège : en GDScript, une fonction anonyme (`func() -> void: ...`) capture les variables locales **par valeur au moment de sa
+création**. Une variable déclarée vide (`var sync := Callable()`) puis affectée plus tard reste vide pour les lambdas créées avant :
+passer par un conteneur (`var sync: Array = [Callable()]`, `sync[0] = func...`). Cela a rendu inertes les boutons de l'étape
+« Votre compagnie » ; tests de régression dans `tests/smoke_ui.gd` (`_check_company_setup`).
+
 Après chaque modification de script, lance au minimum `--headless --import` et corrige toute erreur
 avant de dire que c'est fini. Ne laisse jamais le projet dans un état qui ne s'ouvre pas.
 

@@ -71,7 +71,9 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 	# --- Couleurs ---
 	var swatches: Dictionary = {"primary": [], "secondary": []}
 	var picker_btns: Dictionary = {}
-	var sync := Callable()
+	# Dans une fonction anonyme, une variable locale est capturée PAR VALEUR à la création : `sync` doit donc être un conteneur
+	# (tableau) rempli plus tard, sinon les boutons créés avant son affectation appellent un Callable vide.
+	var sync: Array = [Callable()]
 	for key in ["primary", "secondary"]:
 		left.add_child(UiKit.label("Couleur principale (champ de la bannière)" if key == "primary" else "Couleur secondaire (emblème)", 14, GameTheme.GOLD, true))
 		var row := HFlowContainer.new()
@@ -85,7 +87,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 			b.tooltip_text = str(Data.BANNER_COLOR_NAMES[i])
 			b.pressed.connect(func() -> void:
 				st[key] = hex
-				sync.call())
+				sync[0].call())
 			row.add_child(b)
 			(swatches[key] as Array).append([b, hex])
 		var pick := ColorPickerButton.new()
@@ -95,7 +97,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 		pick.tooltip_text = "Autre teinte…"
 		pick.color_changed.connect(func(c: Color) -> void:
 			st[key] = c.to_html(false)
-			sync.call())
+			sync[0].call())
 		row.add_child(pick)
 		picker_btns[key] = pick
 		left.add_child(row)
@@ -117,7 +119,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 		b.add_child(ic)
 		b.pressed.connect(func() -> void:
 			st["emblem"] = i
-			sync.call())
+			sync[0].call())
 		egrid.add_child(b)
 		emb_btns.append(b)
 		emb_icons.append(ic)
@@ -133,7 +135,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 		pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		pb.pressed.connect(func() -> void:
 			st["pattern"] = i
-			sync.call())
+			sync[0].call())
 		prow.add_child(pb)
 		pat_btns.append(pb)
 	left.add_child(prow)
@@ -150,7 +152,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 	actions.add_child(go)
 	box.add_child(actions)
 
-	sync = func() -> void:
+	sync[0] = func() -> void:
 		var banner: Dictionary = Banner.clean({"primary": st["primary"], "secondary": st["secondary"], "emblem": st["emblem"], "pattern": st["pattern"]})
 		big.set_banner(banner)
 		var nm: String = name_edit.text.strip_edges()
@@ -168,10 +170,10 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 		var ok: bool = Banner.is_valid_name(name_edit.text)
 		go.disabled = not ok
 		hint.add_theme_color_override("font_color", GameTheme.MUTE if ok else GameTheme.BLOOD)
-	name_edit.text_changed.connect(func(_t: String) -> void: sync.call())
+	name_edit.text_changed.connect(func(_t: String) -> void: sync[0].call())
 	dice_name.pressed.connect(func() -> void:
 		name_edit.text = Banner.random_name(r, name_edit.text)
-		sync.call())
+		sync[0].call())
 	rand.pressed.connect(func() -> void:
 		var nb: Dictionary = Banner.random_banner(r)
 		st["primary"] = nb["primary"] if nb["primary"] != "" else str(Data.BANNER_COLORS[0])
@@ -179,7 +181,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 		st["emblem"] = nb["emblem"]
 		st["pattern"] = nb["pattern"]
 		name_edit.text = Banner.random_name(r, name_edit.text)
-		sync.call())
+		sync[0].call())
 	back.pressed.connect(func() -> void:
 		modal.close()
 		if on_back.is_valid():
@@ -191,7 +193,7 @@ static func open(host: Node, on_start: Callable, on_back: Callable, rng: RandomN
 		modal.close()
 		if on_start.is_valid():
 			on_start.call(setup))
-	sync.call()
+	sync[0].call()
 	return modal
 
 

@@ -30,6 +30,7 @@ func _run() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await _frames(2)
+	await _check_company_setup(main)
 	# --- Ville ---
 	var camp: Node = _find(main, "Camp")
 	_check(camp != null, "l'écran de ville s'affiche au départ")
@@ -144,6 +145,56 @@ func _run() -> void:
 	_step("jour %d, or %d, %d hommes" % [game.day, game.gold, game.roster.size()])
 	print("\nSmoke UI : %s" % ("OK" if _errors == 0 else "%d erreur(s)" % _errors))
 	quit(0 if _errors == 0 else 1)
+
+
+## Régression : à la création de partie, les boutons de couleur, d'emblème et de motif de « Votre compagnie » doivent
+## réellement mettre l'aperçu à jour (bug corrigé : `sync` capturé vide par les fonctions anonymes).
+func _check_company_setup(main: Node) -> void:
+	var started: Array = []
+	var setup_script: GDScript = load("res://scenes/newgame/company_setup.gd")
+	var modal: Node = setup_script.open(main, func(setup: Dictionary) -> void: started.append(setup), func() -> void: pass)
+	await _frames(1)
+	var views: Array = _find_all(modal, func(n: Node) -> bool: return n.get_script() != null and n.get_script().get_global_name() == "BannerView")
+	_check(not views.is_empty(), "création de bannière : aperçu présent")
+	if views.is_empty():
+		return
+	var big: Node = views[0]
+	var before: Dictionary = (big.get("banner") as Dictionary).duplicate()
+	var names: Array = Data.BANNER_COLOR_NAMES
+	var swatches: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and names.has((n as Button).tooltip_text))
+	_check(swatches.size() >= 2 * Data.BANNER_COLORS.size(), "création de bannière : palettes présentes (%d)" % swatches.size())
+	(swatches[3] as Button).pressed.emit()
+	_check(str(Banner.primary(big.get("banner")).to_html(false)) == str(Data.BANNER_COLORS[3]), "création de bannière : la couleur principale change l'aperçu")
+	(swatches[Data.BANNER_COLORS.size() + 5] as Button).pressed.emit()
+	_check(str(Banner.secondary(big.get("banner")).to_html(false)) == str(Data.BANNER_COLORS[5]), "création de bannière : la couleur secondaire change l'aperçu")
+	var emblems: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).toggle_mode and Data.BANNER_EMBLEMS.has((n as Button).tooltip_text))
+	_check(emblems.size() == Data.BANNER_EMBLEMS.size(), "création de bannière : emblèmes présents")
+	(emblems[4] as Button).pressed.emit()
+	_check(int((big.get("banner") as Dictionary)["emblem"]) == 4, "création de bannière : l'emblème change l'aperçu")
+	var patterns: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).toggle_mode and Data.BANNER_PATTERNS.has((n as Button).text))
+	_check(patterns.size() == Data.BANNER_PATTERNS.size(), "création de bannière : motifs présents")
+	(patterns[2] as Button).pressed.emit()
+	_check(int((big.get("banner") as Dictionary)["pattern"]) == 2, "création de bannière : le motif change l'aperçu")
+	_check(big.get("banner") != before, "création de bannière : l'aperçu a changé")
+	_check((emblems[4] as Button).button_pressed and not (emblems[0] as Button).button_pressed, "création de bannière : un seul emblème enfoncé")
+	var go: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text == "Commencer l'aventure")
+	_check(not go.is_empty(), "création de bannière : bouton « Commencer »")
+	if not go.is_empty():
+		(go[0] as Button).pressed.emit()
+	_check(started.size() == 1, "création de bannière : la partie démarre")
+	if started.size() == 1:
+		var b: Dictionary = started[0]["banner"]
+		_check(int(b["emblem"]) == 4 and int(b["pattern"]) == 2 and str(b["primary"]) == str(Data.BANNER_COLORS[3]), "création de bannière : les choix sont transmis")
+	await _frames(1)
+
+
+func _find_all(n: Node, pred: Callable) -> Array:
+	var out: Array = []
+	if pred.call(n):
+		out.append(n)
+	for c in n.get_children():
+		out.append_array(_find_all(c, pred))
+	return out
 
 
 func _click(screen: Node, stage_pos: Vector2) -> void:
