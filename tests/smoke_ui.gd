@@ -31,6 +31,7 @@ func _run() -> void:
 	root.add_child(main)
 	await _frames(2)
 	await _check_company_setup(main)
+	_check_tooltip_wrap(main)
 	await _check_formation_panel(main)
 	await _check_perk_tree(main)
 	# --- Ville ---
@@ -221,6 +222,28 @@ func _check_company_setup(main: Node) -> void:
 	await _frames(1)
 
 
+## Régression : l'infobulle des talents ne dépend d'aucun retour à la ligne automatique (elle devenait un panneau géant).
+func _check_tooltip_wrap(main_node_for_tip: Node) -> void:
+	var icon_script: GDScript = load("res://scenes/perks/perk_icon.gd")
+	var long_text: String = "Épées : +10 % au toucher ; Fente ne coûte plus de PA en plus. Un texte volontairement long pour forcer plusieurs lignes dans la bulle."
+	var wrapped: String = icon_script.wrap_text(long_text, 42)
+	var longest: int = 0
+	for line in wrapped.split("\n"):
+		longest = maxi(longest, line.length())
+	_check(longest <= 46 and wrapped.split("\n").size() >= 3, "infobulle des talents : lignes coupées à l'avance (%d car. max)" % longest)
+	_check(wrapped.replace("\n", " ") == long_text, "infobulle des talents : aucun mot perdu ou coupé")
+	var icon: Control = icon_script.new()
+	icon.set("key", "spec_epee")
+	main_node_for_tip.add_child(icon)
+	var tip: Control = icon._make_custom_tooltip("")
+	_check(tip != null, "infobulle des talents : construite")
+	if tip != null:
+		main_node_for_tip.add_child(tip)
+		_check(tip.get_combined_minimum_size().y < 320.0, "infobulle des talents : hauteur raisonnable (%d px)" % int(tip.get_combined_minimum_size().y))
+		tip.queue_free()
+	icon.queue_free()
+
+
 func _find_all(n: Node, pred: Callable) -> Array:
 	var out: Array = []
 	if pred.call(n):
@@ -332,11 +355,11 @@ func _check_perk_tree(main: Node) -> void:
 	_check(PerkIcon.badge_of("spec_epee") != null and PerkIcon.badge_of("ma_mailles") != null and PerkIcon.badge_of("vif") == null, "maîtrises : badge de famille (arme, armure, aucun)")
 	_check(mic.unit == u and tr.state_of("spec_epee") == "taken", "maîtrise apprise : l'icône connaît l'homme affiché")
 	var tip: Control = mic._make_custom_tooltip("") as Control
-	_check(tip != null and "Actif" in _all_text(tip) and "Épée d'armes" in _all_text(tip), "infobulle de maîtrise : famille et état actif")
+	_check(tip != null and "Actif" in _flat(tip) and "Épée d'armes" in _flat(tip), "infobulle de maîtrise : famille et état actif")
 	tip.free()
 	u.weapon = "hache"
 	var tip2: Control = mic._make_custom_tooltip("") as Control
-	_check("Inactif" in _all_text(tip2), "infobulle de maîtrise : inactive avec une hache")
+	_check("Inactif" in _flat(tip2), "infobulle de maîtrise : inactive avec une hache")
 	tip2.free()
 	_check(tr.icon_of("ex_epee") != null and tr.state_of("ex_epee") == "locked", "talent expert présent, fermé (rang 5 talents requis)")
 	tr.size = Vector2(1000, 600)
@@ -351,11 +374,15 @@ func _check_perk_tree(main: Node) -> void:
 
 
 ## Texte de tous les Label / RichTextLabel sous un nœud.
+## Texte de l'infobulle sur une seule ligne (les libellés sont coupés à l'avance : une expression peut tenir sur deux lignes).
+func _flat(n: Node) -> String:
+	return _all_text(n).replace("\n", " ")
+
+
 func _all_text(n: Node) -> String:
 	var out: String = ""
 	if n is Label:
-		out += (n as Label).text + "
-"
+		out += (n as Label).text + "\n"
 	for c in n.get_children():
 		out += _all_text(c)
 	return out

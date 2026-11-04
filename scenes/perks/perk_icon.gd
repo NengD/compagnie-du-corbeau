@@ -90,6 +90,22 @@ func _gui_input(e: InputEvent) -> void:
 		clicked.emit(key)
 
 
+## Coupe `text` en lignes d'au plus `width` caractères (aux espaces). Les libellés de l'infobulle n'utilisent AUCUN retour à la ligne
+## automatique : la taille d'une infobulle (fenêtre à part) ne dépend ainsi d'aucun calcul de largeur différé, et reste compacte.
+static func wrap_text(text: String, width: int = 42) -> String:
+	var lines: PackedStringArray = []
+	for para in text.split("\n"):
+		var cur: String = ""
+		for w in para.split(" "):
+			if cur != "" and cur.length() + 1 + w.length() > width:
+				lines.append(cur)
+				cur = w
+			else:
+				cur = w if cur == "" else cur + " " + w
+		lines.append(cur)
+	return "\n".join(lines)
+
+
 func _make_custom_tooltip(_for_text: String) -> Object:
 	if key == "" or not Data.PERKS.has(key):
 		return null
@@ -98,30 +114,20 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	panel.theme = GameTheme.get_theme()
 	panel.theme_type_variation = "Card"
 	var box := UiKit.vbox(3)
-	box.custom_minimum_size = Vector2(260, 0)
 	panel.add_child(box)
 	box.add_child(UiKit.title(str(pd["n"]), 22))
-	box.add_child(UiKit.sub("Rang %d · %s" % [int(pd["tier"]), Data.PERK_FAMILIES[pd["fam"]]["n"]], 13, false))
-	box.add_child(UiKit.para(str(pd["d"]), 15))
+	box.add_child(UiKit.label("Rang %d · %s" % [int(pd["tier"]), Data.PERK_FAMILIES[pd["fam"]]["n"]], 13, GameTheme.MUTE))
+	box.add_child(UiKit.label(wrap_text(str(pd["d"])), 15))
 	var fam: String = Perks.family_of_perk(key)
 	if fam != "":
 		var kind: String = "Maîtrise" if Perks.tier_of(key) == 4 else "Expert"
-		var members := UiKit.sub("%s de la famille « %s » : %s" % [kind, Perks.family_name(fam), Perks.family_members(fam)], 13, false)
-		members.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		members.custom_minimum_size = Vector2(250, 0)
-		box.add_child(members)
+		box.add_child(UiKit.label(wrap_text("%s de la famille « %s » : %s" % [kind, Perks.family_name(fam), Perks.family_members(fam)], 46), 13, GameTheme.MUTE))
 		if unit != null:
 			var act: bool = Perks.family_active(unit, fam)
-			var st := UiKit.label(Perks.family_status(unit, key), 14, GameTheme.GOOD if act else GameTheme.MUTE, true)
-			st.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			st.custom_minimum_size = Vector2(250, 0)
-			box.add_child(st)
+			box.add_child(UiKit.label(wrap_text(Perks.family_status(unit, key), 46), 14, GameTheme.GOOD if act else GameTheme.MUTE, true))
 	if status_text != "":
 		var col: Color = GameTheme.GOLD if state == "taken" else (GameTheme.GOOD if state == "open" else GameTheme.MUTE)
-		var l := UiKit.label(status_text, 14, col, true)
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		l.custom_minimum_size = Vector2(250, 0)
-		box.add_child(l)
+		box.add_child(UiKit.label(wrap_text(status_text, 46), 14, col, true))
 	return panel
 
 

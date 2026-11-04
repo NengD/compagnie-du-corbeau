@@ -137,6 +137,11 @@ création**. Une variable déclarée vide (`var sync := Callable()`) puis affect
 passer par un conteneur (`var sync: Array = [Callable()]`, `sync[0] = func...`). Cela a rendu inertes les boutons de l'étape
 « Votre compagnie » ; tests de régression dans `tests/smoke_ui.gd` (`_check_company_setup`).
 
+Piège : une infobulle personnalisée (`_make_custom_tooltip`) vit dans une fenêtre à part : n'y mets AUCUN libellé à retour à la ligne
+automatique (`autowrap_mode`) dont la hauteur dépend d'une largeur calculée plus tard ; coupe le texte à l'avance
+(`PerkIcon.wrap_text`). Tailles de fenêtre : la liste des options va jusqu'à la taille de l'ÉCRAN (le 2K 2560×1440 y figure,
+ajusté à la zone utilisable en mode fenêtré).
+
 Après chaque modification de script, lance au minimum `--headless --import` et corrige toute erreur
 avant de dire que c'est fini. Ne laisse jamais le projet dans un état qui ne s'ouvre pas.
 

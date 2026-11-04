@@ -13,6 +13,7 @@ var _mode: int = 0
 var _res: Vector2i = Vector2i.ZERO  ## (0, 0) = taille actuelle
 var _monitor: int = 0
 var _confirm: ModalOverlay
+var _size_info: Label  ## retour sous « Appliquer » : taille réellement obtenue
 var _scroll: ScrollContainer
 var _q_opt: OptionButton  ## liste « Qualité graphique »
 var _q_desc: Label
@@ -111,11 +112,17 @@ func _build_display(body: VBoxContainer) -> void:
 	# Résolutions : celles qui tiennent dans l'écran ; « Taille actuelle » en tête.
 	var scr: int = DisplayServer.window_get_current_screen()
 	var usable: Vector2i = DisplayServer.screen_get_usable_rect(scr).size
+	var full: Vector2i = DisplayServer.screen_get_size(scr)
 	var cur: Vector2i = DisplayServer.window_get_size()
-	var list: Array = SettingsScript.resolution_list(usable) if usable.x > 0 else SettingsScript.RESOLUTIONS.duplicate()
+	# Toutes les tailles jusqu'à celle de l'ÉCRAN (le 2K 2560×1440 y compris) : en fenêtré, une taille plus haute que la zone
+	# utilisable (barre des tâches) est ajustée à l'écran ; en plein écran, la taille de l'écran s'impose de toute façon.
+	var list: Array = SettingsScript.resolution_list(full) if full.x > 0 else SettingsScript.RESOLUTIONS.duplicate()
 	var names: Array = ["Taille actuelle (%d×%d)" % [cur.x, cur.y]]
 	for r in list:
-		names.append("%d×%d" % [r.x, r.y])
+		if usable.x > 0 and (r.x > usable.x or r.y > usable.y):
+			names.append("%d×%d (ajustée à %d×%d)" % [r.x, r.y, mini(r.x, usable.x), mini(r.y, usable.y)])
+		else:
+			names.append("%d×%d" % [r.x, r.y])
 	_row(body, "Taille de la fenêtre", _option(names, 0, func(i: int) -> void:
 		_res = Vector2i.ZERO if i == 0 else list[i - 1]))
 	var n: int = DisplayServer.get_screen_count()
@@ -129,6 +136,9 @@ func _build_display(body: VBoxContainer) -> void:
 	apply.size_flags_horizontal = Control.SIZE_SHRINK_END
 	apply.pressed.connect(_apply_display)
 	body.add_child(apply)
+	_size_info = UiKit.sub("", 13, false)
+	_size_info.size_flags_horizontal = Control.SIZE_SHRINK_END
+	body.add_child(_size_info)
 	body.add_child(_scale_row())
 	_row(body, "Synchronisation verticale", _option(SettingsScript.VSYNC_MODES, _s().vsync, func(i: int) -> void: _s().set_value("vsync", i)))
 	var fps_names: Array = []
@@ -330,8 +340,25 @@ func _apply_display() -> void:
 		values["monitor"] = _monitor
 		center = true
 	_s().apply_display(values, center)
+	_report_size(values)
 	if values["window_mode"] != before["window_mode"] or center:
 		_ask_keep(before)
+
+
+## Dit au joueur ce que l'écran a réellement accepté (le système peut ajuster ou refuser une taille).
+func _report_size(values: Dictionary) -> void:
+	for i in 4:
+		await _host.get_tree().process_frame
+	if _size_info == null or not is_instance_valid(_size_info):
+		return
+	var got: Vector2i = DisplayServer.window_get_size()
+	var want := Vector2i(int(values.get("window_w", got.x)), int(values.get("window_h", got.y)))
+	if int(values.get("window_mode", 0)) != 0:
+		_size_info.text = "Plein écran : %d×%d." % [got.x, got.y]
+	elif got == want or not values.has("window_w"):
+		_size_info.text = "Fenêtre : %d×%d." % [got.x, got.y]
+	else:
+		_size_info.text = "Demandé %d×%d, obtenu %d×%d (limite de l'écran ou du système)." % [want.x, want.y, got.x, got.y]
 
 
 func _ask_keep(before: Dictionary) -> void:

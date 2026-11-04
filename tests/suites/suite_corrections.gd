@@ -97,3 +97,11 @@ func test_chargement_tolerant() -> void:
 	t.eq(g2.location, "", "lieu par défaut")
 	g.free()
 	g2.free()
+
+
+func test_liste_des_tailles_inclut_le_2k() -> void:
+	var SettingsScript: GDScript = load("res://autoload/Settings.gd")
+	var list: Array = SettingsScript.resolution_list(Vector2i(2560, 1440))
+	t.check(list.has(Vector2i(2560, 1440)), "2K (2560×1440) proposé sur un écran 2560×1440")
+	t.check(list.has(Vector2i(1920, 1080)) and list.has(Vector2i(1280, 720)), "les tailles plus petites restent proposées")
+	t.check(not SettingsScript.resolution_list(Vector2i(1920, 1080)).has(Vector2i(2560, 1440)), "pas de 2K sur un écran trop petit")
