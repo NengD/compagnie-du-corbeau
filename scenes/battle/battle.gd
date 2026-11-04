@@ -397,10 +397,14 @@ func _after_player_action() -> void:
 	_begin_player_turn(u)
 
 
-func _end_turn() -> void:
+## `from_key` : déclenché au clavier (Espace/Entrée). Un appui parasite ne doit pas gaspiller un tour presque entier :
+## on demande confirmation s'il reste au moins la moitié des PA, même si le réglage « confirmer la fin du tour » est coupé.
+func _end_turn(from_key: bool = false) -> void:
 	if _busy:
 		return
-	if Settings.confirm_end_turn and BattleScreen.speed > 0.0 and state.current != null and state.current.ap > 0 \
+	var ap_left: int = state.current.ap if state.current != null else 0
+	var risky_key: bool = from_key and ap_left * 2 >= Data.AP_PER_TURN
+	if ((Settings.confirm_end_turn and ap_left > 0) or risky_key) and BattleScreen.speed > 0.0 and state.current != null \
 			and _player_turn() and _confirm_modal == null:
 		_ask_end_turn()
 		return
@@ -490,7 +494,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	elif (k == KEY_Z and ke.ctrl_pressed) or k == KEY_BACKSPACE:
 		_undo_move()
 	elif k == KEY_SPACE or k == KEY_ENTER or k == KEY_KP_ENTER:
-		_end_turn()
+		_end_turn(true)
 	elif k == KEY_W:
 		_wait_turn()
 	elif k == KEY_TAB:

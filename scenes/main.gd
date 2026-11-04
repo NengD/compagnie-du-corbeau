@@ -185,7 +185,7 @@ func _update_header() -> void:
 		var yes := UiKit.button("Oui, recommencer", "pri", true)
 		yes.pressed.connect(func() -> void:
 			_confirm_new = false
-			DifficultyPanel.open(self, func(level: String) -> void: Game.new_game(-1, level))
+			DifficultyPanel.open(self, _start_new_game)
 			_update_header())
 		_actions.add_child(yes)
 		var no := UiKit.button("Non", "", true)
@@ -303,17 +303,22 @@ func _show_menu() -> void:
 	_update_header()
 
 
+## Point d'entrée unique d'une nouvelle partie (menu principal ET en-tête) : même tutoriel, même fondu.
+func _start_new_game(level: String) -> void:
+	Game.new_game(-1, level)
+	if not Settings.tutorial_seen:
+		Tutorial.start()  # première partie : le tutoriel accompagne les premiers écrans
+	_company_open = false
+	_go(_enter_game)
+
+
 func _on_menu_action(what: String) -> void:
 	match what:
 		"continue":
 			if Game.load_save():
 				_go(_enter_game)
 		"new":
-			DifficultyPanel.open(self, func(level: String) -> void:
-				Game.new_game(-1, level)
-				if not Settings.tutorial_seen:
-					Tutorial.start()  # première partie : le tutoriel accompagne les premiers écrans
-				_go(_enter_game))
+			DifficultyPanel.open(self, _start_new_game)
 		"load":
 			var p: SlotsPanel = SlotsPanel.open(self, false, func() -> void: _go(_enter_game))
 			p.modal.tree_exited.connect(func() -> void:

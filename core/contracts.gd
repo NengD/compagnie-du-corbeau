@@ -105,8 +105,8 @@ const _GHOULS: Array = [
 const _ORCS: Array = [
 	[],
 	["orc_jeune", "orc_jeune", "orc_jeune", "orc_guerrier"],
-	["orc_jeune", "orc_jeune", "orc_jeune", "orc_guerrier", "orc_guerrier", "berserker"],
-	["orc_jeune", "orc_jeune", "orc_guerrier", "orc_guerrier", "orc_guerrier", "berserker", "berserker", "orc_chef"],
+	["orc_jeune", "orc_jeune", "chaman_orc", "orc_guerrier", "orc_guerrier", "berserker"],
+	["orc_jeune", "chaman_orc", "orc_guerrier", "orc_guerrier", "orc_guerrier", "berserker", "berserker", "orc_chef"],
 ]
 const _BEASTS: Array = [
 	[],

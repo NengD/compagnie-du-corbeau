@@ -78,6 +78,10 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
 - **Qualité graphique** : préréglages Bas / Moyen / Élevé / Ultra + Personnalisé (`core/quality.gd`, `autoload/Settings.gd`,
   section « Graphismes » des options, compteur d'images par seconde optionnel, suggestion automatique au premier lancement selon
   la carte graphique).
+- **Sauvegarde sûre** : écriture atomique (`Game._write_json_safe` : fichier `.tmp` vérifié, copie `.bak` de la version précédente,
+  puis renommage), lecture validée avec repli automatique sur le `.bak` (`Game._read_save`), `from_dict` tolérant aux clés
+  manquantes. Fin de tour au clavier (Espace/Entrée) : confirmation s'il reste la moitié des PA ou plus. Un seul point d'entrée
+  « Nouvelle partie » (`Main._start_new_game`). Le chaman orc (soigneur) figure dans les compositions orques.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

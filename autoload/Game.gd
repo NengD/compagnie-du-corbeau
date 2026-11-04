@@ -1562,26 +1562,26 @@ func to_dict() -> Dictionary:
 
 func from_dict(d: Dictionary) -> void:
 	difficulty = Difficulty.clean(d.get("difficulty", "normal"))  ## anciennes sauvegardes : Normal
-	gold = int(d["gold"])
-	day = int(d["day"])
-	day_fraction = float(d["day_fraction"])
-	renown = int(d["renown"])
+	gold = int(d.get("gold", 0))
+	day = int(d.get("day", 1))
+	day_fraction = float(d.get("day_fraction", 0.0))
+	renown = int(d.get("renown", 0))
 	roster.clear()
-	for ud in d["roster"]:
+	for ud in d.get("roster", []):
 		roster.append(Unit.from_dict(ud))
 	fallen = []
-	for f in d["fallen"]:
-		fallen.append({"name": str(f["name"]), "bg": str(f["bg"]), "lvl": int(f["lvl"]), "kills": int(f["kills"]), "day": int(f["day"])})
+	for f in d.get("fallen", []):
+		fallen.append({"name": str(f.get("name", "?")), "bg": str(f.get("bg", "")), "lvl": int(f.get("lvl", 1)), "kills": int(f.get("kills", 0)), "day": int(f.get("day", 1))})
 	news = []
-	for n in d["news"]:
+	for n in d.get("news", []):
 		news.append(str(n))
-	game_over = bool(d["game_over"])
-	Unit.next_id = int(d["next_id"])
+	game_over = bool(d.get("game_over", false))
+	Unit.next_id = int(d.get("next_id", 1000))
 	world = World.from_dict(d["world"], rng)
-	location = str(d["location"])
-	active_contract = Contracts.normalize(d["active_contract"])
+	location = str(d.get("location", ""))
+	active_contract = Contracts.normalize(d.get("active_contract", {}))
 	battle = null
-	if d["battle"] != null:
+	if d.get("battle") != null:
 		battle = BattleState.from_dict(d["battle"], rng)
 	pending_event = {}
 	if typeof(d.get("pending_event", {})) == TYPE_DICTIONARY and not (d.get("pending_event", {}) as Dictionary).is_empty():
@@ -1638,30 +1638,73 @@ func _clean_items(raw: Variant) -> Array:
 	return out
 
 
+## Écrit `d` dans `path` de façon sûre : fichier temporaire relu et vérifié, copie de secours `.bak` de l'ancienne version,
+## puis remplacement. Une coupure pendant l'écriture ne peut plus détruire la sauvegarde existante.
+func _write_json_safe(path: String, d: Dictionary) -> bool:
+	var text: String = JSON.stringify(d)
+	var tmp: String = path + ".tmp"
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
+	if f == null:
+		push_warning("Sauvegarde impossible : %s" % error_string(FileAccess.get_open_error()))
+		return false
+	f.store_string(text)
+	f.flush()
+	f.close()
+	var check := JSON.new()
+	if FileAccess.get_file_as_string(tmp).length() != text.length() or check.parse(FileAccess.get_file_as_string(tmp)) != OK:
+		push_warning("Sauvegarde abandonnée : le fichier temporaire est incomplet.")
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		return false
+	if FileAccess.file_exists(path):
+		DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(path + ".bak"))
+	var err: int = DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(path))
+	if err != OK:
+		push_warning("Sauvegarde impossible (renommage) : %s" % error_string(err))
+		return false
+	return true
+
+
 func save() -> void:
 	if not autosave:
 		return
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if f == null:
-		push_warning("Sauvegarde impossible : %s" % error_string(FileAccess.get_open_error()))
-		return
-	f.store_string(JSON.stringify(to_dict()))
+	_write_json_safe(SAVE_PATH, to_dict())
 
 
 func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+	return FileAccess.file_exists(SAVE_PATH) or FileAccess.file_exists(SAVE_PATH + ".bak")
 
 
 func load_save() -> bool:
 	return _load_path(SAVE_PATH)
 
 
+const _REQUIRED_KEYS: Array[String] = ["gold", "day", "roster", "world"]
+
+
+## Lit et valide une sauvegarde ; si elle est illisible ou incomplète, essaie la copie de secours `path.bak`.
 func _read_save(path: String) -> Dictionary:
+	var d: Dictionary = _read_one(path)
+	if d.is_empty():
+		d = _read_one(path + ".bak")
+	return d
+
+
+func _read_one(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if typeof(parsed) != TYPE_DICTIONARY or not parsed.has("world") or int(parsed.get("version", 0)) < 2:
+	var json := JSON.new()
+	if json.parse(FileAccess.get_file_as_string(path)) != OK:  # fichier tronqué ou corrompu : pas d'erreur bruyante
+		return {}
+	var parsed: Variant = json.data
+	if typeof(parsed) != TYPE_DICTIONARY or int(parsed.get("version", 0)) < 2:
 		return {}  # illisible ou ancienne sauvegarde (sans carte)
+	for k in _REQUIRED_KEYS:
+		if not parsed.has(k):
+			return {}
+	if typeof(parsed["roster"]) != TYPE_ARRAY or typeof(parsed["world"]) != TYPE_DICTIONARY:
+		return {}
+	if not (parsed["world"] as Dictionary).has("terrain") or not (parsed["world"] as Dictionary).has("settlements"):
+		return {}
 	return parsed
 
 
@@ -1675,9 +1718,14 @@ func _load_path(path: String) -> bool:
 	return true
 
 
+func _remove_all(path: String) -> void:
+	for p in [path, path + ".bak", path + ".tmp"]:
+		if FileAccess.file_exists(p):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
+
+
 func delete_save() -> void:
-	if has_save():
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	_remove_all(SAVE_PATH)
 
 
 # --- Emplacements de sauvegarde : 0 = sauvegarde automatique (savegame.json), 1..SLOT_COUNT = manuels (save_N.json) ---
@@ -1699,12 +1747,7 @@ func save_to_slot(n: int) -> bool:
 		return false
 	var d: Dictionary = to_dict()
 	d["saved_at"] = Time.get_datetime_string_from_system(false, true)
-	var f := FileAccess.open(slot_path(n), FileAccess.WRITE)
-	if f == null:
-		push_warning("Sauvegarde impossible : %s" % error_string(FileAccess.get_open_error()))
-		return false
-	f.store_string(JSON.stringify(d))
-	return true
+	return _write_json_safe(slot_path(n), d)
 
 
 func load_slot(n: int) -> bool:
@@ -1730,5 +1773,4 @@ func slot_info(n: int) -> Dictionary:
 func delete_slot(n: int) -> void:
 	if not _valid_slot(n):
 		return
-	if FileAccess.file_exists(slot_path(n)):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(slot_path(n)))
+	_remove_all(slot_path(n))

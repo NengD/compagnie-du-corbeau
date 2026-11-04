@@ -199,7 +199,7 @@ static func citadel_waves(faction: String) -> Array:
 		]
 	return [
 		["orc_jeune", "orc_jeune", "orc_jeune", "orc_jeune", "orc_guerrier", "orc_guerrier"],
-		["orc_guerrier", "orc_guerrier", "orc_guerrier", "berserker", "berserker", "orc_jeune"],
+		["orc_guerrier", "orc_guerrier", "orc_guerrier", "berserker", "berserker", "chaman_orc"],
 		["orc_chef", "orc_guerrier", "orc_guerrier", "berserker", "berserker", "orc_jeune", "orc_jeune"],
 	]
 
