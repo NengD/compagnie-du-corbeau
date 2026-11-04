@@ -163,7 +163,7 @@ func _build_game_over(box: VBoxContainer) -> void:
 	box.add_child(s)
 	var b := UiKit.button("Fonder une nouvelle compagnie", "pri")
 	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	b.pressed.connect(func() -> void: Game.new_game())
+	b.pressed.connect(func() -> void: DifficultyPanel.open(self, func(level: String) -> void: Game.new_game(-1, level)))
 	box.add_child(b)
 
 

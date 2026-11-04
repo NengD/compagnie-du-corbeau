@@ -17,6 +17,7 @@ func _init() -> void:
 	var first: int = 0
 	var days: int = 45
 	var verbose: bool = false
+	var level: String = "normal"
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var i: int = 0
 	while i < args.size():
@@ -32,8 +33,12 @@ func _init() -> void:
 				days = int(args[i])
 			"--verbose":
 				verbose = true
+			"--difficulty":
+				i += 1
+				level = args[i]
 		i += 1
 	lib = load("res://tools/sim_lib.gd").new()
+	lib.difficulty = level
 	var t0: int = Time.get_ticks_msec()
 	var failures: Array[String] = []
 	for n in count:

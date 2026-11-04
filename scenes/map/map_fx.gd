@@ -25,6 +25,8 @@ var light: Color = Color.WHITE  ## lumière affichée (lissée)
 var night: float = 0.0
 var wx_kind: String = "clear"
 var wx_k: float = 0.0  ## intensité affichée de la météo
+var wx_full: bool = true  ## qualité : brouillard autorisé (météo « complète »)
+var density: float = 1.0  ## qualité : densité de la pluie et de la neige (1 = normale)
 var _wx_target: float = 0.0
 var _last_day: int = -1
 var _glow: GradientTexture2D
@@ -95,7 +97,7 @@ func update(delta: float, day: int, frac: float, day_night: bool, weather_on: bo
 	if day != _last_day:
 		_last_day = day
 		wx_kind = weather_for_day(day)
-	_wx_target = 1.0 if weather_on and wx_kind != "clear" else 0.0
+	_wx_target = 1.0 if weather_on and wx_kind != "clear" and (wx_full or wx_kind != "fog") else 0.0
 	wx_k = move_toward(wx_k, _wx_target, delta * 0.5)
 	if wx_k <= 0.0 and wx_kind != "clear" and not weather_on:
 		pass
@@ -156,14 +158,14 @@ func paint_weather(c: Control) -> void:
 	match wx_kind:
 		"rain":
 			c.draw_rect(Rect2(Vector2.ZERO, s), Color(0.12, 0.16, 0.22, 0.12 * wx_k))
-			for i in 150:
+			for i in roundi(150.0 * density):
 				var sp: float = 520.0 + fposmod(float(i) * 31.7, 140.0)
 				var x: float = fposmod(float(i) * 97.3 + t * 140.0 * (1.0 if anim else 0.0) * 0.4, s.x + 80.0) - 40.0
 				var y: float = fposmod(float(i) * 53.1 + t * sp, s.y + 40.0) - 20.0
 				c.draw_line(Vector2(x, y), Vector2(x - 4.0, y + 11.0), Color(0.78, 0.86, 0.95, 0.38 * wx_k), 1.0)
 		"snow":
 			c.draw_rect(Rect2(Vector2.ZERO, s), Color(0.9, 0.93, 1.0, 0.08 * wx_k))
-			for i in 120:
+			for i in roundi(120.0 * density):
 				var sp2: float = 28.0 + fposmod(float(i) * 7.7, 30.0)
 				var x2: float = fposmod(float(i) * 83.9, s.x) + sin(t * 0.9 + float(i)) * 12.0
 				var y2: float = fposmod(float(i) * 41.3 + t * sp2, s.y + 20.0) - 10.0

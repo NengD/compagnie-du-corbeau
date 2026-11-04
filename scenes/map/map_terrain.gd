@@ -34,8 +34,8 @@ static func _is_waterish(w: World, c: Vector2i) -> bool:
 # --- Fond peint ---
 
 ## [texture du fond, masque de l'eau (alpha) pour les reflets animés]. Mis en cache tant que le terrain ne change pas.
-static func textures(w: World) -> Array:
-	var key: int = hash(w.terrain)
+static func textures(w: World, px: int = PX) -> Array:
+	var key: int = hash(w.terrain) + px * 7919
 	if key == _ck and _ctex != null:
 		return [_ctex, _cmask]
 	var gw: int = World.GW
@@ -92,8 +92,8 @@ static func textures(w: World) -> Array:
 							s += src[yy * gw + xx]
 							cnt += 1.0
 				hgt[y * gw + x] = s / cnt
-	var iw: int = gw * PX
-	var ih: int = gh * PX
+	var iw: int = gw * px
+	var ih: int = gh * px
 	var img := Image.create(iw, ih, false, Image.FORMAT_RGB8)
 	var mask := Image.create(iw, ih, false, Image.FORMAT_RGBA8)
 	var nb := FastNoiseLite.new()
@@ -113,12 +113,12 @@ static func textures(w: World) -> Array:
 	var sand := Color(0.74, 0.68, 0.50)
 	var foam := Color(0.84, 0.90, 0.86)
 	for y in ih:
-		var fy: float = (y + 0.5) / PX - 0.5
+		var fy: float = (y + 0.5) / px - 0.5
 		var y0: int = clampi(int(floorf(fy)), 0, gh - 1)
 		var y1: int = mini(y0 + 1, gh - 1)
 		var ty: float = clampf(fy - y0, 0.0, 1.0)
 		for x in iw:
-			var fx: float = (x + 0.5) / PX - 0.5
+			var fx: float = (x + 0.5) / px - 0.5
 			var x0: int = clampi(int(floorf(fx)), 0, gw - 1)
 			var x1: int = mini(x0 + 1, gw - 1)
 			var tx: float = clampf(fx - x0, 0.0, 1.0)

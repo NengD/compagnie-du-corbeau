@@ -37,7 +37,16 @@ const SCHEMA: Dictionary = {
 	"ui_scale": ["video", "ui_scale", 100, 75, 150],
 	"vsync": ["video", "vsync", 1, 0, 2],
 	"fps_limit": ["video", "fps", 4, 0, 4],
-	"msaa": ["video", "msaa", 2, 0, 2],
+	"msaa": ["video", "msaa", 1, 0, 2],
+	"quality": ["video", "quality", 2, 0, 4],
+	"ground_mode": ["video", "ground_mode", 2, 0, 2],
+	"shadows": ["video", "shadows", 2, 0, 2],
+	"weather_level": ["video", "weather_level", 2, 0, 2],
+	"particles": ["video", "particles", 2, 0, 3],
+	"decals": ["video", "decals", 2, 0, 3],
+	"map_tex": ["video", "map_tex", 1, 0, 2],
+	"tex_filter": ["video", "tex_filter", 1, 0, 1],
+	"show_fps": ["video", "show_fps", false, 0, 0],
 	"screen_shake": ["game", "screen_shake", true, 0, 0],
 	"text_size": ["game", "text_size", 1, 0, 2],
 	"show_hit_pct": ["game", "show_hit_pct", false, 0, 0],
@@ -66,7 +75,17 @@ var monitor: int = -1  ## -1 = l'écran actuel
 var ui_scale: int = 100  ## pourcentage, 75..150
 var vsync: int = 1  ## index dans VSYNC_MODES
 var fps_limit: int = 4  ## index dans FPS_LIMITS
-var msaa: int = 2  ## index dans MSAA_MODES (= Viewport.MSAA_*)
+var msaa: int = 1  ## index dans MSAA_MODES (= Viewport.MSAA_*)
+var quality: int = 2  ## préréglage graphique (Quality.LOW..ULTRA, CUSTOM) : toujours recalculé d'après les réglages détaillés
+var ground_mode: int = 2  ## sol de la bataille : 0 aplats, 1 textures, 2 textures et fondus
+var shadows: int = 2  ## ombres portées : 0 aucune, 1 simples, 2 complètes
+var weather_level: int = 2  ## météo (si « weather_fx ») : 1 pluie et neige seulement, 2 complète avec brouillard
+var particles: int = 2  ## densité des particules : index dans Quality.PARTICLE_FACTORS
+var decals: int = 2  ## décalcomanies de sang : index dans Quality.DECAL_CAPS
+var map_tex: int = 1  ## définition de la texture de la carte : 0 réduite, 1 normale, 2 haute
+var tex_filter: int = 1  ## 0 filtrage linéaire simple, 1 mipmaps
+var show_fps: bool = false  ## compteur d'images par seconde à l'écran
+var quality_notice: String = ""  ## message à afficher une fois (réglage automatique au premier lancement)
 var screen_shake: bool = true
 var text_size: int = 1  ## index dans TEXT_SIZES
 var show_hit_pct: bool = false  ## pourcentages de toucher affichés en permanence
@@ -88,6 +107,10 @@ var _dirty_time: float = -1.0
 func _ready() -> void:
 	load_settings()
 	apply_all()
+	if DisplayServer.get_name() != "headless" and persist:
+		var ov := QualityOverlay.new()
+		ov.name = "QualityOverlay"
+		add_child(ov)
 
 
 func _process(delta: float) -> void:
@@ -155,10 +178,56 @@ func set_value(key: String, value: Variant) -> void:
 		value = 2 if bool(value) else 0
 	if not SCHEMA.has(key):
 		return
+	if key == "quality":
+		var lv: int = int(sanitize(key, value))
+		if lv <= Quality.ULTRA:
+			apply_quality(lv)
+		return
 	set(key, sanitize(key, value))
+	if key == "weather_level":
+		weather_fx = weather_level > 0  # 0 = météo coupée
+		if weather_level == 0:
+			weather_level = 2  # valeur de repli quand on rallumera « Effets météo »
+	elif key == "weather_fx" and weather_fx and weather_level == 0:
+		weather_level = 2
 	_apply_key(key)
+	if key in Quality.KEYS or key in ["weather_fx", "weather_level"]:
+		quality = Quality.identify(detail_values())
 	save_settings()
 	changed.emit()
+
+
+## Valeurs détaillées courantes (clés de Quality.KEYS ; « weather » = niveau effectif).
+func detail_values() -> Dictionary:
+	var d: Dictionary = {}
+	for k in Quality.KEYS:
+		d[k] = (weather_level if weather_fx else 0) if k == "weather" else get(k)
+	return d
+
+
+## Applique un préréglage (Quality.LOW..ULTRA) : écrase tous les réglages détaillés.
+func apply_quality(level: int, notify: bool = true) -> void:
+	var lv: int = clampi(level, Quality.LOW, Quality.ULTRA)
+	var p: Dictionary = Quality.preset_values(lv)
+	var ui_before: bool = illustrated_ui
+	for k in p:
+		if k == "weather":
+			weather_fx = int(p[k]) > 0
+			weather_level = maxi(int(p[k]), 1) if int(p[k]) > 0 else 2
+		else:
+			set(k, sanitize(k, p[k]))
+	quality = lv
+	apply_video_quality()
+	if illustrated_ui != ui_before:
+		GameTheme.apply_style()
+	save_settings()
+	if notify:
+		changed.emit()
+
+
+## Texte de la liste « Qualité graphique » : niveau actuel (reconnu d'après les réglages détaillés).
+func quality_name() -> String:
+	return Quality.name_of(quality)
 
 
 ## Remet tous les réglages par défaut (sauf « tutoriel vu »), les applique et les enregistre.
@@ -166,7 +235,10 @@ func reset_defaults() -> void:
 	for k in SCHEMA:
 		if k != "tutorial_seen":
 			set(k, SCHEMA[k][2])
+	quality = Quality.identify(detail_values())
 	apply_all()
+	if DisplayServer.get_name() != "headless":
+		GameTheme.apply_style()
 	save_settings()
 	changed.emit()
 
@@ -188,6 +260,9 @@ func from_config(c: ConfigFile) -> void:
 		set(k, sanitize(k, c.get_value(str(def[0]), str(def[1]), def[2])))
 	if not c.has_section_key("video", "window_mode") and bool(c.get_value("video", "fullscreen", false)):
 		window_mode = 2  # ancien fichier : « plein écran » était le mode sans bordure
+	# Le préréglage affiché se déduit toujours des réglages détaillés : un ancien fichier (sans « quality »)
+	# donne Élevé s'il correspond, « Personnalisé » sinon.
+	quality = Quality.identify(detail_values())
 
 
 func save_settings() -> void:
@@ -199,9 +274,21 @@ func save_settings() -> void:
 func load_settings() -> void:
 	var c := ConfigFile.new()
 	if c.load(PATH) != OK:
+		_first_launch()
 		return
 	from_config(c)
 	changed.emit()
+
+
+## Aucun fichier de réglages : premier lancement. Choisit un niveau selon la carte graphique.
+func _first_launch() -> void:
+	if not persist or DisplayServer.get_name() == "headless":
+		return
+	var lv: int = Quality.suggest_here()
+	if lv != Quality.HIGH:
+		apply_quality(lv, false)
+	quality_notice = "Qualité graphique réglée sur %s (modifiable dans Options)." % Quality.name_of(lv)
+	save_settings()
 
 
 # --- Application ---
@@ -217,7 +304,7 @@ func _apply_key(key: String) -> void:
 		apply_window()
 	elif key == "ui_scale":
 		apply_scale()
-	elif key in ["vsync", "fps_limit", "msaa"]:
+	elif key in ["vsync", "fps_limit", "msaa", "tex_filter"]:
 		apply_video_quality()
 	elif key == "text_size":
 		GameTheme.refresh_text_size()
@@ -240,6 +327,7 @@ func apply_video_quality() -> void:
 	var vp: Viewport = get_viewport()
 	if vp != null:
 		vp.msaa_2d = clampi(msaa, 0, 2) as Viewport.MSAA
+		vp.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS if tex_filter > 0 else Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_LINEAR
 
 
 ## Résolutions de la liste qui tiennent dans l'écran (`screen` = zone utilisable).

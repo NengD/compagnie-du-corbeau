@@ -56,7 +56,7 @@ static func enabled() -> bool:
 	if st == null:
 		return true
 	var v: Variant = st.get("weather_fx")
-	return v == null or bool(v)
+	return (v == null or bool(v)) and int(Quality.value("weather")) > 0
 
 
 func setup(p_kind: String, p_area: Vector2) -> BattleWeather:
@@ -83,23 +83,29 @@ func setup(p_kind: String, p_area: Vector2) -> BattleWeather:
 		add_child(_tint)
 	_live = UnitView._speed() > 0.0
 	if _live:
+		var dens: float = Quality.particle_factor()
+		var full: bool = int(Quality.value("weather")) >= 2  # brouillard : météo complète seulement
 		match kind:
 			"rain":
-				_make_particles(240, 0.55, Vector2(0.22, 1.0), 520.0, 640.0, _streak(), Color(0.75, 0.85, 1.0, 0.55), 1.0)
+				_make_particles(240, 0.55, Vector2(0.22, 1.0), 520.0, 640.0, _streak(), Color(0.75, 0.85, 1.0, 0.55), 1.0, dens)
 			"snow":
-				_make_particles(130, 3.4, Vector2(0.15, 1.0), 38.0, 70.0, _soft(), Color(1, 1, 1, 0.85), 0.6)
+				_make_particles(130, 3.4, Vector2(0.15, 1.0), 38.0, 70.0, _soft(), Color(1, 1, 1, 0.85), 0.6, dens)
 			"fog":
-				_make_fog()
+				if full:
+					_make_fog()
 			"wind":
-				_make_particles(14, 2.2, Vector2(1.0, 0.18), 160.0, 260.0, _soft(), Color(0.72, 0.68, 0.42, 0.7), 0.35)
+				_make_particles(14, 2.2, Vector2(1.0, 0.18), 160.0, 260.0, _soft(), Color(0.72, 0.68, 0.42, 0.7), 0.35, dens)
 	set_process(_live)
 	return self
 
 
-func _make_particles(count: int, life: float, dir: Vector2, v_min: float, v_max: float, tex: Texture2D, col: Color, size: float) -> void:
+func _make_particles(count: int, life: float, dir: Vector2, v_min: float, v_max: float, tex: Texture2D, col: Color, size: float, density: float = 1.0) -> void:
+	var amount: int = Quality.scaled_count(count, density)
+	if amount <= 0:
+		return
 	var p := CPUParticles2D.new()
 	p.texture = tex
-	p.amount = count
+	p.amount = amount
 	p.lifetime = life
 	p.preprocess = life
 	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE

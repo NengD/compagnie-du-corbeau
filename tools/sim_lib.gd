@@ -6,6 +6,7 @@ extends RefCounted
 const FACTION_SETS: Array = [["b"], ["g"], ["o"], ["u"], ["m"], ["b", "g"], ["o", "u"], ["b", "o"], ["g", "u"], ["m", "b"]]
 const MAX_ROUNDS: int = 150
 const MAX_TURNS: int = 8000
+var difficulty: String = "normal"  ## niveau de difficulté simulé (--difficulty easy|normal|hard)
 
 
 ## Paramètres d'une bataille, entièrement déterminés par la graine (reproductible : --seed N --count 1).
@@ -220,7 +221,7 @@ func run_battle(g: Node, seed_value: int) -> Dictionary:
 	rng.seed = seed_value
 	var party: Array = make_party(rng, int(p["men"]))
 	var contract: Dictionary = make_contract(p["factions"], int(p["danger"]), str(p["biome"]), str(p["btype"]))
-	var s: BattleState = BattleState.create(contract, party, rng)
+	var s: BattleState = BattleState.create(contract, party, rng, 3, 1.0, difficulty)
 	var errors: Array[String] = check_state(s)
 	var r: Dictionary = play(s, seed_value % 2 == 0)
 	errors.append_array(r["errors"])
@@ -238,5 +239,5 @@ func make_game(seed_value: int = 1) -> Node:
 	var g: Node = load("res://autoload/Game.gd").new()
 	g.autosave = false
 	g.random_events = false
-	g.new_game(seed_value)
+	g.new_game(seed_value, difficulty)
 	return g

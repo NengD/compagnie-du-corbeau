@@ -25,11 +25,11 @@ static func _pool(u: Unit, perm: bool) -> Array[String]:
 
 
 ## Après un coup qui a laissé `u` en vie : blessure temporaire si le coup a retiré assez de PV. Renvoie l'id, ou "".
-static func roll_wound(u: Unit, hp_lost: int, rng: RandomNumberGenerator) -> String:
+static func roll_wound(u: Unit, hp_lost: int, rng: RandomNumberGenerator, difficulty: String = "normal") -> String:
 	if u.side != "p" or u.dead or float(hp_lost) < Data.WOUND_HP_FRAC * float(u.hp_max):
 		return ""
 	var pool: Array[String] = _pool(u, false)
-	if pool.is_empty() or rng.randi_range(1, 100) > _chance(u, Data.WOUND_CHANCE):
+	if pool.is_empty() or rng.randi_range(1, 100) > Difficulty.wound_chance(difficulty, _chance(u, Data.WOUND_CHANCE)):
 		return ""
 	var id: String = pool[rng.randi_range(0, pool.size() - 1)]
 	_add(u, id, rng)
@@ -37,11 +37,11 @@ static func roll_wound(u: Unit, hp_lost: int, rng: RandomNumberGenerator) -> Str
 
 
 ## Fin de combat : un survivant resté à `PERM_HP_FRAC` de ses PV max ou moins peut garder une séquelle. Renvoie l'id, ou "".
-static func roll_permanent(u: Unit, rng: RandomNumberGenerator) -> String:
+static func roll_permanent(u: Unit, rng: RandomNumberGenerator, difficulty: String = "normal") -> String:
 	if u.dead or float(u.hp) > Data.PERM_HP_FRAC * float(u.hp_max):
 		return ""
 	var pool: Array[String] = _pool(u, true)
-	if pool.is_empty() or rng.randi_range(1, 100) > _chance(u, Data.PERM_CHANCE):
+	if pool.is_empty() or rng.randi_range(1, 100) > Difficulty.wound_chance(difficulty, _chance(u, Data.PERM_CHANCE)):
 		return ""
 	var id: String = pool[rng.randi_range(0, pool.size() - 1)]
 	_add(u, id, rng)

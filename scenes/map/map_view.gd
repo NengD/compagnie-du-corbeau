@@ -64,6 +64,8 @@ var _lights: Array = []
 var _terr_data: Dictionary = {}
 var _terr_sig: String = ""
 var _lights_drawn: bool = false
+var _fx_was_live: bool = true
+var _px_built: int = 0  ## définition de la texture de fond construite (Quality.value("map_px"))
 var _hover: Vector2 = Vector2.ZERO
 var _hover_ok: bool = false
 var _hover_path: Array[Vector2] = []
@@ -112,6 +114,10 @@ func _ready() -> void:
 	_wx = _overlay(_paint_wx)
 	_frame = _overlay(_paint_frame)
 	resized.connect(_fit)
+	Settings.changed.connect(func() -> void:
+		if int(Quality.value("map_px")) != _px_built:  # définition de la carte modifiée : fond reconstruit
+			rebuild()
+		_fx_was_live = true)
 	mouse_exited.connect(func() -> void:
 		_hover_ok = false
 		_hover_cell = Vector2i(-1, -1))
@@ -148,7 +154,10 @@ func _process(delta: float) -> void:
 	var w: World = Game.world
 	if w == null:
 		return
-	_fx.update(delta, Game.day, Game.day_fraction, Settings.day_night, Settings.weather_fx, Settings.map_anim)
+	var wlevel: int = int(Quality.value("weather"))
+	_fx.wx_full = wlevel >= 2
+	_fx.density = clampf(Quality.particle_factor(), 0.4, 1.5)  # la météo de la carte garde un minimum visible
+	_fx.update(delta, Game.day, Game.day_fraction, Settings.day_night, wlevel > 0, Settings.map_anim)
 	var tint: Color = _fx.world_tint()
 	_root.modulate = tint
 	_dyn.modulate = tint.lerp(Color.WHITE, 0.45)
@@ -158,8 +167,11 @@ func _process(delta: float) -> void:
 	if _fx.night > 0.02 or _lights_drawn:
 		_lights_layer.queue_redraw()
 		_lights_drawn = _fx.night > 0.02
-	_sky.queue_redraw()
-	_wx.queue_redraw()
+	var fx_live: bool = Settings.map_anim or _fx.wx_k > 0.005 or _fx.night > 0.02
+	if fx_live or _fx_was_live:  # qualité Bas : plus de redessin du ciel et de la météo quand rien ne bouge
+		_sky.queue_redraw()
+		_wx.queue_redraw()
+	_fx_was_live = fx_live
 	_frame.queue_redraw()
 	_dyn.queue_redraw()
 	var sig: String = _owners_signature(w)
@@ -260,7 +272,8 @@ func rebuild() -> void:
 	var w: World = Game.world
 	if w == null:
 		return
-	var tx: Array = MapTerrain.textures(w)
+	_px_built = int(Quality.value("map_px"))
+	var tx: Array = MapTerrain.textures(w, _px_built)
 	_shimmer.texture = tx[1]
 	_shimmer.scale = World.SIZE / Vector2((tx[1] as Texture2D).get_size())
 	_curves = MapTerrain.road_curves(w)

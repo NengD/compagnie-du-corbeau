@@ -149,6 +149,7 @@ func _build_header() -> Control:
 	row.add_child(_banner_view)
 	_title_label = title
 	row.add_child(title)
+	_title_label.mouse_filter = Control.MOUSE_FILTER_PASS  # reçoit l'info-bulle de difficulté
 	for key in ["Jour", "Couronnes", "Renom", "Solde/jour"]:
 		var pair := UiKit.hbox(5)
 		var k := UiKit.label(key.to_upper(), 12, GameTheme.MUTE)
@@ -168,7 +169,9 @@ func _build_header() -> Control:
 func _update_header() -> void:
 	_banner_view.set_banner(Game.banner)
 	_title_label.text = "Compagnie du [color=#b03a2e]Corbeau[/color]" if Game.company_name == Data.COMPANY_NAME_DEFAULT else "[color=#ece1c9]%s[/color]" % Game.company_name.replace("[", "[lb]")
+	_title_label.tooltip_text = "Difficulté : %s (fixée à la création de la partie)" % Difficulty.label(Game.difficulty)
 	_values["Jour"].text = str(Game.day)
+	(_values["Jour"] as Label).tooltip_text = "Difficulté : %s" % Difficulty.label(Game.difficulty)
 	_values["Couronnes"].text = str(Game.gold)
 	_values["Renom"].text = str(Game.renown)
 	_values["Solde/jour"].text = str(Game.wages())
@@ -182,7 +185,8 @@ func _update_header() -> void:
 		var yes := UiKit.button("Oui, recommencer", "pri", true)
 		yes.pressed.connect(func() -> void:
 			_confirm_new = false
-			Game.new_game())
+			DifficultyPanel.open(self, func(level: String) -> void: Game.new_game(-1, level))
+			_update_header())
 		_actions.add_child(yes)
 		var no := UiKit.button("Non", "", true)
 		no.pressed.connect(func() -> void:
@@ -305,10 +309,11 @@ func _on_menu_action(what: String) -> void:
 			if Game.load_save():
 				_go(_enter_game)
 		"new":
-			Game.new_game()
-			if not Settings.tutorial_seen:
-				Tutorial.start()  # première partie : le tutoriel accompagne les premiers écrans
-			_go(_enter_game)
+			DifficultyPanel.open(self, func(level: String) -> void:
+				Game.new_game(-1, level)
+				if not Settings.tutorial_seen:
+					Tutorial.start()  # première partie : le tutoriel accompagne les premiers écrans
+				_go(_enter_game))
 		"load":
 			var p: SlotsPanel = SlotsPanel.open(self, false, func() -> void: _go(_enter_game))
 			p.modal.tree_exited.connect(func() -> void:

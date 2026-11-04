@@ -38,7 +38,7 @@ func _rebuild() -> void:
 	_box.add_child(sub)
 	_box.add_child(_gap(18))
 	var info: Dictionary = Game.slot_info(0)
-	var cont := _menu_button("Continuer" if info.is_empty() else "Continuer — jour %d, %d couronnes, %d hommes" % [info["day"], info["gold"], info["men"]], "pri")
+	var cont := _menu_button("Continuer" if info.is_empty() else "Continuer — jour %d, %d couronnes, %d hommes (%s)" % [info["day"], info["gold"], info["men"], Difficulty.label(str(info.get("difficulty", "normal")))], "pri")
 	cont.disabled = info.is_empty()
 	cont.pressed.connect(func() -> void: action.emit("continue"))
 	_box.add_child(cont)

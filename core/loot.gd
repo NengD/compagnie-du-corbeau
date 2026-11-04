@@ -181,13 +181,13 @@ static func recover_chance(piece: Dictionary) -> float:
 
 
 ## Butin d'une bataille gagnée : l'équipement des ennemis tués (ils sont `dead`, côté "e").
-static func roll_battle(units: Array, rng: RandomNumberGenerator) -> Array:
+static func roll_battle(units: Array, rng: RandomNumberGenerator, loot_mult: float = 1.0) -> Array:
 	var out: Array = []
 	for u in units:
 		if u.side != "e" or not u.dead:
 			continue
 		for piece in pieces_of(u):
-			if rng.randf() < recover_chance(piece):
+			if rng.randf() < recover_chance(piece) * loot_mult:
 				var it: Dictionary = piece["item"]
 				it.erase("arm")  # armure récupérée remise en état (la chance dépend déjà des dégâts)
 				if dur_max(it) > 0:  # seconde main : usé en combat, puis par l'ennemi lui-même
@@ -197,7 +197,7 @@ static func roll_battle(units: Array, rng: RandomNumberGenerator) -> Array:
 			if not (b as Dictionary).is_empty() and str(b["kind"]) == "tool" and rng.randf() < 0.6:
 				out.append(clean(b))
 		for dr in u.foe_data().get("drop", []):  # dépouilles des monstres
-			if rng.randf() < float(dr[2]):
+			if rng.randf() < float(dr[2]) * loot_mult:
 				out.append(item(str(dr[0]), str(dr[1])))
 	return out
 

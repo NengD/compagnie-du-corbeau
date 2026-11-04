@@ -72,9 +72,16 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   (`scenes/ui/illustrations.gd`, `town_arrival.gd`).
 - **Carte** : cycle jour/nuit, météo, routes lissées (plus rapides : coût 0,8), rivières avec gués et ponts (`World.T.BRIDGE`),
   relief et forêts variés, territoires et bannières des factions, rose des vents et cartouche.
+- **Difficulté** : Facile / Normal / Difficile choisie à la nouvelle partie (`Data.DIFFICULTY`, `core/difficulty.gd`,
+  `Game.difficulty`, `scenes/menu/difficulty_panel.gd`) ; « Normal » reproduit exactement le comportement de référence ; les
+  anciennes sauvegardes se chargent en Normal.
+- **Qualité graphique** : préréglages Bas / Moyen / Élevé / Ultra + Personnalisé (`core/quality.gd`, `autoload/Settings.gd`,
+  section « Graphismes » des options, compteur d'images par seconde optionnel, suggestion automatique au premier lancement selon
+  la carte graphique).
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
-  `--screen 1 --resolution 1280x720` (écran de l'app Claude).
+  `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`
+  quand Claude ouvre le jeu ou un script de capture ; pour l'exécutable exporté : `CompagnieDuCorbeau.exe --screen 1 --audio-driver Dummy`).
 - Pas encore fait : tactile/manette, brouillard de guerre, équilibrage chiffré (volontairement écartés), carte du monde
   à explorer plus loin, nouveaux types de ville.
 
@@ -96,7 +103,7 @@ GODOT="/e/_jeu perso/godot/Godot_v4.7.2-stable_win64_console.exe"   # Git Bash
 "$GODOT" --path . --headless -s res://tests/smoke_ui.gd    # test de fumée de l'interface (camp -> bataille -> camp)
 "$GODOT" --path . -s res://tests/screenshots.gd -- "<dossier>"   # captures d'écran (fenêtre requise)
 py tools/gen_sprites.py                               # régénère assets/sprites/*.svg puis relancer --import
-"$GODOT" --path . --screen 1                          # lancer le jeu (sur l'écran de l'app Claude)
+"$GODOT" --path . --screen 1 --audio-driver Dummy     # lancer le jeu (écran de l'app Claude, son coupé)
 ```
 
 Piège : dans un script `-s` (SceneTree), les autoloads (`Game`, `Data`) ne sont pas des identifiants au

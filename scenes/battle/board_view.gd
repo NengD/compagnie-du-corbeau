@@ -19,6 +19,7 @@ const HILL_BASE := Color("7d7c46")
 const WATER_DEEP := Color("34525f")
 const WATER_FORD := Color("5a7d84")
 const TEX_GAIN := 1.18  ## les textures sont claires (~0,85) : la teinte est relevée d'autant
+const FLAT_K := 0.86  ## sans texture (qualité Bas), la teinte est ramenée à la couleur visée
 
 const NIGHT_SHADER := """
 shader_type canvas_item;
@@ -73,6 +74,7 @@ var _fx: Node2D
 var fx: BattleFx  ## particules : impacts, poussière, mort (voir effects.gd)
 
 var _t: float = 0.0
+var _ta: float = 0.0  ## horloge d'ambiance (herbe, feuillages, eau) : arrêtée quand les animations d'ambiance sont coupées
 var _acc: float = 0.0
 var _rng := RandomNumberGenerator.new()
 var _tufts: Array = []
@@ -124,6 +126,32 @@ func _init() -> void:
 	fx = BattleFx.new()
 	_fx.add_child(fx)
 	set_process(true)
+
+
+func _ready() -> void:
+	var st: Node = get_node_or_null("/root/Settings")
+	if st != null and st.has_signal("changed"):
+		st.connect("changed", _on_quality_changed)
+
+
+## Réglages graphiques modifiés pendant la bataille : sol, ombres, météo et décalcomanies sont redessinés tout de suite.
+func _on_quality_changed() -> void:
+	if state == null or not is_inside_tree():
+		return
+	var cap: int = BattleDecals.cap_now()
+	while decals.items.size() > cap:
+		decals.items.remove_at(0)
+	_weather.setup(weather_kind, world_size(state.width, state.height))
+	_terrain.queue_redraw()
+	refresh_units()
+
+
+func _gmode() -> int:
+	return int(Quality.value("ground_mode"))
+
+
+func _shadows() -> int:
+	return int(Quality.value("shadows"))
 
 
 static func world_size(width: int, height: int) -> Vector2:
@@ -237,12 +265,24 @@ func _process(delta: float) -> void:
 		return
 	_t += delta
 	_acc += delta
+	var ambient: bool = bool(Quality.value("map_anim"))
+	if ambient:
+		_ta += delta
 	if _acc >= ANIM_STEP:
 		_acc = 0.0
-		_anim.queue_redraw()
+		if ambient or _has_objects():
+			_anim.queue_redraw()
 		_glow.queue_redraw()
 		if _night_on:
 			_update_night()
+
+
+## Y a-t-il un objet animé (feu, torche…) sur le plateau ? (seul cas où le décor se redessine sans ambiance)
+func _has_objects() -> bool:
+	for h in state.cells:
+		if state.cells[h].get("obj") is Dictionary:
+			return true
+	return false
 
 
 # --- Effets ---
@@ -452,6 +492,7 @@ func _paint_terrain(l: Node2D) -> void:
 	if state == null:
 		return
 	var objects: Array[Vector2i] = []
+	var gm: int = _gmode()
 	for h in state.cells:
 		var cell: Dictionary = state.cells[h]
 		var p: Vector2 = hex_px(h)
@@ -463,9 +504,12 @@ func _paint_terrain(l: Node2D) -> void:
 		var col: Color = _ground_color(cls, v, h)
 		var pts: PackedVector2Array = Hex.corners(p, HS - 0.4)
 		var tint: Color = Color(col.r * TEX_GAIN, col.g * TEX_GAIN, col.b * TEX_GAIN, 1.0)
-		l.draw_colored_polygon(pts, tint, _uvs(pts), _tex_for(cls, v))
-		# fondus doux avec les cases voisines de nature différente
-		for i in 6:
+		if gm == 0:  # qualité Bas : aplats colorés
+			l.draw_colored_polygon(pts, tint * FLAT_K)
+		else:
+			l.draw_colored_polygon(pts, tint, _uvs(pts), _tex_for(cls, v))
+		# fondus doux avec les cases voisines de nature différente (qualité Élevé et plus)
+		for i in (6 if gm >= 2 else 0):
 			var a: Vector2 = pts[i]
 			var b: Vector2 = pts[(i + 1) % 6]
 			var mid: Vector2 = (a + b) * 0.5
@@ -518,9 +562,10 @@ func _paint_terrain(l: Node2D) -> void:
 
 ## Ombre portée (soleil en haut à gauche -> ombre vers le bas à droite) et tronc.
 func _tree_base(l: Node2D, p: Vector2, k: float) -> void:
-	l.draw_set_transform(p + Vector2(11, 12) * k, -0.12, Vector2(1.0, 0.3))
-	l.draw_circle(Vector2.ZERO, 21.0 * k, Color(0, 0, 0, 0.3))
-	l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if _shadows() > 0:
+		l.draw_set_transform(p + Vector2(11, 12) * k, -0.12, Vector2(1.0, 0.3))
+		l.draw_circle(Vector2.ZERO, 21.0 * k, Color(0, 0, 0, 0.3))
+		l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var trunk := PackedVector2Array([p + Vector2(-2.5, 12) * k, p + Vector2(-1.5, -2) * k, p + Vector2(2.5, -2) * k, p + Vector2(3.5, 12) * k])
 	l.draw_colored_polygon(trunk, Color("4a3424"))
 	l.draw_line(p + Vector2(0.6, 11) * k, p + Vector2(0.9, -1) * k, Color("5e4630"), 1.0)
@@ -531,8 +576,8 @@ func _tree_base(l: Node2D, p: Vector2, k: float) -> void:
 func _tree_crown(l: Node2D, p: Vector2, k: float, ph: float) -> void:
 	var sway: float = BattleWeather.wind_sway(weather_kind)
 	var circles: Array = [[-9.0, -6.0, 10.0], [9.0, -5.0, 10.0], [0.0, -17.0, 12.0], [0.0, -5.0, 10.0]]
-	var sx: float = sin(_t * 1.1 + ph) * 0.9 * sway
-	var sy: float = sin(_t * 0.7 + ph * 1.7) * 0.35 * sway
+	var sx: float = sin(_ta * 1.1 + ph) * 0.9 * sway
+	var sy: float = sin(_ta * 0.7 + ph * 1.7) * 0.35 * sway
 	for c in circles:
 		var w: float = (-float(c[1]) / 20.0)
 		l.draw_circle(p + Vector2(float(c[0]) + sx * w, float(c[1]) + sy * w) * k, (float(c[2]) + 1.2) * k, OL)
@@ -548,7 +593,8 @@ func _tree_crown(l: Node2D, p: Vector2, k: float, ph: float) -> void:
 
 
 func _paint_hill(l: Node2D, p: Vector2, tint: Color) -> void:
-	_ellipse(l, p + Vector2(7, 10), 23, 6, Color(0.05, 0.06, 0.02, 0.38))
+	if _shadows() > 0:
+		_ellipse(l, p + Vector2(7, 10), 23, 6, Color(0.05, 0.06, 0.02, 0.38))
 	var mound := PackedVector2Array()
 	for i in 13:
 		var a: float = PI + PI * i / 12.0
@@ -557,7 +603,10 @@ func _paint_hill(l: Node2D, p: Vector2, tint: Color) -> void:
 	mt = Color(mt.r * TEX_GAIN, mt.g * TEX_GAIN, mt.b * TEX_GAIN)
 	if _snow() > 0.0:
 		mt = mt.lerp(Color(1, 1, 1), _snow())
-	l.draw_colored_polygon(mound, mt, _uvs(mound), GroundTex.get_tex("grass2"))
+	if _gmode() == 0:
+		l.draw_colored_polygon(mound, mt * FLAT_K)
+	else:
+		l.draw_colored_polygon(mound, mt, _uvs(mound), GroundTex.get_tex("grass2"))
 	# face à l'ombre (à droite) : croissant sombre
 	var shade := PackedVector2Array()
 	for i in 9:
@@ -586,7 +635,8 @@ func _paint_ford(l: Node2D, p: Vector2) -> void:
 
 
 func _paint_rock(l: Node2D, p: Vector2, h: Vector2i) -> void:
-	_ellipse(l, p + Vector2(8, 11), 17, 4.5, Color(0, 0, 0, 0.32))
+	if _shadows() > 0:
+		_ellipse(l, p + Vector2(8, 11), 17, 4.5, Color(0, 0, 0, 0.32))
 	var r := RandomNumberGenerator.new()
 	r.seed = h.x * 17 + h.y * 29 + 5
 	var tex: Texture2D = GroundTex.get_tex("rock")
@@ -602,7 +652,10 @@ func _paint_rock(l: Node2D, p: Vector2, h: Vector2i) -> void:
 		c = Color(c.r * TEX_GAIN, c.g * TEX_GAIN, c.b * TEX_GAIN)
 		if poly[1] == Color("8f8877") and snow > 0.0:
 			c = c.lerp(Color(1, 1, 1), snow + 0.2)
-		l.draw_colored_polygon(pts, c, _uvs(pts), tex)
+		if _gmode() == 0:
+			l.draw_colored_polygon(pts, c * FLAT_K)
+		else:
+			l.draw_colored_polygon(pts, c, _uvs(pts), tex)
 		if poly[0] == body:
 			l.draw_polyline(_closed(pts), OL, 1.1)
 	# fissures et mousse
@@ -750,7 +803,7 @@ func _paint_anim(l: Node2D) -> void:
 	var grass_col: Color = Color("4a5230").lerp(Color("c8d0d8"), _snow())
 	for tf in _tufts:
 		var base: Vector2 = tf["p"]
-		var s: float = sin(_t * 1.7 + float(tf["ph"])) * 1.5 * sway
+		var s: float = sin(_ta * 1.7 + float(tf["ph"])) * 1.5 * sway
 		for b in tf["b"]:
 			var bv: Vector3 = b
 			var root := base + Vector2(bv.x, 0.0)
@@ -762,13 +815,13 @@ func _paint_anim(l: Node2D) -> void:
 		var ford: bool = w["ford"]
 		var line_col: Color = Color("86a9ae") if ford else Color("5d8590")
 		for k in 3:
-			var y: float = p.y - 10.0 + k * 9.0 + float(w["y"]) + sin(_t * 0.9 + ph + k) * 1.2
-			var x: float = p.x - 12.0 + sin(_t * 0.5 + ph * 2.0 + k * 1.3) * 4.0
+			var y: float = p.y - 10.0 + k * 9.0 + float(w["y"]) + sin(_ta * 0.9 + ph + k) * 1.2
+			var x: float = p.x - 12.0 + sin(_ta * 0.5 + ph * 2.0 + k * 1.3) * 4.0
 			l.draw_polyline(PackedVector2Array([Vector2(x, y), Vector2(x + 6, y - 2), Vector2(x + 12, y), Vector2(x + 18, y - 2), Vector2(x + 24, y)]), Color(line_col, 0.85), 1.3)
-		var refl: float = 0.5 + 0.5 * sin(_t * 0.6 + ph)
+		var refl: float = 0.5 + 0.5 * sin(_ta * 0.6 + ph)
 		l.draw_line(p + Vector2(-14 + refl * 6.0, -4), p + Vector2(2 + refl * 6.0, -4), Color(0.85, 0.92, 0.95, 0.22), 2.0)
 		for g in 2:
-			var glint: float = pow(maxf(0.0, sin(_t * 2.1 + ph * (g + 1.3) + g * 2.0)), 8.0)
+			var glint: float = pow(maxf(0.0, sin(_ta * 2.1 + ph * (g + 1.3) + g * 2.0)), 8.0)
 			if glint > 0.05:
 				var gp: Vector2 = p + Vector2(-9 + g * 16.0, -8 + g * 11.0 + sin(ph) * 3.0)
 				l.draw_line(gp + Vector2(-2.5, 0), gp + Vector2(2.5, 0), Color(1, 1, 1, glint * 0.8), 1.2)

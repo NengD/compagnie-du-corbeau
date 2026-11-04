@@ -303,7 +303,7 @@ static func stage_name(st: Dictionary) -> String:
 
 ## Un jour de plus : menace, escalade, réoccupation des lieux libérés, ouverture du contrat final.
 ## Renvoie les lignes de nouvelles. `srng` : aléa de campagne (distinct de l'aléa de combat).
-static func daily(st: Dictionary, world: World, srng: RandomNumberGenerator, day: int, renown: int) -> Array:
+static func daily(st: Dictionary, world: World, srng: RandomNumberGenerator, day: int, renown: int, threat_mult: float = 1.0) -> Array:
 	var lines: Array = []
 	for s in world.sites:
 		if s["state"] == "cleared" and s["kind"] != "citadel" and day >= int(s["respawn_day"]):
@@ -312,7 +312,7 @@ static func daily(st: Dictionary, world: World, srng: RandomNumberGenerator, day
 	if bool(st["free_mode"]) or st["final"] == "won":
 		return lines
 	var before: float = float(st["threat"])
-	st["threat"] = minf(THREAT_MAX, before + THREAT_PER_DAY + float(renown) * THREAT_PER_RENOWN)
+	st["threat"] = minf(THREAT_MAX, before + (THREAT_PER_DAY + float(renown) * THREAT_PER_RENOWN) * threat_mult)
 	for i in STAGES.size():
 		if before < float(STAGES[i]) and float(st["threat"]) >= float(STAGES[i]) and int(st["stage"]) <= i:
 			st["stage"] = i + 1

@@ -15,12 +15,15 @@ static func enabled() -> bool:
 
 
 func _burst(pos: Vector2, count: int, life: float, col: Color, v_min: float, v_max: float, size: float, dir: Vector2 = Vector2.ZERO, spread: float = 180.0, gravity: float = 0.0, additive: bool = false) -> CPUParticles2D:
+	var amount: int = Quality.scaled_count(count, Quality.particle_factor())
+	if amount <= 0:  # densité de particules à 0 %
+		return null
 	var p := CPUParticles2D.new()
 	p.position = pos
 	p.emitting = true
 	p.one_shot = true
 	p.explosiveness = 1.0
-	p.amount = count
+	p.amount = amount
 	p.lifetime = life
 	p.direction = dir if dir != Vector2.ZERO else Vector2.UP
 	p.spread = spread

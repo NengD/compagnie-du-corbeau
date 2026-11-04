@@ -575,3 +575,27 @@ const STORIES: Dictionary = {
 			]},
 	]},
 }
+
+
+## Niveaux de difficulté (choisis à la création de la partie, voir core/difficulty.gd). « Normal » = tous les coefficients à 1.
+const DIFFICULTY_DEFAULT: String = "normal"
+const DIFFICULTY: Dictionary = {
+	"easy": {
+		"name": "Facile", "order": 0,
+		"desc": "Pour découvrir le jeu. Plus d'or au départ, ennemis moins résistants et un peu moins nombreux, primes et butin généreux, blessures plus rares, vivres moins vite épuisés.",
+		"gold": 1000, "foe_stats": 0.92, "foe_count": -1, "pay": 1.15, "price": 0.9, "xp": 1.2, "wound": 0.7,
+		"food": 0.8, "morale_loss": 0.75, "loot": 1.2, "threat": 0.8,
+	},
+	"normal": {
+		"name": "Normal", "order": 1,
+		"desc": "L'expérience prévue : 800 couronnes au départ, ennemis, prix, primes et dangers de la route sans aucun ajustement.",
+		"gold": 800, "foe_stats": 1.0, "foe_count": 0, "pay": 1.0, "price": 1.0, "xp": 1.0, "wound": 1.0,
+		"food": 1.0, "morale_loss": 1.0, "loot": 1.0, "threat": 1.0,
+	},
+	"hard": {
+		"name": "Difficile", "order": 2,
+		"desc": "Pour les vétérans. Moins d'or au départ, ennemis plus coriaces et plus nombreux, primes réduites, achats plus chers, blessures fréquentes, faim et moral impitoyables, menace qui monte plus vite.",
+		"gold": 600, "foe_stats": 1.12, "foe_count": 1, "pay": 0.9, "price": 1.1, "xp": 0.9, "wound": 1.3,
+		"food": 1.25, "morale_loss": 1.25, "loot": 0.85, "threat": 1.2,
+	},
+}

@@ -10,6 +10,7 @@ func _init() -> void:
 	var count: int = 300
 	var first: int = 0
 	var verbose: bool = false
+	var level: String = "normal"
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var i: int = 0
 	while i < args.size():
@@ -22,8 +23,12 @@ func _init() -> void:
 				first = int(args[i])
 			"--verbose":
 				verbose = true
+			"--difficulty":
+				i += 1
+				level = args[i]
 		i += 1
 	var lib: RefCounted = load("res://tools/sim_lib.gd").new()
+	lib.difficulty = level
 	var g: Node = lib.make_game(1)
 	var failures: Array[String] = []
 	var rounds_total: int = 0
@@ -46,7 +51,7 @@ func _init() -> void:
 		if not (r["errors"] as Array).is_empty():
 			failures.append("graine %d (%s, danger %d, %d hommes, %s) : %s" % [seed_value, fk, r["danger"], r["men"], r["biome"], " | ".join(PackedStringArray(r["errors"]))])
 	var secs: float = (Time.get_ticks_msec() - t0) / 1000.0
-	print("\n=== sim_battles : %d batailles en %.1f s ===" % [count, secs])
+	print("\n=== sim_battles : %d batailles en %.1f s (difficulté %s) ===" % [count, secs, level])
 	print("manches moyennes : %.1f" % (float(rounds_total) / maxf(1.0, count)))
 	print("issues : %s" % str(by_over))
 	for k in by_faction:

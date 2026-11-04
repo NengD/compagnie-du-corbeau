@@ -22,7 +22,8 @@ var contract: Dictionary = {}
 var biome: String = "plain"
 var undo: Dictionary = {}  ## dernier déplacement annulable : {"id", "hex", "ap", "fat"} (vide si rien à annuler)
 var log_group: int = 0  ## numéro du groupe de lignes de journal (une action = un groupe)
-var wear_mult: float = 1.0  ## part de l'usure subie par le matériel du joueur (forge du camp : < 1)
+var difficulty: String = "normal"  ## niveau de difficulté de la partie (stats des ennemis de renfort, blessures)
+var wear_mult: float = 1.0## part de l'usure subie par le matériel du joueur (forge du camp : < 1)
 var battle_type: String = "pitched"  ## "pitched" | "ambush" | "convoy" | "siege" | "night" (contract["battle_type"])
 var night: bool = false  ## bataille de nuit : vision limitée à `sight_radius` cases, torches et feux éclairent
 var sight_radius: int = 0  ## rayon de vision de chaque camp (0 = pas de limite)
@@ -40,9 +41,10 @@ const AMBUSH_RESERVE_MAX: int = 3
 
 ## Crée une bataille : copie de la compagnie (les 8 premiers), ennemis du contrat, terrain, déploiement.
 ## `start_morale` : moral de départ des hommes du joueur (2 Hésitant, 3 Stable, 4 Confiant ; voir Game.battle_start_morale), `p_wear_mult` : forge du camp.
-static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGenerator, start_morale: int = 3, p_wear_mult: float = 1.0) -> BattleState:
+static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGenerator, start_morale: int = 3, p_wear_mult: float = 1.0, p_difficulty: String = "normal") -> BattleState:
 	var s := BattleState.new()
 	s.rng = p_rng
+	s.difficulty = Difficulty.clean(p_difficulty)
 	s.wear_mult = p_wear_mult
 	s.contract = p_contract
 	var bt: String = str(p_contract.get("battle_type", "pitched"))
@@ -58,8 +60,8 @@ static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGen
 		u.morale = clampi(start_morale, 1, 4)
 		party.append(u)
 	var foes: Array[Unit] = []
-	for k in p_contract["foes"]:
-		var f: Unit = Contracts.make_foe(str(k), p_rng)
+	for k in Difficulty.adjust_foes(p_contract["foes"], int(p_contract.get("d", 1)), s.difficulty):
+		var f: Unit = Contracts.make_foe(str(k), p_rng, s.difficulty)
 		f.reset_for_battle()
 		foes.append(f)
 	s.start_party = party.size()
@@ -412,7 +414,7 @@ func _spawn_reserve() -> void:
 	var row: int = 0 if rng.randi_range(0, 1) == 0 else height - 1
 	var col: int = width - 4
 	for k in reserve:
-		var f: Unit = Contracts.make_foe(str(k), rng)
+		var f: Unit = Contracts.make_foe(str(k), rng, difficulty)
 		f.reset_for_battle()
 		var placed: bool = false
 		for dc in range(0, 6):
@@ -788,7 +790,7 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 			_morale_down(d, -15 if d.hp < d.hp_max * 0.4 else 10, "flanche sous le coup")
 		if a.has_perk("intimidant") and int(dmg["hp"]) > 0 and d.hp < d.hp_max * 0.6:
 			_morale_down(d, -10, "est intimidé par %s" % a.unit_name)
-		var wound: String = Injuries.roll_wound(d, int(dmg["hp"]), rng)
+		var wound: String = Injuries.roll_wound(d, int(dmg["hp"]), rng, difficulty)
 		if wound != "":
 			res["wound"] = wound
 			say("%s est blessé : %s." % [d.unit_name, Data.INJURIES[wound]["n"]], "death")
@@ -1129,7 +1131,7 @@ func to_dict() -> Dictionary:
 		"round": round_no, "current": current.id if current else -1, "log": log_lines, "xp": xp,
 		"corpses": corpse_list, "over": over, "contract": contract, "biome": biome,
 		"undo": ({"id": undo["id"], "hex": [undo["hex"].x, undo["hex"].y], "ap": undo["ap"], "fat": undo["fat"]} if not undo.is_empty() else {}),
-		"log_group": log_group, "wear_mult": wear_mult,
+		"log_group": log_group, "wear_mult": wear_mult, "difficulty": difficulty,
 		"battle_type": battle_type, "night": night, "sight_radius": sight_radius, "rain": rain, "objectives": objectives.duplicate(true),
 		"reserve": reserve.duplicate(), "hold_rounds": hold_rounds, "start_party": start_party, "raised": raised,
 	}
@@ -1154,6 +1156,7 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> BattleStat
 				o["owner"] = str(ro["owner"])
 			cell["obj"] = o
 		s.cells[Vector2i(int(c[0]), int(c[1]))] = cell
+	s.difficulty = Difficulty.clean(d.get("difficulty", "normal"))
 	s.battle_type = str(d.get("battle_type", "pitched"))
 	s.night = bool(d.get("night", false))
 	s.sight_radius = int(d.get("sight_radius", 0))

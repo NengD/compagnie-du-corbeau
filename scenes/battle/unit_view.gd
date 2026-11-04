@@ -75,7 +75,7 @@ static func _speed() -> float:
 ## Respiration idle (étirement vertical depuis les pieds) + décalage d'animation + flash de coup.
 func _apply_pose() -> void:
 	var sx: float = -1.0 if unit.side == "e" else 1.0
-	var breath: float = sin(_t * 2.0 + _phase) * 0.012 + 0.012
+	var breath: float = (sin(_t * 2.0 + _phase) if Quality.value("map_anim") else 0.0) * 0.012 + 0.012
 	var sy: float = 1.0 + breath
 	var k: float = figure.base_scale
 	figure.scale = Vector2(sx * k, sy * k)
@@ -165,9 +165,14 @@ func _ellipse(center: Vector2, rx: float, ry: float) -> void:
 
 func _draw() -> void:
 	# ombre douce en trois épaisseurs, puis socle coloré par camp
-	for i in 3:
-		_ellipse(Vector2(0, 11), 19.0 - i * 2.5, 6.4 - i * 0.9)
-		draw_circle(Vector2.ZERO, 19.0 - i * 2.5, Color(0, 0, 0, 0.14 + i * 0.07))
+	var sh: int = int(Quality.value("shadows"))
+	if sh >= 2:
+		for i in 3:
+			_ellipse(Vector2(0, 11), 19.0 - i * 2.5, 6.4 - i * 0.9)
+			draw_circle(Vector2.ZERO, 19.0 - i * 2.5, Color(0, 0, 0, 0.14 + i * 0.07))
+	elif sh == 1:  # ombre simple : une seule ellipse
+		_ellipse(Vector2(0, 11), 18.0, 6.0)
+		draw_circle(Vector2.ZERO, 18.0, Color(0, 0, 0, 0.3))
 	_ellipse(Vector2(0, 11), 17, 5.6)
 	draw_arc(Vector2.ZERO, 17, 0.0, TAU, 40, Color(BASE_COLORS[unit.side], 0.75), 1.6, true)
 	if is_current:

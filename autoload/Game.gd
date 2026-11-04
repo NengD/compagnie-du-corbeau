@@ -49,6 +49,7 @@ var faction_standing: Dictionary = Factions.default_standing()  ## réputation a
 var story_flags: Dictionary = {}  ## histoires : "story_<id>" = jour de début, et les repères posés par leurs choix {clé: jour}
 var pending_events: Array = []  ## suites d'histoires programmées : [{"id": étape, "due_day": jour}]
 var _food_warned: bool = false
+var difficulty: String = Data.DIFFICULTY_DEFAULT  ## niveau choisi à la création de la partie (voir core/difficulty.gd) ; ne change plus ensuite
 
 
 func _ready() -> void:
@@ -59,7 +60,8 @@ func _ready() -> void:
 
 # --- Partie ---
 
-func new_game(seed_value: int = -1) -> void:
+func new_game(seed_value: int = -1, p_difficulty: String = "normal") -> void:
+	difficulty = Difficulty.clean(p_difficulty)
 	if seed_value >= 0:
 		rng.seed = seed_value
 		loot_rng.seed = seed_value + 7919
@@ -70,7 +72,7 @@ func new_game(seed_value: int = -1) -> void:
 	pending_loot = []
 	pending_loot_ready = false
 	Unit.next_id = 1
-	gold = 800
+	gold = Difficulty.start_gold(difficulty)
 	day = 1
 	day_fraction = 0.0
 	renown = 0
@@ -314,8 +316,9 @@ func _eat_on_road() -> Array:
 	var n: int = roster.size()
 	if n == 0:
 		return lines
-	if provisions >= n:
-		provisions -= n
+	var need: int = Difficulty.food_need(difficulty, n)
+	if provisions >= need:
+		provisions -= need
 		starve_days = 0
 		morale_add(CampBuildings.meal_morale(buildings))
 		var left_days: float = provisions_days()
@@ -325,7 +328,7 @@ func _eat_on_road() -> Array:
 		elif left_days > float(Data.PROVISIONS_WARN_DAYS):
 			_food_warned = false
 		return lines
-	var fed: int = provisions
+	var fed: int = provisions if need == n else mini(n, int(float(provisions) * float(n) / float(need)))
 	provisions = 0
 	starve_days += 1
 	for i in range(fed, n):
@@ -344,7 +347,7 @@ func _eat_on_road() -> Array:
 # Moral de compagnie
 
 func morale_add(n: float) -> void:
-	company_morale = clampf(company_morale + n, 0.0, 100.0)
+	company_morale = clampf(company_morale + Difficulty.morale_delta(difficulty, n), 0.0, 100.0)
 
 
 ## Moral de départ des hommes en bataille : 2 (Hésitant) si la compagnie est abattue, 4 (Confiant) si elle est au sommet, sinon 3.
@@ -598,6 +601,8 @@ func _restock(s: Dictionary) -> void:
 			s["contracts"].remove_at(ci)
 		ci -= 1
 	_apply_factions(s)
+	for c in s["contracts"]:
+		c["pay"] = Difficulty.pay(difficulty, int(c["pay"]))  ## prime selon la difficulté (neutre en « normal »), après les modificateurs de faction
 
 
 ## Employeur des contrats, primes selon la réputation, recrues d'élite et marchand rare chez un allié. Aléa local : `rng` reste intact.
@@ -646,7 +651,7 @@ func leave_settlement() -> void:
 
 func price_of(base: int) -> int:
 	var s: Dictionary = settlement()
-	return int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s)))))
+	return Difficulty.price(difficulty, int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s))))))
 
 
 func in_stock(kind: String, key: String = "") -> bool:
@@ -724,7 +729,7 @@ func advance_time(days: float) -> void:
 		for m in roster:  # blessures : un jour de soins sur la route, deux en ville (repos), plus l'infirmerie
 			for n in Injuries.heal(m, (1 if location == "" else 2) + CampBuildings.injury_days_bonus(buildings)):
 				lines.append("%s est remis de sa blessure (%s)." % [m.unit_name, n.to_lower()])
-		lines.append_array(Campaign.daily(campaign, world, campaign_rng, day, renown))
+		lines.append_array(Campaign.daily(campaign, world, campaign_rng, day, renown, Difficulty.threat_mult(difficulty)))
 		var deserter: String = _pay_or_desert(1)
 		if deserter != "":
 			lines.append(deserter)
@@ -1158,7 +1163,7 @@ func prepare_loot() -> Array:
 		pending_loot_ready = true
 		pending_loot = []
 		if battle.over == "win":
-			pending_loot = Loot.roll_battle(battle.units, loot_rng)
+			pending_loot = Loot.roll_battle(battle.units, loot_rng, Difficulty.loot_mult(difficulty))
 			if battle.contract.get("kind", "contract") == "contract":
 				var rare: Dictionary = Loot.roll_contract_bonus(int(battle.contract.get("d", 1)), loot_rng)
 				if not rare.is_empty():
@@ -1238,7 +1243,7 @@ func start_battle(contract: Dictionary) -> void:
 	if roster.is_empty() or battle != null:
 		return
 	world.stop()
-	battle = BattleState.create(contract, roster, rng, battle_start_morale(), CampBuildings.wear_mult(buildings))
+	battle = BattleState.create(contract, roster, rng, battle_start_morale(), CampBuildings.wear_mult(buildings), difficulty)
 	save()
 	battle_started.emit()
 
@@ -1431,15 +1436,16 @@ func finish_battle() -> void:
 		m.shield_dur = bu.shield_dur
 		m.kills = bu.kills
 		m.injuries = bu.injuries.duplicate(true)
-		var scar: String = Injuries.roll_permanent(m, rng)
+		var scar: String = Injuries.roll_permanent(m, rng, difficulty)
 		if scar != "":
 			add_news(["%s garde une séquelle : %s." % [m.unit_name, str(Data.INJURIES[scar]["n"]).to_lower()]])
-		m.xp += int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5)
+		var xp_gain: int = Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))
+		m.xp += xp_gain
 		level_check(m)
 		var rep_wounds: Array = []
 		for wi in range(rep_inj_before, m.injuries.size()):
 			rep_wounds.append(str(Data.INJURIES[str(m.injuries[wi]["id"])]["n"]))
-		men_report.append({"u": m.to_dict(), "dead": false, "hp_before": rep_hp_before, "hp_after": m.hp, "xp": int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5),
+		men_report.append({"u": m.to_dict(), "dead": false, "hp_before": rep_hp_before, "hp_after": m.hp, "xp": xp_gain,
 			"kills": bu.kills - rep_kills_before, "lvl_before": rep_lvl_before, "lvl_after": m.level, "wounds": rep_wounds})
 		survivors.append(m)
 		fought.append(m)
@@ -1540,7 +1546,7 @@ func to_dict() -> Dictionary:
 	for m in roster:
 		ros.append(m.to_dict())
 	return {
-		"version": 2, "gold": gold, "day": day, "day_fraction": day_fraction, "renown": renown, "roster": ros,
+		"version": 2, "difficulty": difficulty, "gold": gold, "day": day, "day_fraction": day_fraction, "renown": renown, "roster": ros,
 		"fallen": fallen, "news": news, "game_over": game_over, "next_id": Unit.next_id,
 		"world": world.to_dict(), "location": location, "active_contract": active_contract,
 		"battle": battle.to_dict() if battle else null,
@@ -1555,6 +1561,7 @@ func to_dict() -> Dictionary:
 
 
 func from_dict(d: Dictionary) -> void:
+	difficulty = Difficulty.clean(d.get("difficulty", "normal"))  ## anciennes sauvegardes : Normal
 	gold = int(d["gold"])
 	day = int(d["day"])
 	day_fraction = float(d["day_fraction"])
@@ -1717,7 +1724,7 @@ func slot_info(n: int) -> Dictionary:
 	var date: String = str(d.get("saved_at", ""))
 	if date == "" and n == 0:
 		date = Time.get_datetime_string_from_unix_time(FileAccess.get_modified_time(slot_path(0)), true)
-	return {"day": int(d.get("day", 1)), "gold": int(d.get("gold", 0)), "men": (d.get("roster", []) as Array).size(), "date": date.replace("T", " ")}
+	return {"day": int(d.get("day", 1)), "gold": int(d.get("gold", 0)), "men": (d.get("roster", []) as Array).size(), "difficulty": Difficulty.clean(d.get("difficulty", "normal")), "date": date.replace("T", " ")}
 
 
 func delete_slot(n: int) -> void:

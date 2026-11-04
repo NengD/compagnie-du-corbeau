@@ -22,9 +22,17 @@ func add(kind: String, hex: Vector2i, rng: RandomNumberGenerator, col: Color = C
 		"alpha": alpha, "col": col,
 	}
 	items.append(d)
-	while items.size() > MAX_DECALS:
+	var cap: int = cap_now()
+	while items.size() > cap:
 		items.remove_at(0)
 	return d
+
+
+## Plafond selon la qualité graphique (MAX_DECALS en test ou sans réglage : UnitView._speed() == 0).
+static func cap_now() -> int:
+	if UnitView._speed() <= 0.0:
+		return MAX_DECALS
+	return int(Quality.value("decals"))
 
 
 ## Les plus anciennes sont retirées d'abord ; retourne le nombre final.
@@ -48,7 +56,10 @@ func load_carry(cells: Dictionary, rng: RandomNumberGenerator) -> void:
 	var keys: Array = cells.keys()
 	if keys.is_empty():
 		return
+	var room: int = cap_now()
 	for d in carried:
+		if items.size() >= room:
+			break
 		var c: Dictionary = (d as Dictionary).duplicate()
 		c["hex"] = keys[rng.randi() % keys.size()]
 		items.append(c)

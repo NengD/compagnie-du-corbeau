@@ -43,7 +43,7 @@ func _card(n: int) -> Control:
 	if info.is_empty():
 		v.add_child(UiKit.sub("Vide"))
 	else:
-		v.add_child(UiKit.sub("Jour %d · %d couronnes · %d hommes" % [info["day"], info["gold"], info["men"]]))
+		v.add_child(UiKit.sub("Jour %d · %d couronnes · %d hommes · %s" % [info["day"], info["gold"], info["men"], Difficulty.label(str(info.get("difficulty", "normal")))]))
 		if str(info["date"]) != "":
 			v.add_child(UiKit.sub(str(info["date"])))
 	h.add_child(v)

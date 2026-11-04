@@ -1,6 +1,6 @@
 class_name OptionsPanel
 extends RefCounted
-## Fenêtre d'options en trois sections (Affichage, Son, Jeu). Écrit dans `Settings`.
+## Fenêtre d'options en quatre sections (Affichage, Graphismes, Son, Jeu). Écrit dans `Settings`.
 ## Les réglages de fenêtre (mode, taille, écran) sont mis en attente puis appliqués par « Appliquer » :
 ## un compte à rebours de 10 s rétablit l'ancien affichage si le joueur ne confirme pas.
 
@@ -13,6 +13,12 @@ var _mode: int = 0
 var _res: Vector2i = Vector2i.ZERO  ## (0, 0) = taille actuelle
 var _monitor: int = 0
 var _confirm: ModalOverlay
+var _scroll: ScrollContainer
+var _q_opt: OptionButton  ## liste « Qualité graphique »
+var _q_desc: Label
+var _adv_ctrl: Dictionary = {}  ## réglage -> contrôle du volet avancé (OptionButton ou CheckButton)
+static var _keep_scroll: int = 0
+static var _adv_open: bool = false
 
 
 static func open(host: Node) -> ModalOverlay:
@@ -30,12 +36,22 @@ func _build(host: Node) -> ModalOverlay:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.custom_minimum_size = Vector2(0, 430)
 	box.add_child(scroll)
+	_scroll = scroll
+	if _keep_scroll > 0:  # panneau reconstruit après un changement de préréglage : on retrouve la position
+		var keep: int = _keep_scroll
+		_keep_scroll = 0
+		var tree := Engine.get_main_loop() as SceneTree
+		tree.process_frame.connect(func() -> void:
+			tree.process_frame.connect(func() -> void:
+				if is_instance_valid(scroll):
+					scroll.scroll_vertical = keep, CONNECT_ONE_SHOT), CONNECT_ONE_SHOT)
 	var body := UiKit.vbox(8)
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(body)
 	_mode = _s().window_mode
 	_monitor = DisplayServer.window_get_current_screen()
 	_build_display(body)
+	_build_graphics(body)
 	_build_sound(body)
 	_build_game(body)
 	var foot := UiKit.hbox(8)
@@ -119,7 +135,6 @@ func _build_display(body: VBoxContainer) -> void:
 	for f in SettingsScript.FPS_LIMITS:
 		fps_names.append("Illimité" if int(f) == 0 else "%d i/s" % int(f))
 	_row(body, "Limite d'images par seconde", _option(fps_names, _s().fps_limit, func(i: int) -> void: _s().set_value("fps_limit", i)))
-	_row(body, "Anticrénelage (MSAA 2D)", _option(SettingsScript.MSAA_MODES, _s().msaa, func(i: int) -> void: _s().set_value("msaa", i)))
 
 
 func _scale_row() -> Control:
@@ -148,6 +163,108 @@ func _scale_row() -> Control:
 	return h
 
 
+func _build_graphics(body: VBoxContainer) -> void:
+	_section(body, "Graphismes")
+	_adv_ctrl.clear()
+	_q_opt = _option(Quality.NAMES, _s().quality, _on_quality_pick)
+	_row(body, "Qualité graphique", _q_opt)
+	_q_desc = UiKit.para("", 14)
+	body.add_child(_q_desc)
+	_check(body, "Afficher les images par seconde", _s().show_fps, func(on: bool) -> void: _s().set_value("show_fps", on))
+	var content := UiKit.vbox(6)
+	content.visible = _adv_open
+	var toggle := UiKit.button("", "ghost", true)
+	toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	toggle.text = ("▾ " if _adv_open else "▸ ") + "Réglages avancés"
+	toggle.pressed.connect(func() -> void:
+		_adv_open = not _adv_open
+		content.visible = _adv_open
+		toggle.text = ("▾ " if _adv_open else "▸ ") + "Réglages avancés")
+	body.add_child(toggle)
+	body.add_child(content)
+	for k in ["msaa", "ground_mode", "shadows", "weather", "particles", "decals", "map_tex", "tex_filter"]:
+		var key: String = k
+		var cur: int = int(Quality.value("weather")) if key == "weather" else int(_s().get(key))
+		var o := _option(Quality.LABELS[key], cur, func(i: int) -> void:
+			_s().set_value("weather_level" if key == "weather" else key, i)
+			_sync_quality())
+		_adv_ctrl[key] = o
+		_row(content, _adv_label(key), o)
+	for k in ["map_anim", "day_night", "illustrated_ui", "screen_shake"]:
+		var key2: String = k
+		var c := CheckButton.new()
+		c.text = _adv_label(key2)
+		c.focus_mode = Control.FOCUS_NONE
+		c.button_pressed = bool(_s().get(key2))
+		c.toggled.connect(func(on: bool) -> void:
+			_s().set_value(key2, on)
+			_sync_quality())
+		_adv_ctrl[key2] = c
+		content.add_child(c)
+	var reset := UiKit.button("Rétablir le préréglage", "ghost", true)
+	reset.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	reset.pressed.connect(func() -> void:
+		_s().apply_quality(Quality.nearest(_s().detail_values()))
+		_reopen())
+	content.add_child(reset)
+	content.add_child(UiKit.para("Les réglages s'appliquent tout de suite ; les effets déjà à l'écran (particules, traces) changent à la prochaine bataille.", 13))
+	_sync_quality()
+
+
+func _adv_label(key: String) -> String:
+	match key:
+		"msaa":
+			return "Anticrénelage (MSAA 2D)"
+		"ground_mode":
+			return "Sol de la bataille"
+		"shadows":
+			return "Ombres portées (arbres, figurines)"
+		"weather":
+			return "Météo (carte et bataille)"
+		"particles":
+			return "Densité des particules"
+		"decals":
+			return "Traces de sang au sol"
+		"map_tex":
+			return "Définition de la carte du monde"
+		"tex_filter":
+			return "Filtrage des textures"
+		"map_anim":
+			return "Animations d'ambiance (herbe, feuillages, eau, respiration)"
+		"day_night":
+			return "Cycle jour/nuit et lumières de la carte"
+		"illustrated_ui":
+			return "Interface illustrée (cuir et parchemin)"
+		"screen_shake":
+			return "Tremblement d'écran"
+	return key
+
+
+func _on_quality_pick(i: int) -> void:
+	if i >= Quality.CUSTOM:
+		_sync_quality()
+		return
+	_s().apply_quality(i)
+	_reopen()
+
+
+## Met à jour la liste « Qualité graphique » et sa description d'après les réglages détaillés.
+func _sync_quality() -> void:
+	if not is_instance_valid(_q_opt):
+		return
+	var lv: int = _s().quality
+	_q_opt.select(lv)
+	_q_opt.set_item_disabled(Quality.CUSTOM, lv != Quality.CUSTOM)
+	_q_desc.text = str(Quality.DESCS[Quality.clamp_level(lv)])
+
+
+## Reconstruit le panneau (les réglages détaillés ont tous changé) en gardant la position de défilement.
+func _reopen() -> void:
+	_keep_scroll = _scroll.scroll_vertical if is_instance_valid(_scroll) else 0
+	_modal.close()
+	OptionsPanel.open(_host)
+
+
 func _build_sound(body: VBoxContainer) -> void:
 	_section(body, "Son")
 	for row in [["Volume général", "master_volume"], ["Musique", "music_volume"], ["Effets sonores", "sfx_volume"]]:
@@ -164,11 +281,6 @@ func _build_game(body: VBoxContainer) -> void:
 	for s in SettingsScript.TEXT_SIZES:
 		sizes.append(str(s["n"]))
 	_row(body, "Taille du texte (nouveaux écrans)", _option(sizes, _s().text_size, func(i: int) -> void: _s().set_value("text_size", i)))
-	_check(body, "Tremblement d'écran", _s().screen_shake, func(on: bool) -> void: _s().set_value("screen_shake", on))
-	_check(body, "Cycle jour/nuit sur la carte du monde", _s().day_night, func(on: bool) -> void: _s().set_value("day_night", on))
-	_check(body, "Effets météo (carte et bataille)", _s().weather_fx, func(on: bool) -> void: _s().set_value("weather_fx", on))
-	_check(body, "Animations de la carte du monde", _s().map_anim, func(on: bool) -> void: _s().set_value("map_anim", on))
-	_check(body, "Interface illustrée (cuir et parchemin)", _s().illustrated_ui, func(on: bool) -> void: _s().set_value("illustrated_ui", on))
 	_check(body, "Afficher en permanence les chances de toucher", _s().show_hit_pct, func(on: bool) -> void: _s().set_value("show_hit_pct", on))
 	_check(body, "Confirmer « Fin du tour » s'il reste des PA", _s().confirm_end_turn, func(on: bool) -> void: _s().set_value("confirm_end_turn", on))
 	_check(body, "Passer l'écran de lancement", _s().skip_splash, func(on: bool) -> void: _s().set_value("skip_splash", on))

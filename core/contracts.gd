@@ -54,9 +54,14 @@ static func make_merc(key: String, rng: RandomNumberGenerator, taken: Array) -> 
 	return u
 
 
-static func make_foe(key: String, rng: RandomNumberGenerator) -> Unit:
+static func make_foe(key: String, rng: RandomNumberGenerator, difficulty: String = "normal") -> Unit:
 	var t: Dictionary = Data.FOE[key]
 	var u: Unit = make_unit(t, "e", t["n"], rng)
+	if Difficulty.coef(difficulty, "foe_stats") != 1.0:  ## niveau de difficulté : PV et compétences
+		u.hp_max = Difficulty.foe_stat(difficulty, u.hp_max)
+		u.hp = u.hp_max
+		u.melee_skill = Difficulty.foe_stat(difficulty, u.melee_skill)
+		u.ranged_skill = Difficulty.foe_stat(difficulty, u.ranged_skill)
 	u.faction = t["fac"]
 	u.xp_value = int(t["xp"])
 	u.leader = bool(t["leader"])
