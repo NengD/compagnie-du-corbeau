@@ -1,0 +1,6 @@
+# Godot
+.godot/
+*.tmp
+
+# Exécutable exporté (trop gros pour git : à publier dans les « Releases »)
+build/
