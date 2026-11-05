@@ -103,11 +103,6 @@ static func wear_ratio(it: Dictionary) -> float:
 	return float(dur_of(it)) / float(m)
 
 
-## Points de durabilité manquants (armes et boucliers).
-static func dur_missing(it: Dictionary) -> int:
-	return dur_max(it) - dur_of(it) if dur_max(it) > 0 else 0
-
-
 ## Prix de la remise en état complète d'un objet.
 static func repair_price(it: Dictionary) -> int:
 	return int(ceil(float(base_price(it)) * Data.REPAIR_GEAR_RATE * (1.0 - wear_ratio(it))))

@@ -399,7 +399,11 @@ func test_performances() -> void:
 	var w: World = World.generate(t.rng_seeded(11), 0)
 	var gen_ms: int = Time.get_ticks_msec() - t0
 	print("  [perf] génération du grand monde : %d ms (%d lieux, %d sites, %d points d'intérêt)" % [gen_ms, w.settlements.size(), w.sites.size(), w.pois.size()])
-	t.check(gen_ms < 3000 or gen_ms < 9000, "génération < 3 s (%d ms, tolérance si la machine est chargée)" % gen_ms)
+	if gen_ms >= 3000:  # tolérance : machine chargée -> on retente une fois, la meilleure mesure compte
+		var t0b: int = Time.get_ticks_msec()
+		World.generate(t.rng_seeded(11), 0)
+		gen_ms = mini(gen_ms, Time.get_ticks_msec() - t0b)
+	t.check(gen_ms < 3000, "génération < 3 s (%d ms, meilleure de deux mesures si la première dépasse)" % gen_ms)
 	var t1: int = Time.get_ticks_msec()
 	var lab: Dictionary = Territory.labels(w, 1)
 	var lines: Array = Territory.borders(w, lab)

@@ -54,6 +54,7 @@ static func open(host: Node, member_id: int = -1) -> InventoryScreen:
 
 func _build_screen() -> void:
 	add_to_group("inventory_screen")
+	Sfx.play("paper_open")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := ColorRect.new()
@@ -377,6 +378,7 @@ func _stash_action(id: int, idx: int, it: Dictionary) -> void:
 		quick(Inventory.in_stash(idx))
 	elif id == 1:
 		if Game.sell_item(idx):
+			Sfx.play("sell")
 			message("%s vendu." % Loot.item_name(it))
 	elif id == 2:
 		if Game.discard(idx):
@@ -388,6 +390,7 @@ func _report(res: Dictionary, ok_text: String = "") -> void:
 		var t: String = ok_text
 		if str(res["msg"]) != "":
 			t = (t + " " + str(res["msg"])).strip_edges()
+		Sfx.play("drop")
 		message(t)
 	else:
 		message(str(res["msg"]), false)
@@ -410,6 +413,7 @@ func _input(event: InputEvent) -> void:
 
 func close() -> void:
 	remove_from_group("inventory_screen")
+	Sfx.play("paper_close")
 	super.close()
 
 
@@ -478,7 +482,7 @@ func _build_left() -> void:
 	tv.add_child(UiKit.sub("%s · niveau %d" % [u.background, u.level], 13, true))
 	var nxt: int = int(Data.XP_THRESHOLDS[mini(u.level + 1, Data.XP_THRESHOLDS.size() - 1)])
 	var cur0: int = int(Data.XP_THRESHOLDS[mini(u.level, Data.XP_THRESHOLDS.size() - 1)])
-	var xp_row := StatRow.new("", float(u.xp - cur0), float(maxi(1, nxt - cur0)), Color("e08a1e"), "%d / %d" % [u.xp, nxt], "Expérience : %d points, prochain niveau à %d." % [u.xp, nxt])
+	var xp_row := StatRow.new("", float(u.xp - cur0), float(maxi(1, nxt - cur0)), Color("e08a1e"), "%d / %d" % [u.xp, nxt], "Expérience : %d points, prochain niveau à %d." % [u.xp, nxt], "Expérience")
 	tv.add_child(xp_row)
 	top.add_child(tv)
 	_left.add_child(top)
@@ -554,24 +558,24 @@ func _stat_rows(u: Unit) -> Array:
 	var w: Dictionary = u.weapon_data()
 	var morale: int = clampi(u.morale, 0, Data.MORALE_NAMES.size() - 1)
 	var left: Array = [
-		StatRow.new("heart", maxi(0, u.hp), u.hp_max, GameTheme.BLOOD, "%d / %d" % [maxi(0, u.hp), u.hp_max], "Points de vie"),
-		StatRow.new("head:casque", u.arm_h, maxi(1, u.head_armor_max()), Color("9a948a"), "%d / %d" % [u.arm_h, u.head_armor_max()], "Armure de la tête"),
-		StatRow.new("body:gambison", u.arm_b, maxi(1, u.body_armor_max()), GameTheme.STEEL, "%d / %d" % [u.arm_b, u.body_armor_max()], "Armure du corps"),
-		StatRow.new("hourglass", u.fat, maxi(1, u.fat_max_eff()), Color("8a6a3a"), "%d / %d" % [u.fat, u.fat_max_eff()], "Fatigue actuelle / endurance (réduite par le poids porté : %d)" % u.weight()),
-		StatRow.new("chevrons", u.ini_eff(), 160, Color("6f8f8a"), str(u.ini_eff()), "Initiative effective (réduite par le poids et la fatigue)"),
-		StatRow.new("ring", u.eff("resolve"), 100, Color("7a5a9a"), str(u.eff("resolve")), "Détermination : résiste aux tests de moral"),
-		StatRow.new("flag", morale + 1, 5, GameTheme.MORALE_COLORS[morale].darkened(0.2), str(Data.MORALE_NAMES[morale]), "Moral"),
-		StatRow.new("weight", u.weight(), 40, Color("7a6a50"), str(u.weight()), "Poids de l'équipement porté"),
+		StatRow.new("heart", maxi(0, u.hp), u.hp_max, GameTheme.BLOOD, "%d / %d" % [maxi(0, u.hp), u.hp_max], "Points de vie", "PV"),
+		StatRow.new("head:casque", u.arm_h, maxi(1, u.head_armor_max()), Color("9a948a"), "%d / %d" % [u.arm_h, u.head_armor_max()], "Armure de la tête", "Armure tête"),
+		StatRow.new("body:gambison", u.arm_b, maxi(1, u.body_armor_max()), GameTheme.STEEL, "%d / %d" % [u.arm_b, u.body_armor_max()], "Armure du corps", "Armure corps"),
+		StatRow.new("hourglass", u.fat, maxi(1, u.fat_max_eff()), Color("8a6a3a"), "%d / %d" % [u.fat, u.fat_max_eff()], "Fatigue actuelle / endurance (réduite par le poids porté : %d)" % u.weight(), "Fatigue"),
+		StatRow.new("chevrons", u.ini_eff(), 160, Color("6f8f8a"), str(u.ini_eff()), "Initiative effective (réduite par le poids et la fatigue)", "Initiative"),
+		StatRow.new("ring", u.eff("resolve"), 100, Color("7a5a9a"), str(u.eff("resolve")), "Détermination : résiste aux tests de moral", "Détermination"),
+		StatRow.new("flag", morale + 1, 5, GameTheme.MORALE_COLORS[morale].darkened(0.2), str(Data.MORALE_NAMES[morale]), "Moral", "Moral"),
+		StatRow.new("weight", u.weight(), 40, Color("7a6a50"), str(u.weight()), "Poids de l'équipement porté", "Poids"),
 	]
 	var right: Array = [
-		StatRow.new("weapon:epee", u.eff("melee_skill"), 100, Color("a86a3a"), str(u.eff("melee_skill")), "Compétence de mêlée"),
-		StatRow.new("weapon:arc", u.eff("ranged_skill"), 100, Color("9a8a3a"), str(u.eff("ranged_skill")), "Compétence à distance"),
-		StatRow.new("shield:", u.eff("melee_def"), 60, Color("4a7a9a"), str(u.eff("melee_def")), "Défense contre la mêlée (bouclier non compris)"),
-		StatRow.new("shield:", u.eff("ranged_def"), 60, Color("3a6a8a"), str(u.eff("ranged_def")), "Défense contre les tirs (bouclier non compris)"),
-		StatRow.new("weapon:hache", int(w["max"]), 80, Color("a04a3a"), "%d – %d" % [w["min"], w["max"]], "Dégâts de l'arme : %s" % w["n"]),
-		StatRow.new("percent", float(w["arm"]) * 100.0, 150, Color("7a7a8a"), "%d %%" % roundi(float(w["arm"]) * 100.0), "Efficacité contre l'armure"),
-		StatRow.new("percent", float(w["ign"]) * 100.0, 100, Color("7a8a6a"), "%d %%" % roundi(float(w["ign"]) * 100.0), "Part des dégâts qui traverse l'armure"),
-		StatRow.new("eye", int(w["rng"]), 6, Color("5a7a5a"), str(w["rng"]), "Portée de l'arme (en cases)"),
+		StatRow.new("weapon:epee", u.eff("melee_skill"), 100, Color("a86a3a"), str(u.eff("melee_skill")), "Compétence de mêlée", "Mêlée"),
+		StatRow.new("weapon:arc", u.eff("ranged_skill"), 100, Color("9a8a3a"), str(u.eff("ranged_skill")), "Compétence à distance", "Distance"),
+		StatRow.new("shield:", u.eff("melee_def"), 60, Color("4a7a9a"), str(u.eff("melee_def")), "Défense contre la mêlée (bouclier non compris)", "Déf. mêlée"),
+		StatRow.new("shield:", u.eff("ranged_def"), 60, Color("3a6a8a"), str(u.eff("ranged_def")), "Défense contre les tirs (bouclier non compris)", "Déf. distance"),
+		StatRow.new("weapon:hache", int(w["max"]), 80, Color("a04a3a"), "%d – %d" % [w["min"], w["max"]], "Dégâts de l'arme : %s" % w["n"], "Dégâts"),
+		StatRow.new("percent", float(w["arm"]) * 100.0, 150, Color("7a7a8a"), "%d %%" % roundi(float(w["arm"]) * 100.0), "Efficacité contre l'armure", "Vs armure"),
+		StatRow.new("percent", float(w["ign"]) * 100.0, 100, Color("7a8a6a"), "%d %%" % roundi(float(w["ign"]) * 100.0), "Part des dégâts qui traverse l'armure", "Traversée"),
+		StatRow.new("eye", int(w["rng"]), 6, Color("5a7a5a"), str(w["rng"]), "Portée de l'arme (en cases)", "Portée"),
 	]
 	return [left, right]
 

@@ -149,15 +149,6 @@ func fps_cap() -> int:
 	return int(FPS_LIMITS[clampi(fps_limit, 0, FPS_LIMITS.size() - 1)])
 
 
-## Volume effectif d'un bus : maître × (musique ou effets).
-func music_gain() -> float:
-	return master_volume * music_volume
-
-
-func sfx_gain() -> float:
-	return master_volume * sfx_volume
-
-
 ## Valeur ramenée dans les bornes et au bon type ; une valeur illisible donne le défaut.
 static func sanitize(key: String, value: Variant) -> Variant:
 	if not SCHEMA.has(key):
@@ -235,11 +226,6 @@ func apply_quality(level: int, notify: bool = true) -> void:
 	save_settings()
 	if notify:
 		changed.emit()
-
-
-## Texte de la liste « Qualité graphique » : niveau actuel (reconnu d'après les réglages détaillés).
-func quality_name() -> String:
-	return Quality.name_of(quality)
 
 
 ## Remet tous les réglages par défaut (sauf « tutoriel vu »), les applique et les enregistre.

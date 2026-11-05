@@ -14,6 +14,8 @@ signal contract_go_pressed
 
 const MARGIN := 20
 const BTN := 38
+const STATUS_SIDE_L := 340  ## marge gauche de la ligne d'état (pastille du contrat)
+const STATUS_SIDE_R := 270  ## marge droite (boutons ronds)
 const STATUS_HOLD := 6.0  ## secondes avant que la ligne d'état commence à s'effacer
 const STATUS_FADE := 1.2
 
@@ -191,9 +193,14 @@ func _build_time() -> void:
 
 func _build_status() -> void:
 	_status = Label.new()
+	# Entre la pastille du contrat (gauche) et les boutons ronds (droite), sur deux lignes au besoin : jamais coupée.
 	_status.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	_status.offset_top = -(MARGIN + 34)
-	_status.offset_bottom = -(MARGIN + 6)
+	_status.offset_left = STATUS_SIDE_L
+	_status.offset_right = -STATUS_SIDE_R
+	_status.offset_top = -(MARGIN + 52)
+	_status.offset_bottom = -(MARGIN + 4)
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.custom_minimum_size = Vector2(0, 0)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_status.mouse_filter = Control.MOUSE_FILTER_IGNORE

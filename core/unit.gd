@@ -80,7 +80,7 @@ func weight() -> int:
 	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(Data.SHIELD["w"]) if shield else 0)
 	if perks.is_empty():
 		return w
-	return maxi(0, w - Perks.weight_cut(self, w) - int(Perks.mfx(self, "weight_cut")))  ## Port d'armure, Maillons serrés
+	return maxi(0, w - Perks.weight_cut(self, w) - int(Perks.mfx(self, "weight_cut")))  ## Carapace, Maillons serrés
 
 
 ## Fiche de Data.FOE de l'ennemi ({} pour un homme de la compagnie ou un chariot).

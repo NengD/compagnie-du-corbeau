@@ -32,16 +32,69 @@ void fragment() {
 }
 """
 
+## Mesures de dessin (outil tools/measure_map.gd) : nom du peintre -> [nombre d'appels, microsecondes cumulées].
+static var stats: Dictionary = {}
+
+
+static func stat(key: String, t0: int) -> void:
+	var e: Array = stats.get(key, [0, 0])
+	e[0] += 1
+	e[1] += Time.get_ticks_usec() - t0
+	stats[key] = e
+
+
+## Détail du sol à fort zoom (netteté de la carte) : accentue la texture du fond et y ajoute un grain procédural (touffes, taches)
+## calculé dans le shader à partir des coordonnées du monde. Aucun coût à la construction ; la couche est cachée quand on est loin.
+const DETAIL_SHADER := """
+shader_type canvas_item;
+uniform float amount = 0.0;
+uniform sampler2D mask_tex : filter_linear;
+varying vec2 wp;
+varying vec4 tint;
+void vertex() {
+	wp = VERTEX;
+	tint = COLOR;  // modulate de l'élément (lumière du jour, météo) : à réappliquer à la main
+}
+float h21(vec2 p) {
+	p = fract(p * vec2(123.34, 456.21));
+	p += dot(p, p + 45.32);
+	return fract(p.x * p.y);
+}
+float vn(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+void fragment() {
+	vec2 ts = 1.0 / vec2(textureSize(TEXTURE, 0));
+	vec3 c = texture(TEXTURE, UV).rgb;
+	vec3 b = (texture(TEXTURE, UV + vec2(ts.x, 0.0)).rgb + texture(TEXTURE, UV - vec2(ts.x, 0.0)).rgb
+		+ texture(TEXTURE, UV + vec2(0.0, ts.y)).rgb + texture(TEXTURE, UV - vec2(0.0, ts.y)).rgb) * 0.25;
+	float land = 1.0 - smoothstep(0.05, 0.4, texture(mask_tex, UV).a);
+	float n = vn(wp * 0.55) * 0.5 + vn(wp * 1.3) * 0.3 + vn(wp * 3.1) * 0.2;
+	float tuft = smoothstep(0.64, 0.82, vn(wp * vec2(0.9, 0.6) + 17.0));
+	vec3 col = c + (c - b) * 1.5 * amount;
+	col *= 1.0 + (n - 0.5) * 0.18 * amount * (0.3 + 0.7 * land);
+	col = mix(col, col * vec3(0.8, 0.9, 0.72), tuft * 0.32 * land * amount);
+	COLOR = vec4(col * tint.rgb, tint.a);
+}
+"""
+
 class Layer extends Node2D:
 	var painter: Callable
+	var key: String = ""
 
 	func _draw() -> void:
 		if painter.is_valid():
+			var t0: int = Time.get_ticks_usec()
 			painter.call(self)
+			MapView.stat(key, t0)
 
 
 class Overlay extends Control:
 	var painter: Callable
+	var key: String = ""
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -49,12 +102,15 @@ class Overlay extends Control:
 
 	func _draw() -> void:
 		if painter.is_valid():
+			var t0: int = Time.get_ticks_usec()
 			painter.call(self)
+			MapView.stat(key, t0)
 
 var input_blocked: bool = false  ## vrai quand un écran modal est ouvert : la caméra ignore le clavier et les bords
 var _stage: Node2D
 var _root: Node2D  ## fond et décor : teinté par la lumière du jour
 var _ground: Layer
+var _detail: Layer
 var _ground_chunks: Array[Sprite2D] = []
 var _obj_chunks: Array[Sprite2D] = []
 var _bakes: Array[SubViewport] = []
@@ -78,7 +134,7 @@ var _regions: Dictionary = {}
 var _terr_sig: String = ""
 var _vis_sig: String = ""
 var _lights_drawn: bool = false
-var _fx_was_live: bool = true
+const DYN_ANIM_STEP := 1.0 / 30.0  ## cadence maximale des animations de la couche mobile
 var _px_built: int = 0  ## définition de la texture de fond construite (Quality.value("map_px"))
 var _hover: Vector2 = Vector2.ZERO
 var _hover_ok: bool = false
@@ -97,7 +153,34 @@ var _cam_vel: Vector2 = Vector2.ZERO  ## vitesse de la caméra au clavier (px d'
 var _manual_cam: bool = false  ## la caméra a été déplacée à la main pendant un trajet : le suivi attend un recentrage
 var _mouse_in: bool = false  ## la souris a bougé dans la vue (pas de défilement aux bords avant)
 var _iz: float = 1.0  ## agrandissement des pictogrammes (quantifié)
-var _names_sig: String = ""
+var _names_dirty: bool = true
+var _n_pos: Vector2 = Vector2.ZERO  ## dernier état dessiné par l'étiquetage (position/échelle de la caméra, survol, jour/nuit)
+var _n_scale: float = 0.0
+var _n_hover: String = ""
+var _n_dn: bool = false
+var _state_dirty: bool = true
+var _state_day: int = -1
+var _dyn_dirty: bool = true
+var _dyn_acc: float = 0.0
+var _lights_acc: float = 0.0
+var _d_pos: Vector2 = Vector2.ZERO  ## dernier état dessiné par la couche mobile
+var _d_scale: float = 0.0
+var _d_player: Vector2 = Vector2.ZERO
+var _d_parties: Vector2 = Vector2.ZERO
+var _d_party_n: int = -1
+var _d_path_n: int = -1
+var _d_dest: Vector2 = Vector2.ZERO
+var _d_hover_ok: bool = false
+var _d_hover: Vector2 = Vector2.ZERO
+var _d_days: float = 0.0
+var _d_vision: float = 0.0
+var _overlay_dirty: bool = true
+var _frame_scale: float = 0.0
+var _sky_acc: float = 0.0
+var _sky_key: int = -1
+var _sky_drawn: bool = false
+var _wx_key: int = -1
+var _wx_drawn: bool = false
 var show_territories: bool = true
 var show_regions: bool = true
 var show_borders: bool = true
@@ -119,6 +202,13 @@ func _ready() -> void:
 	_root = Node2D.new()
 	_stage.add_child(_root)
 	_ground = _layer(_paint_ground, _root)
+	_detail = _layer(_paint_detail, _root)
+	var dmat := ShaderMaterial.new()
+	var dsh := Shader.new()
+	dsh.code = DETAIL_SHADER
+	dmat.shader = dsh
+	_detail.material = dmat
+	_detail.visible = false
 	_shimmer = Sprite2D.new()
 	_shimmer.centered = false
 	var mat := ShaderMaterial.new()
@@ -141,6 +231,7 @@ func _ready() -> void:
 	_frame = _overlay(_paint_frame)
 	resized.connect(_fit)
 	Settings.changed.connect(_on_settings)
+	Game.changed.connect(_on_game_changed)
 	mouse_entered.connect(func() -> void: _mouse_in = true)
 	mouse_exited.connect(func() -> void:
 		_hover_ok = false
@@ -150,6 +241,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if Game.changed.is_connected(_on_game_changed):
+		Game.changed.disconnect(_on_game_changed)
 	if Settings.changed.is_connected(_on_settings):
 		Settings.changed.disconnect(_on_settings)
 
@@ -158,7 +251,9 @@ func _on_settings() -> void:
 	var w: World = Game.world
 	if w != null and MapTerrain.px_for(w, int(Quality.value("map_px"))) != _px_built:  # définition de la carte modifiée : fond reconstruit
 		rebuild()
-	_fx_was_live = true
+	_overlay_dirty = true
+	_dyn_dirty = true
+	_names_dirty = true
 	var changed: bool = false
 	for pair in [["map_territories", "show_territories"], ["map_regions", "show_regions"], ["map_borders", "show_borders"]]:
 		var on: bool = bool(Settings.get(str(pair[0])))
@@ -172,6 +267,7 @@ func _on_settings() -> void:
 func _layer(painter: Callable, parent: Node) -> Layer:
 	var l := Layer.new()
 	l.painter = painter
+	l.key = str(painter.get_method())
 	parent.add_child(l)
 	return l
 
@@ -179,6 +275,7 @@ func _layer(painter: Callable, parent: Node) -> Layer:
 func _overlay(painter: Callable) -> Overlay:
 	var o := Overlay.new()
 	o.painter = painter
+	o.key = str(painter.get_method())
 	add_child(o)
 	return o
 
@@ -203,6 +300,12 @@ func _is_grand() -> bool:
 
 
 func _process(delta: float) -> void:
+	var t0: int = Time.get_ticks_usec()
+	_tick(delta)
+	stat("process", t0)
+
+
+func _tick(delta: float) -> void:
 	_t += delta
 	var w: World = Game.world
 	if w == null:
@@ -218,16 +321,44 @@ func _process(delta: float) -> void:
 	if Settings.map_anim:
 		mat.set_shader_parameter("t", _fx.t)
 	if _fx.night > 0.02 or _lights_drawn:
-		_lights_layer.queue_redraw()
+		_lights_acc += delta
+		if _lights_acc >= DYN_ANIM_STEP or _lights_drawn != (_fx.night > 0.02):  # torches : 30 images par seconde au plus
+			_lights_acc = 0.0
+			_lights_layer.queue_redraw()
 		_lights_drawn = _fx.night > 0.02
-	var fx_live: bool = Settings.map_anim or _fx.wx_k > 0.005 or _fx.night > 0.02
-	if fx_live or _fx_was_live:  # qualité Bas : plus de redessin du ciel et de la météo quand rien ne bouge
-		_sky.queue_redraw()
-		_wx.queue_redraw()
-	_fx_was_live = fx_live
-	_frame.queue_redraw()
 	_camera_tick(delta, w)
-	_dyn.queue_redraw()
+	# L'état de la partie (propriétaires, lieux visités) ne se relit que quand il a pu changer : signal Game.changed ou nouveau jour.
+	if _state_dirty or Game.day != _state_day:
+		_state_dirty = false
+		_state_day = Game.day
+		_refresh_state(w)
+	var iz: float = snappedf(MapFrame.icon_scale(_stage.scale.x), 0.1)
+	if not is_equal_approx(iz, _iz):
+		_iz = iz
+		_places.queue_redraw()
+		_terr.queue_redraw()
+		_dyn_dirty = true
+	_update_overlays(delta)
+	if _dyn_needs_redraw(w, delta):
+		_dyn_dirty = false
+		_dyn.queue_redraw()
+	var sc: float = _stage.scale.x
+	if _names_dirty or _stage.position != _n_pos or sc != _n_scale or _hover_title != _n_hover or Settings.day_night != _n_dn:
+		_names_dirty = false
+		_n_pos = _stage.position
+		_n_scale = sc
+		_n_hover = _hover_title
+		_n_dn = Settings.day_night
+		_names.queue_redraw()
+
+
+func _on_game_changed() -> void:
+	_state_dirty = true
+	_dyn_dirty = true
+
+
+## Propriétaires des lieux et lieux visités : recalculés seulement à l'appel (jamais à chaque image).
+func _refresh_state(w: World) -> void:
 	var sig: String = _owners_signature(w)
 	if sig != _terr_sig:
 		_terr_sig = sig
@@ -235,16 +366,73 @@ func _process(delta: float) -> void:
 	var vsig: String = _visits_signature(w)
 	if vsig != _vis_sig:
 		_vis_sig = vsig
-		_names_sig = ""
-	var iz: float = snappedf(MapFrame.icon_scale(_stage.scale.x), 0.1)
-	if not is_equal_approx(iz, _iz):
-		_iz = iz
-		_places.queue_redraw()
-		_terr.queue_redraw()
-	var nsig: String = "%s|%s|%.3f|%s|%s|%d" % [str(_stage.position), "", _stage.scale.x, _hover_title, _vis_sig, int(Settings.day_night)]
-	if nsig != _names_sig:
-		_names_sig = nsig
-		_names.queue_redraw()
+		_names_dirty = true
+	_dyn_dirty = true
+
+
+## Cadre, ciel et météo : redessinés seulement quand leur contenu change (échelle, nuit, météo, étoiles qui scintillent).
+func _update_overlays(delta: float) -> void:
+	var animate: bool = Settings.map_anim
+	var sc: float = _stage.scale.x
+	if _overlay_dirty or sc != _frame_scale:
+		_frame_scale = sc
+		_frame.queue_redraw()  # (un changement de taille redessine déjà le contrôle tout seul)
+	# étoiles : visibles quand la nuit tombe ; scintillement à 20 images par seconde au plus
+	var night_key: int = roundi(_fx.night * 100.0) + roundi(_fx.wx_k * 1000.0) * 1000
+	var sky_on: bool = _fx.night >= 0.25
+	var sky_redraw: bool = _overlay_dirty
+	if sky_on:
+		_sky_acc += delta
+		if night_key != _sky_key or (animate and _sky_acc >= 0.05):
+			sky_redraw = true
+	elif _sky_drawn:
+		sky_redraw = true
+	if sky_redraw:
+		_sky_acc = 0.0
+		_sky_key = night_key
+		_sky_drawn = sky_on
+		_sky.queue_redraw()
+	# météo : pluie, neige, brume ; quand elle est invisible on ne dessine plus rien
+	var wx_on: bool = _fx.wx_k > 0.01
+	var wx_key: int = roundi(_fx.wx_k * 1000.0)
+	if _overlay_dirty or (wx_on and (animate or wx_key != _wx_key)) or (not wx_on and _wx_drawn):
+		_wx_key = wx_key
+		_wx_drawn = wx_on
+		_wx.queue_redraw()
+	_overlay_dirty = false
+
+
+## Les éléments mobiles ne sont redessinés que si quelque chose a bougé : caméra, compagnie, bandes, survol, chemin, vision ;
+## avec les animations de la carte (bannières, ailes, drapeau) à 30 images par seconde au plus.
+func _dyn_needs_redraw(w: World, delta: float) -> bool:
+	if _dyn_dirty or _t < _focus_until:
+		return true
+	if Settings.map_anim:
+		_dyn_acc += delta
+		if _dyn_acc >= DYN_ANIM_STEP:
+			_dyn_acc = 0.0
+			return true
+	var psum: Vector2 = Vector2.ZERO
+	for p in w.parties:
+		psum += w.party_pos(p)
+	var vis: float = _vision()
+	var dest: Vector2 = w.path[w.path.size() - 1] if not w.path.is_empty() else Vector2.ZERO
+	var changed: bool = (_stage.position != _d_pos or _stage.scale.x != _d_scale or w.player_pos != _d_player or psum != _d_parties
+			or w.parties.size() != _d_party_n or w.path.size() != _d_path_n or dest != _d_dest or _hover_ok != _d_hover_ok or (_hover_ok and (_hover != _d_hover or _hover_days != _d_days))
+			or absf(vis - _d_vision) > 1.5)
+	if changed:
+		_d_pos = _stage.position
+		_d_scale = _stage.scale.x
+		_d_player = w.player_pos
+		_d_parties = psum
+		_d_party_n = w.parties.size()
+		_d_path_n = w.path.size()
+		_d_dest = dest
+		_d_hover_ok = _hover_ok
+		_d_hover = _hover
+		_d_days = _hover_days
+		_d_vision = vis
+	return changed
 
 
 func _owners_signature(w: World) -> String:
@@ -272,12 +460,12 @@ func _rebuild_territories(w: World) -> void:
 	_stones = Territory.border_stones(lines)
 	_regions = Territory.region_info(w, Territory.labels(w, 2))
 	_terr.queue_redraw()
-	_names_sig = ""
+	_names_dirty = true
 
 
 func _redraw_terrain() -> void:
 	_terr.queue_redraw()
-	_names_sig = ""
+	_names_dirty = true
 
 
 func set_show_territories(on: bool) -> void:
@@ -288,7 +476,7 @@ func set_show_territories(on: bool) -> void:
 
 func set_show_regions(on: bool) -> void:
 	show_regions = on
-	_names_sig = ""
+	_names_dirty = true
 
 
 func set_show_borders(on: bool) -> void:
@@ -355,7 +543,8 @@ func _clamp_view() -> void:
 
 
 func _after_camera() -> void:
-	_names_sig = ""
+	_names_dirty = true
+	_update_detail()
 	view_changed.emit()
 
 
@@ -481,8 +670,16 @@ func rebuild() -> void:
 	_curves = MapTerrain.road_curves(w)
 	_terr_sig = ""
 	_vis_sig = ""
+	_state_dirty = true
+	_dyn_dirty = true
+	_overlay_dirty = true
+	_names_dirty = true
 	_lights.clear()
 	_ground.set_meta("tex", tx[0])
+	_detail.set_meta("tex", tx[0])
+	(_detail.material as ShaderMaterial).set_shader_parameter("mask_tex", tx[1])
+	_detail.queue_redraw()
+	_update_detail()
 	_build_chunks(w)
 	_ground.queue_redraw()
 	_places.queue_redraw()
@@ -542,7 +739,7 @@ func _build_chunks(w: World) -> void:
 				else:
 					_obj_chunks.append(sp)
 	# ordre final : sol, morceaux de sol, reflets, territoires, morceaux d'objets, lieux
-	var order: Array[Node] = [_ground]
+	var order: Array[Node] = [_ground, _detail]
 	order.append_array(_ground_chunks)
 	order.append(_shimmer)
 	order.append(_terr)
@@ -569,6 +766,27 @@ func _paint_ground(l: Node2D) -> void:
 	if w == null or tex == null:
 		return
 	l.draw_texture_rect(tex, Rect2(Vector2.ZERO, w.size), false)
+
+
+func _paint_detail(l: Node2D) -> void:
+	var w: World = Game.world
+	var tex: Texture2D = l.get_meta("tex", null)
+	if w == null or tex == null:
+		return
+	l.draw_texture_rect(tex, Rect2(Vector2.ZERO, w.size), false)
+
+
+## Intensité du détail de sol : nulle de loin (couche cachée), pleine de près ; plus faible quand la texture est déjà fine ; absente en qualité « Réduite ».
+func _update_detail() -> void:
+	if _detail == null:
+		return
+	var strength: float = clampf(4.0 / float(maxi(_px_built, 1)), 0.45, 1.0) if _px_built > 2 else 0.0
+	var amt: float = smoothstep(0.5, 1.1, _stage.scale.x) * strength
+	var on: bool = amt > 0.01
+	if _detail.visible != on:
+		_detail.visible = on
+	if on:
+		(_detail.material as ShaderMaterial).set_shader_parameter("amount", amt)
 
 
 func _paint_territories(l: Node2D) -> void:

@@ -53,17 +53,6 @@ static func _related(key: String, rel: int) -> Array:
 	return out
 
 
-static func relation_label(rel: int) -> String:
-	match rel:
-		REL_OWN:
-			return "La vôtre"
-		REL_ALLY:
-			return "Alliée"
-		REL_RIVAL:
-			return "Rivale"
-	return "Neutre"
-
-
 ## Factions qui ont un territoire à défendre (hors cités libres).
 static func playable_keys() -> Array:
 	return Data.FACTIONS.keys().filter(func(k: Variant) -> bool: return not bool(Data.FACTIONS[k].get("neutral", false)))

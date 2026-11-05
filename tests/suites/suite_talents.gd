@@ -210,7 +210,7 @@ func test_light_and_heavy_gear() -> void:
 	var mv: int = h.move_fat()
 	var fm: int = h.fat_max_eff()
 	h.perks.append("armure_lourde")
-	t.eq(h.weight(), w - w * 3 / 10, "Port d'armure : poids -30 %")
+	t.eq(h.weight(), w - w * 3 / 10, "Carapace : poids -30 %")
 	t.check(h.move_fat() < mv and h.fat_max_eff() > fm, "moins de fatigue de déplacement, plus d'endurance utile")
 	t.check(h.ini_eff() > t.mk().ini_eff() - 100, "initiative recalculée")
 
@@ -228,7 +228,7 @@ func test_weapon_specialisations() -> void:
 	var foe: Unit = t.mk("hache", "e", Vector2i(1, 0))
 	var b0: int = CombatRules.hit_chance(other, foe, [other, foe])
 	other.perks.append("spec_epee")
-	t.eq(CombatRules.hit_chance(other, foe, [other, foe]), b0, "Maître d'épée sans épée : rien")
+	t.eq(CombatRules.hit_chance(other, foe, [other, foe]), b0, "Escrimeur sans épée : rien")
 	# Javelots en plus
 	var j: Unit = t.mk("javelot")
 	t.eq(j.full_ammo(), 3, "3 javelots")
@@ -280,7 +280,7 @@ func test_moral_perks() -> void:
 	var far: Unit = t.mk("hache", "p", Vector2i(8, 3))
 	var foe: Unit = t.mk("hache", "e", Vector2i(9, 3))
 	var units: Array = [leader, ally, far, foe]
-	t.eq(Perks.morale_aura(ally, units), 0, "sans Chef-né : rien")
+	t.eq(Perks.morale_aura(ally, units), 0, "sans Meneur : rien")
 	leader.perks.append("chef_ne")
 	t.eq(Perks.morale_aura(ally, units), 10, "allié adjacent : +10")
 	t.eq(Perks.morale_aura(far, units), 0, "allié éloigné : rien")

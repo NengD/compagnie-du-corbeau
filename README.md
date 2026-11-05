@@ -8,15 +8,20 @@ Tout le texte du jeu est en français.
 
 ## Fonctionnalités
 
-- **Carte du monde** à parcourir librement : le temps passe en marchant (la solde est payée chaque jour), terrains variés,
-  3 villes et 5 villages, forts hostiles, bandes errantes, événements de route, réputation par lieu.
+- **Grand monde** à parcourir librement (≈ 3600 × 2400 px, plein cadre, cycle jour/nuit, météo) : le temps passe en marchant (la solde est
+  payée chaque jour), plus de 20 lieux, 6 factions humaines et cités libres aux territoires contigus, 30 points d'intérêt, forts hostiles,
+  bandes errantes, événements de route, réputation par lieu. Caméra au clavier (ZQSD / WASD ou flèches, Maj = rapide, `H` recentre,
+  molette = zoom), mini-carte, légende (`L`) et tiroir « Détails » (`F`).
 - **Bataille hexagonale** : points d'action, zones de contrôle, ligne de tir, terrains (forêt, colline, gué, rivière),
   moral, fatigue, capacités actives par arme, usure de l'équipement, blessures temporaires et permanentes.
-- **Compagnie** : recrutement, **inventaire** façon Battle Brothers (emplacements, sacs, réserve, glisser-déposer),
-  **arbre de 28 talents** sur 7 rangs, butin, vente, marchand rare.
+- **Compagnie** : recrutement, fiche de personnage à onglets Inventaire / Talents (emplacements, sacs, réserve, glisser-déposer),
+  **formation de combat** (3 rangées + réserve), **arbre de 76 talents** sur 7 rangs avec maîtrises d'armes et d'armures pour des builds
+  spécialisés (voir `docs/builds.md`), marché à stock fini, butin, marchand rare, quartier général, vivres et moral de compagnie.
 - **Campagne** : contrats variés (élimination, chasse au chef, escorte, livraison, arcs enchaînés), factions (brigands, goules,
   orcs, morts-vivants) et crise finale.
-- Menu principal, 3 emplacements de sauvegarde, options, tutoriel, sons et musiques.
+- **Difficulté** Facile / Normal / Difficile à la nouvelle partie, bannière et nom de compagnie personnalisables.
+- Menu principal, 3 emplacements de sauvegarde (écriture atomique avec copie de secours), options complètes (fenêtre, résolution jusqu'au 2K,
+  **qualité graphique** Bas / Moyen / Élevé / Ultra), tutoriel, succès, sons et musiques.
 
 ## Lancer le jeu
 
@@ -34,9 +39,12 @@ Ou récupère l'exécutable Windows dans l'onglet **Releases** du dépôt.
 godot --path . --headless --import                      # importer les ressources / détecter les erreurs
 godot --path . --headless -s res://tests/run_tests.gd   # tests (core, campagne, suites tests/suites/*)
 godot --path . --headless -s res://tests/smoke_ui.gd    # test de fumée de l'interface
+godot --path . --headless -s res://tools/sim_battles.gd     # batailles simulées par l'IA (détection de bugs)
+godot --path . --headless -s res://tools/sim_campaign.gd    # campagnes simulées (détection de bugs)
 ```
 
 Export Windows : voir [`tools/export.md`](tools/export.md). Architecture et règles du jeu : voir [`CLAUDE.md`](CLAUDE.md).
+Originalité des noms et des textes : [`docs/provenance.md`](docs/provenance.md).
 `prototype/corbeau.html` est le prototype HTML d'origine, qui sert de référence aux règles.
 
 ## Licences

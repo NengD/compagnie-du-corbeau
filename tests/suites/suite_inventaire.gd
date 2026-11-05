@@ -329,7 +329,7 @@ func test_game_inventaire_actions() -> void:
 	t.check(g.discard(0), "jeter")
 	g.location = ""
 	g.world.parties.clear()
-	t.check(not g.sell(0), "pas de vente hors d'un lieu")
+	t.check(not g.sell_item(0), "pas de vente hors d'un lieu")
 	t.check(not g.can_equip_from_inventory(m, 99), "indice invalide")
 	# renvoi d'un homme : sac et armure abîmée reviennent à la réserve
 	var leaver: Unit = g.roster[1]

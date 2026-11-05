@@ -95,7 +95,12 @@ func _ready() -> void:
 	drawer.travel_requested.connect(_travel)
 	drawer.toggled.connect(func(on: bool) -> void:
 		hud.set_details_open(on)
+		if on:
+			_close_legend()  ## un seul panneau superposé à la fois
+			_layout_overlays()
 		_sync_overlay_group())
+	resized.connect(_layout_overlays)
+	_layout_overlays()
 	Game.changed.connect(hud.refresh)
 	hud.set_speed(_speed)
 	_update_status()
@@ -135,9 +140,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				drawer.close()
 				get_viewport().set_input_as_handled()
 			elif _legend_panel.visible:
-				_legend_panel.visible = false
-				hud.set_legend_open(false)
-				_sync_overlay_group()
+				_close_legend()
 				get_viewport().set_input_as_handled()
 			else:
 				_stop()
@@ -176,18 +179,41 @@ func _build_legend() -> void:
 
 
 func _toggle_legend() -> void:
-	_legend_panel.visible = not _legend_panel.visible
-	if _legend_panel.visible:
+	var opening: bool = not _legend_panel.visible
+	if opening and drawer != null:
+		drawer.close()  ## un seul panneau superposé à la fois
+	_legend_panel.visible = opening
+	if opening:
 		_legend_panel.refresh_factions()
-		_fit_legend()
+		_layout_overlays()
 	hud.set_legend_open(_legend_panel.visible)
+	Sfx.play("paper_open" if opening else "paper_close")
 	_sync_overlay_group()
 
 
-## La légende occupe la hauteur disponible entre la mini-carte (en haut à droite) et les boutons du HUD.
-func _fit_legend() -> void:
-	var top: float = hud.time_bottom() + (mini.size.y + 16.0 if mini != null and mini.visible else 8.0)
-	_legend_panel.set_max_height(size.y - top - MapHud.BTN - MapHud.MARGIN * 2.0 - 40.0)
+func _close_legend() -> void:
+	if _legend_panel == null or not _legend_panel.visible:
+		return
+	_legend_panel.visible = false
+	hud.set_legend_open(false)
+	Sfx.play("paper_close")
+	_sync_overlay_group()
+
+
+## Place d'écran libre pour les panneaux superposés : sous le bandeau du temps et la mini-carte (même repliée), au-dessus des boutons.
+func overlay_insets() -> Vector2:
+	var top: float = hud.time_bottom() + (mini.custom_minimum_size.y + 16.0 if mini != null and mini.visible else 8.0)
+	var bottom: float = float(MapHud.BTN + MapHud.MARGIN) + 8.0
+	return Vector2(top, bottom)
+
+
+func _layout_overlays() -> void:
+	if hud == null or _legend_panel == null:
+		return
+	var ins: Vector2 = overlay_insets()
+	if drawer != null:
+		drawer.set_insets(ins.x, ins.y)
+	_legend_panel.set_max_height(size.y - ins.x - ins.y - 40.0)
 
 
 func _on_legend_option(key: String, on: bool) -> void:
@@ -211,6 +237,7 @@ func _build_mini() -> void:
 	mini.collapse_toggled.connect(func(c: bool) -> void:
 		mini.offset_left = -MapHud.MARGIN - mini.custom_minimum_size.x
 		mini.offset_bottom = mini.offset_top + mini.custom_minimum_size.y
+		_layout_overlays()
 		if Settings.minimap == c:
 			Settings.set_value("minimap", not c)
 		_legend_panel.sync_option("minimap", not c))
@@ -388,6 +415,8 @@ func _stop() -> void:
 
 
 func _set_speed(v: int) -> void:
+	if v != _speed:
+		Sfx.play("speed")
 	_speed = v
 	hud.set_speed(v)
 
@@ -407,7 +436,7 @@ func _update_status() -> void:
 	if hud == null or Game.world == null:
 		return
 	if Game.world.path.is_empty():
-		hud.say("Halte. Cliquez sur la carte pour avancer ; ZQSD ou les flèches déplacent la caméra (H : recentrer).", "halt")
+		hud.say("Halte. Cliquez sur la carte pour avancer · ZQSD ou flèches : caméra · H : recentrer.", "halt")
 	else:
 		var d: Dictionary = Game.world.dest
 		var where: String = str(d.get("title", "")) if d.get("title", "") != "" else "un point de la carte"

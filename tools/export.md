@@ -16,7 +16,10 @@ mkdir -p build
 Résultat : `build/CompagnieDuCorbeau.exe` (≈ 133 Mo, pck intégré, un seul fichier). `tests/`, `tools/`, `prototype/`, `*.md`
 et `build/` sont exclus du paquet. Les sauvegardes vont dans `%APPDATA%\Godot\app_userdata\Compagnie du Corbeau\`.
 
-Vérification : `build\CompagnieDuCorbeau.exe --screen 1 --resolution 1280x720 --quit-after 300` (code de sortie 0).
+Vérification : `build\CompagnieDuCorbeau.exe --screen 1 --resolution 1280x720 --audio-driver Dummy --quit-after 300` (code de sortie 0 ; `--audio-driver Dummy` coupe le son).
+
+Licences : `*.md` est exclu du paquet, donc `assets/CREDITS.md` n'est pas embarqué ; `assets/fonts/OFL.txt` (texte de la SIL OFL 1.1) l'est. Si le jeu est
+distribué en dehors du dépôt, joindre `assets/CREDITS.md` (et `LICENSE`) à l'archive.
 
 Notes : version 0.2.0 et métadonnées (produit, description, copyright) dans le preset. Pas de signature de code.
 

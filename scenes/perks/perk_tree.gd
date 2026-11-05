@@ -180,6 +180,7 @@ func learn(k: String) -> bool:
 	_reset_confirm = false
 	refresh()
 	(_icons[k] as PerkIcon).ignite()
+	Sfx.play("perk")
 	perk_taken.emit(k)
 	return true
 

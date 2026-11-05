@@ -187,23 +187,23 @@ func test_position_hit_perks() -> void:
 	t.eq(_hit(a, d), base + 10, "Tireur posté : +10 sans avoir bougé")
 	a.moved_cells = 2
 	t.eq(_hit(a, d), base, "Tireur posté : rien après un déplacement")
-	# Prédateur
+	# Rapace
 	var duel2: Array = _duel()
 	var b: Unit = duel2[0]
 	var e: Unit = duel2[1]
 	e.morale = 3
 	var b0: int = _hit(b, e)
 	b.perks.append("predateur")
-	t.eq(_hit(b, e), b0, "Prédateur : rien contre un ennemi stable")
+	t.eq(_hit(b, e), b0, "Rapace : rien contre un ennemi stable")
 	e.morale = 1
 	var pre: int = _hit(b, e)
 	b.perks.erase("predateur")
-	t.eq(pre, _hit(b, e) + 10, "Prédateur : +10 contre un ennemi brisé")
+	t.eq(pre, _hit(b, e) + 10, "Rapace : +10 contre un ennemi brisé")
 	e.morale = 0
 	b.perks.append("predateur")
 	var pre0: int = _hit(b, e)
 	b.perks.erase("predateur")
-	t.eq(pre0, _hit(b, e) + 10, "Prédateur : +10 contre un fuyard")
+	t.eq(pre0, _hit(b, e) + 10, "Rapace : +10 contre un fuyard")
 	# Élan
 	var duel3: Array = _duel()
 	var c: Unit = duel3[0]
@@ -224,7 +224,7 @@ func test_position_hit_perks() -> void:
 		c.moved_cells = 3
 		tot_b += int(CombatRules.roll_damage(c, f, t.rng_seeded(i))["hp"])
 	t.check(tot_b > tot_a, "Élan : plus de dégâts après avoir couru (%d contre %d)" % [tot_b, tot_a])
-	# Duelliste
+	# Loup solitaire
 	var duel4: Array = _duel()
 	var g: Unit = duel4[0]
 	var h: Unit = duel4[1]
@@ -232,15 +232,15 @@ func test_position_hit_perks() -> void:
 	var g0: int = _hit(g, h, [ally])
 	var h0: int = _hit(h, g, [ally])
 	g.perks.append("duelliste")
-	t.eq(_hit(g, h, [ally]), g0, "Duelliste : rien avec un allié adjacent")
+	t.eq(_hit(g, h, [ally]), g0, "Loup solitaire : rien avec un allié adjacent")
 	var g_alone: int = _hit(g, h)
 	g.perks.erase("duelliste")
-	t.eq(g_alone, _hit(g, h) + 8, "Duelliste : +8 en attaque quand il est seul")
+	t.eq(g_alone, _hit(g, h) + 8, "Loup solitaire : +8 en attaque quand il est seul")
 	g.perks.append("duelliste")
-	t.eq(_hit(h, g, [ally]), h0 - 0, "Duelliste : (attaque d'un ennemi avec allié, sans effet sur lui)")
+	t.eq(_hit(h, g, [ally]), h0 - 0, "Loup solitaire : (attaque d'un ennemi avec allié, sans effet sur lui)")
 	var defended: int = _hit(h, g)
 	g.perks.erase("duelliste")
-	t.eq(defended, _hit(h, g) - 8, "Duelliste : +8 en défense quand il est seul")
+	t.eq(defended, _hit(h, g) - 8, "Loup solitaire : +8 en défense quand il est seul")
 
 
 func test_mur_vivant() -> void:
@@ -294,7 +294,7 @@ func test_voix_claire() -> void:
 	units.append(adj)
 	t.eq(Perks.morale_aura(adj, units), 5, "adjacent : +5 seulement avec la voix")
 	leader.perks.append("chef_ne")
-	t.eq(Perks.morale_aura(adj, units), 10, "Chef-né adjacent l'emporte (pas de cumul)")
+	t.eq(Perks.morale_aura(adj, units), 10, "Meneur adjacent l'emporte (pas de cumul)")
 
 
 func test_active_abilities() -> void:
@@ -352,7 +352,7 @@ func test_increvable() -> void:
 			saved += 1
 		t.check(u.lucky_used, "une seule chance par bataille")
 		t.check(not Traits.lucky_save(u, t.rng_seeded(i)), "pas deux fois")
-	t.check(saved > 120 and saved < 200, "Increvable : environ 40 %% de survies (%d sur 400)" % saved)
+	t.check(saved > 120 and saved < 200, "Sept vies : environ 40 %% de survies (%d sur 400)" % saved)
 	t.check(not Traits.lucky_save(t.mk(), t.rng_seeded(1)), "sans talent ni trait : jamais")
 
 
@@ -376,7 +376,7 @@ func test_campaign_perks() -> void:
 	t.check(repair0 <= repair_dmg, "(témoin)")
 	t.check(g.vision_radius() > vis0 * 1.14 and g.vision_radius() < vis0 * 1.16, "Éclaireur : +15 % de vue")
 	t.eq(Perks.roster_mult(g.roster, "loot_mult"), 1.15, "Pilleur : +15 % de butin")
-	t.eq(Perks.fx_mult(m, "xp_mult"), 1.1, "Studieux : +10 % d'expérience")
+	t.eq(Perks.fx_mult(m, "xp_mult"), 1.1, "Apprenti zélé : +10 % d'expérience")
 	t.eq(Perks.fx_mult(g.roster[1], "xp_mult"), 1.0, "…seulement pour lui")
 	# Repos : toute la compagnie profite du meilleur infirmier
 	for x in g.roster:

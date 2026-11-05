@@ -905,7 +905,7 @@ func _mastery_hit_effects(a: Unit, d: Unit, res: Dictionary) -> void:
 			res["stunned"] = true
 
 
-## Riposte (maîtrise experte de l'épée) : `d` vient de rater `a` au corps à corps ; il contre-attaque gratuitement, une fois par manche.
+## Contre-pied (maîtrise experte de l'épée) : `d` vient de rater `a` au corps à corps ; il contre-attaque gratuitement, une fois par manche.
 func _riposte(d: Unit, a: Unit, res: Dictionary) -> void:
 	if d.perks.is_empty() or not d.is_fighting() or not a.is_live() or Hex.distance(a.hex, d.hex) != 1 or a.is_ranged():
 		return
@@ -1073,7 +1073,7 @@ func step(u: Unit, to: Vector2i) -> bool:
 	return stop or not u.is_live()
 
 
-## Mur de lances : un lancier (talent expert) frappe gratuitement l'ennemi qui entre à son contact, une fois par manche.
+## Haie de piques : un lancier (talent expert) frappe gratuitement l'ennemi qui entre à son contact, une fois par manche.
 func _spear_wall(u: Unit, prev: Vector2i) -> void:
 	for f in foes_of(u):
 		if f.perks.is_empty() or not f.is_fighting() or f.is_ranged() or f.wall_round == round_no:

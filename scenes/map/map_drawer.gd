@@ -104,6 +104,14 @@ func _build_head() -> Control:
 	return row
 
 
+## Marges verticales du tiroir : sous le bandeau du temps et la mini-carte, au-dessus des boutons ronds du HUD (MapScreen les fixe).
+func set_insets(top: float, bottom: float) -> void:
+	if _panel == null:
+		return
+	_panel.offset_top = maxf(top, float(EDGE))
+	_panel.offset_bottom = -maxf(bottom, float(EDGE))
+
+
 func _apply_ratio(r: float) -> void:
 	_ratio = r
 	_panel.offset_left = lerpf(float(EDGE + 30), -float(W + EDGE), r)
@@ -126,6 +134,7 @@ func open() -> void:
 	_panel.visible = true
 	_catcher.visible = true
 	_slide(1.0)
+	Sfx.play("paper_open")
 	toggled.emit(true)
 
 
@@ -135,6 +144,7 @@ func close() -> void:
 	is_open = false
 	_catcher.visible = false
 	_slide(0.0)
+	Sfx.play("paper_close")
 	toggled.emit(false)
 
 

@@ -76,13 +76,6 @@ func splinters(pos: Vector2) -> void:
 	_burst(pos + Vector2(0.0, -6.0), 9, 0.5, Color("9a7a4a"), 50.0, 120.0, 2.2, Vector2.UP, 160.0, 280.0)
 
 
-## Chute ou mort : poussière qui se lève du sol.
-func thud(pos: Vector2) -> void:
-	if not enabled() or not is_inside_tree():
-		return
-	_burst(pos + Vector2(0.0, 9.0), 8, 0.8, Color(DUST, 0.5), 8.0, 28.0, 4.0, Vector2.UP, 160.0, -6.0)
-
-
 ## Nuage de poussière sous les pieds d'une unité qui se déplace.
 func dust(pos: Vector2) -> void:
 	if not enabled() or not is_inside_tree():

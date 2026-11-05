@@ -95,6 +95,9 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   combat + réserve de 9 tentes ; `BattleState.create(..., formation)`), arbre de talents sur 7 rangs (50 de base, 76 avec les maîtrises)
   (`Data.PERKS`, `scenes/perks/perk_tree.gd`, `assets/perk_icons/`). Résolution 2K (2560×1440) disponible dans les options.
 - **Provenance** : ne jamais lire ni copier le dossier d'une copie piratée de Battle Brothers (`E:\crack\…`) ; le dépôt est public.
+- **Originalité et crédits** : noms de talents originaux (table de renommage dans `docs/provenance.md`, test `suite_provenance.gd` qui interdit les anciens
+  noms et vérifie que `assets/CREDITS.md` couvre chaque dossier d'assets) ; texte de la SIL OFL dans `assets/fonts/OFL.txt`. Achat/vente : une seule voie,
+  le stock fini (`Game.shop_view/buy_item/sell_item`) ; l'ancien `Game.buy/in_stock/sell` a été supprimé.
 - **Maîtrises et builds spécialisés** : 76 talents ; chaque arme et chaque armure a une famille (`Data.WEAPON_FAMILIES`,
   `Data.ARMOR_FAMILIES`, `Perks.weapon_family/armor_family`, un test échoue si une arme ou armure joueur n'a pas de famille),
   une maîtrise au rang 4 (17 : 12 armes + 5 armures) et un talent expert au rang 6 (17, exige la maîtrise) ; les effets ne
@@ -106,6 +109,10 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   clavier** : touches physiques W/A/S/D (= ZQSD sur AZERTY) et flèches, Maj = rapide, défilement par les bords, suivi de la compagnie,
   H recentre, molette = zoom. Le tiroir « Détails » passe sur **F** ; légende sur **L** (refaite avec les vrais dessins de la carte :
   lieux, compagnie et bandes, terrains, factions, cases d'affichage) ; mini-carte repliable.
+- **Audit n°2 corrigé** (rapport `audit/rapport_2026-11-05_complet2.md`, hors aléa non sérialisé laissé tel quel volontairement) :
+  noms de talents rendus originaux (table dans `docs/provenance.md`, test `suite_provenance.gd`), crédits exacts et licence OFL des polices
+  (`assets/fonts/OFL.txt`), un seul chemin d'achat (le stock fini : `Game.buy_item/sell_item`), code mort retiré, panneaux de la carte
+  exclusifs (tiroir F / légende L), libellés des statistiques, cache des signatures de la carte, 10 événements sonores de plus.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`
@@ -210,7 +217,7 @@ corps `arm_b` (valeurs courantes, se réparent au camp). Niveau, XP, victimes, s
 - **Zone de contrôle** : on ne peut pas traverser une case adjacente à un ennemi en mêlée (on peut y entrer
   et s'y arrêter). Quitter le contact d'un ennemi de mêlée lui donne une attaque gratuite ; si elle touche,
   le déplacement est annulé.
-- Terrain : herbe (praticable), arbre et rocher (bloquants). Carte 12 × 9, joueur à gauche, ennemi à droite,
+- Terrain : plateau de 12 × 9 (`Data.BOARD_W/H`), biome du contrat (herbe, forêt, colline, gué, rivière… : `Data.TERRAIN`, `core/terrain_gen.gd`) ; arbres et rochers bloquent. Déploiement selon la **formation** de la compagnie (`Game.formation`, 3 rangées de combat + réserve de 9 tentes, `BattleState.create(..., formation)`) : joueur à gauche, ennemi à droite ; les batailles spéciales (embuscade, convoi, siège, nuit) utilisent leur propre disposition mais gardent l'ordre de la formation.
   tireurs en deuxième ligne.
 
 ### Chance de toucher
@@ -264,14 +271,23 @@ Origines des recrues, ennemis (brigands, archers, balafrés, chef ; goules, goul
 de stats : voir les objets `BG` et `FOE` dans le prototype.
 
 ### Camp et campagne
-- Départ : 800 couronnes, 5 hommes (milicien, bûcheron, braconnier, fermier, déserteur). Max 10 hommes,
-  les 8 premiers combattent.
-- 3 contrats à la fois (brigands ou goules, danger 1–3, 1–3 jours de route). Prime ≈ `danger × 320 + aléa`.
-- Victoire : prime + 40 × danger de renom, XP = victimes + 15 × danger. Défaite ou retraite : −15 renom.
-- Solde payée à chaque jour écoulé ; si l'or passe sous 0, un homme déserte.
-- Repos : +1 jour, +15 PV. Réparation : 0,5 couronne par point d'armure.
-- Niveaux : seuils d'XP `[0, 0, 40, 100, 180, 280, 400, 540, 700, 900, 1150, 1450]`. À chaque niveau, on tire
-  un gain pour chaque attribut et le joueur en choisit 3.
+- Départ : 800 couronnes en difficulté Normal (1 000 en Facile, voir `Data.DIFFICULTY`), 5 hommes (milicien, bûcheron, braconnier, fermier, déserteur).
+  Effectif maximal 10 (`Data.MAX_ROSTER`), jusqu'à 13 avec les tentes du quartier général (`Data.MAX_ROSTER_CAP`) ; **8 combattent** (`Data.FIGHTERS`),
+  les autres restent en réserve : la formation (`core/formation.gd`) choisit qui est sur le champ.
+- Contrats : un village en propose 2, une ville 3 (`Data.SHOPS`), +1 si la réputation locale est bonne, −1 si elle est mauvaise (entre 1 et 4) ;
+  renouvelés tous les 7 jours (`Data.RESTOCK_DAYS`). **Un seul contrat actif**, sans « jours de route » fixes : le trajet réel sur la carte compte.
+  Types : bandes, chasse, escorte, livraison, forts/repaires et arcs de 3 contrats ; la prime dépend du danger et de la difficulté (`Contracts`).
+- Victoire : prime + renom (≈ 40 × danger pour un contrat), XP = victimes + 15 × danger (×1,1 avec « Apprenti zélé », ajusté par la difficulté).
+  Défaite ou retraite : −15 renom, contrat perdu.
+- Solde : la somme des soldes (`Unit.wage`, modifiée par les traits) est payée à chaque jour écoulé ; si l'or passe sous 0, un homme déserte.
+  Vivres (`Data.PROVISIONS_*`) et moral de compagnie s'y ajoutent.
+- Repos en lieu : +1 jour, +15 PV à chaque homme (plus traits, talent « Mains douces », bâtiments), −solde, +3 de moral. Sur la route : +2 PV par jour.
+- Réparation (au camp) : 0,5 couronne par point d'armure manquant, plus 25 % du prix pour remettre une arme ou un bouclier à neuf ; prix réduit par la forge
+  et le talent Armurier.
+- Marché : stock fini par lieu (`core/market.gd`, `Game.shop_view/buy_item/sell_item`) ; revente à 40 % du prix de base × coefficient du lieu.
+- Niveaux : seuils d'XP `[0, 0, 40, 100, 180, 280, 400, 540, 700, 900, 1150, 1450]` (niveau maximal 11). À chaque niveau, on tire
+  un gain pour chaque attribut et le joueur en choisit 3 ; **1 point de talent par niveau** (niveaux 2 à 11, `Unit.perk_points`), à dépenser dans l'arbre
+  de 76 talents sur 7 rangs (un talent du rang N exige N−1 talents ; entraîneur payant pour réinitialiser). Originalité des noms : `docs/provenance.md`.
 
 ## Style visuel
 

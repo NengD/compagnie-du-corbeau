@@ -5,6 +5,7 @@ extends SceneTree
 
 var _checks: int = 0
 var _failures: Array[String] = []
+var _games: Array = []  ## parties créées par new_game : libérées après chaque test (évite le bruit de fuites de fin de run)
 
 
 func _init() -> void:
@@ -19,6 +20,7 @@ func _init() -> void:
 	for t in tests:
 		var before: int = _failures.size()
 		t.call()
+		_free_games()
 		print("%s %s" % ["OK  " if _failures.size() == before else "FAIL", t.get_method()])
 	# Suites additionnelles : tests/suites/*.gd (extends RefCounted, `var t` = ce lanceur, méthodes test_*).
 	var dir: DirAccess = DirAccess.open("res://tests/suites")
@@ -35,6 +37,7 @@ func _init() -> void:
 				if mname.begins_with("test_"):
 					var before: int = _failures.size()
 					suite.call(mname)
+					_free_games()
 					print("%s %s::%s" % ["OK  " if _failures.size() == before else "FAIL", f.get_basename(), mname])
 	print("\n%d vérifications, %d échec(s)." % [_checks, _failures.size()])
 	for f in _failures:
@@ -88,7 +91,15 @@ func new_game(seed_value: int) -> Node:
 	g.autosave = false
 	g.random_events = false
 	g.new_game(seed_value)
+	_games.append(g)
 	return g
+
+
+func _free_games() -> void:
+	for g in _games:
+		if is_instance_valid(g) and not (g as Node).is_inside_tree():
+			(g as Node).free()
+	_games.clear()
 
 
 # --- Hexagones ---
@@ -564,6 +575,24 @@ func test_contracts() -> void:
 
 # --- Camp (dans un lieu) ---
 
+## Indice (dans g.shop_view()) de la première entrée ordinaire du rayon pour ce modèle ; -1 s'il n'y en a pas.
+func _stock_index(g: Node, kind: String, key: String) -> int:
+	for v in g.shop_view():
+		var it: Dictionary = v["item"]
+		if not bool(v["rare"]) and it["kind"] == kind and it["key"] == key:
+			return int(v["index"])
+	return -1
+
+
+## Ajoute un exemplaire neuf au stock du lieu (le stock est tiré au hasard : le test n'en dépend pas).
+func _stock_add(g: Node, kind: String, key: String) -> void:
+	var stock: Array = g.shop_stock()
+	for i in range(stock.size() - 1, -1, -1):  # l'exemplaire ajouté est neuf : on écarte les éventuels exemplaires d'occasion
+		if stock[i]["kind"] == kind and stock[i]["key"] == key:
+			stock.remove_at(i)
+	stock.append(Loot.item(kind, key))
+
+
 func _village_id(g: Node) -> String:
 	for s in g.world.settlements:
 		if s["kind"] == "village":
@@ -603,32 +632,45 @@ func test_game_camp() -> void:
 		g.hire(g.settlement()["recruits"].size() - 1)
 	g.settlement()["recruits"].append({"u": Contracts.make_merc("mendiant", g.rng, []), "price": 10})
 	check(not g.hire(g.settlement()["recruits"].size() - 1), "effectif maximal de 10")
-	# Marché de la ville : tout est en vente, au prix du lieu.
+	# Marché de la ville : achat dans le stock fini (rayon), au prix du lieu ; l'objet arrive dans l'inventaire, puis on l'équipe.
 	var e: Unit = g.roster[1]
 	g.gold = 1000
+	_stock_add(g, "weapon", "epee")
 	var epee: int = g.price_of(650)
-	check(g.buy(e, "weapon", "epee"), "achat d'arme")
+	var inv0: int = g.inventory.size()
+	check(g.buy_item(_stock_index(g, "weapon", "epee")), "achat d'arme")
 	eq(g.gold, 1000 - epee, "prix de l'épée dans ce lieu")
+	eq(g.inventory.size(), inv0 + 1, "l'épée arrive dans l'inventaire")
+	check(g.equip_from_inventory(e, g.inventory.size() - 1), "équipement de l'épée achetée")
 	eq(e.weapon, "epee", "arme équipée")
-	check(g.buy(e, "shield"), "achat de bouclier (arme à une main)")
+	_stock_add(g, "shield", "")
+	check(g.buy_item(_stock_index(g, "shield", "")), "achat de bouclier")
+	check(g.equip_from_inventory(e, g.inventory.size() - 1), "bouclier équipé (arme à une main)")
+	check(e.shield, "bouclier porté")
 	g.gold = 1000
-	check(g.buy(e, "weapon", "arc"), "achat d'arc")
+	_stock_add(g, "weapon", "arc")
+	check(g.buy_item(_stock_index(g, "weapon", "arc")), "achat d'arc")
+	check(g.equip_from_inventory(e, g.inventory.size() - 1), "arc équipé")
 	check(not e.shield, "arc à deux mains : bouclier retiré")
-	check(not g.buy(e, "shield"), "pas de bouclier avec une arme à deux mains")
+	_stock_add(g, "shield", "")
+	check(g.buy_item(_stock_index(g, "shield", "")), "achat d'un second bouclier")
+	check(not Loot.can_equip(e, Loot.item("shield")), "pas de bouclier avec une arme à deux mains")
 	g.gold = 100
-	check(not g.buy(e, "body", "brigandine"), "or insuffisant")
+	_stock_add(g, "body", "brigandine")
+	check(not g.buy_item(_stock_index(g, "body", "brigandine")), "or insuffisant")
 	g.gold = 2000
-	check(g.buy(e, "body", "brigandine"), "achat de brigandine")
+	check(g.buy_item(_stock_index(g, "body", "brigandine")), "achat de brigandine")
+	check(g.equip_from_inventory(e, g.inventory.size() - 1), "brigandine équipée")
 	eq(e.arm_b, 190, "armure neuve")
 	# Un village vend moins, une route ne vend rien.
 	g.enter_settlement(_village_id(g))
 	g.gold = 5000
-	check(not g.in_stock("weapon", "epee"), "pas d'épée au village")
-	check(not g.buy(e, "weapon", "epee"), "achat refusé au village")
-	check(g.in_stock("weapon", "lance"), "lance au village")
-	check(g.buy(e, "weapon", "lance"), "achat au village")
+	check(_stock_index(g, "weapon", "epee") < 0, "pas d'épée au village")
+	check((Data.SHOPS["village"]["weapon"] as Array).has("lance"), "lance au catalogue du village")
+	_stock_add(g, "weapon", "lance")
+	check(g.buy_item(_stock_index(g, "weapon", "lance")), "achat au village")
 	g.leave_settlement()
-	check(not g.buy(e, "weapon", "gourdin"), "pas de marchand sur la route")
+	check(not g.buy_item(0), "pas de marchand sur la route")
 	check(not g.hire(0), "pas de recrutement sur la route")
 	g.gold = 5000
 	g.repair()

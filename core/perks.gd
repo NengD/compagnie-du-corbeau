@@ -118,7 +118,7 @@ static func morale_aura(u: Unit, units: Array) -> int:
 	return best
 
 
-## Réduction de poids d'équipement (Port d'armure : 30 %).
+## Réduction de poids d'équipement (Carapace : 30 %).
 static func weight_cut(u: Unit, w: int) -> int:
 	return w * 3 / 10 if u.has_perk("armure_lourde") else 0
 
@@ -252,7 +252,7 @@ static func turn_heal(u: Unit) -> int:
 	return int(fx(u, "turn_heal"))
 
 
-## Chance (%) de survivre à un coup mortel, une fois par bataille (Increvable).
+## Chance (%) de survivre à un coup mortel, une fois par bataille (Sept vies).
 static func survive_chance(u: Unit) -> int:
 	return int(fx(u, "survive"))
 

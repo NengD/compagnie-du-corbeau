@@ -52,6 +52,34 @@ func _check_grand_map(map: Node) -> void:
 	_check(map._legend_panel.custom_minimum_size.x >= 360.0, "légende large (%d px)" % int(map._legend_panel.custom_minimum_size.x))
 	map.call("_unhandled_key_input", f)
 	_check(not map._legend_panel.visible, "la touche L referme la légende")
+	# Audit n°2 : un seul panneau superposé à la fois ; le tiroir ne recouvre ni la mini-carte ni les boutons du HUD ; Échap le ferme
+	var kf := InputEventKey.new()
+	kf.pressed = true
+	kf.keycode = KEY_F
+	map.call("_unhandled_key_input", kf)
+	_check(map.drawer.is_open, "F ouvre le tiroir")
+	map.call("_unhandled_key_input", f)
+	_check(map._legend_panel.visible and not map.drawer.is_open, "ouvrir la légende ferme le tiroir")
+	map.call("_unhandled_key_input", kf)
+	_check(map.drawer.is_open and not map._legend_panel.visible, "ouvrir le tiroir ferme la légende")
+	var dpanel: Control = map.drawer.get("_panel")
+	_check(dpanel.offset_top >= map.mini.offset_bottom - 0.5, "le tiroir est sous la mini-carte (%d >= %d)" % [int(dpanel.offset_top), int(map.mini.offset_bottom)])
+	_check(-dpanel.offset_bottom >= map.hud.BTN + map.hud.MARGIN, "le tiroir est au-dessus des boutons du HUD")
+	var esc := InputEventKey.new()
+	esc.pressed = true
+	esc.keycode = KEY_ESCAPE
+	map.call("_unhandled_key_input", esc)
+	_check(not map.drawer.is_open, "Échap ferme le tiroir")
+	map.hud.inventory_pressed.emit()
+	await _frames(3)
+	var inv_rows: Array = _find_all(root, func(n: Node) -> bool: return n.get_script() != null and n.get_script().get_global_name() == "StatRow")
+	var unlabeled: int = 0
+	for r in inv_rows:
+		if str(r.get("label_text")) == "":
+			unlabeled += 1
+	_check(inv_rows.size() >= 16 and unlabeled == 0, "fiche de personnage : %d statistiques, %d sans libellé" % [inv_rows.size(), unlabeled])
+	for n in get_nodes_in_group("inventory_screen"):
+		n.call("close")
 	var bounds_before: Vector2 = v.get("_stage").position
 	v.pan_px(Vector2(-999999, -999999))
 	_check(v.visible_world_rect().position.x >= -1.0 and v.visible_world_rect().position.y >= -1.0, "caméra bornée au monde (haut gauche)")

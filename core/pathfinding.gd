@@ -12,7 +12,7 @@ static func occupied(units: Array, except: Unit = null) -> Dictionary:
 	return s
 
 
-## Cases adjacentes à un ennemi de mêlée en état de combattre (ignorées s'il n'y en a qu'une avec Insaisissable).
+## Cases adjacentes à un ennemi de mêlée en état de combattre (ignorées s'il n'y en a qu'une avec Anguille).
 static func zoc_cells(u: Unit, units: Array) -> Dictionary:
 	var count: Dictionary = {}
 	for x in units:

@@ -32,10 +32,6 @@ static func set_bond(a: Unit, b: Unit, v: int) -> void:
 	add(a, b, v - get_bond(a, b.id))
 
 
-static func is_rival(a: Unit, b_id: int) -> bool:
-	return get_bond(a, b_id) <= RIVAL
-
-
 ## Amis de `a` : ceux dont le lien dépasse le seuil, au plus MAX_FRIENDS, les plus forts d'abord. `pool` : unités possibles (la compagnie).
 static func friends_of(a: Unit, pool: Array) -> Array[Unit]:
 	var cand: Array[Unit] = []

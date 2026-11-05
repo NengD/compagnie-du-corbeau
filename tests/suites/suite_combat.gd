@@ -320,7 +320,7 @@ func test_perk_stats() -> void:
 	u.shield = false
 	t.eq(u.eff("melee_def"), md - 0, "Garde ferme inactive sans bouclier")
 	u.perks.append("cran")
-	t.eq(u.eff("resolve"), 65, "Cran : +15 détermination")
+	t.eq(u.eff("resolve"), 65, "Nerfs d'acier : +15 détermination")
 	var r: RandomNumberGenerator = t.rng_seeded(5)
 	var fails_a: int = 0
 	var fails_b: int = 0
@@ -332,12 +332,12 @@ func test_perk_stats() -> void:
 		y.perks.append("cran")
 		fails_a += 1 if CombatRules.morale_test_fails(x, 0, r) else 0
 		fails_b += 1 if CombatRules.morale_test_fails(y, 0, r) else 0
-	t.check(fails_b < fails_a * 0.7, "Cran réduit les échecs de moral (%d contre %d)" % [fails_b, fails_a])
+	t.check(fails_b < fails_a * 0.7, "Nerfs d'acier réduit les échecs de moral (%d contre %d)" % [fails_b, fails_a])
 	var e: Unit = t.mk()
 	e.perks.append("esquive")
 	e.perks.append("oeil_sur")
 	e.perks.append("bretteur")
-	t.eq(e.eff("ranged_def"), 15, "Esquive : +10 déf. distance")
+	t.eq(e.eff("ranged_def"), 15, "Cible mouvante : +10 déf. distance")
 	t.eq(e.eff("ranged_skill"), 70, "Œil sûr : +10")
 	t.eq(e.eff("melee_skill"), 60, "Bretteur : +5")
 	# les talents modifient bien le toucher
@@ -368,21 +368,21 @@ func test_perk_action_costs() -> void:
 	s.round_no += 1
 	s.begin_turn(a)
 	t.check(not a.attacked_turn, "réinitialisé au tour suivant")
-	# Endurant, Pied sûr, Second souffle
+	# Endurant, Jarret solide, Poumons de forge
 	var e: Unit = t.mk("hache")
 	var fat_w: int = e.attack_fat()
 	e.perks.append("endurant")
 	t.eq(e.attack_fat(), fat_w - 3, "Endurant : -3 fatigue par attaque")
 	var mv: int = e.move_fat()
 	e.perks.append("pied_sur")
-	t.eq(e.move_fat(), mv - 1, "Pied sûr : -1 fatigue par case")
+	t.eq(e.move_fat(), mv - 1, "Jarret solide : -1 fatigue par case")
 	var f: Unit = s.units[1]
 	f.fat = 40
 	f.turn_round = 0
 	var g2: Unit = s.units[2] if s.units.size() > 3 else s.units[1]
 	f.perks.append("second_souffle")
 	s.begin_turn(f)
-	t.eq(f.fat, 20, "Second souffle : -15 puis -5")
+	t.eq(f.fat, 20, "Poumons de forge : -15 puis -5")
 	f.turn_round = 0
 	f.fat = 40
 	f.perks.clear()
@@ -412,7 +412,7 @@ func test_perk_movement_and_damage() -> void:
 	t.check(not reach.has(behind), "ZdC : on ne passe pas")
 	u.perks.append("insaisissable")
 	reach = Pathfinding.reachable(u, cells, [u, f1])
-	t.check(reach.has(Hex.from_col_row(5, 3)) or reach.has(Hex.from_col_row(4, 3)), "Insaisissable : traverse la ZdC d'un seul ennemi")
+	t.check(reach.has(Hex.from_col_row(5, 3)) or reach.has(Hex.from_col_row(4, 3)), "Anguille : traverse la ZdC d'un seul ennemi")
 	var f2: Unit = t.mk("hache", "e", Hex.from_col_row(5, 5))
 	var zoc: Dictionary = Pathfinding.zoc_cells(u, [u, f1, f2])
 	var shared: int = 0
@@ -454,7 +454,7 @@ func test_perk_movement_and_damage() -> void:
 		heavy_a += int(CombatRules.roll_damage(a, d, r1)["hp"])
 		heavy_b += int(CombatRules.roll_damage(b, d, r2)["hp"])
 	t.eq(heavy_b, heavy_a, "pas d'effet contre une armure lourde")
-	# Coup de grâce : plus de coups à la tête
+	# Visée haute : plus de coups à la tête
 	var heads_a: int = 0
 	var heads_b: int = 0
 	var rr: RandomNumberGenerator = t.rng_seeded(3)
@@ -463,7 +463,7 @@ func test_perk_movement_and_damage() -> void:
 	for i in 3000:
 		heads_a += 1 if CombatRules.roll_damage(a, d, rr)["head"] else 0
 		heads_b += 1 if CombatRules.roll_damage(g, d, rr)["head"] else 0
-	t.check(heads_b > heads_a + 150, "Coup de grâce : plus de coups à la tête (%d contre %d)" % [heads_b, heads_a])
+	t.check(heads_b > heads_a + 150, "Visée haute : plus de coups à la tête (%d contre %d)" % [heads_b, heads_a])
 
 
 func test_perk_promotion_and_save() -> void:
@@ -561,7 +561,7 @@ func test_injury_rolls() -> void:
 		var tk: Unit = t.mk("hache", "p")
 		tk.perks.append("dur_a_cuire")
 		tough_hits += 1 if Injuries.roll_wound(tk, 30, r) != "" else 0
-	t.check(tough_hits > 180 and tough_hits < 320, "Dur à cuire : environ 25 %% (%d/1000)" % tough_hits)
+	t.check(tough_hits > 180 and tough_hits < 320, "Cuir épais : environ 25 %% (%d/1000)" % tough_hits)
 	# Pas de doublon
 	var d: Unit = t.mk("hache", "p")
 	for i in 100:

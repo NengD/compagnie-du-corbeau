@@ -237,13 +237,6 @@ static func bag_free_slot(u: Unit) -> int:
 	return -1
 
 
-static func bag_has_items(u: Unit) -> bool:
-	for b in u.bag:
-		if not (b as Dictionary).is_empty():
-			return true
-	return false
-
-
 ## Équipe l'objet n° `index` de la réserve sur `u` (échange avec ce qui est porté).
 static func equip(stash: Array, u: Unit, index: int, cap: int = Data.STASH_SIZE) -> Dictionary:
 	if index < 0 or index >= stash.size():

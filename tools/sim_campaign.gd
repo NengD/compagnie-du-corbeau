@@ -181,19 +181,13 @@ func town() -> void:
 					bump("recrues")
 					g.hire(bot.randi() % s["recruits"].size())
 			3:
-				var m: Unit = g.roster[bot.randi() % g.roster.size()]
-				var kinds: Array = ["weapon", "shield", "head", "body"]
-				var kind: String = str(kinds[bot.randi() % 4])
-				var shop: Dictionary = Data.SHOPS[s["kind"]]
-				var key: String = ""
-				if kind != "shield":
-					key = str((shop[kind] as Array)[bot.randi() % (shop[kind] as Array).size()])
+				var view: Array = g.shop_view()  # achat dans le stock fini du lieu
 				g.gold += 300  # le bot est riche : on veut exercer les achats
-				if g.buy(m, kind, key):
+				if view.size() > 0 and g.buy_item(int(view[bot.randi() % view.size()]["index"])):
 					bump("achats")
 			4:
 				if g.inventory.size() > 0:
-					g.sell(bot.randi() % g.inventory.size())
+					g.sell_item(bot.randi() % g.inventory.size())
 					bump("ventes")
 			5:
 				if g.inventory.size() > 0:

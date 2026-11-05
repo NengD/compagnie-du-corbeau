@@ -309,6 +309,7 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 		_say(str(res["reason"]))
 		return
 	Game.set_formation_slot(uid, s)
+	Sfx.play("drop")
 
 
 func _end_drag() -> void:

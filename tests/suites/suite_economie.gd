@@ -84,16 +84,16 @@ func test_game_sell_equip() -> void:
 	var gold: int = g.gold
 	var expect: int = g.price_of(int(round(700 * 0.4)))
 	t.eq(g.sell_price(g.inventory[0]), expect, "prix de vente = 40 % × coefficient du lieu")
-	t.check(g.sell(0), "vente")
+	t.check(g.sell_item(0), "vente")
 	t.eq(g.gold, gold + expect, "or crédité")
 	t.eq(g.inventory.size(), 2, "objet retiré de l'inventaire")
-	t.check(not g.sell(9), "indice invalide")
+	t.check(not g.sell_item(9), "indice invalide")
 	var old_weapon: String = m.weapon
 	t.check(g.equip_from_inventory(m, 0), "équipement de l'épée")
 	t.eq(m.weapon, "epee", "épée équipée")
 	t.check(g.inventory.any(func(it: Dictionary) -> bool: return it["kind"] == "weapon" and it["key"] == old_weapon), "ancienne arme dans l'inventaire")
 	g.leave_settlement()
-	t.check(not g.sell(0), "pas de vente hors d'un lieu")
+	t.check(not g.sell_item(0), "pas de vente hors d'un lieu")
 	var before: int = g.inventory.size()
 	var worn_head: String = m.head
 	g.enter_settlement(g.world.settlements[0]["id"])
@@ -180,5 +180,4 @@ func test_settings_defaults() -> void:
 	s.set_value("battle_speed", 99)
 	t.eq(s.battle_speed, s.BATTLE_SPEEDS.size() - 1, "vitesse bornée")
 	t.check(s.battle_speed_factor() > 0.0, "facteur de vitesse positif")
-	t.check(absf(s.music_gain() - s.master_volume * s.music_volume) < 0.0001, "gain musique = maître × musique")
 	s.free()

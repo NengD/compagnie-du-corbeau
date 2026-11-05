@@ -278,12 +278,3 @@ static func breach_targets(s: BattleState, u: Unit) -> Array[Vector2i]:
 	out.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return Hex.distance(a, u.hex) < Hex.distance(b, u.hex))
 	return out
 
-
-## Cases à côté d'un obstacle destructible `h` d'où `u` peut le frapper (libres, praticables).
-static func approach_cells(s: BattleState, u: Unit, h: Vector2i) -> Array[Vector2i]:
-	var out: Array[Vector2i] = []
-	var r: int = maxi(1, u.weapon_range())
-	for k in s.cells:
-		if Hex.distance(k, h) <= r and Hex.distance(k, h) >= 1 and not Pathfinding.blocked(s.cells, k) and (s.unit_at(k) == null or s.unit_at(k) == u):
-			out.append(k)
-	return out

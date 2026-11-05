@@ -29,6 +29,8 @@ var _modal: ModalOverlay
 
 func _ready() -> void:
 	Sfx.music("town")
+	if mode == "town":
+		Sfx.play("town")
 	add_theme_constant_override("separation", 10)
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_tab_names.assign(TOWN_TABS if mode == "town" else ["Compagnie", "Quartier général"])
@@ -202,7 +204,9 @@ func _build_company(root: VBoxContainer) -> void:
 		var rc: int = Game.repair_cost()
 		var rep_b := UiKit.button("Réparer armures, armes et boucliers (%d couronnes)" % rc)
 		rep_b.disabled = rc <= 0 or Game.gold < rc
-		rep_b.pressed.connect(Game.repair)
+		rep_b.pressed.connect(func() -> void:
+			Game.repair()
+			Sfx.play("repair"))
 		actions.add_child(rep_b)
 	else:
 		actions.add_child(UiKit.sub("Repos et réparations : dans une ville ou un village.", 13, false))
@@ -408,7 +412,9 @@ func _build_recruits(root: VBoxContainer) -> void:
 		foot.add_child(UiKit.spacer())
 		var hb := UiKit.button("Engager", "pri")
 		hb.disabled = Game.gold < int(r["price"]) or full
-		hb.pressed.connect(Game.hire.bind(i))
+		hb.pressed.connect(func() -> void:
+			if Game.hire(i):
+				Sfx.play("hire"))
 		foot.add_child(hb)
 		c.add_child(foot)
 

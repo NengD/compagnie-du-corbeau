@@ -393,11 +393,6 @@ func change_faction_standing(key: String, delta: int) -> void:
 		faction_standing[key] = clampi(standing_with(key) + delta, -Data.FACTION_STAND_MAX, Data.FACTION_STAND_MAX)
 
 
-## Faction propriétaire du lieu où l'on se trouve ("" sur la carte).
-func faction_here() -> String:
-	return Factions.owner_of(settlement())
-
-
 ## Suites d'un contrat pour les factions (employeur, et rivale s'il y en a une). `result` : "win", "lost", "abandon".
 func _faction_result(c: Dictionary, result: String) -> Array:
 	var lines: Array = []
@@ -674,16 +669,6 @@ func price_of(base: int, buying: bool = true) -> int:
 	var s: Dictionary = settlement()
 	var trade: float = Perks.roster_mult(roster, "buy_mult", true) if buying else Perks.roster_mult(roster, "sell_mult")  ## talent Marchandeur
 	return Difficulty.price(difficulty, int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s))) * trade)))
-
-
-func in_stock(kind: String, key: String = "") -> bool:
-	var s: Dictionary = settlement()
-	if s.is_empty():
-		return false
-	var shop: Dictionary = Data.SHOPS[s["kind"]]
-	if kind == "shield":
-		return bool(shop["shield"])
-	return (shop[kind] as Array).has(key)
 
 
 # --- Contrats ---
@@ -1024,69 +1009,6 @@ func hire(index: int) -> bool:
 	return true
 
 
-## kind : "weapon", "shield", "head", "body". Achat chez le marchand du lieu. Renvoie true si l'achat a eu lieu.
-func buy(m: Unit, kind: String, key: String = "") -> bool:
-	if not in_stock(kind, key):
-		return false
-	var line: String
-	match kind:
-		"weapon":
-			var w: Dictionary = Data.WPN[key]
-			var price: int = price_of(int(w["price"]))
-			if gold < price:
-				return false
-			_spend(price)
-			m.weapon = key
-			m.weapon_dur = -1
-			if not bool(w["h1"]):
-				m.shield = false
-			line = "%s s'équipe : %s." % [m.unit_name, w["n"]]
-		"shield":
-			var price: int = price_of(int(Data.SHIELD["price"]))
-			if gold < price or not bool(m.weapon_data()["h1"]) or m.shield:
-				return false
-			_spend(price)
-			m.shield = true
-			m.shield_dur = -1
-			line = "%s s'équipe : %s." % [m.unit_name, Data.SHIELD["n"]]
-		"head":
-			var h: Dictionary = Data.HEAD[key]
-			var price: int = price_of(int(h["price"]))
-			if gold < price:
-				return false
-			_spend(price)
-			m.head = key
-			m.arm_h = int(h["a"])
-			line = "%s s'équipe : %s." % [m.unit_name, h["n"]]
-		"body":
-			var b: Dictionary = Data.BODY[key]
-			var price: int = price_of(int(b["price"]))
-			if gold < price:
-				return false
-			_spend(price)
-			m.body = key
-			m.arm_b = int(b["a"])
-			line = "%s s'équipe : %s." % [m.unit_name, b["n"]]
-		"tool":  # outil de jet : va dans le sac de l'homme (sinon dans la réserve)
-			var tl: Dictionary = Data.TOOLS[key]
-			var price: int = price_of(int(tl["price"]))
-			var slot: int = Inventory.bag_free_slot(m)
-			if gold < price or (slot < 0 and inventory.size() >= Data.STASH_SIZE):
-				return false
-			_spend(price)
-			if slot >= 0:
-				m.bag[slot] = Loot.item("tool", key)
-			else:
-				inventory.append(Loot.item("tool", key))
-			line = "%s prend : %s." % [m.unit_name, tl["n"]]
-		_:
-			return false
-	add_news([line])
-	_sfx("coins")
-	_after_change()
-	return true
-
-
 ## Joue un effet sonore s'il y a un arbre de scène avec l'autoload Audio (sans effet dans les tests).
 func _sfx(event: String) -> void:
 	var tree := Engine.get_main_loop() as SceneTree
@@ -1100,11 +1022,6 @@ func _sfx(event: String) -> void:
 ## Prix de vente d'un objet ici : 40 % du prix de base × coefficient du lieu.
 func sell_price(it: Dictionary) -> int:
 	return price_of(Loot.sell_base(it), false)
-
-
-## Vend l'objet n° `index` de l'inventaire au marchand du lieu (voir sell_item).
-func sell(index: int) -> bool:
-	return sell_item(index)
 
 
 # --- Boutique à stock fini (core/market.gd) ---
@@ -1279,15 +1196,6 @@ func inv_equip(m: Unit, index: int) -> Dictionary:
 
 func inv_unequip(m: Unit, slot: String) -> Dictionary:
 	return inv_move(Inventory.at(m, slot), Inventory.in_stash())
-
-
-func inv_give(from_m: Unit, slot: String, to_m: Unit) -> Dictionary:
-	if not can_edit_inventory():
-		return Inventory.fail("Impossible pendant une bataille.")
-	var res: Dictionary = Inventory.give(inventory, from_m, slot, to_m, stash_size())
-	if bool(res["ok"]):
-		_after_change()
-	return res
 
 
 func inv_sort(mode: String) -> void:
@@ -1590,7 +1498,7 @@ func finish_battle() -> void:
 		var scar: String = Injuries.roll_permanent(m, rng, difficulty)
 		if scar != "":
 			add_news(["%s garde une séquelle : %s." % [m.unit_name, str(Data.INJURIES[scar]["n"]).to_lower()]])
-		var xp_gain: int = int(round(float(Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))) * Perks.fx_mult(m, "xp_mult")))  ## talent Studieux
+		var xp_gain: int = int(round(float(Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))) * Perks.fx_mult(m, "xp_mult")))  ## talent Apprenti zélé
 		m.xp += xp_gain
 		level_check(m)
 		var rep_wounds: Array = []
@@ -1851,10 +1759,6 @@ func save() -> void:
 	_write_json_safe(SAVE_PATH, to_dict())
 
 
-func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH) or FileAccess.file_exists(SAVE_PATH + ".bak")
-
-
 func load_save() -> bool:
 	return _load_path(SAVE_PATH)
 
@@ -1903,10 +1807,6 @@ func _remove_all(path: String) -> void:
 	for p in [path, path + ".bak", path + ".tmp"]:
 		if FileAccess.file_exists(p):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
-
-
-func delete_save() -> void:
-	_remove_all(SAVE_PATH)
 
 
 # --- Emplacements de sauvegarde : 0 = sauvegarde automatique (savegame.json), 1..SLOT_COUNT = manuels (save_N.json) ---

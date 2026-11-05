@@ -279,13 +279,13 @@ func _build_resources() -> void:
 	_clear(_res_box)
 	_res_box.add_child(_res_chip(true, "%s" % ItemCell._fmt(Game.gold), "Couronnes", GameTheme.GOLD))
 	var food_col: Color = GameTheme.BLOOD if Game.provisions <= 0 else GameTheme.INK
-	_res_box.add_child(_res_chip(false, "%d / %d" % [Game.provisions, Game.provisions_cap()], "Vivres (rations) · %.1f jours de route" % Game.provisions_days(), food_col, "food", "ration"))
-	_res_box.add_child(_res_chip(false, "%d / %d" % [Game.inventory.size(), Game.stash_size()], "Emplacements de la réserve", GameTheme.INK, "tool", "pierre"))
+	_res_box.add_child(_res_chip(false, "%d / %d" % [Game.provisions, Game.provisions_cap()], "Vivres (rations) · %.1f jours de route" % Game.provisions_days(), food_col, "food", "ration", "Vivres"))
+	_res_box.add_child(_res_chip(false, "%d / %d" % [Game.inventory.size(), Game.stash_size()], "Emplacements de la réserve", GameTheme.INK, "tool", "pierre", "Réserve"))
 	_res_box.add_child(_res_chip(false, "%d / %d" % [Game.roster.size(), Game.max_roster()], "Hommes dans la compagnie", GameTheme.INK, "", ""))
 
 
 ## Pastille de ressource : pièce dorée ou petite icône, puis la valeur.
-func _res_chip(coin: bool, text: String, tip: String, col: Color, kind: String = "", key: String = "") -> Control:
+func _res_chip(coin: bool, text: String, tip: String, col: Color, kind: String = "", key: String = "", label: String = "") -> Control:
 	var h := UiKit.hbox(6)
 	h.tooltip_text = tip
 	h.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -301,6 +301,8 @@ func _res_chip(coin: bool, text: String, tip: String, col: Color, kind: String =
 			r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			h.add_child(r)
+		if label != "":
+			h.add_child(UiKit.label(label, 14, GameTheme.MUTE))
 	else:
 		h.add_child(UiKit.label("Hommes", 14, GameTheme.MUTE))
 	var l := UiKit.label(text, 18, col, true)
@@ -417,14 +419,18 @@ func drop_on(zone: String, data: Dictionary) -> void:
 ## Achat / vente demandés par un geste : le refus s'affiche en rouge dans le pied de l'écran.
 func act_buy(index: int) -> bool:
 	var ok: bool = Game.buy_item(index)
-	if not ok:
+	if ok:
+		Sfx.play("buy")
+	else:
 		_say(Game.shop_error, false)
 	return ok
 
 
 func act_sell(index: int) -> bool:
 	var ok: bool = Game.sell_item(index)
-	if not ok:
+	if ok:
+		Sfx.play("sell")
+	else:
 		_say(Game.shop_error, false)
 	return ok
 

@@ -5,12 +5,12 @@ extends SceneTree
 
 ## Style de jeu résumé de chaque famille (tableau « famille -> maîtrise -> talents recommandés -> style »).
 const STYLE: Dictionary = {
-	"epee": ["bretteur, vif, duelliste", "Duelliste précis : Fente à prix d'attaque, ripostes gratuites."],
+	"epee": ["bretteur, vif, duelliste", "Escrimeur précis : Fente à prix d'attaque, contre-pieds gratuits."],
 	"hache": ["lame_affutee, force_brute, coup_de_grace", "Briseur d'armure : fend boucliers et plates, vise la tête."],
 	"masse": ["intimidant, dur_a_cuire, ma_plates", "Étourdisseur : traverse l'armure, enchaîne sur les étourdis."],
-	"fleau": ["garde_ferme, spec_bouclier, mur_vivant", "Bretteur de ligne : ignore les boucliers, frappe deux ennemis, Tourbillon."],
+	"fleau": ["garde_ferme, spec_bouclier, mur_vivant", "Bretteur de ligne : ignore les boucliers, frappe deux ennemis, Moulinet."],
 	"gourdin": ["endurant, vif, croc_en_jambe", "Harceleur : coups peu fatigants qui étourdissent, arme pauvre mais agile."],
-	"lance": ["garde_ferme, spec_bouclier, mur_vivant", "Mur de lances : repousse, frappe d'abord celui qui approche."],
+	"lance": ["garde_ferme, spec_bouclier, mur_vivant", "Haie de piques : repousse, frappe d'abord celui qui approche."],
 	"hast": ["pied_sur, croc_en_jambe, frappe_vive", "Piquier : deux cases de portée, faucher pour clouer l'ennemi."],
 	"arc": ["archer_pose, esquive, legerete", "Archer : aucun malus au contact, portée et tir précis."],
 	"arbalete": ["lame_affutee, archer_pose, predateur", "Tireur lent mais lourd : recharge abrégée, carreaux perforants."],
@@ -93,10 +93,10 @@ func _run() -> void:
 		L.append("")
 	L.append("## Synergies utiles")
 	L.append("")
-	L.append("- **Mobilité** : *Vif*, *Pas léger*, *Insaisissable* et *Frappe vive* complètent les builds en tissu (initiative, esquive) ; *Pas léger* demande 10 de poids ou moins (les Maillons serrés y aident).")
-	L.append("- **Endurance** : *Endurant*, *Second souffle*, *Souffle long* soutiennent les capacités signature (2 PA et beaucoup de fatigue) ; les plates (*Porteur de plates*) suppriment la fatigue du poids.")
-	L.append("- **Esprit d'équipe** : *Camaraderie*, *Gardien*, *Mur vivant* et le *Bastion* du bouclier se cumulent dans une ligne serrée ; *Chef-né* et *Voix claire* tiennent le moral des rangs.")
-	L.append("- **Moral et pression** : *Regard glaçant* après un coup d'étourdisseur (masse, gourdin, poings) ; *Prédateur* sur les ennemis brisés.")
+	L.append("- **Mobilité** : *Vif*, *Pas léger*, *Anguille* et *Frappe vive* complètent les builds en tissu (initiative, esquive) ; *Pas léger* demande 10 de poids ou moins (les Maillons serrés y aident).")
+	L.append("- **Endurance** : *Endurant*, *Poumons de forge*, *Souffle long* soutiennent les capacités signature (2 PA et beaucoup de fatigue) ; les plates (*Porteur de plates*) suppriment la fatigue du poids.")
+	L.append("- **Esprit d'équipe** : *Camaraderie*, *Gardien*, *Mur vivant* et le *Bastion* du bouclier se cumulent dans une ligne serrée ; *Meneur* et *Voix claire* tiennent le moral des rangs.")
+	L.append("- **Moral et pression** : *Regard glaçant* après un coup d'étourdisseur (masse, gourdin, poings) ; *Rapace* sur les ennemis brisés.")
 	L.append("- **Dégâts d'armure** : *Lame affûtée* s'ajoute à la hache et à l'arbalète perforante.")
 	var f_out := FileAccess.open("res://docs/builds.md", FileAccess.WRITE)
 	f_out.store_string("\n".join(L) + "\n")

@@ -44,10 +44,6 @@ func clear_arrows() -> void:
 		queue_redraw()
 
 
-func arrow_count() -> int:
-	return _arrows.size()
-
-
 func set_current(on: bool) -> void:
 	is_current = on
 	queue_redraw()

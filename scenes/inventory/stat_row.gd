@@ -5,6 +5,8 @@ extends Control
 
 const H: float = 21.0
 const ICON_W: float = 22.0
+const LABEL_W: float = 82.0  ## largeur réservée au libellé court (0 si la ligne n'en a pas)
+const LABEL_FS: int = 12
 
 var icon_kind: String = ""  ## "heart", "hourglass", "chevrons", "flag", "ring", "eye" (dessinés) ou "kind:key" d'une icône d'objet
 var value: float = 0.0
@@ -12,16 +14,18 @@ var max_value: float = 100.0
 var color: Color = GameTheme.BLOOD
 var text: String = ""
 var tip: String = ""
+var label_text: String = ""  ## libellé court affiché entre l'icône et la jauge (« PV », « Armure tête »…)
 var _tex: Texture2D = null
 
 
-func _init(p_icon: String = "", p_value: float = 0.0, p_max: float = 100.0, p_color: Color = GameTheme.BLOOD, p_text: String = "", p_tip: String = "") -> void:
+func _init(p_icon: String = "", p_value: float = 0.0, p_max: float = 100.0, p_color: Color = GameTheme.BLOOD, p_text: String = "", p_tip: String = "", p_label: String = "") -> void:
 	icon_kind = p_icon
 	value = p_value
 	max_value = p_max
 	color = p_color
 	text = p_text
 	tip = p_tip
+	label_text = p_label
 	custom_minimum_size = Vector2(0, H)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_PASS
@@ -33,7 +37,8 @@ func _init(p_icon: String = "", p_value: float = 0.0, p_max: float = 100.0, p_co
 
 func _draw() -> void:
 	var font: Font = GameTheme.bold_font()
-	var track := Rect2(ICON_W + 4.0, 2.0, maxf(0.0, size.x - ICON_W - 4.0), H - 4.0)
+	var lw: float = LABEL_W if label_text != "" else 0.0
+	var track := Rect2(ICON_W + 4.0 + lw, 2.0, maxf(0.0, size.x - ICON_W - 4.0 - lw), H - 4.0)
 	draw_rect(track, Color("0f0c09"))
 	var frac: float = clampf(value / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0
 	var fill := Rect2(track.position + Vector2(1, 1), Vector2(maxf(0.0, (track.size.x - 2.0) * frac), track.size.y - 2.0))
@@ -45,6 +50,9 @@ func _draw() -> void:
 	var pos := Vector2(track.position.x + (track.size.x - w) * 0.5, track.position.y + track.size.y * 0.5 + fs * 0.34)
 	draw_string_outline(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 3, Color(0, 0, 0, 0.85))
 	draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GameTheme.INK)
+	if label_text != "":
+		var lpos := Vector2(ICON_W + 4.0, H * 0.5 + LABEL_FS * 0.34)
+		draw_string(font, lpos, label_text, HORIZONTAL_ALIGNMENT_LEFT, LABEL_W - 4.0, LABEL_FS, GameTheme.MUTE)
 	_draw_icon(Rect2(0, 0, ICON_W, H))
 
 

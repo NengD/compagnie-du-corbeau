@@ -163,7 +163,7 @@ func test_epee_mastery() -> void:
 	var before: int = _hit(a, d)
 	var fente0: int = CombatRules.ability_ap(a, "fente")
 	_add(a, "spec_epee")
-	t.eq(_hit(a, d), before + 10, "Maître d'épée : +10 au toucher")
+	t.eq(_hit(a, d), before + 10, "Escrimeur : +10 au toucher")
 	t.eq(CombatRules.ability_ap(a, "fente"), fente0 - 1, "Fente : 1 PA de moins")
 	t.eq(CombatRules.ability_ap(a, "fente"), a.attack_ap(), "Fente au prix d'une attaque")
 	a.weapon = "u_epee_corbeau"
@@ -303,7 +303,7 @@ func test_fleau_mastery() -> void:
 	d.shield = true
 	var base: int = _hit(a, d)
 	_add(a, "spec_fleau")
-	t.eq(_hit(a, d), base + 5, "Maître du fléau : le bouclier ne gêne plus (15 - 10 - 10 -> 0)")
+	t.eq(_hit(a, d), base + 5, "Batteur : le bouclier ne gêne plus (15 - 10 - 10 -> 0)")
 	var d2: Unit = _foe(Vector2i(0, 1))
 	var s: BattleState = _bs([a], [d, d2])
 	a.melee_skill = 500
@@ -317,12 +317,12 @@ func test_fleau_mastery() -> void:
 
 func test_fleau_expert() -> void:
 	var a: Unit = _p("fleau", ["spec_fleau", "ex_fleau"])
-	t.check(CombatRules.abilities_of(a).has("tourbillon"), "ouvre Tourbillon")
+	t.check(CombatRules.abilities_of(a).has("tourbillon"), "ouvre Moulinet")
 	var foes: Array = [_foe(Vector2i(1, 0)), _foe(Vector2i(0, 1)), _foe(Vector2i(-1, 1))]
 	var s: BattleState = _bs([a], foes)
 	a.melee_skill = 500
 	var r: Dictionary = s.use_ability(a, "tourbillon", foes[0])
-	t.eq((r["extra"] as Array).size(), 2, "Tourbillon frappe tous les autres ennemis adjacents")
+	t.eq((r["extra"] as Array).size(), 2, "Moulinet frappe tous les autres ennemis adjacents")
 	t.eq(CombatRules.ability_ap(a, "briser_bouclier"), a.attack_ap(), "Briser le bouclier : 1 PA de moins")
 
 
