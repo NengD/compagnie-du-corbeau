@@ -10,6 +10,7 @@ extends RefCounted
 ##   arcs : {id d'arc: {phase "posted"|"taken"|"done", step, origin_id, origin, contract, log}}, log (récit des arcs terminés).
 
 const START_SITES: Array = ["fort", "lair", "necropolis"]
+const GRAND_SITES: Dictionary = {"fort": 4, "lair": 4, "necropolis": 3}  ## lieux hostiles de départ dans le grand monde (par type)
 const THREAT_PER_DAY: float = 0.45
 const THREAT_PER_RENOWN: float = 0.0004  ## en plus, par jour et par point de renom
 const THREAT_MAX: float = 100.0

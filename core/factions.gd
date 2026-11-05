@@ -3,8 +3,15 @@ extends RefCounted
 ## Factions humaines (Data.FACTIONS) : propriété des lieux, réputation, effets de la réputation. Logique pure.
 ## Chaque lieu porte `settlement["owner"]` (clé de Data.FACTIONS) ; chaque contrat ordinaire porte `contract["faction"]` (l'employeur)
 ## et parfois `contract["vs_faction"]` (la faction rivale que la mission dessert).
+## Relations : voir `relation` (alliées, rivales, neutres ; Data.FACTION_ALLIES / FACTION_RIVALS).
 
-const RIVALS: Dictionary = {"roncevaux": "lys", "lys": "roncevaux", "abbaye": "marches", "marches": "abbaye"}
+const LEGACY_KEYS: Array = ["roncevaux", "lys", "abbaye", "marches"]  ## factions des anciens mondes (8 lieux)
+const REL_OWN: int = 2
+const REL_ALLY: int = 1
+const REL_NEUTRAL: int = 0
+const REL_RIVAL: int = -1
+const SPILL_RIVAL: int = 1  ## réputation perdue chez chaque rivale d'un employeur qu'on sert
+const SPILL_ALLY: int = 1  ## réputation gagnée chez chaque alliée d'un employeur qu'on sert
 const VS_CHANCE: float = 0.25  ## part des contrats de combat dirigés contre une faction rivale
 const VS_PAY_MULT: float = 1.25
 const GAIN_BASE: int = 3  ## réputation gagnée en remplissant un contrat : GAIN_BASE + danger
@@ -15,6 +22,61 @@ const DEFEAT_LOSS: int = 1
 
 static func keys() -> Array:
 	return Data.FACTIONS.keys()
+
+
+## Relation entre deux factions : REL_OWN (la même), REL_ALLY, REL_RIVAL ou REL_NEUTRAL. Symétrique.
+static func relation(a: String, b: String) -> int:
+	if a == b:
+		return REL_OWN
+	for pr in Data.FACTION_ALLIES:
+		if (pr[0] == a and pr[1] == b) or (pr[0] == b and pr[1] == a):
+			return REL_ALLY
+	for pr in Data.FACTION_RIVALS:
+		if (pr[0] == a and pr[1] == b) or (pr[0] == b and pr[1] == a):
+			return REL_RIVAL
+	return REL_NEUTRAL
+
+
+static func rivals_of(key: String) -> Array:
+	return _related(key, REL_RIVAL)
+
+
+static func allies_of(key: String) -> Array:
+	return _related(key, REL_ALLY)
+
+
+static func _related(key: String, rel: int) -> Array:
+	var out: Array = []
+	for k in Data.FACTIONS:
+		if k != key and relation(key, str(k)) == rel:
+			out.append(k)
+	return out
+
+
+static func relation_label(rel: int) -> String:
+	match rel:
+		REL_OWN:
+			return "La vôtre"
+		REL_ALLY:
+			return "Alliée"
+		REL_RIVAL:
+			return "Rivale"
+	return "Neutre"
+
+
+## Factions qui ont un territoire à défendre (hors cités libres).
+static func playable_keys() -> Array:
+	return Data.FACTIONS.keys().filter(func(k: Variant) -> bool: return not bool(Data.FACTIONS[k].get("neutral", false)))
+
+
+## Contrecoups, sur les autres factions, d'un service rendu à `key` : {faction: delta} (rivales −, alliées +).
+static func spill(key: String) -> Dictionary:
+	var out: Dictionary = {}
+	for r in rivals_of(key):
+		out[r] = -SPILL_RIVAL
+	for a in allies_of(key):
+		out[a] = SPILL_ALLY
+	return out
 
 
 static func name_of(key: String) -> String:
@@ -49,7 +111,7 @@ static func owner_of(s: Dictionary) -> String:
 ## espacées au maximum, puis chaque lieu rejoint la graine la plus proche (territoires d'un seul tenant). Sinon les lieux
 ## manquants prennent le propriétaire du lieu possédé le plus proche (migration).
 static func assign_owners(world: World) -> void:
-	var fk: Array = keys()
+	var fk: Array = playable_keys() if world.grand else LEGACY_KEYS  ## un ancien monde (8 lieux) garde ses quatre factions d'origine
 	var all: Array = world.settlements
 	if all.is_empty():
 		return
@@ -138,10 +200,12 @@ static func tag_contract(c: Dictionary, owner: String, rng: RandomNumberGenerato
 		return
 	c["faction"] = owner
 	var tk: String = str(c.get("type_contract", "kill"))
-	if (tk == "kill" or tk == "hunt") and not c.has("arc") and RIVALS.has(owner) and rng.randf() < VS_CHANCE:
-		c["vs_faction"] = str(RIVALS[owner])
+	var rivals: Array = rivals_of(owner)
+	if (tk == "kill" or tk == "hunt") and not c.has("arc") and not rivals.is_empty() and rng.randf() < VS_CHANCE:
+		var vs: String = str(rivals[rng.randi() % rivals.size()])
+		c["vs_faction"] = vs
 		c["pay"] = int(round(float(c["pay"]) * VS_PAY_MULT / 5.0)) * 5
-		c["desc"] = str(c.get("desc", "")) + " Le commanditaire précise que la %s tient la bande en sous-main." % name_of(str(RIVALS[owner]))
+		c["desc"] = str(c.get("desc", "")) + " Le commanditaire précise que %s tient la bande en sous-main." % name_of(vs)
 
 
 ## Majore la prime d'un contrat selon la réputation de son employeur.

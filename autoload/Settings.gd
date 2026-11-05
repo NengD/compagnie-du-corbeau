@@ -58,6 +58,12 @@ const SCHEMA: Dictionary = {
 	"weather_fx": ["game", "weather_fx", true, 0, 0],
 	"map_anim": ["game", "map_anim", true, 0, 0],
 	"tutorial_seen": ["game", "tutorial_seen", false, 0, 0],
+	"edge_scroll": ["game", "edge_scroll", true, 0, 0],
+	"camera_follow": ["game", "camera_follow", true, 0, 0],
+	"minimap": ["game", "minimap", true, 0, 0],
+	"map_territories": ["game", "map_territories", true, 0, 0],
+	"map_regions": ["game", "map_regions", true, 0, 0],
+	"map_borders": ["game", "map_borders", true, 0, 0],
 }
 ## Clés de la fenêtre, appliquées ensemble (avec confirmation dans le panneau d'options).
 const DISPLAY_KEYS: Array = ["window_mode", "window_w", "window_h", "window_x", "window_y", "window_pos_set", "monitor"]
@@ -97,6 +103,12 @@ var day_night: bool = true  ## cycle jour/nuit sur la carte du monde
 var weather_fx: bool = true  ## effets météo (carte du monde, bataille)
 var map_anim: bool = true  ## animations de la carte (eau, bannières, torches, compagnie)
 var tutorial_seen: bool = false  ## le tutoriel a été terminé ou passé (absent des anciens fichiers -> faux)
+var edge_scroll: bool = true  ## la caméra de la carte défile quand la souris touche le bord de l'écran
+var camera_follow: bool = true  ## la caméra suit la compagnie pendant les déplacements (sauf si on la déplace à la main)
+var minimap: bool = true  ## mini-carte affichée sur la carte du monde
+var map_territories: bool = true  ## teinte des territoires de faction sur la carte
+var map_regions: bool = true  ## noms des régions écrits sur la carte
+var map_borders: bool = true  ## frontières et bornes frontières
 var persist: bool = true  ## faux dans les tests : ne rien écrire sur le disque
 
 var _applying: bool = false

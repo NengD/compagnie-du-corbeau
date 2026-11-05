@@ -250,16 +250,17 @@ static func gen_contracts(renown: int, rng: RandomNumberGenerator, town: String,
 			var dests: Array = []
 			if origin_id != "":
 				for s in world.settlements:
-					if str(s["id"]) != origin_id and not world.find_path(origin, world.settlement_pos(s)).is_empty():
+					if str(s["id"]) != origin_id and (not world.grand or origin.distance_to(world.settlement_pos(s)) <= world.target_hi) and not world.find_path(origin, world.settlement_pos(s)).is_empty():
 						dests.append(s)
 			if dests.is_empty():
 				kind = "kill"
 			else:
 				c = _transport(kind, type, d, town, origin_id, origin, pick(dests, rng), pay_mult, rng, world)
 		if c.is_empty():
-			var target: Vector2 = world.random_target(origin, 150.0, 480.0)
+			var target: Vector2 = world.random_target(origin, world.target_lo, world.target_hi)
 			if target == Vector2.ZERO:
 				continue
+			d = clampi(d + world.region_danger(target), 1, 3)  ## danger régional : +1 loin du départ (grand monde)
 			var fl: Array = _flavor(type, town, rng)
 			var title: String = fl[0]
 			var desc: String = fl[1]

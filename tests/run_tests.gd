@@ -13,6 +13,9 @@ func _init() -> void:
 		test_battle_setup, test_free_attack, test_ai_battles, test_battle_serialization,
 		test_world, test_contracts, test_game_camp, test_game_battle_results, test_game_travel, test_game_save_roundtrip,
 	]
+	var only: PackedStringArray = OS.get_cmdline_user_args()  # `-- suite_a suite_b` : ne lance que ces suites (pratique en cours de travail)
+	if not only.is_empty():
+		tests.clear()
 	for t in tests:
 		var before: int = _failures.size()
 		t.call()
@@ -23,7 +26,7 @@ func _init() -> void:
 		var files: PackedStringArray = dir.get_files()
 		files.sort()
 		for f in files:
-			if not f.ends_with(".gd"):
+			if not f.ends_with(".gd") or (not only.is_empty() and not only.has(f.get_basename())):
 				continue
 			var suite: Object = load("res://tests/suites/" + f).new()
 			suite.set("t", self)
@@ -463,7 +466,7 @@ func _free_dir(w: World, from: Vector2, dist: float) -> Vector2:
 
 func test_world() -> void:
 	for seed_value in [1, 2, 3, 4, 5]:
-		var w: World = World.generate(rng_seeded(seed_value), 0)
+		var w: World = World.generate_classic(rng_seeded(seed_value), 0)  # le petit monde d'origine (le grand monde : suites/suite_grand_monde.gd)
 		eq(w.settlements.size(), World.CITIES + World.VILLAGES, "lieux (graine %d)" % seed_value)
 		var cities: int = 0
 		for s in w.settlements:
@@ -477,7 +480,8 @@ func test_world() -> void:
 		for p in w.parties:
 			check(w.passable(w.party_pos(p)) and p["foes"].size() > 0, "bande valide")
 			check(w.party_pos(p).distance_to(w.player_pos) >= 220.0, "bande loin du départ")
-	var w2: World = World.generate(rng_seeded(9), 0)
+	var w2: World = World.generate(rng_seeded(9), 0)  # le grand monde des nouvelles parties
+	check(w2.grand and w2.settlements.size() >= 22, "le monde des nouvelles parties est le grand monde")
 	# Déplacement : le temps dépend du terrain.
 	var target: Dictionary = w2.settlements[1]
 	var tp: Vector2 = w2.settlement_pos(target)
@@ -539,7 +543,7 @@ func test_contracts() -> void:
 				check(c["pay"] >= c["d"] * 320 * 0.89, "prime >= danger x 320 (réputation ±10 %)")
 				if c["type_contract"] == "kill":
 					eq(c["foes"].size(), Contracts.foes_for(c["type"], c["d"]).size(), "effectif ennemi")
-				check(dist >= 100.0 and dist <= 500.0, "cible à bonne distance (%d)" % dist)
+				check(dist >= 100.0 and dist <= g.world.target_hi + 20.0, "cible à bonne distance (%d)" % dist)
 			check(not g.world.find_path(from, to).is_empty(), "cible atteignable")
 		var allowed: Array = []
 		for k in shop["recruits"]:

@@ -83,7 +83,7 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   manquantes. Fin de tour au clavier (Espace/Entrée) : confirmation s'il reste la moitié des PA ou plus. Un seul point d'entrée
   « Nouvelle partie » (`Main._start_new_game`). Le chaman orc (soigneur) figure dans les compositions orques.
 - **Carte plein cadre** : la carte remplit l'écran, HUD discret superposé (jauges vivres/moral/menace, temps et date, pastille du
-  contrat, boutons ronds Compagnie/Inventaire/Détails/Légende/Aide), tiroir « Détails » (touche D) qui reprend l'ancien panneau
+  contrat, boutons ronds Compagnie/Inventaire/Détails/Légende/Aide), tiroir « Détails » (touche F) qui reprend l'ancien panneau
   latéral, en-tête compact sur la carte. **Bannière de compagnie** : étape « Votre compagnie » à la nouvelle partie
   (`scenes/newgame/`, nom + couleurs + emblème + motif, `core/banner.gd`), étendard planté sur la carte à la place de l'ancien
   marqueur (nom de la compagnie décalé près des lieux pour ne pas recouvrir leur nom).
@@ -100,6 +100,12 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   une maîtrise au rang 4 (17 : 12 armes + 5 armures) et un talent expert au rang 6 (17, exige la maîtrise) ; les effets ne
   s'appliquent qu'avec l'équipement RÉEL de la famille ; sans maîtrise, l'arme reste utilisable. `docs/builds.md` (généré par
   `tools/gen_builds_doc.gd`, ne pas éditer à la main) liste les familles et 12 builds testés.
+- **Grand monde** : nouvelles parties sur un monde d'environ 3600×2400 px (dimensions en propriétés `world.gw/gh/size` ; les anciennes
+  sauvegardes gardent leur monde 80×50), 22+ lieux, 6 factions + cités libres aux territoires contigus (`Data.FACTIONS`,
+  `Factions.relation`, frontières et noms de régions sur la carte), 30 points d'intérêt, danger régional (+1 au plus). **Caméra au
+  clavier** : touches physiques W/A/S/D (= ZQSD sur AZERTY) et flèches, Maj = rapide, défilement par les bords, suivi de la compagnie,
+  H recentre, molette = zoom. Le tiroir « Détails » passe sur **F** ; légende sur **L** (refaite avec les vrais dessins de la carte :
+  lieux, compagnie et bandes, terrains, factions, cases d'affichage) ; mini-carte repliable.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

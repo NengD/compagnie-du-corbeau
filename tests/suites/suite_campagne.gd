@@ -30,9 +30,19 @@ func _win(g: Node) -> void:
 
 # --- A) Lieux hostiles ---
 
+## Nombre de lieux hostiles de départ : un de chaque type dans le petit monde, `Campaign.GRAND_SITES` dans le grand.
+func _sites_expected(w: World) -> int:
+	if not w.grand:
+		return 3
+	var n: int = 0
+	for k in Campaign.START_SITES:
+		n += int(Campaign.GRAND_SITES.get(k, 1))
+	return n
+
+
 func test_lieux_hostiles_generes() -> void:
 	var g: Node = _game(21)
-	t.eq(g.world.sites.size(), 3, "fort, repaire et nécropole")
+	t.eq(g.world.sites.size(), _sites_expected(g.world), "fort, repaire et nécropole (plus nombreux dans le grand monde)")
 	var kinds: Array = []
 	for s in g.world.sites:
 		kinds.append(s["kind"])
@@ -107,6 +117,8 @@ func test_arrivee_sur_un_lieu_hostile() -> void:
 	var g: Node = _game(24)
 	g.leave_settlement()
 	g.world.parties.clear()
+	g.gold = 99999  # le grand monde : le trajet est long, la solde et les vivres doivent tenir
+	g.provisions = 5000
 	var s: Dictionary = g.world.sites[0]
 	t.check(g.world.set_destination(g.world.settlement_pos(s), {"kind": "site", "id": s["id"], "title": s["name"]}), "route vers le lieu")
 	var ev: Dictionary = {}
@@ -138,7 +150,7 @@ func test_sauvegarde_lieux_et_campagne() -> void:
 	g3.autosave = false
 	g3.from_dict(d)
 	t.eq(g3.campaign["final"], "locked", "campagne par défaut")
-	t.eq(g3.world.sites.size(), 3, "lieux ajoutés à une ancienne sauvegarde")
+	t.check(g3.world.sites.size() >= (3 if not g3.world.grand else 8) and g3.world.sites.size() <= _sites_expected(g3.world), "lieux ajoutés à une ancienne sauvegarde (%d)" % g3.world.sites.size())
 	t.eq(g3.world.settlements[0]["rare"], [], "pas de marchand rare par défaut")
 
 

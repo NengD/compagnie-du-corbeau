@@ -12,6 +12,69 @@ func _init() -> void:
 	call_deferred("_run")
 
 
+## Grand monde : caméra au clavier (touches physiques W/A/S/D = Z/Q/S/D en AZERTY), touche F (tiroir) et L (légende), mini-carte.
+func _check_grand_map(map: Node) -> void:
+	_check(game.world.grand and game.world.size.x >= 3600.0, "nouvelle partie : grand monde (%s)" % str(game.world.size))
+	var v: Control = map.view
+	_check(map.mini != null and map.mini.visible, "mini-carte présente")
+	await _frames(3)
+	var rect0: Rect2 = v.visible_world_rect()
+	_check(rect0.size.x < game.world.size.x * 0.5, "vue de départ : une partie du monde seulement (%d px)" % int(rect0.size.x))
+	_check(rect0.has_point(game.world.player_pos), "vue de départ centrée sur la compagnie")
+	var c0: Vector2 = rect0.get_center()
+	_press_phys(KEY_D, true)
+	await _frames(25)
+	_press_phys(KEY_D, false)
+	var c1: Vector2 = v.visible_world_rect().get_center()
+	_check(c1.x > c0.x + 20.0, "touche D (physique) : la caméra va à droite (%d -> %d)" % [int(c0.x), int(c1.x)])
+	_press_phys(KEY_W, true)
+	await _frames(25)
+	_press_phys(KEY_W, false)
+	_check(v.visible_world_rect().get_center().y < c1.y - 20.0, "touche W/Z : la caméra monte")
+	v.center_on_player()
+	var f := InputEventKey.new()
+	f.pressed = true
+	f.keycode = KEY_D
+	map.call("_unhandled_key_input", f)
+	_check(not map.drawer.is_open, "la touche D n'ouvre plus le tiroir")
+	f = InputEventKey.new()
+	f.pressed = true
+	f.keycode = KEY_F
+	map.call("_unhandled_key_input", f)
+	_check(map.drawer.is_open, "la touche F ouvre le tiroir Détails")
+	map.call("_unhandled_key_input", f)
+	f = InputEventKey.new()
+	f.pressed = true
+	f.keycode = KEY_L
+	map.call("_unhandled_key_input", f)
+	await _frames(2)
+	_check(map._legend_panel.visible, "la touche L ouvre la légende")
+	_check(map._legend_panel.custom_minimum_size.x >= 360.0, "légende large (%d px)" % int(map._legend_panel.custom_minimum_size.x))
+	map.call("_unhandled_key_input", f)
+	_check(not map._legend_panel.visible, "la touche L referme la légende")
+	var bounds_before: Vector2 = v.get("_stage").position
+	v.pan_px(Vector2(-999999, -999999))
+	_check(v.visible_world_rect().position.x >= -1.0 and v.visible_world_rect().position.y >= -1.0, "caméra bornée au monde (haut gauche)")
+	v.pan_px(Vector2(999999, 999999))
+	_check(v.visible_world_rect().end.x <= game.world.size.x + 1.0 and v.visible_world_rect().end.y <= game.world.size.y + 1.0, "caméra bornée au monde (bas droite)")
+	v.zoom_at(v.size * 0.5, 0.001)
+	_check(v.visible_world_rect().size.x >= game.world.size.x - 2.0 or v.visible_world_rect().size.y >= game.world.size.y - 2.0, "zoom minimal : tout le monde visible")
+	v.zoom_at(v.size * 0.5, 1000.0)
+	_check(v.get("_stage").scale.x <= MapFrame.SCALE_MAX_GRAND + 0.01 and v.get("_stage").scale.x >= 1.0, "zoom maximal borné")
+	map.mini.navigate.emit(game.world.size * 0.25)
+	_check(v.visible_world_rect().get_center().distance_to(game.world.size * 0.25) < 400.0, "la mini-carte déplace la caméra")
+	v.center_on_player()
+	bounds_before = Vector2.ZERO
+
+
+func _press_phys(key: Key, on: bool) -> void:
+	var ev := InputEventKey.new()
+	ev.physical_keycode = key
+	ev.keycode = key
+	ev.pressed = on
+	Input.parse_input_event(ev)
+
+
 func _step(msg: String) -> void:
 	print("· " + msg)
 
@@ -63,6 +126,7 @@ func _run() -> void:
 	var map: Node = _find(main, "MapScreen")
 	_check(map != null, "la carte s'affiche en quittant la ville")
 	game.world.parties.clear()
+	await _check_grand_map(map)
 	map.call("_set_speed", 3)
 	map.view.travel_requested.emit(game.contract_target(), {"kind": "target", "title": "cible"})
 	var guard: int = 0
@@ -108,6 +172,10 @@ func _run() -> void:
 		await _frames(2)
 		_check(_find(main, "MapScreen") != null, "retour à la carte")
 		var city: Dictionary = game.world.settlements[1]
+		for st in game.world.settlements:  # le lieu le plus proche (le grand monde est vaste)
+			if game.world.settlement_pos(st).distance_to(game.world.player_pos) < game.world.settlement_pos(city).distance_to(game.world.player_pos) or city == game.world.settlements[0] and st != city:
+				city = st
+		game.provisions = 5000
 		game.world.parties.clear()
 		map = _find(main, "MapScreen")
 		map.view.travel_requested.emit(game.world.settlement_pos(city), {"kind": "settlement", "id": city["id"], "title": city["name"]})
@@ -118,6 +186,8 @@ func _run() -> void:
 		await _frames(2)
 		_check(game.location == city["id"] and _find(main, "Camp") != null, "arrivée en ville (%d images)" % guard)
 	# --- Écran d'inventaire (appels directs, sans souris) ---
+	while game.roster.size() < 3:  # la bataille précédente a pu coûter des hommes
+		game.roster.append(Contracts.make_merc("fermier", game.rng, []))
 	game.inventory = [Loot.item("weapon", "hache"), Loot.item("head", "casque"), Loot.item("shield")]
 	var inv_cls: GDScript = load("res://scenes/inventory/inventory_screen.gd")
 	var inv: Node = inv_cls.call("open", main)

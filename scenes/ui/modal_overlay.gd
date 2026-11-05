@@ -2,6 +2,8 @@ class_name ModalOverlay
 extends Control
 ## Fenêtre modale centrée sur fond assombri. `content` reçoit les widgets ; `close()` la détruit.
 
+static var open_count: int = 0  ## fenêtres modales ouvertes (la caméra de la carte ignore alors le clavier)
+
 var content: VBoxContainer
 var _layer: CanvasLayer
 
@@ -19,6 +21,8 @@ static func open(host: Node, min_width: int = 460) -> ModalOverlay:
 
 
 func _build(min_width: int) -> void:
+	open_count += 1
+	tree_exiting.connect(func() -> void: open_count = maxi(0, open_count - 1))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := ColorRect.new()

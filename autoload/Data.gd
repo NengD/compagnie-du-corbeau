@@ -167,7 +167,8 @@ const FIRST_NAMES: Array = ["Aldric", "Bertrand", "Guillaume", "Hugues", "Arnaud
 const NICKNAMES: Array = ["le Borgne", "la Brute", "Sans-Terre", "Trois-Doigts", "le Rouge", "Tête-de-Fer", "le Pieux", "l'Ours", "le Muet", "Belle-Gueule", "le Bâtard", "Poing-Lourd", "le Gris", "Courte-Paille", "le Boiteux", "Pied-de-Chêne", "la Fouine", "le Vieux", "Mauvaise-Herbe", "le Chanceux", "Dent-Creuse", "Longue-Échine", "le Sournois", "Bras-de-Fer", "la Pie", "Coupe-Gorge", "le Taciturne", "Face-de-Lune", "le Cadet", "Sept-Doigts", "Œil-de-Chat", "le Bavard", "Corne-de-Bœuf", "Pas-Perdu", "la Belette", "le Blême"]
 const TOWNS: Array = ["Vieux-Moulin", "Saint-Aubin-des-Ronces", "Hautefage", "Bourg-sur-Lys", "Les Marches", "Roncevaux-le-Bas", "Fontfroide", "Malbosc", "Gué-aux-Loups", "Pierrecourbe",
 	"Brumevalle", "Sainte-Colombe-les-Eaux", "Châtel-Ardent", "Combe-Noire", "Aubépine", "Mont-Corbin", "Val-de-Cendre", "Bellerive", "Tourbière", "Saint-Gildas-du-Gué",
-	"Haute-Ronce", "Écorcheval", "Pontlevis", "Clairefontaine", "Montfaucon-le-Sec", "La Rochebrune", "Épinoy", "Noirmoutel", "Saint-Aigulf", "Terre-Rouge"]
+	"Haute-Ronce", "Écorcheval", "Pontlevis", "Clairefontaine", "Montfaucon-le-Sec", "La Rochebrune", "Épinoy", "Noirmoutel", "Saint-Aigulf", "Terre-Rouge",
+	"Vauclair", "Moulin-du-Gué", "Sainte-Eulalie", "Ronceval-le-Haut", "Trois-Fontaines", "Lanvaux", "Cendrepierre", "Mont-Sauvage", "Villevieille", "Tourbesec", "Saulaie", "Gravelines-en-Brume"]
 const EMPLOYERS: Array = ["Le bailli", "Le prévôt", "Le marchand", "L'abbé", "Le meunier", "La dame", "Le châtelain", "Le sénéchal", "La prieure", "Le maître de guilde", "Le seigneur", "Le syndic"]
 
 const MORALE_NAMES: Array = ["En fuite", "Brisé", "Hésitant", "Stable", "Confiant"]
@@ -553,14 +554,30 @@ const MORALE_HIGH: float = 80.0  ## au-dessus : ils partent Confiants
 ## `banner` : même format que la bannière de compagnie ({primary, secondary, emblem} → Data.BANNER_EMBLEMS).
 const FACTIONS: Dictionary = {
 	"roncevaux": {"n": "Maison de Roncevaux", "color": Color("b03a2e"), "desc": "Une vieille maison de chevaliers : fière, rancunière, généreuse avec ceux qui servent sa bannière.",
-		"banner": {"primary": "b03a2e", "secondary": "d8cfb8", "emblem": 1}, "ic": "⚔"},
+		"banner": {"primary": "b03a2e", "secondary": "d8cfb8", "emblem": 1}, "ic": "⚔", "region": "Fiefs de Roncevaux", "capital": "Haut-Roncevaux",
+		"places": ["Sainte-Maure-des-Lances", "Bellecombe", "Montjoie-la-Rouge", "Valcourt", "Chênevert", "La Garde-Écarlate", "Hautmanoir", "Perche-Fière", "Étendard", "Fief-du-Cerf"]},
 	"lys": {"n": "Ligue marchande du Lys", "color": Color("c9a23a"), "desc": "Des guildes de marchands qui paient bien et comptent chaque couronne. Les routes sûres sont leur fortune.",
-		"banner": {"primary": "b8862e", "secondary": "2b2622", "emblem": 5}, "ic": "⚜"},
+		"banner": {"primary": "b8862e", "secondary": "2b2622", "emblem": 5}, "ic": "⚜", "region": "Côte du Lys", "capital": "Lysmarche",
+		"places": ["Quai-aux-Épices", "Balance-d'Or", "Marchepied", "Entrepôts-du-Lys", "Péage-Clair", "Fontaine-aux-Écus", "Halle-Neuve", "Croix-des-Foires", "Bourg-Chalant", "Mercerie-sur-Mer"]},
 	"abbaye": {"n": "Ordre de l'Abbaye", "color": Color("6a7fb0"), "desc": "Des moines-soldats qui veillent sur les reliques et les nécropoles. Ils n'oublient ni un service ni une offense.",
-		"banner": {"primary": "3e526a", "secondary": "d8cfb8", "emblem": 3}, "ic": "✠"},
+		"banner": {"primary": "3e526a", "secondary": "d8cfb8", "emblem": 3}, "ic": "✠", "region": "Terres de l'Abbaye", "capital": "Saint-Orvald",
+		"places": ["Cloître-Noir", "Reliquaire", "Val-des-Moines", "Prieuré-de-Brume", "Saint-Ermelin", "Chapelle-Haute", "Maladrerie", "Calvaire-Gris", "Vigile-des-Morts", "Saint-Clair-des-Cendres"]},
 	"marches": {"n": "Conseil des marches", "color": Color("6f9a52"), "desc": "Les bourgs libres des confins, qui se gouvernent eux-mêmes et se méfient des grands seigneurs.",
-		"banner": {"primary": "4b5a3a", "secondary": "d8cfb8", "emblem": 4}, "ic": "☘"},
+		"banner": {"primary": "4b5a3a", "secondary": "d8cfb8", "emblem": 4}, "ic": "☘", "region": "Marches franches", "capital": "Hautes-Marches",
+		"places": ["Bourg-Franc", "Gué-des-Ânes", "Frontière-Sud", "Tourelle", "Haie-Vive", "Pierre-Borne", "Combe-Franche", "Les Ormeaux", "Sentinelle", "Ferme-Haute"]},
+	"givre": {"n": "Clans du Givre", "color": Color("58a8b8"), "desc": "Des clans montagnards du grand nord, rudes et fidèles à leur parole. Ils paient en peaux et en acier, et ne pardonnent pas la trahison.",
+		"banner": {"primary": "2f6f7e", "secondary": "e4eef0", "emblem": 2}, "ic": "❄", "region": "Marches du Nord", "capital": "Givrebourg",
+		"places": ["Nordfeu", "Pic-de-Glace", "Fjordelune", "Hurle-Vent", "Neige-Bourg", "Ours-Blanc", "Brise-Glace", "Lac-Gelé", "Pin-Noir", "Corne-du-Loup"]},
+	"sablefer": {"n": "Seigneurie de Sablefer", "color": Color("d0803a"), "desc": "Des maîtres de forges et de caravanes du sud brûlé. Leur acier est réputé, leur hospitalité aussi, tant qu'on paie.",
+		"banner": {"primary": "a85a22", "secondary": "2b2622", "emblem": 0}, "ic": "☀", "region": "Pays de Sablefer", "capital": "Sablefer",
+		"places": ["Dune-Rouge", "Puits-d'Ambre", "Oasis-Brûlée", "Cuivre-Sec", "Fort-Sirocco", "Halte-des-Caravanes", "Mirage", "Salines", "Terre-Cuite", "Forge-du-Désert"]},
+	"libres": {"n": "Cités libres", "color": Color("9a8fa8"), "desc": "Des cités sans seigneur qui jouent les grandes maisons les unes contre les autres et accueillent toute bourse bien garnie.",
+		"banner": {"primary": "6a5f78", "secondary": "d8cfb8", "emblem": 5}, "ic": "⚖", "region": "Cités libres", "capital": "Port-Franc", "neutral": true,
+		"places": ["Quatre-Chemins", "Havre-Sans-Maître", "Ville-Neutre", "Confluent", "Pont-aux-Libres"]},
 }
+## Relations entre factions humaines (symétriques) : alliées ou rivales ; toute autre paire est neutre (voir Factions.relation).
+const FACTION_ALLIES: Array = [["roncevaux", "abbaye"], ["lys", "sablefer"], ["marches", "givre"]]
+const FACTION_RIVALS: Array = [["roncevaux", "lys"], ["abbaye", "marches"], ["givre", "roncevaux"], ["sablefer", "abbaye"]]
 const FACTION_STAND_MAX: int = 100
 const FACTION_STAND_GOOD: int = 20  ## « Estimé » : prime majorée, recrues d'élite
 const FACTION_STAND_BEST: int = 50  ## « Allié » : marchand rare partout sur ses terres

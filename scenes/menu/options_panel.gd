@@ -294,6 +294,9 @@ func _build_game(body: VBoxContainer) -> void:
 	_check(body, "Afficher en permanence les chances de toucher", _s().show_hit_pct, func(on: bool) -> void: _s().set_value("show_hit_pct", on))
 	_check(body, "Confirmer « Fin du tour » s'il reste des PA", _s().confirm_end_turn, func(on: bool) -> void: _s().set_value("confirm_end_turn", on))
 	_check(body, "Passer l'écran de lancement", _s().skip_splash, func(on: bool) -> void: _s().set_value("skip_splash", on))
+	_check(body, "Carte : défilement quand la souris touche le bord de l'écran", _s().edge_scroll, func(on: bool) -> void: _s().set_value("edge_scroll", on))
+	_check(body, "Carte : la caméra suit la compagnie pendant les déplacements", _s().camera_follow, func(on: bool) -> void: _s().set_value("camera_follow", on))
+	_check(body, "Carte : afficher la mini-carte", _s().minimap, func(on: bool) -> void: _s().set_value("minimap", on))
 	var tuto := UiKit.button("Revoir le tutoriel", "ghost", true)
 	tuto.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	tuto.pressed.connect(func() -> void:

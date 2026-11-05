@@ -6,9 +6,10 @@ extends RefCounted
 
 const PX := 6  ## pixels de texture par case
 const OL := Color("17110c")
-const LAND: Array[Color] = [Color("727f43"), Color("4c6133"), Color("918b57"), Color("727f43"), Color("7d7466"), Color("727f43"), Color("727f43")]
-const HEIGHT: Array[float] = [0.30, 0.34, 0.58, 0.0, 1.0, 0.0, 0.0]
-const WATER_FIELD: Array[float] = [0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.55]
+const LAND: Array[Color] = [Color("727f43"), Color("4c6133"), Color("918b57"), Color("727f43"), Color("7d7466"), Color("727f43"), Color("727f43"), Color("5b6a3c"), Color("d9e0e0")]
+const HEIGHT: Array[float] = [0.30, 0.34, 0.58, 0.0, 1.0, 0.0, 0.0, 0.27, 0.33]
+const WATER_FIELD: Array[float] = [0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.55, 0.0, 0.0]
+const CHUNK: int = 30  ## côté d'un morceau de décor, en cases (le décor du grand monde est découpé en morceaux : seuls ceux qui sont à l'écran sont dessinés)
 const WATER_THR := 0.40
 
 static var _ck: int = 0
@@ -25,21 +26,26 @@ static func hf(x: int, y: int, k: int = 0) -> float:
 
 
 static func _is_waterish(w: World, c: Vector2i) -> bool:
-	if c.x < 0 or c.y < 0 or c.x >= World.GW or c.y >= World.GH:
+	if c.x < 0 or c.y < 0 or c.x >= w.gw or c.y >= w.gh:
 		return false
-	var t: int = w.terrain[c.y * World.GW + c.x]
+	var t: int = w.terrain[c.y * w.gw + c.x]
 	return t == World.T.WATER or t == World.T.BRIDGE or t == World.T.FORD
 
 
 # --- Fond peint ---
 
 ## [texture du fond, masque de l'eau (alpha) pour les reflets animés]. Mis en cache tant que le terrain ne change pas.
+## Pixels de texture par case pour le monde `w` : le grand monde en demande deux de moins (même rendu, texture plus petite).
+static func px_for(w: World, px: int) -> int:
+	return maxi(2, px - 2) if w.grand else px
+
+
 static func textures(w: World, px: int = PX) -> Array:
-	var key: int = hash(w.terrain) + px * 7919
+	var key: int = hash(w.terrain) + px * 7919 + w.gw * 31
 	if key == _ck and _ctex != null:
 		return [_ctex, _cmask]
-	var gw: int = World.GW
-	var gh: int = World.GH
+	var gw: int = w.gw
+	var gh: int = w.gh
 	var n: int = gw * gh
 	var wat := PackedFloat32Array()
 	var hgt := PackedFloat32Array()
@@ -55,7 +61,7 @@ static func textures(w: World, px: int = PX) -> Array:
 	# distance à la terre (profondeur de l'eau)
 	var dist := PackedFloat32Array()
 	dist.resize(n)
-	var queue: Array[int] = []
+	var queue := PackedInt32Array()
 	for i in n:
 		if wat[i] < 0.5:
 			dist[i] = 0.0
@@ -68,32 +74,36 @@ static func textures(w: World, px: int = PX) -> Array:
 		qi += 1
 		var cx: int = c % gw
 		var cy: int = c / gw
-		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-			var nx: int = cx + d.x
-			var ny: int = cy + d.y
-			if nx < 0 or ny < 0 or nx >= gw or ny >= gh:
-				continue
-			var ni: int = ny * gw + nx
-			if dist[ni] > dist[c] + 1.0:
-				dist[ni] = dist[c] + 1.0
-				queue.append(ni)
+		var nd: float = dist[c] + 1.0
+		if cx + 1 < gw and dist[c + 1] > nd:
+			dist[c + 1] = nd
+			queue.append(c + 1)
+		if cx > 0 and dist[c - 1] > nd:
+			dist[c - 1] = nd
+			queue.append(c - 1)
+		if cy + 1 < gh and dist[c + gw] > nd:
+			dist[c + gw] = nd
+			queue.append(c + gw)
+		if cy > 0 and dist[c - gw] > nd:
+			dist[c - gw] = nd
+			queue.append(c - gw)
 	# relief adouci
 	for pass_i in 2:
 		var src := hgt.duplicate()
 		for y in gh:
+			var ya: int = maxi(y - 1, 0)
+			var yb: int = mini(y + 1, gh - 1)
 			for x in gw:
+				var xa: int = maxi(x - 1, 0)
+				var xb: int = mini(x + 1, gw - 1)
 				var s: float = 0.0
-				var cnt: float = 0.0
-				for dy in [-1, 0, 1]:
-					for dx in [-1, 0, 1]:
-						var xx: int = x + dx
-						var yy: int = y + dy
-						if xx >= 0 and yy >= 0 and xx < gw and yy < gh:
-							s += src[yy * gw + xx]
-							cnt += 1.0
-				hgt[y * gw + x] = s / cnt
+				for yy in range(ya, yb + 1):
+					for xx in range(xa, xb + 1):
+						s += src[yy * gw + xx]
+				hgt[y * gw + x] = s / float((yb - ya + 1) * (xb - xa + 1))
 	var iw: int = gw * px
 	var ih: int = gh * px
+	var grand: bool = w.grand
 	var img := Image.create(iw, ih, false, Image.FORMAT_RGB8)
 	var mask := Image.create(iw, ih, false, Image.FORMAT_RGBA8)
 	var nb := FastNoiseLite.new()
@@ -142,6 +152,11 @@ static func textures(w: World, px: int = PX) -> Array:
 				landc[i00].r * w00 + landc[i10].r * w10 + landc[i01].r * w01 + landc[i11].r * w11,
 				landc[i00].g * w00 + landc[i10].g * w10 + landc[i01].g * w01 + landc[i11].g * w11,
 				landc[i00].b * w00 + landc[i10].b * w10 + landc[i01].b * w01 + landc[i11].b * w11)
+			if grand:  # climat : toundra pâle au nord, terres sèches et ocre au sud
+				var ny: float = float(y) / ih
+				var dry: float = smoothstep(0.60, 0.86, ny + mn * 0.05)
+				var cold: float = 1.0 - smoothstep(0.14, 0.30, ny + mn * 0.05)
+				lc = lc.lerp(Color(0.72, 0.62, 0.38), dry * 0.55).lerp(Color(0.80, 0.84, 0.84), cold * 0.45)
 			var shade: float = bn * 0.16 + mn * 0.08 + gn * 0.05 - (hx + hy) * 0.55 + (h - 0.3) * 0.06
 			var col := Color(lc.r + shade, lc.g + shade, lc.b + shade * 0.8)
 			var cover: float = smoothstep(WATER_THR - 0.03, WATER_THR + 0.03, wf)
@@ -208,7 +223,7 @@ static func road_curves(w: World) -> Array:
 	return out
 
 
-static func _strip(l: Node2D, cur: Array[Vector2], hw: Array[float], extra: float, col: Color, scale: float = 1.0, jitter: float = 0.0, seed_k: int = 0) -> void:
+static func _strip(l: CanvasItem, cur: Array[Vector2], hw: Array[float], extra: float, col: Color, scale: float = 1.0, jitter: float = 0.0, seed_k: int = 0) -> void:
 	var m: int = cur.size()
 	var left: Array[Vector2] = []
 	var right: Array[Vector2] = []
@@ -233,7 +248,46 @@ static func _strip(l: Node2D, cur: Array[Vector2], hw: Array[float], extra: floa
 		l.draw_colored_polygon(q, col)
 
 
-static func paint_roads(l: Node2D, w: World, curves: Array) -> void:
+## Morceaux de routes dont les points tombent dans `rect` (px, marge comprise) : chaque tronçon garde un point de recouvrement.
+static func chunk_curves(curves: Array, rect: Rect2) -> Array:
+	var out: Array = []
+	var box: Rect2 = rect.grow(14.0)
+	for r in curves:
+		var cur: Array[Vector2] = r["c"]
+		var hw: Array[float] = r["w"]
+		var run_c: Array[Vector2] = []
+		var run_w: Array[float] = []
+		for i in cur.size():
+			if box.has_point(cur[i]):
+				if run_c.is_empty() and i > 0:
+					run_c.append(cur[i - 1])
+					run_w.append(hw[i - 1])
+				run_c.append(cur[i])
+				run_w.append(hw[i])
+			elif not run_c.is_empty():
+				run_c.append(cur[i])
+				run_w.append(hw[i])
+				if run_c.size() >= 2:
+					out.append({"c": run_c, "w": run_w})
+				run_c = []
+				run_w = []
+		if run_c.size() >= 2:
+			out.append({"c": run_c, "w": run_w})
+	return out
+
+
+## Un tronçon de route de `a` à `b` (légende) : mêmes passes de dessin que sur la carte.
+static func paint_road_swatch(l: CanvasItem, a: Vector2, b: Vector2) -> void:
+	var pts: Array[Vector2] = []
+	var hw: Array[float] = []
+	for i in 9:
+		pts.append(a.lerp(b, float(i) / 8.0) + Vector2(0, sin(float(i) * 0.9) * 2.0))
+		hw.append(3.4 + 0.4 * sin(float(i)))
+	paint_road_passes(l, [{"c": pts, "w": hw}])
+
+
+## Les passes de dessin des routes : lisière herbeuse, terre battue, centre usé, ornières.
+static func paint_road_passes(l: CanvasItem, curves: Array) -> void:
 	# 1) lisière herbeuse, 2) terre battue, 3) centre usé, 4) ornières : chaque passe pour toutes les routes d'abord (carrefours propres)
 	for r in curves:
 		_strip(l, r["c"], r["w"], 1.6, Color(0.30, 0.24, 0.14, 0.30), 1.0, 1.4, 11)
@@ -260,6 +314,11 @@ static func paint_roads(l: Node2D, w: World, curves: Array) -> void:
 					seg = PackedVector2Array()
 			if seg.size() >= 2:
 				l.draw_polyline(seg, Color(0.38, 0.29, 0.18, 0.55), 0.8, true)
+
+
+static func paint_roads(l: CanvasItem, w: World, curves_in: Array, rect: Rect2 = Rect2()) -> void:
+	var curves: Array = curves_in if rect.size == Vector2.ZERO else chunk_curves(curves_in, rect)
+	paint_road_passes(l, curves)
 	# carrefours : les cases où trois tronçons ou plus se rejoignent
 	var deg: Dictionary = {}
 	for path in w.road_paths:
@@ -275,10 +334,14 @@ static func paint_roads(l: Node2D, w: World, curves: Array) -> void:
 	for c in deg:
 		if (deg[c] as Dictionary).size() >= 3:
 			var cp := Vector2((c.x + 0.5) * World.CELL, (c.y + 0.5) * World.CELL)
+			if rect.size != Vector2.ZERO and not rect.has_point(cp):
+				continue
 			l.draw_circle(cp, 5.2, Color(0.60, 0.48, 0.30))
 			l.draw_circle(cp, 3.0, Color(0.70, 0.58, 0.38, 0.8))
 	for s in w.settlements:  # place de terre battue devant chaque lieu
 		var sp: Vector2 = w.settlement_pos(s)
+		if rect.size != Vector2.ZERO and not rect.grow(40.0).has_point(sp):
+			continue
 		l.draw_set_transform(sp + Vector2(0, 8), 0.0, Vector2(1.0, 0.45))
 		l.draw_circle(Vector2.ZERO, 26.0 if s["kind"] == "city" else 20.0, Color(0.58, 0.47, 0.30, 0.85))
 		l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -286,10 +349,11 @@ static func paint_roads(l: Node2D, w: World, curves: Array) -> void:
 
 # --- Décor du sol (sous l'eau animée) : touffes, collines, rochers ---
 
-static func paint_ground_decor(l: Node2D, w: World) -> void:
-	var gw: int = World.GW
-	for y in World.GH:
-		for x in gw:
+static func paint_ground_decor(l: CanvasItem, w: World, cells: Rect2i = Rect2i()) -> void:
+	var gw: int = w.gw
+	var r: Rect2i = cells if cells.size != Vector2i.ZERO else Rect2i(0, 0, w.gw, w.gh)
+	for y in range(r.position.y, mini(r.end.y, w.gh)):
+		for x in range(r.position.x, mini(r.end.x, gw)):
 			var t: int = w.terrain[y * gw + x]
 			var o := Vector2(x * World.CELL, y * World.CELL)
 			var road: bool = w.road_cells.has(Vector2i(x, y))
@@ -300,6 +364,8 @@ static func paint_ground_decor(l: Node2D, w: World) -> void:
 					if hf(x, y, 3) < 0.30:
 						var p: Vector2 = o + Vector2(2.0 + hf(x, y, 4) * 16.0, 4.0 + hf(x, y, 5) * 14.0)
 						var gcol := Color(0.34, 0.45, 0.2, 0.7)
+						if w.grand and y > int(w.gh * 0.64):
+							gcol = Color(0.58, 0.5, 0.26, 0.7)  # herbe sèche du sud
 						l.draw_multiline(PackedVector2Array([p, p + Vector2(-2, -3.5), p, p + Vector2(0.5, -4.5), p, p + Vector2(2.4, -3.2)]), gcol, 1.0)
 					if hf(x, y, 6) < 0.05:
 						var fp: Vector2 = o + Vector2(3.0 + hf(x, y, 7) * 14.0, 3.0 + hf(x, y, 8) * 14.0)
@@ -314,6 +380,22 @@ static func paint_ground_decor(l: Node2D, w: World) -> void:
 							_hill(l, o + Vector2(4.0 + hf(x, y, 20) * 12.0, 3.0 + hf(x, y, 21) * 8.0), 0.55 + hf(x, y, 22) * 0.35)
 					if hf(x, y, 23) < 0.10:
 						_rock(l, o + Vector2(3.0 + hf(x, y, 24) * 14.0, 5.0 + hf(x, y, 25) * 12.0), 0.9, x, y)
+				World.T.SWAMP:  # flaques sombres et joncs
+					if hf(x, y, 29) < 0.55:
+						var sp2: Vector2 = o + Vector2(3.0 + hf(x, y, 30) * 14.0, 5.0 + hf(x, y, 31) * 11.0)
+						l.draw_set_transform(sp2, 0.0, Vector2(1.0, 0.45))
+						l.draw_circle(Vector2.ZERO, 4.0 + hf(x, y, 32) * 3.0, Color(0.22, 0.32, 0.30, 0.8))
+						l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+					for k in 2:
+						var rp: Vector2 = o + Vector2(2.0 + hf(x, y, 33 + k) * 16.0, 6.0 + hf(x, y, 35 + k) * 12.0)
+						l.draw_multiline(PackedVector2Array([rp, rp + Vector2(-1.5, -6), rp, rp + Vector2(0.3, -7.5), rp, rp + Vector2(1.8, -5.5)]), Color(0.36, 0.42, 0.2, 0.9), 1.0)
+						l.draw_circle(rp + Vector2(0.3, -7.5), 1.0, Color(0.42, 0.3, 0.18))
+				World.T.SNOW:
+					if hf(x, y, 37) < 0.25:
+						var np: Vector2 = o + Vector2(2.0 + hf(x, y, 38) * 16.0, 4.0 + hf(x, y, 39) * 14.0)
+						l.draw_line(np, np + Vector2(3.0, -0.8), Color(0.62, 0.7, 0.74, 0.7), 1.2)
+					if hf(x, y, 41) < 0.03:
+						_rock(l, o + Vector2(4.0 + hf(x, y, 42) * 12.0, 6.0 + hf(x, y, 43) * 10.0), 0.8, x, y)
 				World.T.FOREST:
 					if hf(x, y, 26) < 0.2:  # sous-bois : fougères et mousse
 						var p2: Vector2 = o + Vector2(3.0 + hf(x, y, 27) * 14.0, 4.0 + hf(x, y, 28) * 12.0)
@@ -321,7 +403,7 @@ static func paint_ground_decor(l: Node2D, w: World) -> void:
 						l.draw_circle(p2 + Vector2(1.6, -1.0), 1.5, Color(0.31, 0.43, 0.2, 0.6))
 
 
-static func _hill(l: Node2D, c: Vector2, s: float) -> void:
+static func _hill(l: CanvasItem, c: Vector2, s: float) -> void:
 	var wd: float = 11.0 * s
 	var ht: float = 6.0 * s
 	var top := PackedVector2Array()
@@ -346,7 +428,7 @@ static func _hill(l: Node2D, c: Vector2, s: float) -> void:
 	l.draw_arc(c + Vector2(-wd * 0.3, -ht * 0.2), wd * 0.45, PI * 1.1, PI * 1.5, 5, Color("c4bd82"), 1.0, true)
 
 
-static func _rock(l: Node2D, c: Vector2, s: float, x: int, y: int) -> void:
+static func _rock(l: CanvasItem, c: Vector2, s: float, x: int, y: int) -> void:
 	var pts := PackedVector2Array()
 	for i in 6:
 		var a: float = TAU * float(i) / 6.0
@@ -362,17 +444,22 @@ static func _rock(l: Node2D, c: Vector2, s: float, x: int, y: int) -> void:
 
 # --- Objets (au-dessus de l'eau) : gués, ponts, bornes, forêts, montagnes ---
 
-static func paint_objects(l: Node2D, w: World, curves: Array) -> void:
-	var gw: int = World.GW
-	for y in World.GH:
-		for x in gw:
+static func paint_objects(l: CanvasItem, w: World, curves: Array, cells: Rect2i = Rect2i()) -> void:
+	var gw: int = w.gw
+	var r: Rect2i = cells if cells.size != Vector2i.ZERO else Rect2i(0, 0, w.gw, w.gh)
+	var y0: int = r.position.y
+	var y1: int = mini(r.end.y, w.gh)
+	var x0: int = r.position.x
+	var x1: int = mini(r.end.x, gw)
+	for y in range(y0, y1):
+		for x in range(x0, x1):
 			var t: int = w.terrain[y * gw + x]
 			var cp := Vector2((x + 0.5) * World.CELL, (y + 0.5) * World.CELL)
 			if t == World.T.FORD:
 				_ford(l, cp, x, y)
 			elif t == World.T.BRIDGE:
 				_bridge(l, w, cp, x, y)
-	_milestones(l, w)
+	_milestones(l, w, Rect2(Vector2(r.position) * World.CELL, Vector2(r.size) * World.CELL))
 	# arbres et pics triés par ordonnée : les plus au sud recouvrent les plus au nord
 	var items: Array = []
 	var species := FastNoiseLite.new()
@@ -381,8 +468,8 @@ static func paint_objects(l: Node2D, w: World, curves: Array) -> void:
 	var clearing := FastNoiseLite.new()
 	clearing.seed = 9
 	clearing.frequency = 0.14
-	for y in World.GH:
-		for x in gw:
+	for y in range(y0, y1):
+		for x in range(x0, x1):
 			var t: int = w.terrain[y * gw + x]
 			var o := Vector2(x * World.CELL, y * World.CELL)
 			if t == World.T.FOREST:
@@ -394,7 +481,7 @@ static func paint_objects(l: Node2D, w: World, curves: Array) -> void:
 				for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 					var nx: int = x + d.x
 					var ny: int = y + d.y
-					if nx < 0 or ny < 0 or nx >= gw or ny >= World.GH or w.terrain[ny * gw + nx] != World.T.FOREST:
+					if nx < 0 or ny < 0 or nx >= gw or ny >= w.gh or w.terrain[ny * gw + nx] != World.T.FOREST:
 						edge += 1
 				var cnt: int = 5 - edge
 				if clear:
@@ -414,7 +501,7 @@ static func paint_objects(l: Node2D, w: World, curves: Array) -> void:
 					for dx in [-1, 0, 1]:
 						var nx: int = x + dx
 						var ny: int = y + dy
-						if nx >= 0 and ny >= 0 and nx < gw and ny < World.GH and w.terrain[ny * gw + nx] == World.T.MOUNTAIN:
+						if nx >= 0 and ny >= 0 and nx < gw and ny < w.gh and w.terrain[ny * gw + nx] == World.T.MOUNTAIN:
 							nb += 1
 				var peaks: int = 1 + (1 if hf(x, y, 130) < 0.55 else 0)
 				for k in peaks:
@@ -436,7 +523,7 @@ static func paint_objects(l: Node2D, w: World, curves: Array) -> void:
 				_peak(l, it["p"], float(it["hh"]), bool(it["snow"]), float(it["h"]))
 
 
-static func _conifer(l: Node2D, p: Vector2, s: float, h: float) -> void:
+static func _conifer(l: CanvasItem, p: Vector2, s: float, h: float) -> void:
 	var th: float = 15.0 * s
 	var tw: float = 10.0 * s
 	var dark: Color = Color("2c4026").lerp(Color("37522a"), h)
@@ -456,7 +543,7 @@ static func _conifer(l: Node2D, p: Vector2, s: float, h: float) -> void:
 	l.draw_polyline(ring, OL, 0.9)
 
 
-static func _broadleaf(l: Node2D, p: Vector2, s: float, h: float) -> void:
+static func _broadleaf(l: CanvasItem, p: Vector2, s: float, h: float) -> void:
 	var r: float = 5.4 * s
 	var base: Color = Color("3c5a2a").lerp(Color("5a7430"), h)
 	if h > 0.86:
@@ -470,7 +557,7 @@ static func _broadleaf(l: Node2D, p: Vector2, s: float, h: float) -> void:
 	l.draw_circle(c + Vector2(-r * 0.32, -r * 0.34), r * 0.5, base.lightened(0.26))
 
 
-static func _peak(l: Node2D, p: Vector2, h: float, snow: bool, j: float) -> void:
+static func _peak(l: CanvasItem, p: Vector2, h: float, snow: bool, j: float) -> void:
 	var hw: float = h * 0.68
 	var a := p + Vector2(0, -h)
 	var bl := p + Vector2(-hw, 0)
@@ -491,7 +578,7 @@ static func _peak(l: Node2D, p: Vector2, h: float, snow: bool, j: float) -> void
 
 # --- Gués, ponts, bornes ---
 
-static func _ford(l: Node2D, c: Vector2, x: int, y: int) -> void:
+static func _ford(l: CanvasItem, c: Vector2, x: int, y: int) -> void:
 	l.draw_set_transform(c, 0.0, Vector2(1.0, 0.62))
 	l.draw_circle(Vector2.ZERO, 9.5, Color(0.72, 0.65, 0.46, 0.85))
 	l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -502,14 +589,18 @@ static func _ford(l: Node2D, c: Vector2, x: int, y: int) -> void:
 	l.draw_arc(c + Vector2(-5, 4), 4.0, PI * 1.1, PI * 1.9, 6, Color(0.85, 0.92, 0.9, 0.7), 1.0, true)
 
 
-static func _bridge(l: Node2D, w: World, c: Vector2, x: int, y: int) -> void:
+static func _bridge(l: CanvasItem, w: World, c: Vector2, x: int, y: int) -> void:
 	var cell := Vector2i(x, y)
 	var ns: bool = _is_waterish(w, cell + Vector2i(0, -1)) and _is_waterish(w, cell + Vector2i(0, 1))
 	var ew: bool = _is_waterish(w, cell + Vector2i(-1, 0)) and _is_waterish(w, cell + Vector2i(1, 0))
 	var ang: float = 0.0  # tablier horizontal : la rivière coule du nord au sud
 	if ew and not ns:
 		ang = PI * 0.5
-	var stone: bool = hf(x, y, 170) < 0.35
+	paint_bridge(l, c, ang, hf(x, y, 170) < 0.35)
+
+
+## Pont (pierre ou bois) centré sur `c`, tablier tourné de `ang`. Dessin partagé avec la légende.
+static func paint_bridge(l: CanvasItem, c: Vector2, ang: float, stone: bool) -> void:
 	l.draw_set_transform(c, ang, Vector2.ONE)
 	var len_: float = 25.0
 	var wd: float = 8.5
@@ -535,7 +626,7 @@ static func _bridge(l: Node2D, w: World, c: Vector2, x: int, y: int) -> void:
 
 
 ## Bornes de pierre là où une route longe l'eau, tous les 70 px environ.
-static func _milestones(l: Node2D, w: World) -> void:
+static func _milestones(l: CanvasItem, w: World, rect: Rect2 = Rect2()) -> void:
 	var placed: Dictionary = {}
 	for path in w.road_paths:
 		var since: float = 40.0
@@ -549,13 +640,15 @@ static func _milestones(l: Node2D, w: World) -> void:
 			var toward: Vector2 = Vector2.ZERO
 			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]:
 				var nc: Vector2i = c + d
-				if nc.x >= 0 and nc.y >= 0 and nc.x < World.GW and nc.y < World.GH and w.terrain[nc.y * World.GW + nc.x] == World.T.WATER:
+				if nc.x >= 0 and nc.y >= 0 and nc.x < w.gw and nc.y < w.gh and w.terrain[nc.y * w.gw + nc.x] == World.T.WATER:
 					toward += Vector2(d)
-			if toward == Vector2.ZERO or placed.has(c) or w.terrain[c.y * World.GW + c.x] != World.T.PLAIN and w.terrain[c.y * World.GW + c.x] != World.T.HILLS:
+			if toward == Vector2.ZERO or placed.has(c) or w.terrain[c.y * w.gw + c.x] != World.T.PLAIN and w.terrain[c.y * w.gw + c.x] != World.T.HILLS:
 				continue
 			placed[c] = true
 			since = 0.0
 			var sp: Vector2 = v - toward.normalized() * 8.5
+			if rect.size != Vector2.ZERO and not rect.has_point(sp):
+				continue
 			l.draw_circle(sp + Vector2(0.8, 0.6), 2.6, Color(0, 0, 0, 0.22))
 			var stone := PackedVector2Array([sp + Vector2(-2.2, 1.5), sp + Vector2(-2.2, -3.0), sp + Vector2(-1.0, -4.5), sp + Vector2(1.0, -4.5), sp + Vector2(2.2, -3.0), sp + Vector2(2.2, 1.5)])
 			l.draw_colored_polygon(stone, Color("a9a495"))

@@ -17,12 +17,13 @@ var _pill_timer: float = 0.0
 var _event_modal: ModalOverlay
 var _site_modal: ModalOverlay
 var _help: ModalOverlay
-var _legend_panel: PanelContainer
+var _legend_panel: MapLegend
+var mini: MapMini
 var _focus_i: int = -1  ## lieu mis en avant par Tab
 var _focus_n: int = 0
 
-## Pictogramme de la légende, dessiné comme sur la carte (en miniature).
-class LegendIcon extends Control:
+## (ancien pictogramme de légende, remplacé par MapLegend.Icon qui réutilise les fonctions de dessin de la carte)
+class _OldLegendIcon extends Control:
 	var kind: String = ""
 
 	func _init(k: String = "") -> void:
@@ -82,15 +83,13 @@ func _ready() -> void:
 	hud.company_pressed.connect(func() -> void: company_requested.emit())
 	hud.inventory_pressed.connect(func() -> void: InventoryScreen.open(self))
 	hud.details_pressed.connect(func() -> void: drawer.toggle())
-	hud.legend_pressed.connect(func() -> void:
-		_legend_panel.visible = not _legend_panel.visible
-		hud.set_legend_open(_legend_panel.visible)
-		_sync_overlay_group())
+	hud.legend_pressed.connect(_toggle_legend)
 	hud.help_pressed.connect(_open_help)
 	hud.contract_go_pressed.connect(func() -> void:
 		if not Game.active_contract.is_empty():
 			_travel(Game.contract_target(), {"kind": "target", "title": str(Game.active_contract["target_name"])}))
 	_build_legend()
+	_build_mini()
 	drawer = MapDrawer.new()
 	add_child(drawer)
 	drawer.travel_requested.connect(_travel)
@@ -119,8 +118,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		if event.keycode == KEY_F1 or event.keycode == KEY_QUESTION or event.unicode == 63:
 			_open_help()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_D:
+		elif event.keycode == KEY_F:
 			drawer.toggle()
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_L:
+			_toggle_legend()
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_M:
+			_set_minimap(not Settings.minimap)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_SPACE:
 			_set_speed(0 if _speed > 0 else 1)
@@ -165,24 +170,64 @@ func _focus_next_place(dir: int) -> void:
 
 
 func _build_legend() -> void:
-	_legend_panel = PanelContainer.new()
-	_legend_panel.theme_type_variation = "Card"
-	_legend_panel.visible = false
-	var lv := UiKit.vbox(3)
-	_legend_panel.add_child(lv)
-	for e in [["city", "Ville"], ["village", "Village"], ["site", "Fort, repaire, nécropole"], ["party", "Bande errante"],
-			["contract", "Lieu du contrat"], ["company", "Votre compagnie"], ["visited", "Lieu déjà visité"]]:
-		var row := UiKit.hbox(8)
-		row.add_child(LegendIcon.new(str(e[0])))
-		row.add_child(UiKit.label(str(e[1]), 13))
-		lv.add_child(row)
-	var terr_cb := CheckBox.new()
-	terr_cb.text = "Territoires des factions"
-	terr_cb.button_pressed = view.show_territories
-	terr_cb.add_theme_font_size_override("font_size", 13)
-	terr_cb.toggled.connect(view.set_show_territories)
-	lv.add_child(terr_cb)
+	_legend_panel = MapLegend.new()
+	_legend_panel.option_changed.connect(_on_legend_option)
 	hud.legend_anchor.add_child(_legend_panel)
+
+
+func _toggle_legend() -> void:
+	_legend_panel.visible = not _legend_panel.visible
+	if _legend_panel.visible:
+		_legend_panel.refresh_factions()
+		_fit_legend()
+	hud.set_legend_open(_legend_panel.visible)
+	_sync_overlay_group()
+
+
+## La légende occupe la hauteur disponible entre la mini-carte (en haut à droite) et les boutons du HUD.
+func _fit_legend() -> void:
+	var top: float = hud.time_bottom() + (mini.size.y + 16.0 if mini != null and mini.visible else 8.0)
+	_legend_panel.set_max_height(size.y - top - MapHud.BTN - MapHud.MARGIN * 2.0 - 40.0)
+
+
+func _on_legend_option(key: String, on: bool) -> void:
+	Settings.set_value(key, on)
+	if key == "minimap":
+		_set_minimap(on)
+
+
+func _build_mini() -> void:
+	mini = MapMini.new()
+	mini.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	mini.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	mini.offset_right = -MapHud.MARGIN
+	mini.offset_top = hud.time_bottom() + 8.0
+	mini.offset_left = -MapHud.MARGIN - mini.custom_minimum_size.x
+	mini.offset_bottom = mini.offset_top + mini.custom_minimum_size.y
+	add_child(mini)
+	mini.navigate.connect(func(p: Vector2) -> void:
+		view.center_on(p)
+		view.mark_manual())
+	mini.collapse_toggled.connect(func(c: bool) -> void:
+		mini.offset_left = -MapHud.MARGIN - mini.custom_minimum_size.x
+		mini.offset_bottom = mini.offset_top + mini.custom_minimum_size.y
+		if Settings.minimap == c:
+			Settings.set_value("minimap", not c)
+		_legend_panel.sync_option("minimap", not c))
+	mini.rebuild(Game.world)
+	mini.set_collapsed(not Settings.minimap)
+	_legend_panel.sync_option("minimap", Settings.minimap)
+
+
+## Affiche (déplie) ou replie la mini-carte et mémorise le choix.
+func _set_minimap(on: bool) -> void:
+	if mini == null:
+		return
+	if mini.collapsed == on:
+		mini.set_collapsed(not on)
+	if Settings.minimap != on:
+		Settings.set_value("minimap", on)
+	_legend_panel.sync_option("minimap", on)
 
 
 func _update_time() -> void:
@@ -192,6 +237,9 @@ func _update_time() -> void:
 func _process(delta: float) -> void:
 	if Game.battle != null or Game.location != "" or Game.world == null:
 		return
+	view.input_blocked = _modal_open()
+	if mini != null:
+		mini.set_state(view.visible_world_rect(), Game.world.player_pos)
 	_update_time()
 	_pill_timer += delta
 	if _pill_timer > 0.5:
@@ -350,11 +398,16 @@ func _eta_days() -> float:
 	return Game.world.path_days(pts)
 
 
+## Un écran modal (événement, lieu hostile, aide, pause, inventaire…) est ouvert : la caméra ignore le clavier.
+func _modal_open() -> bool:
+	return ModalOverlay.open_count > 0 or not get_tree().get_nodes_in_group("inventory_screen").is_empty()
+
+
 func _update_status() -> void:
 	if hud == null or Game.world == null:
 		return
 	if Game.world.path.is_empty():
-		hud.say("Halte. Cliquez sur la carte pour avancer.", "halt")
+		hud.say("Halte. Cliquez sur la carte pour avancer ; ZQSD ou les flèches déplacent la caméra (H : recentrer).", "halt")
 	else:
 		var d: Dictionary = Game.world.dest
 		var where: String = str(d.get("title", "")) if d.get("title", "") != "" else "un point de la carte"

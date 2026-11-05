@@ -20,21 +20,60 @@ static func _poly(l: CanvasItem, pts: PackedVector2Array, col: Color, outline: b
 		l.draw_polyline(ring, OL, 1.1)
 
 
+## Échelle courante des dessins de lieux (voir `begin_scaled`) : les ellipses recomposent leur transformation avec elle.
+static var _bpos: Vector2 = Vector2.ZERO
+static var _bk: float = 1.0
+
+
 static func _ellipse(l: CanvasItem, c: Vector2, rx: float, ry: float, col: Color) -> void:
-	l.draw_set_transform(c, 0.0, Vector2(1.0, ry / rx))
+	l.draw_set_transform(_bpos + c * _bk, 0.0, Vector2(_bk, _bk * ry / rx))
 	l.draw_circle(Vector2.ZERO, rx, col)
+	l.draw_set_transform(_bpos, 0.0, Vector2(_bk, _bk))
+
+
+## Dessine ce qui suit autour de `p` à l'échelle `k` : appeler les fonctions `paint_*` avec `Vector2.ZERO` comme position.
+static func begin_scaled(l: CanvasItem, p: Vector2, k: float) -> void:
+	_bpos = p
+	_bk = k
+	l.draw_set_transform(p, 0.0, Vector2(k, k))
+
+
+static func end_scaled(l: CanvasItem) -> void:
+	_bpos = Vector2.ZERO
+	_bk = 1.0
 	l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 # --- Villes et villages ---
 
 ## Dessine le lieu ; ajoute à `lights` ses fenêtres et torches : {"p": Vector2, "k": "win"|"torch"}.
-static func paint_settlement(l: CanvasItem, s: Dictionary, p: Vector2, lights: Array) -> void:
+## `k` : échelle du dessin (1 = taille d'origine). Une capitale est dessinée plus grande (`CAPITAL_K`).
+static func paint_settlement(l: CanvasItem, s: Dictionary, p: Vector2, lights: Array, k: float = 1.0) -> void:
 	var seed_i: int = int(p.x) * 31 + int(p.y)
+	var kk: float = k * settlement_k(s)
+	if is_equal_approx(kk, 1.0):
+		if s["kind"] == "city":
+			_city(l, p, lights)
+		else:
+			_village(l, p, seed_i, lights)
+		return
+	var local: Array = []
+	begin_scaled(l, p, kk)
 	if s["kind"] == "city":
-		_city(l, p, lights)
+		_city(l, Vector2.ZERO, local)
 	else:
-		_village(l, p, seed_i, lights)
+		_village(l, Vector2.ZERO, seed_i, local)
+	end_scaled(l)
+	for e in local:
+		lights.append({"p": p + (e["p"] as Vector2) * kk, "k": e["k"]})
+
+
+const CAPITAL_K: float = 1.3
+
+
+## Agrandissement propre au lieu (capitale de faction : plus grande, avec ses étendards).
+static func settlement_k(s: Dictionary) -> float:
+	return CAPITAL_K if bool(s.get("capital", false)) else 1.0
 
 
 static func _win(l: CanvasItem, lights: Array, at: Vector2) -> void:
@@ -126,18 +165,18 @@ static func _village(l: CanvasItem, p: Vector2, seed_i: int, lights: Array) -> v
 
 
 ## Moyeu du moulin d'un village (pour les ailes animées), ou Vector2.ZERO pour une ville.
-static func windmill_hub(s: Dictionary, p: Vector2) -> Vector2:
-	return p + Vector2(20, -9) if s["kind"] != "city" else Vector2.ZERO
+static func windmill_hub(s: Dictionary, p: Vector2, k: float = 1.0) -> Vector2:
+	return p + Vector2(20, -9) * k if s["kind"] != "city" else Vector2.ZERO
 
 
-static func paint_blades(l: CanvasItem, hub: Vector2, ang: float) -> void:
+static func paint_blades(l: CanvasItem, hub: Vector2, ang: float, k: float = 1.0) -> void:
 	for i in 4:
 		var a: float = ang + PI * 0.5 * i
-		var d := Vector2(cos(a), sin(a))
+		var d := Vector2(cos(a), sin(a)) * k
 		var n := d.orthogonal()
-		l.draw_line(hub, hub + d * 9.0, OL, 2.2)
+		l.draw_line(hub, hub + d * 9.0, OL, 2.2 * k)
 		_poly(l, PackedVector2Array([hub + d * 3.0 + n * 0.5, hub + d * 9.0 + n * 0.5, hub + d * 9.0 + n * 3.4, hub + d * 3.0 + n * 3.4]), Color("d9cfb4"), true)
-	l.draw_circle(hub, 1.8, OL)
+	l.draw_circle(hub, 1.8 * k, OL)
 
 
 static func paint_label(l: CanvasItem, s: Dictionary, p: Vector2, font: Font) -> void:
@@ -147,10 +186,24 @@ static func paint_label(l: CanvasItem, s: Dictionary, p: Vector2, font: Font) ->
 	l.draw_string_outline(font, at, str(s["name"]), HORIZONTAL_ALIGNMENT_CENTER, 180, size, 6, Color("120f0c"))
 	l.draw_string(font, at, str(s["name"]), HORIZONTAL_ALIGNMENT_CENTER, 180, size, GameTheme.INK)
 	if Visits.day_of(s) > 0:
-		var vp: Vector2 = p + Vector2(34 if city else 26, -14)
-		l.draw_circle(vp, 6.5, OL)
-		l.draw_circle(vp, 5.2, Color("8aa05a"))
-		l.draw_polyline(PackedVector2Array([vp + Vector2(-2.6, 0.2), vp + Vector2(-0.6, 2.4), vp + Vector2(2.8, -2.2)]), OL, 1.6, true)
+		paint_visited_mark(l, p + Vector2(34 if city else 26, -14))
+
+
+## Pastille verte « lieu déjà visité ».
+static func paint_visited_mark(l: CanvasItem, vp: Vector2, k: float = 1.0) -> void:
+	l.draw_circle(vp, 6.5 * k, OL)
+	l.draw_circle(vp, 5.2 * k, Color("8aa05a"))
+	l.draw_polyline(PackedVector2Array([vp + Vector2(-2.6, 0.2) * k, vp + Vector2(-0.6, 2.4) * k, vp + Vector2(2.8, -2.2) * k]), OL, 1.6 * k, true)
+
+
+## Drapeau rouge planté sur le lieu du contrat, cerclé d'un anneau qui pulse (`pulse` de 0 à 1).
+static func paint_contract_flag(l: CanvasItem, tp: Vector2, pulse: float) -> void:
+	l.draw_arc(tp, 16.0 + pulse * 5.0, 0.0, TAU, 28, Color(0.8, 0.25, 0.2, 0.7 - pulse * 0.4), 2.0, true)
+	l.draw_line(tp, tp + Vector2(0, -26), OL, 3.0)
+	l.draw_line(tp, tp + Vector2(0, -26), Color("c9c2b2"), 1.5)
+	var flag := PackedVector2Array([tp + Vector2(0, -26), tp + Vector2(14, -21), tp + Vector2(0, -16)])
+	l.draw_colored_polygon(flag, Color("b03a2e"))
+	l.draw_polyline(PackedVector2Array([flag[0], flag[1], flag[2], flag[0]]), OL, 1.0)
 
 
 # --- Bannières ---
@@ -236,7 +289,7 @@ static func territories(w: World) -> Dictionary:
 	var noise_y := FastNoiseLite.new()
 	noise_y.seed = 47
 	noise_y.frequency = 0.012
-	var rect := PackedVector2Array([Vector2.ZERO, Vector2(World.SIZE.x, 0), World.SIZE, Vector2(0, World.SIZE.y)])
+	var rect := PackedVector2Array([Vector2.ZERO, Vector2(w.size.x, 0), w.size, Vector2(0, w.size.y)])
 	var polys: Array[PackedVector2Array] = []
 	for i in owned.size():
 		var poly: PackedVector2Array = rect
@@ -246,7 +299,7 @@ static func territories(w: World) -> Dictionary:
 				poly = _clip(poly, pi, w.settlement_pos(owned[j]))
 		polys.append(poly)
 	var wob := func(v: Vector2) -> Vector2:
-		if v.x < 1.0 or v.y < 1.0 or v.x > World.SIZE.x - 1.0 or v.y > World.SIZE.y - 1.0:
+		if v.x < 1.0 or v.y < 1.0 or v.x > w.size.x - 1.0 or v.y > w.size.y - 1.0:
 			return v
 		return v + Vector2(noise_x.get_noise_2d(v.x, v.y), noise_y.get_noise_2d(v.x, v.y)) * 34.0
 	var sub := func(a: Vector2, b: Vector2) -> PackedVector2Array:
@@ -350,7 +403,7 @@ static func paint_territory_names(l: CanvasItem, terr: Dictionary, w: World, fon
 			continue
 		var d: Dictionary = acc[owner]
 		var cp: Vector2 = (d["p"] as Vector2) / maxf(float(d["w"]), 1.0)
-		cp = Vector2(clampf(cp.x, 140.0, World.SIZE.x - 140.0), clampf(cp.y, 60.0, World.SIZE.y - 60.0))
+		cp = Vector2(clampf(cp.x, 140.0, w.size.x - 140.0), clampf(cp.y, 60.0, w.size.y - 60.0))
 		for s in w.settlements:  # écarte le nom des lieux
 			if w.settlement_pos(s).distance_to(cp) < 70.0:
 				cp += (cp - w.settlement_pos(s)).normalized() * 55.0 if cp != w.settlement_pos(s) else Vector2(0, 60)
@@ -379,7 +432,8 @@ static func _area(poly: PackedVector2Array) -> float:
 
 # --- Lieux hostiles ---
 
-static func paint_site(l: CanvasItem, s: Dictionary, p: Vector2, col: Color, font: Font, t: float, animate: bool) -> void:
+static func paint_site(l: CanvasItem, s: Dictionary, p: Vector2, col: Color, font: Font, t: float, animate: bool, with_label: bool = true) -> void:
+	var seed_x: int = int(float(s.get("x", p.x)))  # graine stable même si `p` est l'origine d'un dessin mis à l'échelle
 	var state: String = str(s["state"])
 	var big: bool = s["kind"] == "citadel"
 	var k: float = 1.45 if big else 1.0
@@ -395,7 +449,7 @@ static func paint_site(l: CanvasItem, s: Dictionary, p: Vector2, col: Color, fon
 	# pieux et crânes
 	for i in 7:
 		var sx: float = (-18.0 + i * 6.0) * k
-		var hh: float = (7.0 + hf(int(p.x), i, 5) * 3.0) * k
+		var hh: float = (7.0 + hf(seed_x, i, 5) * 3.0) * k
 		l.draw_line(p + Vector2(sx, 12 * k), p + Vector2(sx, 12 * k - hh), OL, 2.4)
 		l.draw_line(p + Vector2(sx, 12 * k), p + Vector2(sx, 12 * k - hh), Color(0.42, 0.32, 0.2, fade), 1.2)
 		if i % 3 == 1 and state == "hostile":
@@ -426,6 +480,8 @@ static func paint_site(l: CanvasItem, s: Dictionary, p: Vector2, col: Color, fon
 	var wv: float = sin(t * 5.0) * 1.2 if animate else 0.0
 	var fl := PackedVector2Array([top + Vector2(0, -14 * k), top + Vector2(12 * k, -10 * k + wv), top + Vector2(0, -6 * k)])
 	_poly(l, fl, flag_col)
+	if not with_label:
+		return
 	var label: String = str(s["name"]) + (" ◆◆◆" if state == "hostile" else (" ✓" if state == "friendly" else ""))
 	var lc: Color = col.lerp(Color.WHITE, 0.55) if state == "hostile" else Color(GameTheme.INK, 0.8)
 	l.draw_string_outline(font, p + Vector2(-90, 30 * k), label, HORIZONTAL_ALIGNMENT_CENTER, 180, 17, 5, Color("120f0c"))
@@ -473,3 +529,124 @@ static func paint_company(l: CanvasItem, me: Vector2, banner: Dictionary, t: flo
 		moved.append(c + v)
 	l.draw_colored_polygon(moved, Color("1c1915"))
 	paint_banner(l, c + Vector2(-9, -8), banner, t, animate, 0.8)
+
+
+# --- Territoires du grand monde (grille d'étiquettes de Territory) ---
+
+## Texture de teinte des territoires : une case = un pixel (lissée à l'affichage). Les eaux ne sont pas teintées.
+static func territory_image(w: World, lab: Dictionary, alpha: float = 0.2) -> Image:
+	var n: int = int(lab["w"])
+	var m: int = int(lab["h"])
+	var img := Image.create(n, m, false, Image.FORMAT_RGBA8)
+	var own: PackedByteArray = lab["own"]
+	var keys: Array = lab["keys"]
+	var step: int = int(lab["step"])
+	var cols: Array[Color] = []
+	for k in keys:
+		var c: Color = faction_color(str(k))
+		cols.append(Color(c.r, c.g, c.b, alpha))
+	for j in m:
+		for i in n:
+			var v: int = own[j * n + i]
+			if v == 0:
+				continue
+			var t: int = w.terrain[mini(j * step, w.gh - 1) * w.gw + mini(i * step, w.gw - 1)]
+			if t == World.T.WATER:
+				continue
+			img.set_pixel(i, j, cols[v - 1])
+	return img
+
+
+## Frontières en pointillés (traits d'ombre et fil de la couleur des deux factions) ; `k` épaissit à petit zoom.
+## Tous les tirets d'une couleur sont regroupés en un seul appel de dessin (draw_multiline).
+static func paint_borders(l: CanvasItem, lines: Array, k: float = 1.0) -> void:
+	var shadow := PackedVector2Array()
+	var by_col: Dictionary = {}
+	for ln in lines:
+		var mix: Color = faction_color(str(ln["a"])).lerp(faction_color(str(ln["b"])), 0.5).lightened(0.25)
+		var pts: PackedVector2Array = ln["pts"]
+		var run: float = 0.0
+		var arr: PackedVector2Array = by_col.get(mix, PackedVector2Array())
+		for i in pts.size() - 1:
+			if int(run / (8.0 * k)) % 2 == 0:
+				shadow.append(pts[i])
+				shadow.append(pts[i + 1])
+				arr.append(pts[i])
+				arr.append(pts[i + 1])
+			run += pts[i].distance_to(pts[i + 1])
+		by_col[mix] = arr
+	if not shadow.is_empty():
+		l.draw_multiline(shadow, Color(0.16, 0.11, 0.07, 0.8), 2.6 * k)
+	for c in by_col:
+		if not (by_col[c] as PackedVector2Array).is_empty():
+			l.draw_multiline(by_col[c], c, 1.1 * k)
+
+
+## Bornes frontières : petite pierre dressée, coiffée des couleurs des deux voisins.
+static func paint_border_stones(l: CanvasItem, stones: Array, k: float = 1.0) -> void:
+	for st in stones:
+		var p: Vector2 = st["p"]
+		var ca: Color = faction_color(str(st["a"]))
+		var cb: Color = faction_color(str(st["b"]))
+		var h: float = 11.0 * k
+		var wd: float = 4.2 * k
+		l.draw_circle(p + Vector2(1.5, 1.0) * k, 3.4 * k, Color(0, 0, 0, 0.25))
+		var body := PackedVector2Array([p + Vector2(-wd, 1.5 * k), p + Vector2(-wd, -h * 0.7), p + Vector2(-wd * 0.5, -h), p + Vector2(wd * 0.5, -h), p + Vector2(wd, -h * 0.7), p + Vector2(wd, 1.5 * k)])
+		l.draw_colored_polygon(body, Color("a9a495"))
+		l.draw_colored_polygon(PackedVector2Array([p + Vector2(0, -h), p + Vector2(wd * 0.5, -h), p + Vector2(wd, -h * 0.7), p + Vector2(wd, 1.5 * k), p + Vector2(0, 1.5 * k)]), Color("807b6e"))
+		l.draw_rect(Rect2(p + Vector2(-wd, -h * 0.55), Vector2(wd, 2.6 * k)), ca)
+		l.draw_rect(Rect2(p + Vector2(0, -h * 0.55), Vector2(wd, 2.6 * k)), cb)
+		l.draw_polyline(PackedVector2Array([body[0], body[1], body[2], body[3], body[4], body[5], body[0]]), OL, 0.9 * k)
+
+
+# --- Points d'intérêt ---
+
+const POI_COLORS: Dictionary = {"ruins": Color("b9b2a0"), "shrine": Color("e6d9a0"), "camp": Color("c9a070"), "tower": Color("b0a88e"), "cave": Color("6a5a48")}
+
+
+## Petit pictogramme d'un point d'intérêt, centré sur `p` (pied au sol), à l'échelle `k`. `done` : déjà exploré (estompé).
+static func paint_poi(l: CanvasItem, kind: String, p: Vector2, k: float, done: bool, t: float = 0.0, animate: bool = false) -> void:
+	var a: float = 0.5 if done else 1.0
+	var stone := Color(0.66, 0.62, 0.55, a)
+	var dark := Color(0.40, 0.37, 0.33, a)
+	l.draw_set_transform(p + Vector2(0, 5.0 * k), 0.0, Vector2(1.0, 0.4))
+	l.draw_circle(Vector2.ZERO, 9.0 * k, Color(0, 0, 0, 0.3 * a))
+	l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	match kind:
+		"ruins":  # colonnes brisées
+			for i in 3:
+				var x: float = (-7.0 + i * 7.0) * k
+				var h: float = (6.0 + 5.0 * float((i * 5) % 3)) * k
+				l.draw_rect(Rect2(p + Vector2(x - 2.2 * k, 4.0 * k - h), Vector2(4.4 * k, h)), stone)
+				l.draw_rect(Rect2(p + Vector2(x - 2.2 * k, 4.0 * k - h), Vector2(4.4 * k, h)), OL, false, 0.9 * k)
+				l.draw_colored_polygon(PackedVector2Array([p + Vector2(x - 2.2 * k, 4.0 * k - h), p + Vector2(x - 0.5 * k, 4.0 * k - h - 2.0 * k), p + Vector2(x + 2.2 * k, 4.0 * k - h)]), dark)
+		"shrine":  # stèle et lueur
+			var glow: float = 0.55 + 0.25 * sin(t * 2.0) if animate else 0.6
+			l.draw_circle(p + Vector2(0, -5.0 * k), 8.5 * k, Color(1.0, 0.9, 0.5, 0.18 * glow * a))
+			l.draw_rect(Rect2(p + Vector2(-2.6 * k, -11.0 * k), Vector2(5.2 * k, 15.0 * k)), stone)
+			l.draw_rect(Rect2(p + Vector2(-2.6 * k, -11.0 * k), Vector2(5.2 * k, 15.0 * k)), OL, false, 0.9 * k)
+			l.draw_line(p + Vector2(0, -9.0 * k), p + Vector2(0, -3.0 * k), Color(0.9, 0.78, 0.3, a), 1.2 * k)
+			l.draw_line(p + Vector2(-2.0 * k, -6.5 * k), p + Vector2(2.0 * k, -6.5 * k), Color(0.9, 0.78, 0.3, a), 1.2 * k)
+			l.draw_circle(p + Vector2(0, -12.5 * k), 1.5 * k, Color(1.0, 0.92, 0.55, a))
+		"camp":  # tente et feu éteint
+			var tent := PackedVector2Array([p + Vector2(-8.0 * k, 4.0 * k), p + Vector2(0, -9.0 * k), p + Vector2(8.0 * k, 4.0 * k)])
+			l.draw_colored_polygon(tent, Color(0.72, 0.62, 0.46, a))
+			l.draw_colored_polygon(PackedVector2Array([p + Vector2(0, -9.0 * k), p + Vector2(8.0 * k, 4.0 * k), p + Vector2(1.5 * k, 4.0 * k)]), Color(0.52, 0.43, 0.32, a))
+			l.draw_polyline(PackedVector2Array([tent[0], tent[1], tent[2], tent[0]]), OL, 1.0 * k)
+			l.draw_circle(p + Vector2(10.0 * k, 3.5 * k), 2.0 * k, Color(0.2, 0.17, 0.15, a))
+		"tower":  # tour de guet
+			var body := PackedVector2Array([p + Vector2(-4.5 * k, 4.0 * k), p + Vector2(-3.5 * k, -12.0 * k), p + Vector2(3.5 * k, -12.0 * k), p + Vector2(4.5 * k, 4.0 * k)])
+			l.draw_colored_polygon(body, stone)
+			l.draw_colored_polygon(PackedVector2Array([p + Vector2(1.0 * k, -12.0 * k), p + Vector2(3.5 * k, -12.0 * k), p + Vector2(4.5 * k, 4.0 * k), p + Vector2(1.5 * k, 4.0 * k)]), dark)
+			l.draw_polyline(PackedVector2Array([body[0], body[1], body[2], body[3], body[0]]), OL, 1.0 * k)
+			for i in 3:
+				l.draw_rect(Rect2(p + Vector2((-4.6 + i * 3.3) * k, -15.0 * k), Vector2(2.4 * k, 3.4 * k)), stone)
+			l.draw_rect(Rect2(p + Vector2(-1.0 * k, -6.0 * k), Vector2(2.0 * k, 3.5 * k)), Color(0.12, 0.1, 0.08, a))
+		"cave":  # arche sombre dans la roche
+			var rock := PackedVector2Array([p + Vector2(-10.0 * k, 4.0 * k), p + Vector2(-8.0 * k, -5.0 * k), p + Vector2(-2.0 * k, -10.0 * k), p + Vector2(5.0 * k, -8.0 * k), p + Vector2(10.0 * k, 4.0 * k)])
+			l.draw_colored_polygon(rock, Color(0.5, 0.46, 0.4, a))
+			l.draw_polyline(PackedVector2Array([rock[0], rock[1], rock[2], rock[3], rock[4]]), OL, 1.1 * k)
+			l.draw_circle(p + Vector2(0, 0.5 * k), 4.6 * k, Color(0.08, 0.06, 0.05, a))
+			l.draw_rect(Rect2(p + Vector2(-4.6 * k, 0.5 * k), Vector2(9.2 * k, 3.5 * k)), Color(0.08, 0.06, 0.05, a))
+		_:
+			l.draw_circle(p, 4.0 * k, stone)

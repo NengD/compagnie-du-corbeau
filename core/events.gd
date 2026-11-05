@@ -431,7 +431,143 @@ const CAMP_DEFS: Array = [
 ]
 
 
+## Rencontres des points d'intérêt de la carte (ruines, sanctuaires, camps abandonnés, tours de guet, grottes) : une par visite,
+## tirées parmi celles du type (`poi`). Elles ne tombent jamais en route : voir `poi_pick` et `Game.visit_poi`.
+const POI_DEFS: Array = [
+	{
+		"id": "poi_ruins_a", "poi": "ruins", "title": "Ruines : la crypte effondrée",
+		"text": "Sous un pan de mur écroulé, un escalier s'enfonce dans le noir. Des armes rouillées jonchent les premières marches.",
+		"choices": [
+			{"id": "dig", "label": "Descendre fouiller la crypte", "outcomes": [
+				{"w": 3, "text": "Une cassette scellée : quelques couronnes d'un autre âge.", "gold": 140},
+				{"w": 2, "text": "Le plafond cède : un homme est blessé, mais on sauve de quoi réparer les armures.", "hp_one": -10, "repair": true},
+				{"w": 1, "text": "Des ossements se redressent dans le noir !", "battle": {"type": "u", "d": 1}},
+			]},
+			{"id": "camp", "label": "Y passer la nuit à l'abri des murs (1 jour)", "outcomes": [{"w": 1, "text": "Les vieilles pierres coupent le vent. Chacun reprend des forces.", "days": 1, "hp_all": 8}]},
+			{"id": "pass", "label": "Passer son chemin", "outcomes": [{"w": 1, "text": "Mieux vaut ne pas réveiller ce qui dort là."}]},
+		],
+	},
+	{
+		"id": "poi_ruins_b", "poi": "ruins", "title": "Ruines : les graffitis du déserteur",
+		"text": "Sur un mur noirci, un soldat a gravé une carte grossière, avec une croix : « Ici, ma solde. »",
+		"choices": [
+			{"id": "follow", "label": "Suivre la carte", "outcomes": [
+				{"w": 2, "text": "La croix désigne un tas de pierres. Dessous : une bourse moisie, mais pleine.", "gold": 110},
+				{"w": 1, "text": "Un piège à loup se referme sur la jambe d'un homme.", "hp_one": -14},
+			]},
+			{"id": "copy", "label": "Recopier la carte pour la vendre en ville", "outcomes": [{"w": 1, "text": "Un érudit paiera cher ce croquis. Pour l'heure, la nouvelle fait parler de vous.", "renown": 6}]},
+		],
+	},
+	{
+		"id": "poi_shrine_a", "poi": "shrine", "title": "Sanctuaire : la source bénite",
+		"text": "Un filet d'eau claire coule d'une stèle moussue. Des rubans de laine pendent aux branches : on prie ici depuis longtemps.",
+		"choices": [
+			{"id": "drink", "label": "Boire et laver les blessures", "outcomes": [
+				{"w": 3, "text": "L'eau est glaciale et étrangement revigorante.", "hp_all": 14},
+				{"w": 1, "text": "L'eau a un goût de fer ; la fatigue, elle, ne revient pas.", "hp_all": 6, "xp_all": 8},
+			]},
+			{"id": "offer", "label": "Laisser une offrande (40 couronnes)", "cost": 40, "outcomes": [
+				{"w": 2, "text": "Un sentiment de paix descend sur la troupe. La route sera clémente.", "morale": 8},
+				{"w": 1, "text": "Une vieille prêtresse sort de l'ombre et bénit vos armes.", "renown": 8, "xp_all": 10},
+			]},
+			{"id": "pass", "label": "Respecter le lieu et poursuivre", "outcomes": [{"w": 1, "text": "Quelques hommes se signent en passant."}]},
+		],
+	},
+	{
+		"id": "poi_shrine_b", "poi": "shrine", "title": "Sanctuaire : l'ermite",
+		"text": "Un vieillard maigre garde la stèle depuis, dit-il, quarante hivers. Il demande du pain, et promet de la sagesse.",
+		"choices": [
+			{"id": "bread", "label": "Partager vos vivres (−8 rations)", "outcomes": [
+				{"w": 2, "text": "L'ermite parle des routes, des gués, des bêtes. Vos hommes écoutent, et retiennent.", "food": -8, "xp_all": 14},
+				{"w": 1, "text": "Le vieillard tire de sa besace une vieille bague d'argent : « Pour celui qui partage. »", "food": -8, "gold": 120},
+			]},
+			{"id": "rob", "label": "Le dépouiller", "outcomes": [{"w": 1, "text": "Il n'avait rien. La honte pèse sur la troupe.", "renown": -6, "morale": -6}]},
+			{"id": "pass", "label": "Passer son chemin", "outcomes": [{"w": 1, "text": "L'ermite hausse les épaules et se rassoit."}]},
+		],
+	},
+	{
+		"id": "poi_camp_a", "poi": "camp", "title": "Camp abandonné : le convoi pillé",
+		"text": "Des chariots brisés, des feux froids. Quelqu'un est parti en hâte, laissant des caisses éventrées.",
+		"choices": [
+			{"id": "search", "label": "Fouiller les chariots", "outcomes": [
+				{"w": 3, "text": "Entre deux caisses : des vivres encore sains et quelques pièces.", "food": 14, "gold": 60},
+				{"w": 1, "text": "Une caisse piégée explose : un homme est brûlé.", "hp_one": -12},
+				{"w": 1, "text": "Les pillards reviennent chercher leur butin !", "battle": {"type": "b", "d": 1}},
+			]},
+			{"id": "pass", "label": "Ne pas s'attarder", "outcomes": [{"w": 1, "text": "Mieux vaut ne pas être là quand les propriétaires reviendront."}]},
+		],
+	},
+	{
+		"id": "poi_camp_b", "poi": "camp", "title": "Camp abandonné : l'infirmerie de fortune",
+		"text": "Des paillasses alignées sous une toile, des bandages propres, une marmite encore tiède. Un camp de blessés, déserté depuis peu.",
+		"choices": [
+			{"id": "rest", "label": "Soigner les hommes (1 jour)", "outcomes": [{"w": 1, "text": "Les bandages, l'herbe à plaies, une nuit d'abri : tout le monde s'en trouve mieux.", "days": 1, "hp_all": 16}]},
+			{"id": "take", "label": "Emporter le matériel", "outcomes": [{"w": 1, "text": "Fil, aiguilles et rivets : de quoi réparer les cottes en route.", "repair": true}]},
+		],
+	},
+	{
+		"id": "poi_tower_a", "poi": "tower", "title": "Tour de guet : la vue d'en haut",
+		"text": "La tour est vide, mais l'escalier tient encore. Du sommet, on voit tout le pays alentour.",
+		"choices": [
+			{"id": "climb", "label": "Monter observer les routes", "outcomes": [
+				{"w": 3, "text": "Du haut, vous repérez les sentiers sûrs et les fumées suspectes. La compagnie y gagne en prudence.", "xp_all": 12},
+				{"w": 1, "text": "Une planche cède sous un homme : belle chute.", "hp_one": -9},
+			]},
+			{"id": "pass", "label": "Passer son chemin", "outcomes": [{"w": 1, "text": "La tour garde ses secrets."}]},
+		],
+	},
+	{
+		"id": "poi_tower_b", "poi": "tower", "title": "Tour de guet : le guetteur oublié",
+		"text": "Un vieux soldat mal rasé garde la tour au nom d'un seigneur mort depuis des années. Il vous prend pour des relèves.",
+		"choices": [
+			{"id": "play", "label": "Jouer les relèves et lui demander ses cartes", "outcomes": [
+				{"w": 2, "text": "Content d'être enfin relevé, le vieux vous confie ses notes de patrouille et sa solde cachée.", "gold": 90, "renown": 4},
+			]},
+			{"id": "recruit", "label": "Lui proposer de vous suivre", "outcomes": [
+				{"w": 1, "text": "Le vieux soldat boucle son sac : « Enfin, un capitaine ! »", "recruit": "deserteur"},
+				{"w": 1, "text": "Il refuse en riant et vous offre une gourde de vin.", "morale": 5},
+			]},
+			{"id": "pass", "label": "Ne rien dire et partir", "outcomes": [{"w": 1, "text": "Le vieux salue encore un moment, seul sur sa tour."}]},
+		],
+	},
+	{
+		"id": "poi_cave_a", "poi": "cave", "title": "Grotte : l'antre du loup",
+		"text": "Des os rongés, des traces de pattes. Quelque chose a élu domicile ici, et vous sentez son haleine dans la pénombre.",
+		"choices": [
+			{"id": "enter", "label": "Entrer, armes en main", "outcomes": [
+				{"w": 2, "text": "Une portée de louveteaux et des restes de voyageurs : on récupère quelques pièces.", "gold": 80},
+				{"w": 2, "text": "La mère rentre de la chasse !", "battle": {"type": "m", "d": 1}},
+			]},
+			{"id": "smoke", "label": "Enfumer l'entrée (1 jour)", "outcomes": [{"w": 1, "text": "Les bêtes fuient dans la nuit. La grotte est à vous : on s'y repose.", "days": 1, "hp_all": 8}]},
+			{"id": "pass", "label": "Laisser dormir les loups", "outcomes": [{"w": 1, "text": "Vous reculez sans bruit."}]},
+		],
+	},
+	{
+		"id": "poi_cave_b", "poi": "cave", "title": "Grotte : la veine du mineur fou",
+		"text": "Des étais à demi pourris, une lanterne éteinte, des coups de pioche sur la paroi. Un filon luit encore dans la roche.",
+		"choices": [
+			{"id": "mine", "label": "Piocher un jour dans le filon (1 jour)", "outcomes": [
+				{"w": 3, "text": "Du minerai, du vrai : un forgeron de passage vous le rachètera.", "days": 1, "gold": 150},
+				{"w": 1, "text": "Un éboulement. Personne n'est mort, mais la journée est perdue.", "days": 1, "hp_one": -12},
+			]},
+			{"id": "pass", "label": "Ne pas toucher aux étais", "outcomes": [{"w": 1, "text": "La prudence est la mère des vieux mercenaires."}]},
+		],
+	},
+]
+
+
+## Une rencontre au hasard pour un point d'intérêt de type `kind` (ruins, shrine, camp, tower, cave).
+static func poi_pick(kind: String, rng: RandomNumberGenerator) -> Dictionary:
+	var pool: Array = POI_DEFS.filter(func(e: Dictionary) -> bool: return str(e["poi"]) == kind)
+	if pool.is_empty():
+		return {}
+	return pool[rng.randi() % pool.size()]
+
+
 static func get_def(id: String) -> Dictionary:
+	for e in POI_DEFS:
+		if e["id"] == id:
+			return e
 	for e in CAMP_DEFS:
 		if e["id"] == id:
 			return e

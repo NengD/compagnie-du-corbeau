@@ -9,7 +9,7 @@ const STEPS: Array[Dictionary] = [
 	{"id": "town_leave", "ctx": "town", "title": "2 · Quitter la ville",
 		"text": "Une fois votre contrat accepté, cliquez sur « Quitter la ville » pour gagner la carte du monde. La solde de vos hommes est payée chaque jour."},
 	{"id": "map_travel", "ctx": "map", "title": "3 · Voyager",
-		"text": "Cliquez sur la carte pour marcher, ou sur « Aller » dans la pastille du contrat (en bas à gauche). Les boutons ronds en haut à droite règlent le temps (Espace : pause) ; la touche D ouvre le tiroir « Détails ». Molette : zoom ; clic milieu : déplacer la carte. Méfiez-vous des bandes errantes."},
+		"text": "Cliquez sur la carte pour marcher, ou sur « Aller » dans la pastille du contrat (en bas à gauche). Les boutons ronds en haut à droite règlent le temps (Espace : pause) ; la touche F ouvre le tiroir « Détails », L la légende. Z, Q, S, D (ou les flèches) déplacent la caméra, H la recentre sur la compagnie. Molette : zoom ; clic milieu : déplacer la carte. Méfiez-vous des bandes errantes."},
 	{"id": "battle_move", "ctx": "battle", "title": "4 · Déplacement et attaque",
 		"text": "Cliquez une case dorée pour avancer (2 PA par case) ou un ennemi à portée pour l'attaquer ; son pourcentage de toucher s'affiche au survol. Quitter le contact d'un ennemi lui offre une attaque gratuite. Molette : zoom du plateau (H : vue d'ensemble)."},
 	{"id": "battle_stats", "ctx": "battle", "title": "5 · PA, fatigue et moral",

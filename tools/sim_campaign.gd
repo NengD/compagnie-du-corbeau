@@ -237,6 +237,9 @@ func travel() -> void:
 		elif not g.active_contract.is_empty() and Contracts.is_transport(g.active_contract):
 			var d: Dictionary = g.world.settlement_by_id(str(g.active_contract["dest_id"]))
 			ok = g.world.set_destination(g.world.settlement_pos(d), {"kind": "settlement", "id": d["id"]})
+		if not ok and not g.world.pois.is_empty() and bot.randf() < 0.3:  # grand monde : un point d'intérêt de temps en temps
+			var q: Dictionary = g.world.pois[bot.randi() % g.world.pois.size()]
+			ok = g.world.set_destination(g.world.poi_pos(q), {"kind": "poi", "id": q["id"]})
 		if not ok:
 			var sl: Array = g.world.settlements
 			var d2: Dictionary = sl[bot.randi() % sl.size()]
@@ -263,6 +266,9 @@ func travel() -> void:
 				fail("engage_ambush n'a pas lancé de bataille")
 		"settlement":
 			bump("arrivees")
+		"event":
+			if str(g.pending_event.get("id", "")).begins_with("poi_"):
+				bump("points d'intérêt")
 		"over":
 			pass
 

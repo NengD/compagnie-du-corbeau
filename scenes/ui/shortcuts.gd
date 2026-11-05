@@ -18,10 +18,15 @@ const MAP: Array = [
 	["Espace", "Pause / reprise du temps"],
 	["Échap", "Fermer le tiroir ou la légende, sinon s'arrêter (ou ouvrir le menu pause à l'arrêt)"],
 	["Tab / Maj+Tab", "Aller au lieu suivant / précédent (centre la vue)"],
-	["H / C / Début", "Recentrer sur la compagnie"],
+	["Z Q S D / flèches", "Déplacer la caméra (touches W A S D d'un clavier QWERTY) ; Maj : plus vite"],
+	["Bords de l'écran", "Faire défiler la carte (réglable dans les options)"],
+	["H / C / Début", "Recentrer sur la compagnie (la caméra la suit pendant les trajets)"],
 	["I", "Inventaire"],
-	["D", "Tiroir « Détails » (contrat, factions, lieux, hommes)"],
+	["F", "Tiroir « Détails » (contrat, factions, lieux, hommes)"],
+	["L", "Légende de la carte"],
+	["M", "Replier / déplier la mini-carte"],
 	["Molette · clic milieu/droit", "Zoom · déplacer la carte"],
+	["Clic sur la mini-carte", "Aller à cet endroit du monde"],
 	["? / F1", "Cette aide"],
 ]
 

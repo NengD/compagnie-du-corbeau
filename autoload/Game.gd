@@ -418,6 +418,13 @@ func _faction_result(c: Dictionary, result: String) -> Array:
 	if result == "win" and Data.FACTIONS.has(vs):
 		change_faction_standing(vs, -Factions.VS_LOSS)
 		lines.append("%s : −%d de réputation." % [Factions.name_of(vs), Factions.VS_LOSS])
+	if result == "win":  # contrecoups : les rivales de l'employeur s'en offusquent, ses alliées s'en réjouissent un peu
+		var sp: Dictionary = Factions.spill(f)
+		for k in sp:
+			if str(k) == vs:
+				continue
+			change_faction_standing(str(k), int(sp[k]))
+			lines.append("%s : %+d de réputation (%s de %s)." % [Factions.name_of(str(k)), int(sp[k]), "rivale" if int(sp[k]) < 0 else "alliée", Factions.name_of(f)])
 	return lines
 
 
@@ -570,7 +577,7 @@ func _post_special_contract(spec: Dictionary) -> String:
 	if best.is_empty():
 		return ""
 	var origin: Vector2 = world.settlement_pos(best)
-	var target: Vector2 = world.random_target(origin, 150.0, 480.0)
+	var target: Vector2 = world.random_target(origin, world.target_lo, world.target_hi)
 	if target == Vector2.ZERO:
 		_earn(int(spec["pay"]) / 2)
 		return ""
@@ -754,7 +761,7 @@ func advance_time(days: float) -> void:
 		if patrol != "":
 			lines.append(patrol)
 		if rng.randf() < 0.35:
-			world.fill_parties(renown, World.MAX_PARTIES)
+			world.fill_parties(renown, world.max_parties)
 	if not lines.is_empty():
 		add_news(lines)
 	if rolled:
@@ -803,11 +810,34 @@ func map_step(days: float) -> Dictionary:
 			return {"type": "settlement", "id": d["id"]}
 		if d["kind"] == "site" and not world.site_by_id(str(d["id"])).is_empty():
 			return {"type": "site", "id": str(d["id"])}  # jamais d'entrée en ville : l'écran de la carte propose l'assaut ou le repos
+		if d["kind"] == "poi":
+			var pev: Dictionary = visit_poi(str(d["id"]))
+			if not pev.is_empty():
+				return pev
 	elif random_events and day > day_before and not world.path.is_empty():
 		# un jour entier de route vient de s'écouler : un événement peut survenir (jamais en ville ni en bataille)
 		if Events.roll_day(rng, day - last_event_day):
 			return _start_event()
 	return {}
+
+
+## La compagnie s'arrête à un point d'intérêt (ruines, sanctuaire…) : une rencontre dédiée, une seule fois (`poi["done"]`).
+## Renvoie {"type": "event", ...} comme `map_step`, ou {} si le point est inconnu, trop loin ou déjà exploré.
+func visit_poi(id: String) -> Dictionary:
+	var q: Dictionary = world.poi_by_id(id)
+	if q.is_empty() or bool(q.get("done", false)) or not pending_event.is_empty() or battle != null or location != "":
+		return {}
+	if world.poi_pos(q).distance_to(world.player_pos) > World.ARRIVE_PX * 1.5:
+		return {}
+	var def: Dictionary = Events.poi_pick(str(q["kind"]), campaign_rng)
+	if def.is_empty():
+		return {}
+	q["done"] = true
+	pending_event = {"id": str(def["id"])}
+	world.stop()
+	add_news(["La compagnie s'arrête à : %s." % q["name"]])
+	save()
+	return {"type": "event", "event": def}
 
 
 ## Part du trajet origine → destination déjà parcourue par la compagnie (0 à 1).
@@ -1854,7 +1884,7 @@ func _read_one(path: String) -> Dictionary:
 			return {}
 	if typeof(parsed["roster"]) != TYPE_ARRAY or typeof(parsed["world"]) != TYPE_DICTIONARY:
 		return {}
-	if not (parsed["world"] as Dictionary).has("terrain") or not (parsed["world"] as Dictionary).has("settlements"):
+	if not ((parsed["world"] as Dictionary).has("terrain") or (parsed["world"] as Dictionary).has("terrain_z")) or not (parsed["world"] as Dictionary).has("settlements"):
 		return {}
 	return parsed
 

@@ -240,8 +240,8 @@ func _build_buttons() -> void:
 	var defs: Array = [
 		["company", "Compagnie : hommes, équipement, bannière", func() -> void: company_pressed.emit(), false],
 		["bag", "Inventaire (I)", func() -> void: inventory_pressed.emit(), false],
-		["details", "Détails : contrat, factions, menace, lieux, hommes (D)", func() -> void: details_pressed.emit(), true],
-		["legend", "Légende de la carte", func() -> void: legend_pressed.emit(), true],
+		["details", "Détails : contrat, factions, menace, lieux, hommes (F)", func() -> void: details_pressed.emit(), true],
+		["legend", "Légende de la carte (L)", func() -> void: legend_pressed.emit(), true],
 		["help", "Raccourcis clavier (? ou F1)", func() -> void: help_pressed.emit(), false],
 	]
 	for d in defs:
@@ -262,6 +262,11 @@ func _build_buttons() -> void:
 
 
 # --- Mise à jour ---
+
+## Ordonnée du bas du panneau du temps (la mini-carte se place dessous).
+func time_bottom() -> float:
+	return MARGIN + (_time_panel.get_combined_minimum_size().y if _time_panel != null else 44.0)
+
 
 func set_speed(i: int) -> void:
 	for k in _speed_buttons.size():
@@ -293,7 +298,7 @@ func refresh() -> void:
 	_threat.visible = threat > 0.0 and not over
 	if _threat.visible:
 		_threat.set_value("%d%%" % int(threat), GameTheme.BLOOD.lightened(0.3))
-		_threat.tooltip_text = "Menace montante : %s\nPalier %d/%d : %s\nOuvrez « Détails » (D) pour le contrat final et les affaires en cours." % [Campaign.threat_title(st), int(st.get("stage", 0)), Campaign.STAGES.size(), Campaign.stage_name(st)]
+		_threat.tooltip_text = "Menace montante : %s\nPalier %d/%d : %s\nOuvrez « Détails » (F) pour le contrat final et les affaires en cours." % [Campaign.threat_title(st), int(st.get("stage", 0)), Campaign.STAGES.size(), Campaign.stage_name(st)]
 	refresh_pill()
 
 
