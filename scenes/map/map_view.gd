@@ -14,7 +14,6 @@ signal view_changed  ## la caméra a bougé (mini-carte)
 const ZOOM_MIN := 1.0
 const ZOOM_MAX := 3.0  ## monde classique ; le grand monde borne le zoom par une échelle (MapFrame.SCALE_MAX_GRAND)
 const DRAG_THRESHOLD := 6.0  ## pixels : en deçà, un clic droit reste un « s'arrêter »
-const VISION := 240.0  ## rayon de vue par défaut (Game.vision_radius() s'il existe)
 const OL := Color("17110c")
 const PARTY_COLORS: Dictionary = {"b": Color("a33a2c"), "g": Color("7a5e9a"), "o": Color("4f7a2c"), "u": Color("8a8f86"), "m": Color("9a6a3a")}
 const WATER_SHADER := """
@@ -285,9 +284,7 @@ func _draw() -> void:
 
 
 func _vision() -> float:
-	var base: float = VISION
-	if Game.has_method("vision_radius"):
-		base = float(Game.call("vision_radius"))
+	var base: float = Game.vision_radius()
 	return base * (_fx.vision_scale() if Settings.day_night else 1.0)
 
 

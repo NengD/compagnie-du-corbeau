@@ -234,9 +234,9 @@ func refresh_units() -> void:
 
 
 func _visible_to_player(u: Unit) -> bool:
-	if not is_night() or not state.has_method("is_visible_to_player"):
+	if not is_night():
 		return true
-	return bool(state.call("is_visible_to_player", u))
+	return state.is_visible_to_player(u)
 
 
 func set_marks(p_reach: Dictionary, p_path: Dictionary, p_current: Variant, p_cost_hex: Variant, p_cost_text: String, p_targets: Array) -> void:
@@ -315,27 +315,6 @@ func float_text(h: Vector2i, text: String, color: Color, dy: float = 0.0, size: 
 	tw.tween_property(l, "position:y", l.position.y - 28.0, 1.2)
 	tw.tween_property(l, "modulate:a", 0.0, 1.2).set_delay(0.3)
 	tw.chain().tween_callback(l.queue_free)
-
-
-## Ancien trait d'attaque (conservé pour compatibilité) ; les animations par arme sont dans attack_anims.gd.
-func strike(from: Vector2i, to: Vector2i, ranged: bool) -> void:
-	var a: Vector2 = hex_px(from)
-	var b: Vector2 = hex_px(to)
-	var line := Line2D.new()
-	if ranged:
-		line.points = PackedVector2Array([a + Vector2(0, -12), b + Vector2(0, -14)])
-		line.width = 1.8
-		line.default_color = Color("d9c79a")
-	else:
-		line.points = PackedVector2Array([b + Vector2(-10, -30), b + Vector2(10, 2)])
-		line.width = 3.0
-		line.default_color = Color("f3e3b5")
-		line.begin_cap_mode = Line2D.LINE_CAP_ROUND
-		line.end_cap_mode = Line2D.LINE_CAP_ROUND
-	_fx.add_child(line)
-	var tw: Tween = line.create_tween()
-	tw.tween_property(line, "modulate:a", 0.0, 0.4)
-	tw.tween_callback(line.queue_free)
 
 
 ## Animation d'attaque par arme (rien si speed == 0). Les positions viennent des figurines, qui n'ont pas encore bougé.
