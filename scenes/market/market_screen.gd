@@ -79,7 +79,7 @@ func _build_screen() -> void:
 
 	# Barre de ressources
 	var res_panel := PanelContainer.new()
-	res_panel.add_theme_stylebox_override("panel", GameTheme.box(Color("14100c"), GameTheme.LINE, 1, 3, Vector4(10, 5, 10, 5)))
+	res_panel.theme_type_variation = "ResourcePanel"
 	_res_box = UiKit.hbox(34)
 	_res_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	res_panel.add_child(_res_box)
@@ -153,7 +153,7 @@ func _make_panel(title: String, zone: String) -> Dictionary:
 	p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	p.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	p.custom_minimum_size = Vector2(250, 0)
-	p.add_theme_stylebox_override("panel", GameTheme.box(Color("1a1510"), Color("5a4a30"), 2, 3, Vector4(10, 8, 6, 8)))
+	p.theme_type_variation = "ListPanel"
 	var v := UiKit.vbox(6)
 	var t := UiKit.title(title, 26, GameTheme.GOLD)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -176,12 +176,7 @@ func _make_panel(title: String, zone: String) -> Dictionary:
 
 
 static func style_scrollbar(sc: ScrollContainer) -> void:
-	var bar: VScrollBar = sc.get_v_scroll_bar()
-	bar.custom_minimum_size = Vector2(14, 0)
-	bar.add_theme_stylebox_override("scroll", GameTheme.box(Color("0e0b08"), Color("3a2f22"), 1, 6, Vector4(0, 0, 0, 0)))
-	bar.add_theme_stylebox_override("grabber", GameTheme.box(Color("8a6a2c"), Color("cfa851"), 1, 6, Vector4(0, 0, 0, 0)))
-	bar.add_theme_stylebox_override("grabber_highlight", GameTheme.box(Color("b08a3a"), Color("e8c56a"), 1, 6, Vector4(0, 0, 0, 0)))
-	bar.add_theme_stylebox_override("grabber_pressed", GameTheme.box(Color("c89a40"), Color("f0d27a"), 1, 6, Vector4(0, 0, 0, 0)))
+	GameTheme.style_scrollbar(sc)
 
 
 func _build_filters() -> Control:

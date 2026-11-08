@@ -69,7 +69,7 @@ func _build_screen() -> void:
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)
 	var root_panel := PanelContainer.new()
-	root_panel.add_theme_stylebox_override("panel", GameTheme.box(Color("17130e"), Color("6b5630"), 2, 4, Vector4(8, 8, 8, 8)))
+	root_panel.theme_type_variation = "WindowPanel"
 	margin.add_child(root_panel)
 	var root := UiKit.vbox(6)
 	root_panel.add_child(root)
@@ -81,7 +81,7 @@ func _build_screen() -> void:
 	# Gauche : le personnage
 	var left_panel := PanelContainer.new()
 	left_panel.custom_minimum_size = Vector2(LEFT_W, 0)
-	left_panel.add_theme_stylebox_override("panel", GameTheme.box(Color("1d1812"), Color("4a3f31"), 1, 3, Vector4(8, 8, 8, 6)))
+	left_panel.theme_type_variation = "InsetPanel"
 	_left = UiKit.vbox(5)
 	left_panel.add_child(_left)
 	body.add_child(left_panel)
@@ -93,7 +93,7 @@ func _build_screen() -> void:
 	right.add_child(_build_tab_bar())
 	var content := PanelContainer.new()
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content.add_theme_stylebox_override("panel", GameTheme.box(Color("1d1812"), Color("4a3f31"), 1, 3, Vector4(8, 8, 8, 8)))
+	content.theme_type_variation = "InsetPanel"
 	right.add_child(content)
 	var stack := UiKit.vbox(0)
 	content.add_child(stack)
@@ -153,7 +153,7 @@ func _build_inventory_view() -> VBoxContainer:
 	_scroll = ScrollContainer.new()
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	MarketScreen.style_scrollbar(_scroll)
+	GameTheme.style_scrollbar(_scroll)
 	var zone := StashZone.new()  # déposer ici (hors case) range l'objet dans la réserve
 	zone.screen = self
 	zone.size_flags_horizontal = Control.SIZE_EXPAND_FILL

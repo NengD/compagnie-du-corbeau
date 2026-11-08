@@ -145,6 +145,35 @@ static func _styles(t: Theme) -> void:
 	_flat_styles(t)
 	if illustrated():
 		_skin(t)
+	_screen_variations(t)
+
+
+## Variations de style partagées par les grands écrans (marché, inventaire…) : à utiliser par `theme_type_variation`
+## plutôt que par des surcharges de style nœud par nœud. Indépendantes du réglage « Interface illustrée ».
+##   WindowPanel : cadre d'une fenêtre plein écran · InsetPanel : zone encastrée · ResourcePanel : barre de ressources
+##   ListPanel : colonne de liste · GoldScrollBar : barre de défilement dorée (VScrollBar)
+static func _screen_variations(t: Theme) -> void:
+	var panels: Dictionary = {
+		"WindowPanel": box(Color("17130e"), Color("6b5630"), 2, 4, Vector4(8, 8, 8, 8)),
+		"InsetPanel": box(Color("1d1812"), Color("4a3f31"), 1, 3, Vector4(8, 8, 8, 8)),
+		"ResourcePanel": box(Color("14100c"), LINE, 1, 3, Vector4(10, 5, 10, 5)),
+		"ListPanel": box(Color("1a1510"), Color("5a4a30"), 2, 3, Vector4(10, 8, 6, 8)),
+	}
+	for k in panels:
+		t.set_type_variation(k, "PanelContainer")
+		t.set_stylebox("panel", k, panels[k])
+	t.set_type_variation("GoldScrollBar", "VScrollBar")
+	t.set_stylebox("scroll", "GoldScrollBar", box(Color("0e0b08"), Color("3a2f22"), 1, 6, Vector4(0, 0, 0, 0)))
+	t.set_stylebox("grabber", "GoldScrollBar", box(Color("8a6a2c"), Color("cfa851"), 1, 6, Vector4(0, 0, 0, 0)))
+	t.set_stylebox("grabber_highlight", "GoldScrollBar", box(Color("b08a3a"), Color("e8c56a"), 1, 6, Vector4(0, 0, 0, 0)))
+	t.set_stylebox("grabber_pressed", "GoldScrollBar", box(Color("c89a40"), Color("f0d27a"), 1, 6, Vector4(0, 0, 0, 0)))
+
+
+## Barre de défilement dorée sur un ScrollContainer (thème : GoldScrollBar).
+static func style_scrollbar(sc: ScrollContainer) -> void:
+	var bar: VScrollBar = sc.get_v_scroll_bar()
+	bar.custom_minimum_size = Vector2(14, 0)
+	bar.theme_type_variation = "GoldScrollBar"
 
 
 static func _flat_styles(t: Theme) -> void:

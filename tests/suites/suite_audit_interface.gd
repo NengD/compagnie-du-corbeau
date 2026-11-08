@@ -77,3 +77,14 @@ func test_new_events_are_not_louder_than_essentials() -> void:
 	for ev in ["buy", "sell", "drop", "paper_open", "paper_close", "speed", "town", "repair", "hire", "perk"]:
 		t.check(float(a.EVENTS[ev]["db"]) <= -5.0, "volume trop fort pour un son d'interface : " + ev)
 	a.free()
+
+
+func test_variations_de_theme_des_ecrans() -> void:
+	var th: Theme = GameTheme.get_theme()
+	for k in ["WindowPanel", "InsetPanel", "ResourcePanel", "ListPanel"]:
+		t.check(th.has_stylebox("panel", k) and th.get_type_variation_base(k) == &"PanelContainer", "variation de panneau dans le thème : %s" % k)
+	t.check(th.has_stylebox("grabber", "GoldScrollBar") and th.get_type_variation_base("GoldScrollBar") == &"VScrollBar", "barre de défilement dorée dans le thème")
+	var sc := ScrollContainer.new()
+	GameTheme.style_scrollbar(sc)
+	t.eq(sc.get_v_scroll_bar().theme_type_variation, &"GoldScrollBar", "style_scrollbar applique la variation")
+	sc.free()
