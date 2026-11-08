@@ -335,13 +335,19 @@ func _check_keyboard_focus(main: Node) -> void:
 	var b: Button = ui_kit.button("Test focus")
 	main.add_child(b)
 	await _frames(1)
-	b.grab_focus()  # comme un clic souris : focus non demandé par le clavier
+	# Régression : relâcher le focus PENDANT l'appui annulait le clic (les boutons du menu ne répondaient plus).
+	# Le focus doit donc rester tant que le bouton n'est pas relâché, puis disparaître (pas d'anneau parasite à la souris).
+	b.grab_focus()  # comme l'appui de la souris sur le bouton
+	await _frames(3)
+	_check(main.get_viewport().gui_get_focus_owner() == b, "souris : le bouton garde le focus pendant l'appui (sinon le clic est annulé)")
+	b.button_up.emit()  # fin du clic
 	await _frames(2)
-	_check(main.get_viewport().gui_get_focus_owner() != b, "souris : aucun anneau de focus laissé sur un bouton cliqué")
+	_check(main.get_viewport().gui_get_focus_owner() != b, "souris : plus d'anneau de focus une fois le clic terminé")
 	ui_kit.kb_mode = true
 	b.grab_focus()
+	b.button_up.emit()
 	await _frames(2)
-	_check(main.get_viewport().gui_get_focus_owner() == b, "clavier : le focus reste en mode clavier")
+	_check(main.get_viewport().gui_get_focus_owner() == b, "clavier : le focus reste après l'activation")
 	ui_kit.kb_mode = false
 	b.queue_free()
 

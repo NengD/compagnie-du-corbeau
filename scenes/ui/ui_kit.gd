@@ -41,8 +41,9 @@ static var kb_mode: bool = false
 static var _programmatic: bool = false
 
 
-static func _on_focus(b: Control) -> void:
-	if not kb_mode and not _programmatic and is_instance_valid(b):
+## Relâche le focus une fois le clic terminé (jamais pendant l'appui : perdre le focus annule le clic d'un bouton).
+static func _after_click(b: Control) -> void:
+	if not kb_mode and is_instance_valid(b):
 		b.release_focus.call_deferred()
 
 
@@ -73,9 +74,9 @@ static func focus_first(root: Node) -> bool:
 static func button(text: String, kind: String = "", small: bool = false) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.focus_mode = Control.FOCUS_ALL  # navigable au clavier ; pas d'anneau de focus après un clic souris (voir _on_focus)
+	b.focus_mode = Control.FOCUS_ALL  # navigable au clavier ; pas d'anneau de focus après un clic souris (voir _after_click)
 	b.pressed.connect(_click)
-	b.focus_entered.connect(_on_focus.bind(b))
+	b.button_up.connect(_after_click.bind(b))
 	match kind:
 		"pri":
 			b.theme_type_variation = "PrimaryButton"
