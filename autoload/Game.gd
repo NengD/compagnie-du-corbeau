@@ -1450,16 +1450,10 @@ func ending_stats() -> Dictionary:
 
 
 ## Retour sur la carte après une bataille terminée : récompenses, morts, renom.
-func finish_battle() -> void:
-	if battle == null or battle.over == "":
-		return
-	var b: BattleState = battle
+## Reporte les résultats de la bataille sur la compagnie (PV, armure, XP, niveaux, séquelles, morts) ; renvoie {"men": rapport par homme, "dead": noms des tombés}.
+## L'ordre des tirages aléatoires (séquelles) suit celui de la compagnie : ne pas le changer.
+func _settle_roster(b: BattleState, win: bool) -> Dictionary:
 	var c: Dictionary = b.contract
-	var win: bool = b.over == "win"
-	var is_contract: bool = c.get("kind", "contract") == "contract"
-	var is_ambush: bool = c.get("kind", "") == "ambush"  ## embuscade de route ou d'événement (sans bande errante)
-	var is_assault: bool = c.get("kind", "") == "assault"  ## assaut d'un lieu hostile (éventuellement en plusieurs vagues)
-	var next_wave: Dictionary = Campaign.next_wave(c) if is_assault and win else {}
 	var by_id: Dictionary = {}
 	for u in b.units:
 		if u.side == "p":
@@ -1513,6 +1507,15 @@ func finish_battle() -> void:
 	Bonds.battle_gain(fought, win)
 	Bonds.prune(roster)
 	morale_add((6.0 if win else (-6.0 if b.over == "retreat" else -10.0)) - minf(12.0, 3.0 * float(dead_names.size())))
+	return {"men": men_report, "dead": dead_names}
+
+
+## Primes, renom, réputation et suites d'un contrat / assaut / embuscade / bande ; renvoie les lignes du compte rendu.
+func _battle_outcome_lines(b: BattleState, win: bool, dead_names: Array) -> Array:
+	var c: Dictionary = b.contract
+	var is_contract: bool = c.get("kind", "contract") == "contract"
+	var is_ambush: bool = c.get("kind", "") == "ambush"  ## embuscade de route ou d'événement (sans bande errante)
+	var is_assault: bool = c.get("kind", "") == "assault"  ## assaut d'un lieu hostile (éventuellement en plusieurs vagues)
 	var lines: Array = []
 	if win:
 		stat_add("battles_won")
@@ -1560,6 +1563,14 @@ func finish_battle() -> void:
 				p["cooldown"] = 2.0
 	if not dead_names.is_empty():
 		lines.append("Tombés : %s." % ", ".join(dead_names))
+	return lines
+
+
+## Verse le butin à la réserve et les primes d'objectifs ; ajoute leurs lignes à `lines` et renvoie {"loot", "objectives"} pour le compte rendu.
+func _loot_and_objectives(b: BattleState, win: bool, lines: Array) -> Dictionary:
+	var c: Dictionary = b.contract
+	var is_contract: bool = c.get("kind", "contract") == "contract"
+	var is_assault: bool = c.get("kind", "") == "assault"
 	var loot: Array = prepare_loot()
 	if not loot.is_empty():
 		add_to_stash(loot)
@@ -1576,6 +1587,26 @@ func finish_battle() -> void:
 			gain_renown(int(ob["renown"]))
 		if int(ob["gold"]) > 0 or int(ob["renown"]) > 0:
 			lines.append("Objectifs remplis : +%d couronnes, +%d renom." % [int(ob["gold"]), int(ob["renown"])])
+	return {"loot": loot, "objectives": obj_report}
+
+
+func finish_battle() -> void:
+	if battle == null or battle.over == "":
+		return
+	var b: BattleState = battle
+	var c: Dictionary = b.contract
+	var win: bool = b.over == "win"
+	var is_assault: bool = c.get("kind", "") == "assault"
+	var next_wave: Dictionary = Campaign.next_wave(c) if is_assault and win else {}
+	var gold_before: int = gold
+	var renown_before: int = renown
+	var settled: Dictionary = _settle_roster(b, win)
+	var dead_names: Array = settled["dead"]
+	var lines: Array = _battle_outcome_lines(b, win, dead_names)
+	var spoils: Dictionary = _loot_and_objectives(b, win, lines)
+	var loot: Array = spoils["loot"]
+	var obj_report: Array = spoils["objectives"]
+	var men_report: Array = settled["men"]
 	last_battle_report = {"result": b.over, "title": str(c.get("title", "")), "day": day, "men": men_report, "loot": loot.duplicate(true),
 		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate(), "objectives": obj_report}
 	pending_loot = []
