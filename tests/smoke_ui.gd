@@ -123,6 +123,7 @@ func _run() -> void:
 	await _frames(2)
 	await _check_company_setup(main)
 	_check_tooltip_wrap(main)
+	await _check_keyboard_focus(main)
 	await _check_formation_panel(main)
 	await _check_perk_tree(main)
 	# --- Ville ---
@@ -321,6 +322,30 @@ func _check_company_setup(main: Node) -> void:
 
 
 ## Régression : l'infobulle des talents ne dépend d'aucun retour à la ligne automatique (elle devenait un panneau géant).
+## Navigation au clavier : focus initial dans une fenêtre modale, pas d'anneau de focus parasite après un clic souris.
+func _check_keyboard_focus(main: Node) -> void:
+	var ui_kit: GDScript = load("res://scenes/ui/ui_kit.gd")
+	var modal: Node = load("res://scenes/menu/slots_panel.gd").open(main, false, func() -> void: pass).modal
+	await _frames(3)
+	var fo: Control = main.get_viewport().gui_get_focus_owner()
+	_check(fo != null and modal.is_ancestor_of(fo), "clavier : une fenêtre modale donne le focus à un bouton à l'ouverture")
+	modal.close()
+	await _frames(2)
+	ui_kit.kb_mode = false
+	var b: Button = ui_kit.button("Test focus")
+	main.add_child(b)
+	await _frames(1)
+	b.grab_focus()  # comme un clic souris : focus non demandé par le clavier
+	await _frames(2)
+	_check(main.get_viewport().gui_get_focus_owner() != b, "souris : aucun anneau de focus laissé sur un bouton cliqué")
+	ui_kit.kb_mode = true
+	b.grab_focus()
+	await _frames(2)
+	_check(main.get_viewport().gui_get_focus_owner() == b, "clavier : le focus reste en mode clavier")
+	ui_kit.kb_mode = false
+	b.queue_free()
+
+
 func _check_tooltip_wrap(main_node_for_tip: Node) -> void:
 	var icon_script: GDScript = load("res://scenes/perks/perk_icon.gd")
 	var long_text: String = "Épées : +10 % au toucher ; Fente ne coûte plus de PA en plus. Un texte volontairement long pour forcer plusieurs lignes dans la bulle."

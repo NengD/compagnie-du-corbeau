@@ -35,11 +35,47 @@ static func para(text: String, size: int = 15) -> Label:
 
 
 ## kind : "" | "pri" | "ghost"
+## Vrai quand le joueur navigue au clavier (touche Tab, flèches, Entrée…) ; faux dès qu'il utilise la souris.
+## Mis à jour par `Main._input`. Tant qu'il est faux, un clic de souris ne laisse pas d'anneau de focus sur un bouton.
+static var kb_mode: bool = false
+static var _programmatic: bool = false
+
+
+static func _on_focus(b: Control) -> void:
+	if not kb_mode and not _programmatic and is_instance_valid(b):
+		b.release_focus.call_deferred()
+
+
+## Premier contrôle focalisable, visible et actif sous `root` (parcours en profondeur) ; null s'il n'y en a pas.
+static func first_focusable(root: Node) -> Control:
+	if root is Control:
+		var c: Control = root
+		if c.focus_mode == Control.FOCUS_ALL and c.is_visible_in_tree() and not (c is BaseButton and (c as BaseButton).disabled):
+			return c
+	for ch in root.get_children():
+		var f: Control = first_focusable(ch)
+		if f != null:
+			return f
+	return null
+
+
+## Donne le focus clavier au premier contrôle de `root` (à l'ouverture d'une fenêtre ou d'un menu). Renvoie true si trouvé.
+static func focus_first(root: Node) -> bool:
+	var f: Control = first_focusable(root)
+	if f == null or not f.is_inside_tree():
+		return false
+	_programmatic = true
+	f.grab_focus()
+	_programmatic = false
+	return true
+
+
 static func button(text: String, kind: String = "", small: bool = false) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.focus_mode = Control.FOCUS_NONE
+	b.focus_mode = Control.FOCUS_ALL  # navigable au clavier ; pas d'anneau de focus après un clic souris (voir _on_focus)
 	b.pressed.connect(_click)
+	b.focus_entered.connect(_on_focus.bind(b))
 	match kind:
 		"pri":
 			b.theme_type_variation = "PrimaryButton"

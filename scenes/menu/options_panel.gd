@@ -89,7 +89,6 @@ func _row(body: VBoxContainer, text: String, control: Control) -> void:
 
 func _option(items: Array, selected: int, on_pick: Callable) -> OptionButton:
 	var o := OptionButton.new()
-	o.focus_mode = Control.FOCUS_NONE
 	for it in items:
 		o.add_item(str(it))
 	o.select(clampi(selected, 0, maxi(0, items.size() - 1)))
@@ -100,7 +99,6 @@ func _option(items: Array, selected: int, on_pick: Callable) -> OptionButton:
 func _check(body: VBoxContainer, text: String, on: bool, on_toggle: Callable) -> void:
 	var c := CheckButton.new()
 	c.text = text
-	c.focus_mode = Control.FOCUS_NONE
 	c.button_pressed = on
 	c.toggled.connect(on_toggle)
 	body.add_child(c)
@@ -157,7 +155,6 @@ func _scale_row() -> Control:
 	s.max_value = SettingsScript.UI_SCALE_MAX
 	s.step = 5
 	s.value = _s().ui_scale
-	s.focus_mode = Control.FOCUS_NONE
 	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(s)
@@ -204,7 +201,6 @@ func _build_graphics(body: VBoxContainer) -> void:
 		var key2: String = k
 		var c := CheckButton.new()
 		c.text = _adv_label(key2)
-		c.focus_mode = Control.FOCUS_NONE
 		c.button_pressed = bool(_s().get(key2))
 		c.toggled.connect(func(on: bool) -> void:
 			_s().set_value(key2, on)
@@ -315,7 +311,6 @@ func _slider_row(text: String, key: String) -> Control:
 	s.max_value = 1.0
 	s.step = 0.05
 	s.value = float(_s().get(key))
-	s.focus_mode = Control.FOCUS_NONE
 	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(s)

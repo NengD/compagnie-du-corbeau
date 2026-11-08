@@ -386,9 +386,41 @@ func _on_menu_action(what: String) -> void:
 			get_tree().quit()
 
 
+# --- Mode de navigation (clavier / souris) ---
+
+## Mémorise le dernier type d'entrée (voir UiKit.kb_mode) ; au premier Tab / flèche / Entrée sans focus, place le focus sur le premier bouton
+## de la fenêtre au premier plan (ou de l'écran courant) pour que le clavier suffise à naviguer.
+func _track_input_mode(event: InputEvent) -> void:
+	if event is InputEventMouseButton or (event is InputEventMouseMotion and (event as InputEventMouseMotion).relative.length() > 2.0):
+		UiKit.kb_mode = false
+		return
+	if not (event is InputEventKey and event.pressed):
+		return
+	var k: int = (event as InputEventKey).keycode
+	if not [KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER, KEY_KP_ENTER, KEY_SPACE].has(k):
+		return
+	UiKit.kb_mode = true
+	if Game.battle != null or get_viewport().gui_get_focus_owner() != null or get_viewport().gui_get_focus_owner() is LineEdit:
+		return
+	if k == KEY_SPACE or k == KEY_ENTER or k == KEY_KP_ENTER:
+		return  # sans focus, Espace / Entrée gardent leur sens habituel (fin de tour, etc.)
+	if UiKit.focus_first(_top_modal_layer() if _top_modal_layer() != null else _content):
+		get_viewport().set_input_as_handled()
+
+
+## Dernière fenêtre modale ouverte (calque 50), null s'il n'y en a pas.
+func _top_modal_layer() -> Node:
+	var found: Node = null
+	for c in get_children():
+		if c is CanvasLayer and (c as CanvasLayer).layer == 50:
+			found = c
+	return found
+
+
 # --- Pause (Échap) ---
 
 func _input(event: InputEvent) -> void:
+	_track_input_mode(event)
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_I:
 		_open_inventory()  # touche I : inventaire (hors menu, bataille et fenêtres ouvertes)
 		return

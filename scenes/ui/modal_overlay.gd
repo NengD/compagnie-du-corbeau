@@ -6,6 +6,7 @@ static var open_count: int = 0  ## fenêtres modales ouvertes (la caméra de la 
 
 var content: VBoxContainer
 var _layer: CanvasLayer
+var _focus_pending: bool = false
 
 
 static func open(host: Node, min_width: int = 460) -> ModalOverlay:
@@ -41,6 +42,24 @@ func _build(min_width: int) -> void:
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
 	panel.add_child(content)
+	# Focus clavier : à l'ouverture (une fois le contenu ajouté), puis après chaque reconstruction si le joueur navigue au clavier.
+	content.child_order_changed.connect(_queue_focus.bind(false))
+	_queue_focus(true)
+
+
+func _queue_focus(initial: bool) -> void:
+	if _focus_pending or not is_inside_tree():
+		return
+	_focus_pending = true
+	await get_tree().process_frame
+	_focus_pending = false
+	if not is_instance_valid(self) or not is_inside_tree():
+		return
+	var owner_ctl: Control = get_viewport().gui_get_focus_owner()
+	if owner_ctl != null and is_ancestor_of(owner_ctl):
+		return
+	if initial or UiKit.kb_mode:
+		UiKit.focus_first(self)
 
 
 func close() -> void:

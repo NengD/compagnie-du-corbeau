@@ -77,6 +77,13 @@ func _rebuild() -> void:
 		var q := _menu_button("Quitter", "ghost")
 		q.pressed.connect(func() -> void: action.emit("quit"))
 		_box.add_child(q)
+	_focus_menu.call_deferred()
+
+
+## Le clavier suffit pour naviguer : le premier bouton actif reçoit le focus à chaque (re)construction du menu.
+func _focus_menu() -> void:
+	if is_inside_tree():
+		UiKit.focus_first(_box)
 
 
 ## À rappeler quand une sauvegarde a changé (retour d'un écran Charger).
