@@ -113,6 +113,17 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   noms de talents rendus originaux (table dans `docs/provenance.md`, test `suite_provenance.gd`), crédits exacts et licence OFL des polices
   (`assets/fonts/OFL.txt`), un seul chemin d'achat (le stock fini : `Game.buy_item/sell_item`), code mort retiré, panneaux de la carte
   exclusifs (tiroir F / légende L), libellés des statistiques, cache des signatures de la carte, 10 événements sonores de plus.
+- **Consolidation (revue gamedev)** : `core/save_io.gd` (`SaveIO` : version du schéma `SaveIO.VERSION`, migrations `SaveIO.migrate`, lecture validée,
+  écriture sûre ; la copie `.bak` n'est mise à jour que si le fichier principal est valide ; `Game.save_failed(reason)` + bandeau en jeu si
+  l'écriture échoue) ; **navigation au clavier** (`UiKit.button` focalisable, `UiKit.focus_first`, `UiKit.kb_mode` mis à jour par
+  `Main._input` : pas d'anneau de focus après un clic souris, focus initial dans chaque `ModalOverlay` et le menu principal, Tab/flèches
+  sans focus -> premier bouton) ; **ressenti des coups** (`core/impact_feel.gd` : paliers none/small/medium/large/kill ; `BattleFx.add_trauma`
+  tremblement lissé du plateau, `BattleFx.hit_stop` arrêt sur image sûr — le temps est toujours rendu ; tous deux coupés par le réglage
+  « Tremblement d'écran et arrêt sur image ») ; **thème** : variations partagées `WindowPanel / InsetPanel / ResourcePanel / ListPanel /
+  GoldScrollBar` (`GameTheme._screen_variations`, `GameTheme.style_scrollbar`) à préférer aux `add_theme_stylebox_override` ;
+  `Game.finish_battle` découpée (`_settle_roster`, `_battle_outcome_lines`, `_loot_and_objectives`) ; test de cohérence des tables
+  (`tests/suites/suite_coherence_donnees.gd`). Choix assumés : `Game.gd` n'a pas été éclaté en modules (les autoloads ne se typent pas
+  dans `core/`, l'extraction aurait remplacé le typage par des accès dynamiques) et `Data.gd` reste en dictionnaires (aucun `.tres`).
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`
@@ -172,6 +183,8 @@ core/              # logique pure, SANS dépendance aux nœuds de scène -> test
   pathfinding.gd   # BFS avec zones de contrôle
   battle_state.gd  # plateau, file d'initiative, manches, attaques, victoire, sérialisation
   ai.gd            # prochaine action ennemie (brigands, goules), fuite
+  save_io.gd       # sauvegarde : version, migration, lecture validée, écriture sûre (SaveIO)
+  impact_feel.gd   # paliers de ressenti des coups (tremblement + arrêt sur image)
   contracts.gd     # génération des contrats (par lieu), recrues, ennemis
   world.gd         # carte : terrain (bruit), lieux, bandes errantes, chemins (AStarGrid2D), déplacement
 scenes/

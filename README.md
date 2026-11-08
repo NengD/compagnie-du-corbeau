@@ -20,7 +20,7 @@ Tout le texte du jeu est en français.
 - **Campagne** : contrats variés (élimination, chasse au chef, escorte, livraison, arcs enchaînés), factions (brigands, goules,
   orcs, morts-vivants) et crise finale.
 - **Difficulté** Facile / Normal / Difficile à la nouvelle partie, bannière et nom de compagnie personnalisables.
-- Menu principal, 3 emplacements de sauvegarde (écriture atomique avec copie de secours), options complètes (fenêtre, résolution jusqu'au 2K,
+- Menu principal, navigation au clavier (Tab, flèches, Entrée), 3 emplacements de sauvegarde (écriture atomique, version du schéma, copie de secours), options complètes (fenêtre, résolution jusqu'au 2K,
   **qualité graphique** Bas / Moyen / Élevé / Ultra), tutoriel, succès, sons et musiques.
 
 ## Lancer le jeu
