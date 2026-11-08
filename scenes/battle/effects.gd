@@ -7,7 +7,6 @@ extends Node2D
 const BLOOD := Color("8f2a22")
 const DUST := Color("a89a78")
 
-var _shaking: bool = false
 
 
 static func enabled() -> bool:
@@ -91,23 +90,85 @@ func death(pos: Vector2, target: Node2D = null, blood: Color = BLOOD) -> void:
 	_burst(at, 22, 0.7, blood, 40.0, 150.0, 2.8, Vector2.UP, 180.0, 300.0)
 	_burst(pos + Vector2(0.0, 8.0), 8, 0.7, Color(DUST, 0.5), 10.0, 40.0, 4.0, Vector2.UP, 160.0, -10.0)
 	if target != null:
-		shake(target, 3.0, 0.22)
+		add_trauma(target, 0.25)
 
 
-## Petit tremblement (le nœud revient à sa position d'origine ; un nouveau tremblement en cours est ignoré).
-func shake(target: Node2D, amplitude: float, duration: float) -> void:
-	if not enabled() or _shaking or not is_instance_valid(target) or not shake_allowed():
+## Tremblement du plateau par « traumatisme » : chaque coup AJOUTE de l'intensité (0..1), qui décroît seule ; l'amplitude suit son carré
+## (les petits coups bougent à peine, les gros claquent). Mouvement lissé (sinus), additif : il se compose avec le déplacement du plateau.
+const SHAKE_MAX: Vector2 = Vector2(7.0, 5.0)
+const TRAUMA_DECAY: float = 1.7
+
+var _trauma: float = 0.0
+var _shake_target: Node2D = null
+var _applied: Vector2 = Vector2.ZERO  ## décalage actuellement ajouté à la position de la cible
+var _last_pos: Vector2 = Vector2.ZERO  ## position posée par nos soins à l'image précédente
+var _st: float = 0.0
+
+
+func _init() -> void:
+	set_process(false)
+
+
+func add_trauma(target: Node2D, amount: float) -> void:
+	if amount <= 0.0 or not enabled() or not shake_allowed() or not is_instance_valid(target):
 		return
-	_shaking = true
-	var origin: Vector2 = target.position
-	var tw: Tween = create_tween()
-	var steps: int = 6
-	for i in steps:
-		var k: float = 1.0 - float(i) / steps
-		var off := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * amplitude * k
-		tw.tween_property(target, "position", origin + off, duration / steps)
-	tw.tween_property(target, "position", origin, 0.02)
-	tw.tween_callback(func() -> void: _shaking = false)
+	if _shake_target != target:
+		_release_shake()
+		_shake_target = target
+		_last_pos = target.position
+	_trauma = clampf(_trauma + amount, 0.0, 1.0)
+	set_process(true)
+
+
+func _process(delta: float) -> void:
+	if _shake_target == null or not is_instance_valid(_shake_target):
+		_shake_target = null
+		_applied = Vector2.ZERO
+		_trauma = 0.0
+		set_process(false)
+		return
+	var base: Vector2 = _shake_target.position - _applied if _shake_target.position == _last_pos else _shake_target.position  # déplacé par ailleurs (pan, zoom) : sa valeur fait foi
+	_trauma = maxf(_trauma - TRAUMA_DECAY * delta, 0.0)
+	_st += delta * 34.0
+	var k: float = _trauma * _trauma
+	var off := Vector2(SHAKE_MAX.x * k * sin(_st * 1.7 + 0.3), SHAKE_MAX.y * k * sin(_st * 2.3))
+	_shake_target.position = base + off
+	_applied = off
+	_last_pos = _shake_target.position
+	if _trauma <= 0.0:
+		_release_shake()
+		set_process(false)
+
+
+## Rend à la cible sa position sans décalage (si personne d'autre ne l'a déplacée entre-temps).
+func _release_shake() -> void:
+	if _shake_target != null and is_instance_valid(_shake_target) and _shake_target.position == _last_pos:
+		_shake_target.position -= _applied
+	_applied = Vector2.ZERO
+	_trauma = 0.0
+	_shake_target = null
+
+
+## Arrêt sur image : ralentit le temps un instant pour appuyer un coup. Statique : survit à la libération de la figurine ou de l'effet.
+## Le temps est toujours rendu (le dernier appel en cours décide, voir `_stop_id`) et par `_exit_tree` si l'écran disparaît.
+static var _stop_id: int = 0
+
+
+static func hit_stop(tree: SceneTree, duration: float, slow: float = 0.05) -> void:
+	if tree == null or duration <= 0.0 or not enabled() or not shake_allowed():
+		return
+	_stop_id += 1
+	var mine: int = _stop_id
+	Engine.time_scale = slow
+	await tree.create_timer(duration * clampf(UnitView._speed(), 0.3, 1.0), true, false, true).timeout  # ignore le ralenti lui-même
+	if mine == _stop_id:
+		Engine.time_scale = 1.0
+
+
+func _exit_tree() -> void:
+	_stop_id += 1
+	Engine.time_scale = 1.0
+	_release_shake()
 
 
 ## Réglage « tremblement d'écran » (lu sans identifiant d'autoload : le script se charge aussi dans les tests `-s`).

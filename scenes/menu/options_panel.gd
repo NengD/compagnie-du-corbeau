@@ -242,7 +242,7 @@ func _adv_label(key: String) -> String:
 		"illustrated_ui":
 			return "Interface illustrée (cuir et parchemin)"
 		"screen_shake":
-			return "Tremblement d'écran"
+			return "Tremblement d'écran et arrêt sur image"
 	return key
 
 

@@ -303,7 +303,10 @@ func _attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dict
 			blood = Color("4a5a2a")
 		board.fx.impact(board.hex_px(d.hex), int(res["armor"]) > 0, int(res["hp"]) > 0, board.hex_px(d.hex) - board.hex_px(a.hex), bool(res["head"]), blood)
 		if d.dead:
-			board.fx.death(board.hex_px(d.hex), board if d.side == "p" else null, blood)
+			board.fx.death(board.hex_px(d.hex), null, blood)
+		var feel: Dictionary = ImpactFeel.tier(res, d.hp_max, d.dead)  # ressenti proportionné : tremblement du plateau + arrêt sur image
+		board.fx.add_trauma(board, float(feel["trauma"]))
+		BattleFx.hit_stop(get_tree(), float(feel["stop"]))
 	if not res["hit"]:
 		board.float_text(d.hex, "Raté", Color("ddd2bb"))
 	else:
