@@ -7,6 +7,7 @@ signal location_changed  ## entrée ou sortie d'un lieu
 signal battle_started
 signal battle_finished
 signal achievement_unlocked(id: String)  ## un succès vient d'être débloqué
+signal save_failed(reason: String)  ## l'écriture de la sauvegarde a échoué (disque plein, droits…) : l'ancien fichier reste intact
 
 const SAVE_PATH: String = "user://savegame.json"
 const ROAD_HEAL: int = 2  ## PV rendus à chaque homme par jour de route
@@ -1634,7 +1635,7 @@ func to_dict() -> Dictionary:
 	for m in roster:
 		ros.append(m.to_dict())
 	return {
-		"version": 2, "difficulty": difficulty, "gold": gold, "day": day, "day_fraction": day_fraction, "renown": renown, "roster": ros,
+		"version": SaveIO.VERSION, "difficulty": difficulty, "gold": gold, "day": day, "day_fraction": day_fraction, "renown": renown, "roster": ros,
 		"fallen": fallen, "news": news, "game_over": game_over, "next_id": Unit.next_id,
 		"world": world.to_dict(), "location": location, "active_contract": active_contract,
 		"battle": battle.to_dict() if battle else null,
@@ -1727,70 +1728,32 @@ func _clean_items(raw: Variant) -> Array:
 	return out
 
 
-## Écrit `d` dans `path` de façon sûre : fichier temporaire relu et vérifié, copie de secours `.bak` de l'ancienne version,
-## puis remplacement. Une coupure pendant l'écriture ne peut plus détruire la sauvegarde existante.
+## Écriture / lecture sûres : voir `core/save_io.gd` (fichier temporaire vérifié, copie `.bak`, validation, version).
 func _write_json_safe(path: String, d: Dictionary) -> bool:
-	var text: String = JSON.stringify(d)
-	var tmp: String = path + ".tmp"
-	var f := FileAccess.open(tmp, FileAccess.WRITE)
-	if f == null:
-		push_warning("Sauvegarde impossible : %s" % error_string(FileAccess.get_open_error()))
-		return false
-	f.store_string(text)
-	f.flush()
-	f.close()
-	var check := JSON.new()
-	if FileAccess.get_file_as_string(tmp).length() != text.length() or check.parse(FileAccess.get_file_as_string(tmp)) != OK:
-		push_warning("Sauvegarde abandonnée : le fichier temporaire est incomplet.")
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
-		return false
-	if FileAccess.file_exists(path):
-		DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(path + ".bak"))
-	var err: int = DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(path))
-	if err != OK:
-		push_warning("Sauvegarde impossible (renommage) : %s" % error_string(err))
-		return false
-	return true
+	return SaveIO.write_safe(path, d)
+
 
 
 func save() -> void:
 	if not autosave:
 		return
-	_write_json_safe(SAVE_PATH, to_dict())
+	if not _write_json_safe(SAVE_PATH, to_dict()):
+		save_failed.emit(SaveIO.last_error)
+
 
 
 func load_save() -> bool:
 	return _load_path(SAVE_PATH)
 
 
-const _REQUIRED_KEYS: Array[String] = ["gold", "day", "roster", "world"]
-
-
 ## Lit et valide une sauvegarde ; si elle est illisible ou incomplète, essaie la copie de secours `path.bak`.
 func _read_save(path: String) -> Dictionary:
-	var d: Dictionary = _read_one(path)
-	if d.is_empty():
-		d = _read_one(path + ".bak")
-	return d
+	return SaveIO.read_save(path)
 
 
 func _read_one(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path):
-		return {}
-	var json := JSON.new()
-	if json.parse(FileAccess.get_file_as_string(path)) != OK:  # fichier tronqué ou corrompu : pas d'erreur bruyante
-		return {}
-	var parsed: Variant = json.data
-	if typeof(parsed) != TYPE_DICTIONARY or int(parsed.get("version", 0)) < 2:
-		return {}  # illisible ou ancienne sauvegarde (sans carte)
-	for k in _REQUIRED_KEYS:
-		if not parsed.has(k):
-			return {}
-	if typeof(parsed["roster"]) != TYPE_ARRAY or typeof(parsed["world"]) != TYPE_DICTIONARY:
-		return {}
-	if not ((parsed["world"] as Dictionary).has("terrain") or (parsed["world"] as Dictionary).has("terrain_z")) or not (parsed["world"] as Dictionary).has("settlements"):
-		return {}
-	return parsed
+	return SaveIO.read_one(path)
+
 
 
 func _load_path(path: String) -> bool:
@@ -1804,9 +1767,8 @@ func _load_path(path: String) -> bool:
 
 
 func _remove_all(path: String) -> void:
-	for p in [path, path + ".bak", path + ".tmp"]:
-		if FileAccess.file_exists(p):
-			DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
+	SaveIO.remove_all(path)
+
 
 
 # --- Emplacements de sauvegarde : 0 = sauvegarde automatique (savegame.json), 1..SLOT_COUNT = manuels (save_N.json) ---

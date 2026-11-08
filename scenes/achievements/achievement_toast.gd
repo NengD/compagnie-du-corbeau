@@ -38,17 +38,30 @@ func show_achievement(id: String) -> void:
 		_next()
 
 
+## Message d'avertissement (ex. : sauvegarde impossible), affiché dans le même bandeau.
+func show_notice(title: String, text: String) -> void:
+	_queue.append("!%s|%s" % [title, text])
+	if _panel != null and not _busy:
+		_next()
+
+
 func _next() -> void:
 	if _queue.is_empty():
 		_busy = false
 		return
 	_busy = true
-	var d: Dictionary = Achievements.def_of(_queue.pop_front())
-	if d.is_empty():
-		_next()
-		return
-	_title.text = "Succès : %s" % d["n"]
-	_desc.text = str(d["d"])
+	var entry: String = _queue.pop_front()
+	if entry.begins_with("!"):
+		var parts: PackedStringArray = entry.substr(1).split("|", true, 1)
+		_title.text = parts[0]
+		_desc.text = parts[1] if parts.size() > 1 else ""
+	else:
+		var d: Dictionary = Achievements.def_of(entry)
+		if d.is_empty():
+			_next()
+			return
+		_title.text = "Succès : %s" % d["n"]
+		_desc.text = str(d["d"])
 	_panel.visible = true
 	_panel.reset_size()
 	var vw: float = _panel.get_viewport().get_visible_rect().size.x

@@ -65,6 +65,7 @@ func _ready() -> void:
 	_toast = AchievementToast.new()
 	add_child(_toast)
 	Game.achievement_unlocked.connect(_toast.show_achievement)
+	Game.save_failed.connect(func(reason: String) -> void: _toast.show_notice("Sauvegarde impossible", reason))
 
 	Game.changed.connect(_update_header)
 	Game.location_changed.connect(_on_screen_change)
