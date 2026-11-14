@@ -44,6 +44,8 @@ var perk_points: int = 0  ## points de talent à dépenser (1 par niveau gagné,
 var injuries: Array = []  ## [{"id": clé de Data.INJURIES, "days_left": jours restants, -1 = permanente}]
 var traits: Array[String] = []  ## traits de caractère (clés de Data.TRAITS, voir core/traits.gd) : tirés à la génération, jamais gagnés
 var bonds: Dictionary = {}  ## relations : {id d'un autre homme -> valeur} (amis / rivaux, voir core/bonds.gd)
+var backstory: String = ""  ## courte histoire de l'homme (tirée par core/backstory.gd ; vide pour les ennemis)
+var goal: Dictionary = {}  ## objectif personnel {"kind","target","prog","done","rw"} (voir Backstory)
 var hit_taken: bool = false  ## a encaissé un coup dans cette bataille (Brave, Rancunier)
 var lucky_used: bool = false  ## Chanceux : la chance a déjà joué dans cette bataille
 
@@ -311,6 +313,8 @@ func to_dict() -> Dictionary:
 	d["bag"] = bag.duplicate(true)
 	d["traits"] = traits.duplicate()
 	d["bonds"] = bonds.duplicate()
+	d["backstory"] = backstory
+	d["goal"] = goal.duplicate(true)
 	return d
 
 
@@ -344,6 +348,12 @@ static func from_dict(d: Dictionary) -> Unit:
 		Traits.migrate(u)  # ancienne sauvegarde : l'homme reçoit ses traits
 	for i in d.get("injuries", []):
 		u.injuries.append({"id": str(i["id"]), "days_left": int(i["days_left"])})
+	u.backstory = str(d.get("backstory", ""))
+	var g: Variant = d.get("goal", {})
+	if typeof(g) == TYPE_DICTIONARY and (g as Dictionary).has("kind") and (g as Dictionary).has("target"):
+		u.goal = (g as Dictionary).duplicate(true)
+	if u.side == "p":
+		Backstory.ensure(u)  # ancienne sauvegarde : histoire et objectif tirés de l'id, sans toucher à l'aléa de la partie
 	return u
 
 

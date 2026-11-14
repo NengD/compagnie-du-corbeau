@@ -11,7 +11,9 @@ static func open(host: Node, report: Dictionary) -> ModalOverlay:
 	if report.is_empty():
 		return null
 	var m := ModalOverlay.open(host, 600)
-	build(m.content, report, func() -> void: m.close())
+	build(m.content, report, func() -> void:
+		m.close()
+		CaptivesScreen.open_if_pending(host))
 	return m
 
 
@@ -34,6 +36,10 @@ static func build(box: VBoxContainer, report: Dictionary, on_close: Callable) ->
 		box.add_child(UiKit.sub("Aucun mort à déplorer."))
 	else:
 		box.add_child(UiKit.label("Tombés : " + ", ".join(fallen), 15, Color("ff8a78")))
+	for g in report.get("goals", []):
+		var gl := UiKit.para("★ " + str(g), 14)
+		gl.add_theme_color_override("font_color", GameTheme.GOLD)
+		box.add_child(gl)
 	box.add_child(UiKit.label("La compagnie", 15, GameTheme.GOLD, true))
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -60,6 +66,10 @@ static func build(box: VBoxContainer, report: Dictionary, on_close: Callable) ->
 				lb.add_child(ItemUi.row(it, false))
 			ls.add_child(lb)
 			box.add_child(ls)
+	var capr: Dictionary = report.get("captives", {})
+	if not capr.is_empty():
+		var oc: String = str(capr.get("outcome", ""))
+		box.add_child(UiKit.label(oc if oc != "" else "Prisonniers : %d (sort à décider)" % int(capr.get("n", 0)), 14, GameTheme.GOLD))
 	var b := UiKit.button("Continuer", "pri")
 	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	b.pressed.connect(on_close)

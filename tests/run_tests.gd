@@ -816,6 +816,7 @@ func test_game_travel() -> void:
 	g.world.parties.clear()
 	var dest: Dictionary = g.world.settlements[1]
 	g.leave_settlement()
+	g.provisions = 999  ## la saison ralentit la marche : assez de vivres pour que personne ne déserte
 	check(g.world.set_destination(g.world.settlement_pos(dest), {"kind": "settlement", "id": dest["id"]}), "route vers %s" % dest["name"])
 	var day0: int = g.day
 	var gold0: int = g.gold

@@ -57,16 +57,9 @@ static func light_at(f: float) -> Dictionary:
 	return {"mul": Color.WHITE, "night": 0.0}
 
 
-## Météo du jour, tirée de façon déterministe : "clear", "rain", "fog" ou "snow".
+## Météo du jour, tirée de façon déterministe selon la saison (voir Seasons) : "clear", "rain", "fog" ou "snow".
 static func weather_for_day(day: int) -> String:
-	var r: int = absi(hash(day * 7919 + 13)) % 100
-	if r < 56:
-		return "clear"
-	if r < 76:
-		return "rain"
-	if r < 91:
-		return "fog"
-	return "snow"
+	return Seasons.weather_from_roll(day, absi(hash(day * 7919 + 13)) % 100)
 
 
 static func phase_name(f: float) -> String:
@@ -105,7 +98,7 @@ func update(delta: float, day: int, frac: float, day_night: bool, weather_on: bo
 
 ## Teinte à appliquer au monde (lumière du jour mêlée à la météo).
 func world_tint() -> Color:
-	var c: Color = light
+	var c: Color = light * Seasons.tint(_last_day if _last_day > 0 else 1)  ## teinte légère de la saison
 	match wx_kind:
 		"rain":
 			c = c * Color(0.82, 0.86, 0.92).lerp(Color.WHITE, 1.0 - wx_k)

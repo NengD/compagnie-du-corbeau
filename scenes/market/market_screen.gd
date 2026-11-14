@@ -23,6 +23,9 @@ var _desc_l: Label
 var _rebuild_pending: bool = false
 var _cols: int = 6
 var _last_msg: String = ""
+var _body: HBoxContainer
+var _trade: TradePanel
+var _tab_btns: Dictionary = {}
 
 
 ## Ouvre le marché du lieu (une seule instance à la fois).
@@ -85,10 +88,33 @@ func _build_screen() -> void:
 	res_panel.add_child(_res_box)
 	root.add_child(res_panel)
 
+	# Onglets : équipement / marchandises de négoce
+	var tabs := UiKit.hbox(8)
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	var tab_group := ButtonGroup.new()
+	for tk in [["gear", "Équipement"], ["trade", "Marchandises"]]:
+		var tb := Button.new()
+		tb.toggle_mode = true
+		tb.button_group = tab_group
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.text = str(tk[1])
+		tb.custom_minimum_size = Vector2(170, 34)
+		tb.set_pressed_no_signal(tk[0] == "gear")
+		var tkey: String = str(tk[0])
+		tb.pressed.connect(func() -> void: set_tab(tkey))
+		tabs.add_child(tb)
+		_tab_btns[tkey] = tb
+	root.add_child(tabs)
+
 	# Corps : inventaire | filtres | magasin
 	var body := UiKit.hbox(8)
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(body)
+	_body = body
+	_trade = TradePanel.new()
+	_trade.visible = false
+	_trade.said.connect(_say)
+	root.add_child(_trade)
 	var left := _make_panel("Inventaire", "inv")
 	body.add_child(left["panel"])
 	_inv_scroll = left["scroll"]
@@ -216,6 +242,15 @@ func _build_filters() -> Control:
 	return col
 
 
+## Bascule entre l'étal d'équipement et celui des marchandises ("gear" | "trade").
+func set_tab(t: String) -> void:
+	_body.visible = t != "trade"
+	_trade.visible = t == "trade"
+	if _tab_btns.has(t):
+		(_tab_btns[t] as Button).set_pressed_no_signal(true)
+	_rebuild()
+
+
 func set_filter(f: String) -> void:
 	filter = f
 	_rebuild()
@@ -236,6 +271,8 @@ func _rebuild() -> void:
 	_build_resources()
 	_fill_inventory()
 	_fill_shop()
+	if _trade != null and _trade.visible:
+		_trade.refresh()
 	_cap_l.text = "Réserve\n%d/%d" % [Game.inventory.size(), Game.stash_size()]
 	_cap_l.add_theme_color_override("font_color", GameTheme.BLOOD if Game.inventory.size() >= Game.stash_size() else GameTheme.MUTE)
 	if not Game.news.is_empty() and Game.news[0] != _last_msg:

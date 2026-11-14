@@ -35,6 +35,15 @@ const CREATURE_TINTS := {
 	"ogre": [Color("d4a888"), Color("b8a868"), Color("9aa890")],
 	"troll": [Color("8aa070"), Color("a0a888"), Color("70887a")],
 }
+## Variété d'ennemis (tirage stable par id, indépendant des tirages de look()) : allures de brigands, clans d'orcs, styles de morts-vivants.
+const BRIGAND_STYLES: Array[String] = ["hood", "pot", "bandana", "felt", "studded", "furs"]
+const ORC_CLAN_SKIN: Array[Color] = [Color("7a9a4e"), Color("9aa68a"), Color("587660"), Color("8c8a48")]  ## Dents-de-pierre, Main blanche, Corbeau, Sang
+const ORC_CLAN_NAMES: Array[String] = ["Dents-de-pierre", "Main blanche", "Corbeau noir", "Sang-versé"]
+const UNDEAD_STYLES: Array[String] = ["bare", "plate", "shroud", "chain", "crown"]
+const SHROUD: Array[Color] = [Color("a8a08a"), Color("8a8c80"), Color("7a7060")]
+## Arme de rechange du sac portée dans le dos : famille d'arme -> calque.
+const BACK_LAYER := {"epee": "back_sword", "hache": "back_axe", "masse": "back_club", "fleau": "back_club", "gourdin": "back_club",
+	"lance": "back_spear", "hast": "back_spear", "javelot": "back_spear", "arc": "back_bow", "arbalete": "back_xbow"}
 const WEAR_MID := 0.66  ## en dessous : usure légère (entailles, bosses, fente)
 const WEAR_LOW := 0.33  ## en dessous : usure lourde
 
@@ -44,6 +53,7 @@ var unit: Unit
 var _wall: bool = false
 var _sig: String = ""  ## signature de l'apparence courante (mur de boucliers, usure) : refresh() ne reconstruit que si elle change
 var base_scale: float = 1.0  ## carrure (orcs ×1.12, chef ×1.25) ; UnitView la combine à la respiration
+var gear: bool = true  ## équipement visible (dos, étendard, pièces d'armure) ; faux pour les portraits
 
 
 static func texture(layer_name: String) -> Texture2D:
@@ -53,8 +63,9 @@ static func texture(layer_name: String) -> Texture2D:
 	return _textures[layer_name]
 
 
-func setup(u: Unit) -> Figure:
+func setup(u: Unit, with_gear: bool = true) -> Figure:
 	unit = u
+	gear = with_gear
 	base_scale = body_scale(u)
 	scale = Vector2(-1.0 if u.side == "e" else 1.0, 1.0) * base_scale
 	position.y = 10.0 * (1.0 - base_scale)
@@ -113,7 +124,87 @@ static func look(u: Unit) -> Dictionary:
 		d["face"] = r.randi() % 2
 	if u.faction == "g" or u.faction == "u":
 		d["ghoul_b"] = r.randf() < 0.5
+	# variété d'ennemis : générateur à part, les tirages ci-dessus ne bougent pas
+	var v := RandomNumberGenerator.new()
+	v.seed = u.id * 43 + 11
+	d["bvar"] = v.randi() % BRIGAND_STYLES.size()
+	d["clan"] = v.randi() % ORC_CLAN_SKIN.size()
+	d["uvar"] = v.randi() % UNDEAD_STYLES.size()
+	d["shroud"] = SHROUD[v.randi() % SHROUD.size()]
+	if u.faction == "o":
+		d["skin"] = ORC_CLAN_SKIN[int(d["clan"])].lightened(v.randf_range(-0.05, 0.05))
 	return d
+
+
+## Allure d'un brigand ("hood" = tenue de base, "pot" casque de fortune, "bandana", "felt" chapeau, "studded" cuir clouté, "furs" fourrures) ;
+## "" hors brigands. Le chapeau et le casque de fortune ne vont qu'à une tête nue.
+static func brigand_style(u: Unit) -> String:
+	if u.faction != "b" or u.sprite != "":
+		return ""
+	var st: String = BRIGAND_STYLES[int(look(u)["bvar"])]
+	if (st == "pot" or st == "felt") and u.head != "none":
+		return "hood"
+	if st == "bandana" and u.head == "heaume":
+		return "hood"
+	if st == "studded" and u.body != "tunique" and u.body != "gambison" and u.body != "none":
+		return "hood"
+	return st
+
+
+## Clan d'un orc (0..3, voir ORC_CLAN_NAMES) ; -1 hors orcs humanoïdes.
+static func orc_clan(u: Unit) -> int:
+	if u.faction != "o" or u.sprite != "":
+		return -1
+	return int(look(u)["clan"])
+
+
+## Style d'un squelette ("bare", "plate", "shroud", "chain", "crown") ; "" pour les autres.
+static func undead_style(u: Unit) -> String:
+	if u.faction != "u" or u.sprite != "" or u.weapon == "griffes" or u.weapon == "griffesL":
+		return ""
+	var st: String = UNDEAD_STYLES[int(look(u)["uvar"])]
+	if (st == "shroud" or st == "crown") and u.head != "none":
+		return "bare"
+	return st
+
+
+## Calques d'armes de rechange (sac) portés dans le dos : épée, hache, masse, lance, arc, arbalète, bouclier. Deux au plus.
+static func back_layers(u: Unit) -> Array:
+	var out: Array = []
+	if u.sprite != "" or u.faction == "g" or u.faction == "u":
+		return out
+	var own: String = BACK_LAYER.get(Perks.weapon_family(u.weapon), "")
+	for it in u.bag:
+		if typeof(it) != TYPE_DICTIONARY or (it as Dictionary).is_empty():
+			continue
+		var layer: String = ""
+		if str(it.get("kind", "")) == "weapon":
+			layer = str(BACK_LAYER.get(Perks.weapon_family(str(it.get("key", ""))), ""))
+		elif str(it.get("kind", "")) == "shield" and not u.shield:
+			layer = "back_shield"
+		if layer != "" and layer != own and not out.has(layer):
+			out.append(layer)
+		if out.size() >= 2:
+			break
+	return out
+
+
+## Étendard : porté par le premier homme de la compagnie (celui qui ouvre le registre) ou par le chef.
+static func is_standard_bearer(u: Unit) -> bool:
+	if u.side != "p" or u.sprite != "":
+		return false
+	var tree := Engine.get_main_loop() as SceneTree
+	var g: Node = tree.root.get_node_or_null("Game") if tree != null else null
+	if g != null and typeof(g.get("roster")) == TYPE_ARRAY:
+		var ro: Array = g.get("roster")
+		if not ro.is_empty() and ro[0] is Unit:
+			return (ro[0] as Unit).id == u.id
+	return u.leader
+
+
+## Équipement visible activé (désactivé en qualité Bas : aplats, sans textures).
+static func gear_enabled() -> bool:
+	return int(Quality.value("ground_mode")) > 0
 
 
 ## Niveau d'usure (0 neuf, 1 abîmé sous 66 %, 2 en lambeaux sous 33 %) d'une réserve `cur` sur `maxv`.
@@ -142,7 +233,10 @@ static func wear_state(u: Unit) -> Dictionary:
 
 func _signature() -> String:
 	var w: Dictionary = wear_state(unit)
-	return "%d|%d%d%d%d" % [int(unit.shield_wall), w["body"], w["head"], w["shield"], w["weapon"]]
+	var g: String = ""
+	if gear and gear_enabled():
+		g = ",".join(back_layers(unit)) + ("B" if is_standard_bearer(unit) else "") + str(Banner.primary(company_banner()).to_html(false)) + str(Banner.secondary(company_banner()).to_html(false))
+	return "%d|%d%d%d%d|%s" % [int(unit.shield_wall), w["body"], w["head"], w["shield"], w["weapon"], g]
 
 
 ## Reconstruit les calques si l'équipement, le mur de boucliers ou l'usure (armure sous 66 % et 33 %) ont changé.
@@ -196,6 +290,13 @@ func rebuild() -> void:
 	var of: Dictionary = outfit(unit)
 	var wear: Dictionary = wear_state(unit)
 	var ban: Dictionary = company_banner()
+	var extras: bool = gear and gear_enabled()
+	var bstyle: String = brigand_style(unit)
+	var clan: int = orc_clan(unit)
+	if extras and is_standard_bearer(unit):  # étendard de la compagnie, derrière tout le reste
+		_add("banner_pole")
+		_add("banner_flag", Banner.primary(ban))
+		_add("banner_flag_trim", Banner.secondary(ban))
 	# jambes, bottes et jambières (derrière le torse)
 	_add("legs", (l["skin"].darkened(0.25) if orc else l["cloth"].darkened(0.2)))
 	_add("boots", l["leather"].darkened(0.1))
@@ -211,12 +312,20 @@ func rebuild() -> void:
 		_add("cloak_long", l["hood"].darkened(0.1))
 	elif acc == "cape":
 		_add("cape", l["cloth"].darkened(0.15))
-	if w == "arc":
+	if extras:  # armes de rechange du sac, dans le dos
+		for bl in back_layers(unit):
+			_add(str(bl), Color.WHITE)
+	if Perks.weapon_base(w) == "arc":
 		_add("quiver")
+	elif Perks.weapon_base(w) == "arbalete" and extras:
+		_add("quiver_bolts")
+		if not unit.shield:
+			_add("arm_off", sleeve)
+			_add("hand_off", l["skin"])
 	elif not unit.shield:
 		_add("arm_off", sleeve)
 		_add("hand_off", l["skin"])
-	_add("torso_" + unit.body if unit.body != "none" else "torso_tunique", l["cloth"] if unit.body == "tunique" else Color.WHITE)
+	_add("torso_" + unit.body if unit.body != "none" else "torso_tunique", l["cloth"] if unit.body == "tunique" else (l["skin"].darkened(0.06) if orc and unit.body == "none" else Color.WHITE))
 	if unit.body == "mailles" or unit.body == "brigandine":
 		_add("skirt_" + unit.body)
 	if of["tabard"] and unit.body != "none":
@@ -224,6 +333,18 @@ func rebuild() -> void:
 		_add("tabard_trim", Banner.secondary(ban) if unit.side == "p" else l["cloth"].darkened(0.45))
 	if wear["body"] > 0:
 		_add("dmg_body_%d" % wear["body"])
+	if bstyle == "studded":
+		_add("torso_studded", l["leather"])
+	if extras:  # pièces d'armure distinctes selon le niveau d'armure
+		if unit.body == "mailles" or unit.body == "brigandine":
+			_add("armor_knees")
+			_add("armor_gorget")
+		if unit.body == "brigandine" and not unit.shield and w != "arc":
+			_add("armor_pauldron_off")
+	if orc and unit.body == "tunique" and clan >= 1:
+		_add("orc_hide", l["leather"].darkened(0.1))
+	if bstyle == "furs":
+		_add("fur_collar")
 	if cloak == "long" and not tags.has("cape"):
 		_add("cloak_front", l["hood"].darkened(0.1))
 	elif cloak == "hood" and unit.head == "none":
@@ -242,6 +363,8 @@ func rebuild() -> void:
 	if orc:
 		_add("head_orc", l["skin"])
 		_add("face_orc_%d" % l["face"])
+		if clan >= 1 and not tags.has("paint"):
+			_add("paint_orc_%d" % clan)
 		if unit.head == "none" and l["hs"] >= 0:
 			_add("hair_%d" % l["hs"], l["hair"])
 		match unit.head:
@@ -265,17 +388,27 @@ func rebuild() -> void:
 		_add("mark_" + l["mark"])
 	if l["mark"] == "patch" and unit.head != "heaume":
 		_add("mark_patch")
-	if unit.head != "heaume" and l["beard"] > 0:
+	if unit.head != "heaume" and l["beard"] > 0 and bstyle != "bandana":
 		_add("beard_%d" % l["beard"], l["hair"])
+	if bstyle == "bandana":
+		_add("bandana_face", l["cloth"].lightened(0.1))
 	match unit.head:
 		"none":
-			_add("hair_%d" % l["hs"], l["hair"])
-			if l["band"]:
-				_add("band", l["cloth"].lightened(0.15))
+			if bstyle == "pot":
+				_add("helm_pot")
+			elif bstyle == "felt":
+				_add("hair_%d" % l["hs"], l["hair"])
+				_add("hat_felt", l["hood"].darkened(0.15))
+			else:
+				_add("hair_%d" % l["hs"], l["hair"])
+				if l["band"]:
+					_add("band", l["cloth"].lightened(0.15))
 		"capuchon":
 			_add("helm_capuchon", l["hood"])
 		_:
 			_add("helm_" + unit.head)
+			if extras and unit.head == "casque" and unit.body != "tunique" and unit.body != "none":
+				_add("armor_aventail")
 	_add_elite_head(tags)
 	_finish_human(w, sleeve, l)
 
@@ -293,6 +426,8 @@ func _finish_human(w: String, sleeve: Color, l: Dictionary) -> void:
 		_add("pauldron_" + unit.body)
 	if elite_tags(unit).has("pauldron"):
 		_add("pauldron_elite")
+	elif orc_clan(unit) >= 2 and gear and gear_enabled():
+		_add("orc_spikes")
 	_add("hand_" + pose, l["skin"])
 	if unit.shield:
 		_add_shield()
@@ -356,9 +491,20 @@ func _build_undead(l: Dictionary) -> void:
 	if not unit.shield:
 		_add("skel_arm_off", bone)
 		_add("skel_hand_off", bone)
+	var ustyle: String = undead_style(unit)
 	_add("skel_torso", bone)
 	_add("skel_rags", l["cloth"].darkened(0.25))
+	match ustyle:
+		"plate":
+			_add("skel_plate", Color(0.52, 0.47, 0.44))
+		"chain":
+			_add("skel_chain", rust.darkened(0.15))
 	_add("skel_skull_%d" % l["face"], bone)
+	match ustyle:
+		"shroud":
+			_add("skel_shroud", l["shroud"])
+		"crown":
+			_add("skel_crown")
 	_add("skel_eyes")
 	match unit.head:
 		"capuchon":

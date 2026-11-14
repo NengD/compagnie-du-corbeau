@@ -107,13 +107,13 @@ func test_terrain_combat_modifiers() -> void:
 	t.eq(CombatRules.hit_chance(a, d, all, cells), base + 10, "cible dans un gué : -10 en défense")
 	d.perks.append("montagnard")
 	t.eq(CombatRules.hit_chance(a, d, all, cells), base, "Montagnard ignore le malus du gué")
-	# Une colline ne change rien à distance
+	# À distance, la hauteur compte désormais (Cover.HEIGHT_RANGED_BONUS)
 	var b: Unit = t.mk("arc", "p", Hex.from_col_row(2, 4))
 	var d2: Unit = t.mk("hache", "e", Hex.from_col_row(6, 4))
 	cells = _field()
 	var rb: int = CombatRules.hit_chance(b, d2, [b, d2], cells)
 	_put(cells, b.hex, "hill")
-	t.eq(CombatRules.hit_chance(b, d2, [b, d2], cells), rb, "la hauteur ne joue qu'en mêlée")
+	t.eq(CombatRules.hit_chance(b, d2, [b, d2], cells), rb + Cover.HEIGHT_RANGED_BONUS, "la hauteur joue aussi à distance")
 
 
 # --- Ligne de tir ---

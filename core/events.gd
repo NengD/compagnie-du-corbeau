@@ -574,6 +574,9 @@ static func get_def(id: String) -> Dictionary:
 	for e in DEFS:
 		if e["id"] == id:
 			return e
+	for e in RoadEncounters.DEFS:
+		if e["id"] == id:
+			return e
 	for sid in Data.STORIES:
 		for st in Data.STORIES[sid]["steps"]:
 			if st["id"] == id:
@@ -594,7 +597,7 @@ static func story_of(step_id: String) -> String:
 ## `flags` (Game.story_flags) et `day` : les histoires pas encore commencées et assez tardives entrent aussi dans le tirage (à poids double).
 static func pick(rng: RandomNumberGenerator, last_id: String = "", flags: Dictionary = {}, day: int = 0) -> Dictionary:
 	var pool: Array = []
-	for e in DEFS + CAMP_DEFS:
+	for e in DEFS + CAMP_DEFS + RoadEncounters.DEFS:
 		if e["id"] != last_id:
 			pool.append(e)
 	if day > 0:
@@ -620,11 +623,23 @@ static func choice_of(def: Dictionary, choice_id: String) -> Dictionary:
 
 
 ## Tire l'issue du choix : renvoie une copie de l'issue ({text, effets...}), ou {} si le choix est inconnu.
-static func resolve(event_id: String, choice_id: String, rng: RandomNumberGenerator) -> Dictionary:
+## Un choix à test (`check`, voir RoadEncounters) tire d'abord réussite ou échec selon `ctx` (roster, réputation), puis une issue
+## de `win` ou de `lose` ; l'issue renvoyée porte alors `success` (bool) et `chance` (en %).
+static func resolve(event_id: String, choice_id: String, rng: RandomNumberGenerator, ctx: Dictionary = {}) -> Dictionary:
 	var c: Dictionary = choice_of(get_def(event_id), choice_id)
 	if c.is_empty():
 		return {}
-	var outcomes: Array = c["outcomes"]
+	if c.has("check"):
+		var p: int = RoadEncounters.chance(c["check"], ctx)
+		var won: bool = rng.randi_range(1, 100) <= p
+		var o: Dictionary = _pick_outcome(c["win"] if won else c["lose"], rng)
+		o["success"] = won
+		o["chance"] = p
+		return o
+	return _pick_outcome(c["outcomes"], rng)
+
+
+static func _pick_outcome(outcomes: Array, rng: RandomNumberGenerator) -> Dictionary:
 	var total: int = 0
 	for o in outcomes:
 		total += int(o.get("w", 1))

@@ -48,6 +48,24 @@ static func mood_of(u: Unit) -> String:
 	return "normal"
 
 
+## Couleur d'accent du cadre d'un chef de faction (clé de Data.FACTION_LEADER).
+const LEADER_ACCENT := {"b": Color("c0463a"), "g": Color("9ab070"), "o": Color("a8c04e"), "u": Color("58d0b8"), "m": Color("c88a50")}
+const RARE_ACCENT := Color("9ec4e8")
+
+
+## Étiquette de portrait unique : "leader" (chef de faction : Data.FACTION_LEADER), "rare" (porte un objet unique de Data.UNIQUES) ou "".
+static func unique_tag(u: Unit) -> String:
+	if u == null:
+		return ""
+	if u.side != "p" and Data.FACTION_LEADER.has(u.faction):
+		var key: String = str(Data.FACTION_LEADER[u.faction])
+		if Data.FOE.has(key) and str(Data.FOE[key]["n"]) == u.background:
+			return "leader"
+	if Data.UNIQUES.has(u.weapon) or Data.UNIQUES.has(u.head) or Data.UNIQUES.has(u.body):
+		return "rare"
+	return ""
+
+
 static func is_creature(u: Unit) -> bool:
 	return u != null and (u.sprite != "" or u.faction == "g" or (u.faction == "u" and (u.weapon == "griffes" or u.weapon == "griffesL")))
 
@@ -63,7 +81,7 @@ func _init(u: Unit = null, px: int = 54) -> void:
 	_overlay = _Overlay.new()
 	_overlay.set("view", self)
 	if u != null:
-		_holder.add_child(Figure.new().setup(u))
+		_holder.add_child(Figure.new().setup(u, false))
 		_holder.add_child(_overlay)
 	_frame = _Frame.new()
 	_frame.set("view", self)
@@ -128,6 +146,13 @@ func _draw() -> void:
 	# halo derrière le buste
 	var halo: Color = Color("cfa851") if mood == "galvanise" else Color(1, 1, 1)
 	var ha: float = 0.22 if mood == "galvanise" else 0.07
+	var tag: String = unique_tag(_unit)
+	if tag == "leader" and mood != "mort":
+		halo = LEADER_ACCENT.get(_unit.faction, Color("cfa851"))
+		ha = 0.2
+	elif tag == "rare" and mood != "mort":
+		halo = RARE_ACCENT
+		ha = 0.16
 	for i in 4:
 		draw_circle(Vector2(size.x * 0.52, size.y * 0.5), size.x * (0.46 - i * 0.09), Color(halo, ha * 0.5))
 
@@ -141,6 +166,7 @@ class _Overlay:
 		if view == null or view._unit == null or PortraitView.is_creature(view._unit):
 			return
 		var u: Unit = view._unit
+		_unique(PortraitView.unique_tag(u), u)
 		if u.faction == "u":
 			if view.mood == "galvanise":
 				draw_circle(Vector2(4.4, -28.4), 3.0, Color(0.6, 1.0, 0.9, 0.35))
@@ -155,6 +181,33 @@ class _Overlay:
 				_dead()
 			"galvanise":
 				_inspired()
+
+	## Accessoires et expressions des portraits uniques : chefs de faction et porteurs d'objets uniques.
+	func _unique(tag: String, u: Unit) -> void:
+		if tag == "rare":
+			for sp in [Vector2(11.5, -38), Vector2(-9, -36)]:
+				_star(sp, 1.6, Color("cfe4f8"))
+			return
+		if tag != "leader" or view.mood == "mort":
+			return
+		match u.faction:
+			"b":  # chef brigand : sourire carnassier, dent d'or, cicatrice rehaussée
+				draw_line(Vector2(3.0, -31.4), Vector2(7.8, -30.0), Color("1a120c"), 1.8, true)
+				draw_line(Vector2(4.4, -21.6), Vector2(8.4, -22.4), Color("3a1a14"), 1.1, true)
+				draw_rect(Rect2(6.4, -21.9, 1.1, 1.1), Color("e8c04a"))
+			"o":  # chef de guerre orc : anneau d'or sur la défense, œil injecté
+				draw_arc(Vector2(7.6, -22.4), 1.3, 0.0, TAU, 10, Color("e8c04a"), 0.9)
+				draw_circle(Vector2(5.6, -28.2), 2.4, Color(0.9, 0.2, 0.1, 0.22))
+			"u":  # nécromant : lueur verte dans le regard, volutes
+				draw_circle(Vector2(5.4, -28.0), 3.2, Color(0.4, 1.0, 0.8, 0.28))
+				draw_circle(Vector2(5.4, -28.0), 1.1, Color(0.8, 1.0, 0.95, 0.95))
+				for w in [Vector2(-8, -34), Vector2(12, -18)]:
+					draw_arc(w, 2.6, 0.5, 4.2, 8, Color(0.5, 1.0, 0.85, 0.45), 0.9)
+
+	func _star(s: Vector2, r: float, col: Color) -> void:
+		var star := PackedVector2Array([s + Vector2(0, -r), s + Vector2(0.4, -0.4), s + Vector2(r, 0), s + Vector2(0.4, 0.4),
+			s + Vector2(0, r), s + Vector2(-0.4, 0.4), s + Vector2(-r, 0), s + Vector2(-0.4, -0.4)])
+		draw_colored_polygon(star, col)
 
 	func _brow(a: Vector2, b: Vector2, w: float = 1.5) -> void:
 		draw_line(a, b, Color("231710"), w, true)
@@ -237,6 +290,18 @@ class _Frame:
 		for i in 3:
 			draw_rect(r.grow(-float(i)), Color(0, 0, 0, 0.16 - i * 0.045), false, 1.0)
 		var gold: Color = GameTheme.GOLD
+		var tag: String = PortraitView.unique_tag(view._unit)
+		if tag == "leader":  # chef de faction : double filet aux couleurs de sa faction et pointes d'angle
+			var ac: Color = PortraitView.LEADER_ACCENT.get(view._unit.faction, gold)
+			draw_rect(r.grow(-1.5), Color(ac, 0.9), false, 2.0)
+			draw_rect(r.grow(-4.0), Color(gold, 0.7), false, 1.0)
+			for c in [Vector2(2, 2), Vector2(size.x - 2, 2), Vector2(2, size.y - 2), Vector2(size.x - 2, size.y - 2)]:
+				draw_circle(c, 3.0, ac)
+				draw_circle(c, 1.4, gold)
+		elif tag == "rare":  # objet unique : filet argenté et petit médaillon
+			draw_rect(r.grow(-1.5), Color(PortraitView.RARE_ACCENT, 0.85), false, 1.6)
+			draw_circle(Vector2(size.x - 4.5, 4.5), 3.0, PortraitView.RARE_ACCENT)
+			draw_circle(Vector2(size.x - 4.5, 4.5), 1.3, Color("f4fbff"))
 		if view.active:
 			draw_rect(r.grow(-1.0), Color(gold, 0.35), false, 4.0)
 			draw_rect(r.grow(-1.0), gold, false, 2.0)

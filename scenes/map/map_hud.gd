@@ -186,7 +186,7 @@ func _build_time() -> void:
 	_time_icon = HudIcon.new("sun", 24.0)
 	row.add_child(_time_icon)
 	_time_label = UiKit.label("", 16, GameTheme.INK, true)
-	_time_label.custom_minimum_size = Vector2(128, 0)
+	_time_label.custom_minimum_size = Vector2(190, 0)
 	row.add_child(_time_label)
 	_time_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
@@ -334,9 +334,9 @@ func set_time(day: int, frac: float, weather_on: bool) -> void:
 	if key == _last_time_key:
 		return
 	_last_time_key = key
-	_time_label.text = "Jour %d, %s" % [day, phase]
+	_time_label.text = "Jour %d · %s, %s" % [day, Seasons.name_of(day), phase]
 	_time_icon.set_kind(kind)
-	_time_panel.tooltip_text = "Météo : %s" % {"clear": "dégagé", "rain": "pluie", "fog": "brume", "snow": "neige"}.get(MapFx.weather_for_day(day), "dégagé")
+	_time_panel.tooltip_text = "%s\nMétéo : %s" % [Seasons.tooltip(day), {"clear": "dégagé", "rain": "pluie", "fog": "brume", "snow": "neige"}.get(MapFx.weather_for_day(day), "dégagé")]
 
 
 ## Ligne d'état : réaffichée en plein à chaque nouvelle `key` (nouvelle destination, halte…), puis s'efface.

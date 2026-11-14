@@ -139,6 +139,7 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 		if dist == 1 and (a.perks.is_empty() or Perks.mfx(a, "no_close_pen") <= 0.0):
 			ch -= 10
 		ch -= Data.LINE_UNIT_MALUS * line_units(a, d, units)
+		ch += Cover.ranged_modifier(cells, a.hex, d.hex)  ## hauteur et couvert
 	else:
 		var sh: int = (maxi(0, 15 - int(w.get("shield_ign", 0)) - (int(Perks.mfx(a, "shield_ign")) if not a.perks.is_empty() else 0)) if d.shield_ok() else 0) + (20 if d.shield_wall else 0)
 		ch = a.eff("melee_skill") + int(w["hit"]) - (d.eff("melee_def") + ter_def + sh + int(Data.MDEF[d.morale]))

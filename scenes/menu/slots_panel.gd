@@ -47,6 +47,7 @@ func _card(n: int) -> Control:
 		if str(info["date"]) != "":
 			v.add_child(UiKit.sub(str(info["date"])))
 	h.add_child(v)
+	var iron_game: bool = Ironman.blocks_slots(Game.extras) or bool(Game.slot_info(0).get("ironman", false))  ## mode fer : emplacements manuels interdits
 	if allow_save and n > 0:
 		var key: String = "save:%d" % n
 		var sv := UiKit.button("Confirmer l'écrasement" if _confirm == key else ("Écraser" if not info.is_empty() else "Sauvegarder"), "pri" if info.is_empty() or _confirm == key else "", true)
@@ -57,9 +58,12 @@ func _card(n: int) -> Control:
 				Game.save_to_slot(n)
 				_confirm = ""
 			_rebuild())
+		sv.disabled = iron_game
 		h.add_child(sv)
 	var ld := UiKit.button("Charger", "pri" if not allow_save else "", true)
-	ld.disabled = info.is_empty()
+	ld.disabled = info.is_empty() or (iron_game and n > 0)
+	if iron_game and n > 0:
+		ld.tooltip_text = Ironman.HINT
 	ld.pressed.connect(func() -> void:
 		if Game.load_slot(n):
 			modal.close()

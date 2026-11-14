@@ -166,6 +166,15 @@ func refresh_factions() -> void:
 		row.tooltip_text = "%s\nRivales : %s\nAlliées : %s\n%s" % [str(Data.FACTIONS[key]["desc"]), ", ".join(rivals) if not rivals.is_empty() else "aucune", ", ".join(allies) if not allies.is_empty() else "aucune", Factions.effects_text(st)]
 		row.mouse_filter = Control.MOUSE_FILTER_PASS
 		_faction_box.add_child(row)
+	var wars: Array = Wars.list_of(Game.extras)
+	if not wars.is_empty():
+		var wh := UiKit.label("⚔ Guerres en cours (liseré rouge sur la frontière)", 13, Color("c9503f"), true)
+		wh.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_faction_box.add_child(wh)
+		for w in wars:
+			var wl := UiKit.sub(Wars.describe(w, Game.day), 12)
+			wl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_faction_box.add_child(wl)
 
 
 func _options_section(root: VBoxContainer) -> void:

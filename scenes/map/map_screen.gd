@@ -326,13 +326,22 @@ func _fill_event(def: Dictionary) -> void:
 	box.add_child(UiKit.label("Événement de route", 13, GameTheme.GOLD, true))
 	box.add_child(UiKit.title(str(def["title"]), 26))
 	box.add_child(UiKit.para(str(def["text"])))
+	var ectx: Dictionary = Game.event_ctx()
 	for ch in def["choices"]:
 		var cost: int = int(ch.get("cost", 0))
-		var b := UiKit.button(str(ch["label"]), "pri" if cost == 0 and ch["id"] != "pass" else "", true)
+		var info: Dictionary = RoadEncounters.describe(ch, ectx)
+		var b := UiKit.button(str(info["label"]), "pri" if cost == 0 and ch["id"] != "pass" else "", true)
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.disabled = Game.gold < cost
-		if b.disabled:
-			b.tooltip_text = "Pas assez de couronnes."
+		var tip: Array = []
+		if ch.has("check"):
+			tip.append(RoadEncounters.kind_hint(ch["check"]))
+		if str(info["locked"]) != "":
+			b.disabled = true
+			tip.append(str(info["locked"]))
+		elif Game.gold < cost:
+			b.disabled = true
+			tip.append("Pas assez de couronnes.")
+		b.tooltip_text = "\n".join(tip)
 		b.pressed.connect(_choose_event.bind(str(ch["id"])))
 		box.add_child(b)
 
@@ -348,6 +357,8 @@ func _choose_event(choice_id: String) -> void:
 	for c in box.get_children():
 		box.remove_child(c)
 		c.queue_free()
+	if res.get("success") != null:
+		box.add_child(UiKit.label("Réussite" if bool(res["success"]) else "Échec", 13, GameTheme.GOLD if bool(res["success"]) else GameTheme.BLOOD.lightened(0.25), true))
 	box.add_child(UiKit.para(str(res["text"])))
 	if not (res["effects"] as Array).is_empty():
 		box.add_child(UiKit.sub(" · ".join(res["effects"])))

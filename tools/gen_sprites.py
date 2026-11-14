@@ -818,6 +818,8 @@ def main():
         write("shield_boss" + suffix, boss)
     import gen_sprites_more  # tenues, usure, monstres
     gen_sprites_more.main_more()
+    import gen_sprites_vari  # variété d'ennemis, équipement visible
+    gen_sprites_vari.main_vari()
     print("calques écrits dans", OUT, "-", len(os.listdir(OUT)), "fichiers")
 
 

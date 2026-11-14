@@ -64,9 +64,11 @@ func _ready() -> void:
 
 # --- Partie ---
 
-func new_game(seed_value: int = -1, p_difficulty: String = "normal") -> void:
+## `p_options` : {"scenario": clé de ScenariosData (absente = partie libre), "ironman": bool (mode fer)}.
+func new_game(seed_value: int = -1, p_difficulty: String = "normal", p_options: Dictionary = {}) -> void:
 	difficulty = Difficulty.clean(p_difficulty)
 	extras = {}
+	Scenarios.init_extras(extras, p_options)
 	if seed_value >= 0:
 		rng.seed = seed_value
 		loot_rng.seed = seed_value + 7919
@@ -101,8 +103,9 @@ func new_game(seed_value: int = -1, p_difficulty: String = "normal") -> void:
 	pending_events = []
 	_food_warned = false
 	news = ["La Compagnie du Corbeau est fondée. Cinq lames, peu de couronnes, beaucoup de routes."]
-	for k in ["milicien", "bucheron", "braconnier", "fermier", "deserteur"]:
+	for k in Scenarios.start_men(extras):
 		roster.append(Contracts.make_merc(k, rng, _names()))
+	Scenarios.apply_start(self, extras)  # sans effet en partie libre
 	var cseed: int = seed_value if seed_value >= 0 else int(randi() % 1000000)
 	formation = Formation.default_slots(roster)
 	campaign = Campaign.new_state("o" if cseed % 2 == 0 else "u")
@@ -148,8 +151,21 @@ func achievement_context() -> Dictionary:
 	}
 
 
+## Contexte lu par les scénarios (core/scenarios.gd).
+func scenario_context() -> Dictionary:
+	return {"day": day, "renown": renown, "gold": gold, "stats": stats, "over": game_over}
+
+
+## Évalue le scénario en cours (victoire / défaite) ; le résultat reste dans extras["scenario"] jusqu'à l'écran de fin.
+func scenario_tick() -> void:
+	var res: String = Scenarios.evaluate(extras, scenario_context())
+	if res != "":
+		add_news(["Scénario « %s » : %s." % [Scenarios.label(Scenarios.active(extras)), "objectif atteint" if res == "won" else "échec"]])
+
+
 ## Débloque les succès atteints (signal `achievement_unlocked` pour chacun) ; renvoie leurs ids.
 func check_achievements() -> Array[String]:
+	scenario_tick()
 	if roster.is_empty() and battle == null:
 		return []
 	var fresh: Array[String] = Achievements.newly_met(stats, achievement_context(), unlocked)
@@ -160,6 +176,9 @@ func check_achievements() -> Array[String]:
 			Achievements.save_unlocked(unlocked, achievements_path)
 		for id in fresh:
 			achievement_unlocked.emit(id)
+			for d in Achievements.DEFS:
+				if str(d["id"]) == str(id):
+					Chronicle.record(extras, day, "event", "Succès : %s." % str(d["n"]))
 	return fresh
 
 
@@ -301,7 +320,7 @@ func provisions_days() -> float:
 
 ## Prix de `n` rations ici (coefficient de lieu, réputation, cantine).
 func food_cost(n: int) -> int:
-	return int(ceil(float(price_of(Data.PROVISIONS_PRICE * n)) * CampBuildings.food_mult(buildings)))
+	return int(ceil(float(price_of(Data.PROVISIONS_PRICE * n)) * CampBuildings.food_mult(buildings) * Seasons.food_price_mult(day)))
 
 
 func buy_provisions(n: int) -> bool:
@@ -332,7 +351,7 @@ func _eat_on_road() -> Array:
 	var n: int = roster.size()
 	if n == 0:
 		return lines
-	var need: int = Difficulty.food_need(difficulty, n)
+	var need: int = Seasons.food_need(day, Difficulty.food_need(difficulty, n))  ## le froid creuse l'appétit
 	if provisions >= need:
 		provisions -= need
 		starve_days = 0
@@ -385,6 +404,37 @@ func morale_label() -> String:
 	return "Enthousiaste"
 
 
+# Captifs de la dernière bataille (extras["captives"], voir core/captives.gd)
+
+func pending_captives() -> Dictionary:
+	var c: Variant = extras.get("captives", {})
+	return c as Dictionary if c is Dictionary else {}
+
+
+## Applique le choix `choice` ("ransom" / "free" / "execute") aux captifs en attente ; renvoie la phrase d'effet ("" si rien à faire).
+func apply_captives(choice: String) -> String:
+	var cap: Dictionary = pending_captives()
+	if cap.is_empty() or not Captives.CHOICES.has(choice):
+		return ""
+	var e: Dictionary = Captives.effects(cap, choice)
+	gold += int(e["gold"])
+	renown += int(e["renown"])
+	if float(e["morale"]) != 0.0:
+		morale_add(float(e["morale"]))
+	for k in e["standing"]:
+		change_faction_standing(str(k), int(e["standing"][k]))
+	extras.erase("captives")
+	var line: String = str(e["line"])
+	if last_battle_report.has("captives"):
+		last_battle_report["captives"]["outcome"] = line
+		last_battle_report["gold"] = int(last_battle_report.get("gold", 0)) + int(e["gold"])
+		last_battle_report["renown"] = int(last_battle_report.get("renown", 0)) + int(e["renown"])
+	add_news([line])
+	save()
+	changed.emit()
+	return line
+
+
 # Factions humaines
 
 func standing_with(key: String) -> int:
@@ -416,6 +466,10 @@ func _faction_result(c: Dictionary, result: String) -> Array:
 	if result == "win" and Data.FACTIONS.has(vs):
 		change_faction_standing(vs, -Factions.VS_LOSS)
 		lines.append("%s : −%d de réputation." % [Factions.name_of(vs), Factions.VS_LOSS])
+	if result == "win":
+		var war_line: String = Wars.contract_done(extras, f, int(c.get("d", 1)))
+		if war_line != "":
+			lines.append(war_line)
 	if result == "win":  # contrecoups : les rivales de l'employeur s'en offusquent, ses alliées s'en réjouissent un peu
 		var sp: Dictionary = Factions.spill(f)
 		for k in sp:
@@ -622,6 +676,7 @@ func _restock(s: Dictionary) -> void:
 	_apply_factions(s)
 	for c in s["contracts"]:
 		c["pay"] = Difficulty.pay(difficulty, int(c["pay"]))  ## prime selon la difficulté (neutre en « normal »), après les modificateurs de faction
+	Scenarios.adjust_contracts(extras, s["contracts"])  # scénario « chasseurs de primes » ; sans effet sinon
 
 
 ## Employeur des contrats, primes selon la réputation, recrues d'élite et marchand rare chez un allié. Aléa local : `rng` reste intact.
@@ -636,6 +691,8 @@ func _apply_factions(s: Dictionary) -> void:
 		if not c.has("faction"):
 			Factions.tag_contract(c, owner, r)
 			Factions.apply_pay(c, standing)
+			Wars.apply_pay(Wars.state(extras), c)
+			Trade.tag_caravans([c], r)
 	if standing >= Data.FACTION_STAND_GOOD:
 		(s["recruits"] as Array).append(Factions.make_elite_recruit(r, _names()))
 	if standing >= Data.FACTION_STAND_BEST and (s.get("rare", []) as Array).is_empty():
@@ -671,7 +728,7 @@ func leave_settlement() -> void:
 func price_of(base: int, buying: bool = true) -> int:
 	var s: Dictionary = settlement()
 	var trade: float = Perks.roster_mult(roster, "buy_mult", true) if buying else Perks.roster_mult(roster, "sell_mult")  ## talent Marchandeur
-	return Difficulty.price(difficulty, int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s))) * trade)))
+	return Difficulty.price(difficulty, int(round(base * float(s.get("price_mult", 1.0)) * World.standing_price_mult(world.standing_of(s)) * Factions.price_mult(standing_with(Factions.owner_of(s))) * Wars.price_mult(Wars.state(extras), Factions.owner_of(s), faction_standing) * trade)))
 
 
 # --- Contrats ---
@@ -682,6 +739,7 @@ func accept_contract(index: int) -> bool:
 		return false
 	active_contract = s["contracts"][index]
 	s["contracts"].remove_at(index)
+	Trade.on_accept(active_contract, roster.size())
 	Campaign.on_accept(campaign, active_contract)
 	add_news(["Contrat accepté : %s. Cap sur %s." % [active_contract["title"], active_contract["target_name"]]])
 	_after_change()
@@ -740,6 +798,8 @@ func advance_time(days: float) -> void:
 			for n in Injuries.heal(m, (1 if location == "" else 2) + CampBuildings.injury_days_bonus(buildings)):
 				lines.append("%s est remis de sa blessure (%s)." % [m.unit_name, n.to_lower()])
 		lines.append_array(Campaign.daily(campaign, world, campaign_rng, day, renown, Difficulty.threat_mult(difficulty)))
+		lines.append_array(Wars.daily(extras, world, Wars.rng_for_day(day), day, [location]))  ## guerres entre factions (core/wars.gd)
+		_goal_note(Backstory.progress(roster, "days", 1))
 		var deserter: String = _pay_or_desert(1)
 		if deserter != "":
 			lines.append(deserter)
@@ -750,6 +810,7 @@ func advance_time(days: float) -> void:
 			lines.append(patrol)
 		if rng.randf() < 0.35:
 			world.fill_parties(renown, world.max_parties)
+	lines.append_array(_flush_goals())
 	if not lines.is_empty():
 		add_news(lines)
 	if rolled:
@@ -764,7 +825,8 @@ func map_step(days: float) -> Dictionary:
 	if battle != null or location != "" or game_over or not pending_event.is_empty():
 		return {}
 	var day_before: int = day
-	var used: float = world.step_player(days)
+	var sp: float = Seasons.travel_mult(day)  ## saison : hiver plus lent, été plus rapide
+	var used: float = world.step_player(days * sp) / sp
 	stat_add("travel_days", used)
 	advance_time(used)
 	if game_over:
@@ -845,6 +907,26 @@ func _start_event() -> Dictionary:
 	return {"type": "event", "event": def}
 
 
+## Lieu le plus proche (ou celui où l'on se trouve) : sert de « réputation locale » aux rencontres de route.
+func _local_place() -> Dictionary:
+	if world == null:
+		return {}
+	if location != "":
+		return settlement()
+	return world.settlement_near(world.player_pos, 700.0)
+
+
+func _local_faction() -> String:
+	return Factions.owner_of(_local_place())
+
+
+## Contexte des tests des rencontres de route (voir RoadEncounters) : hommes, réputation du lieu proche, estime de sa faction.
+func event_ctx() -> Dictionary:
+	var s: Dictionary = _local_place()
+	var fk: String = Factions.owner_of(s)
+	return RoadEncounters.context(roster, world.standing_of(s) if not s.is_empty() else 0, standing_with(fk) if fk != "" else 0)
+
+
 ## Applique le choix `choice_id` de l'événement en attente. Renvoie {"text": ..., "battle": bool, "ok": bool}.
 ## Si "battle" est vrai, l'embuscade est déjà lancée (`battle_started` émis).
 func resolve_event(choice_id: String) -> Dictionary:
@@ -852,13 +934,22 @@ func resolve_event(choice_id: String) -> Dictionary:
 		return {"ok": false, "text": "", "battle": false}
 	var ev_id: String = str(pending_event["id"])
 	var choice: Dictionary = Events.choice_of(Events.get_def(ev_id), choice_id)
-	if choice.is_empty() or gold < int(choice.get("cost", 0)):
+	var ectx: Dictionary = event_ctx()
+	if choice.is_empty() or gold < int(choice.get("cost", 0)) or RoadEncounters.locked_reason(choice, ectx) != "":
 		return {"ok": false, "text": "", "battle": false}
 	pending_event = {}
 	stat_add("events_seen")
 	_spend(int(choice.get("cost", 0)))
-	var o: Dictionary = Events.resolve(ev_id, choice_id, rng)
+	var o: Dictionary = Events.resolve(ev_id, choice_id, rng, ectx)
 	var lines: Array = []
+	if o.has("standing") and (o["standing"] as Dictionary).has("local"):  ## « local » = faction du lieu proche (rencontres de route)
+		var st: Dictionary = (o["standing"] as Dictionary).duplicate()
+		var lk: String = _local_faction()
+		var lv: int = int(st["local"])
+		st.erase("local")
+		if lk != "" and not st.has(lk):
+			st[lk] = lv
+		o["standing"] = st
 	var text: String = str(o.get("text", ""))
 	if o.has("gold"):
 		var g: int = int(o["gold"])
@@ -924,7 +1015,7 @@ func resolve_event(choice_id: String) -> Dictionary:
 			"title": "Embuscade en chemin", "desc": "", "employer": "", "origin": "", "pay": 0, "days": 0, "biome": world.biome_at(world.player_pos),
 		})
 	_after_change()
-	return {"ok": true, "text": text, "effects": lines, "battle": fight and battle != null}
+	return {"ok": true, "text": text, "effects": lines, "battle": fight and battle != null, "success": o.get("success", null)}
 
 
 ## Contrat de transport terminé à l'arrivée dans la ville de destination.
@@ -933,6 +1024,7 @@ func _complete_transport(id: String) -> void:
 		return
 	var c: Dictionary = active_contract
 	var d: int = int(c["d"])
+	var caravan_note: String = Trade.settle_caravan(c, roster.size())
 	_earn(int(c["pay"]))
 	stat_add("contracts_done")
 	stat_add("transports_done")
@@ -941,6 +1033,8 @@ func _complete_transport(id: String) -> void:
 	world.change_standing(id, 1)
 	add_news(["Contrat rempli : %s. +%d couronnes, +%d renom." % [c["title"], int(c["pay"]), rg]])
 	add_news(_faction_result(c, "win"))
+	if caravan_note != "":
+		add_news([caravan_note])
 	morale_add(4.0)
 	active_contract = {}
 
@@ -1007,6 +1101,8 @@ func hire(index: int) -> bool:
 	stat_add("men_hired")
 	roster.append(r["u"])
 	s["recruits"].remove_at(index)
+	Backstory.ensure(r["u"])
+	Chronicle.record(extras, day, "hire", "%s (%s) rejoint la compagnie à %s pour %d couronnes." % [r["u"].unit_name, r["u"].background, str(s.get("name", "?")), int(r["price"])])
 	add_news(["%s rejoint la compagnie." % r["u"].unit_name])
 	_after_change()
 	return true
@@ -1142,6 +1238,66 @@ func sell_item(index: int) -> bool:
 	return true
 
 
+# --- Marchandises de négoce (core/trade.gd, état dans extras["trade"]) ---
+
+func cargo_capacity() -> int:
+	return Trade.capacity(roster.size(), CampBuildings.level_of(buildings, "entrepot"))
+
+
+## Majoration des prix d'achat de marchandises ici : réputation, guerre, talent Marchandeur.
+func trade_mult() -> float:
+	var o: String = Factions.owner_of(settlement())
+	return Factions.price_mult(standing_with(o)) * Wars.price_mult(Wars.state(extras), o, faction_standing) * Perks.roster_mult(roster, "buy_mult", true)
+
+
+## Étal des marchandises du lieu : [{"good", "name", "role", "buy", "sell", "have", "paid", "known"}]. Mémorise les prix vus.
+func trade_view() -> Array:
+	var s: Dictionary = settlement()
+	if s.is_empty():
+		return []
+	var st: Dictionary = Trade.state(extras)
+	Trade.remember(st, s, day)
+	var out: Array = []
+	for g in Trade.goods():
+		out.append({"good": g, "name": Trade.name_of(g), "role": Trade.role(s, g), "buy": Trade.buy_price(s, g, day, trade_mult()),
+			"sell": int(round(float(Trade.sell_price(s, g, day)) * Perks.roster_mult(roster, "sell_mult"))), "have": Trade.qty_of(st, g),
+			"paid": int(st["paid"].get(g, 0)), "known": Trade.known(st, g)})
+	return out
+
+
+func trade_buy(g: String, qty: int = 1) -> bool:
+	shop_error = ""
+	var s: Dictionary = settlement()
+	if s.is_empty() or game_over:
+		return _shop_fail("Aucun marchand ici.")
+	var st: Dictionary = Trade.state(extras)
+	var res: Dictionary = Trade.buy(st, g, qty, Trade.buy_price(s, g, day, trade_mult()), gold, cargo_capacity() - Trade.total(st))
+	if not bool(res["ok"]):
+		return _shop_fail(str(res["err"]))
+	_spend(int(res["cost"]))
+	add_news(["%d × %s acheté%s : −%d couronnes." % [int(res["qty"]), Trade.name_of(g), "s" if int(res["qty"]) > 1 else "", int(res["cost"])]])
+	_sfx("coins")
+	_after_change()
+	return true
+
+
+func trade_sell(g: String, qty: int = 1) -> bool:
+	shop_error = ""
+	var s: Dictionary = settlement()
+	if s.is_empty() or game_over:
+		return _shop_fail("Aucun marchand ici.")
+	var st: Dictionary = Trade.state(extras)
+	var unit: int = int(round(float(Trade.sell_price(s, g, day)) * Perks.roster_mult(roster, "sell_mult")))
+	var res: Dictionary = Trade.sell(st, g, qty, unit)
+	if not bool(res["ok"]):
+		return _shop_fail(str(res["err"]))
+	_earn(int(res["gain"]))
+	add_news(["%d × %s vendu%s : +%d couronnes (%s)." % [int(res["qty"]), Trade.name_of(g), "s" if int(res["qty"]) > 1 else "", int(res["gain"]), ("profit %d" % int(res["profit"])) if int(res["profit"]) >= 0 else ("perte %d" % -int(res["profit"]))]])
+	_sfx("coins")
+	_after_change()
+	return true
+
+
 func can_equip_from_inventory(m: Unit, index: int) -> bool:
 	return m != null and index >= 0 and index < inventory.size() and battle == null and Inventory.auto_slot(m, inventory[index]) != ""
 
@@ -1239,12 +1395,32 @@ func prepare_loot() -> Array:
 
 # --- Niveaux ---
 
+## Objectifs personnels atteints en attente de compte rendu (voir `_flush_goals`) ; non sauvegardé.
+var _goal_lines: Array = []
+
+
+## Consigne les objectifs atteints (résultats de `Backstory.progress`) : journal de campagne et lignes en attente.
+func _goal_note(results: Array) -> void:
+	for r in results:
+		_goal_lines.append(str(r["text"]))
+		Chronicle.record(extras, day, "goal", str(r["text"]))
+
+
+## Renvoie (et vide) les lignes des objectifs atteints depuis le dernier appel.
+func _flush_goals() -> Array:
+	var out: Array = _goal_lines
+	_goal_lines = []
+	return out
+
+
 func level_check(m: Unit) -> void:
 	while m.level < 11 and m.xp >= int(Data.XP_THRESHOLDS[m.level + 1]):
 		m.level += 1
 		m.pending += 1
 		m.perk_points += 1
 		_sfx("levelup")
+		Chronicle.record(extras, day, "level", "%s passe au niveau %d." % [m.unit_name, m.level])
+		_goal_note(Backstory.progress([m], "level", m.level, true))
 
 
 ## Tire un gain pour chaque attribut. Le joueur en choisit 3.
@@ -1477,6 +1653,7 @@ func _settle_roster(b: BattleState, win: bool) -> Dictionary:
 			men_report.append({"u": m.to_dict(), "dead": true, "hp_before": m.hp, "hp_after": 0, "xp": 0, "kills": bu.kills - m.kills, "lvl_before": m.level, "lvl_after": m.level, "wounds": []})
 			dead_names.append(m.unit_name)
 			fallen.append({"name": m.unit_name, "bg": m.background, "lvl": m.level, "kills": bu.kills, "day": day})
+			Chronicle.record(extras, day, "death", "%s (%s, niveau %d) tombe au combat, %d victime%s à son actif." % [m.unit_name, m.background, m.level, bu.kills, "s" if bu.kills > 1 else ""])
 			continue
 		var rep_hp_before: int = m.hp
 		var rep_lvl_before: int = m.level
@@ -1490,6 +1667,9 @@ func _settle_roster(b: BattleState, win: bool) -> Dictionary:
 		m.bag = bu.bag.duplicate(true)
 		m.weapon_dur = bu.weapon_dur
 		m.shield_dur = bu.shield_dur
+		_goal_note(Backstory.progress([m], "kills", bu.kills - rep_kills_before))
+		if win:
+			_goal_note(Backstory.progress([m], "wins", 1))
 		m.kills = bu.kills
 		m.injuries = bu.injuries.duplicate(true)
 		var scar: String = Injuries.roll_permanent(m, rng, difficulty)
@@ -1535,6 +1715,7 @@ func _battle_outcome_lines(b: BattleState, win: bool, dead_names: Array) -> Arra
 			if c.get("type_contract", "kill") == "hunt":
 				stat_add("hunts_done")
 			lines.append("Contrat rempli : +%d couronnes, +%d renom." % [c["pay"], rg])
+			Chronicle.record(extras, day, "contract", "Contrat rempli : %s (+%d couronnes)." % [str(c.get("title", "?")), int(c["pay"])])
 			lines.append_array(_faction_result(c, "win"))
 			world.change_standing(str(c.get("origin_id", "")), 3 if c.get("type_contract", "kill") == "hunt" else 2)
 			lines.append_array(_arc_result(c, true))
@@ -1606,11 +1787,23 @@ func finish_battle() -> void:
 	var dead_names: Array = settled["dead"]
 	var lines: Array = _battle_outcome_lines(b, win, dead_names)
 	var spoils: Dictionary = _loot_and_objectives(b, win, lines)
+	if win and gold > gold_before:  # primes : comptent pour les objectifs « couronnes » de ceux qui ont combattu
+		var fighters: Array = roster.filter(func(m: Unit) -> bool: return b.units.any(func(bu: Unit) -> bool: return bu.id == m.id and bu.side == "p"))
+		_goal_note(Backstory.progress(fighters, "gold", gold - gold_before))
+	Chronicle.record(extras, day, "battle", "%s : %s%s." % ["Victoire" if win else ("Retraite" if b.over == "retreat" else "Défaite"), str(c.get("title", "bataille")), "" if dead_names.is_empty() else " (%d tombé%s)" % [dead_names.size(), "s" if dead_names.size() > 1 else ""]])
+	var goal_lines: Array = _flush_goals()
+	lines.append_array(goal_lines)
 	var loot: Array = spoils["loot"]
 	var obj_report: Array = spoils["objectives"]
 	var men_report: Array = settled["men"]
 	last_battle_report = {"result": b.over, "title": str(c.get("title", "")), "day": day, "men": men_report, "loot": loot.duplicate(true),
-		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate(), "objectives": obj_report}
+		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate(), "objectives": obj_report, "goals": goal_lines.duplicate()}
+	var cap: Dictionary = Captives.collect(b, win) if next_wave.is_empty() else {}
+	if cap.is_empty():
+		extras.erase("captives")
+	else:
+		extras["captives"] = cap
+		last_battle_report["captives"] = {"n": cap["men"].size(), "outcome": ""}
 	pending_loot = []
 	pending_loot_ready = false
 	battle = null
@@ -1666,6 +1859,7 @@ func to_dict() -> Dictionary:
 	Bonds.prune(roster)  ## liens vers des hommes partis : oubliés
 	var ros: Array = []
 	for m in roster:
+		Backstory.ensure(m)  ## histoire et objectif toujours présents avant d'écrire (hommes de scénario, d'histoire…) : la sauvegarde reste idempotente
 		ros.append(m.to_dict())
 	return {
 		"version": SaveIO.VERSION, "difficulty": difficulty, "gold": gold, "day": day, "day_fraction": day_fraction, "renown": renown, "roster": ros,
@@ -1824,7 +2018,7 @@ func _valid_slot(n: int) -> bool:
 
 ## Écrit la partie dans un emplacement manuel (1..SLOT_COUNT). Écriture explicite : indépendante de `autosave`.
 func save_to_slot(n: int) -> bool:
-	if n < 1 or n > SLOT_COUNT or world == null:
+	if n < 1 or n > SLOT_COUNT or world == null or Ironman.blocks_slots(extras):
 		return false
 	var d: Dictionary = to_dict()
 	d["saved_at"] = Time.get_datetime_string_from_system(false, true)
@@ -1832,7 +2026,7 @@ func save_to_slot(n: int) -> bool:
 
 
 func load_slot(n: int) -> bool:
-	if not _valid_slot(n) or not _load_path(slot_path(n)):
+	if not _valid_slot(n) or (n > 0 and Ironman.blocks_slots(extras)) or not _load_path(slot_path(n)):
 		return false
 	save()  # la partie chargée devient l'autosave (sans effet si `autosave` est faux)
 	return true
@@ -1848,7 +2042,7 @@ func slot_info(n: int) -> Dictionary:
 	var date: String = str(d.get("saved_at", ""))
 	if date == "" and n == 0:
 		date = Time.get_datetime_string_from_unix_time(FileAccess.get_modified_time(slot_path(0)), true)
-	return {"day": int(d.get("day", 1)), "gold": int(d.get("gold", 0)), "men": (d.get("roster", []) as Array).size(), "difficulty": Difficulty.clean(d.get("difficulty", "normal")), "date": date.replace("T", " ")}
+	return {"day": int(d.get("day", 1)), "gold": int(d.get("gold", 0)), "men": (d.get("roster", []) as Array).size(), "difficulty": Difficulty.clean(d.get("difficulty", "normal")), "date": date.replace("T", " "), "ironman": Ironman.is_on(d.get("extras", {}) if d.get("extras", {}) is Dictionary else {})}
 
 
 func delete_slot(n: int) -> void:

@@ -1,6 +1,6 @@
 class_name MainMenu
 extends Control
-## Menu principal : Continuer, Nouvelle partie, Charger, Options, Quitter.
+## Menu principal : Continuer, Nouvelle partie, Charger, Options, Encyclopédie, Quitter.
 ## N'agit pas lui-même : il émet `action` ("continue", "new", "load", "options", "quit") et main.gd décide.
 
 signal action(what: String)
@@ -38,12 +38,13 @@ func _rebuild() -> void:
 	_box.add_child(sub)
 	_box.add_child(_gap(18))
 	var info: Dictionary = Game.slot_info(0)
-	var cont := _menu_button("Continuer" if info.is_empty() else "Continuer — jour %d, %d couronnes, %d hommes (%s)" % [info["day"], info["gold"], info["men"], Difficulty.label(str(info.get("difficulty", "normal")))], "pri")
+	var iron: bool = bool(info.get("ironman", false))  ## la partie automatique est en mode fer : pas de chargement d'une autre copie
+	var cont := _menu_button("Continuer" if info.is_empty() else "Continuer — jour %d, %d couronnes, %d hommes (%s)%s" % [info["day"], info["gold"], info["men"], Difficulty.label(str(info.get("difficulty", "normal"))), " — ⛓ Mode fer" if iron else ""], "pri")
 	cont.disabled = info.is_empty()
 	cont.pressed.connect(func() -> void: action.emit("continue"))
 	_box.add_child(cont)
 	if _confirm_new:
-		var warn := UiKit.sub("La sauvegarde automatique sera écrasée.", 14)
+		var warn := UiKit.sub("La sauvegarde automatique sera écrasée." + (" C'est une partie en mode fer : elle sera perdue définitivement." if iron else ""), 14)
 		warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_box.add_child(warn)
 		var yes := _menu_button("Oui, nouvelle partie", "pri")
@@ -65,12 +66,17 @@ func _rebuild() -> void:
 				_confirm_new = true
 				_rebuild())
 		_box.add_child(nw)
-		var ld := _menu_button("Charger")
+		var ld := _menu_button("Charger" if not iron else "Charger (indisponible : partie en mode fer)")
+		ld.disabled = iron
 		ld.pressed.connect(func() -> void: action.emit("load"))
 		_box.add_child(ld)
 		var op := _menu_button("Options")
 		op.pressed.connect(func() -> void: action.emit("options"))
 		_box.add_child(op)
+		var cx := _menu_button("Encyclopédie")
+		cx.tooltip_text = "Armes, armures, talents, factions… (F1)"
+		cx.pressed.connect(func() -> void: action.emit("codex"))
+		_box.add_child(cx)
 		var ac := _menu_button("Succès et statistiques")
 		ac.pressed.connect(func() -> void: action.emit("achievements"))
 		_box.add_child(ac)

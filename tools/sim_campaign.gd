@@ -285,7 +285,19 @@ func save_load_roundtrip() -> void:
 		fail("sauvegarde/chargement : %s ≠ %s" % [str(before), str(after)])
 	var d2: Dictionary = JSON.parse_string(JSON.stringify(g.to_dict()))
 	if JSON.stringify(d2) != JSON.stringify(d):
-		fail("sauvegarde non idempotente après rechargement")
+		var diff: Array = []
+		for k in d:
+			if JSON.stringify(d2.get(k)) != JSON.stringify(d[k]):
+				diff.append(str(k))
+				if d[k] is Array and d2.get(k) is Array:  # précise l'élément et le champ qui diffèrent
+					for i in mini((d[k] as Array).size(), (d2[k] as Array).size()):
+						var a: Variant = d[k][i]
+						var b: Variant = d2[k][i]
+						if JSON.stringify(a) != JSON.stringify(b) and a is Dictionary and b is Dictionary:
+							for kk in a:
+								if JSON.stringify(a[kk]) != JSON.stringify(b.get(kk)):
+									diff.append("%s[%d].%s" % [str(k), i, str(kk)])
+		fail("sauvegarde non idempotente après rechargement (clés : %s)" % ", ".join(PackedStringArray(diff)))
 
 
 func check_invariants() -> void:

@@ -14,6 +14,8 @@ const TABLE: Dictionary = {
 const ABILITY_KIND: Dictionary = {"coup_bouclier": "bash"}
 const RANGED_KINDS: Array = ["arrow", "bolt", "javelin"]
 const CHEST := Vector2(0.0, -14.0)
+const EXPERT_GOLD := Color("f2c84a")
+const EXPERT_RED := Color("e0503a")
 
 
 ## Animation choisie pour une arme (et une capacité éventuelle). Inconnu -> « slash ».
@@ -36,22 +38,41 @@ static func projectile_end(from: Vector2, to: Vector2, hit: bool, salt: int = 0)
 	return to + CHEST + dir * 34.0 + dir.orthogonal() * side * (16.0 + float(salt % 3) * 4.0)
 
 
+## Le tireur/frappeur a le talent expert de la famille de son arme ET la porte (voir Perks.family_active) : son animation est marquée.
+static func is_expert(a: Unit) -> bool:
+	var fam: String = Perks.weapon_family(a.weapon)
+	if fam == "" or not Data.WEAPON_FAMILIES.has(fam):
+		return false
+	var ex: String = str(Data.WEAPON_FAMILIES[fam].get("expert", ""))
+	return ex != "" and a.has_perk(ex) and Perks.family_active(a, fam)
+
+
+## Couleur de la variante experte : or pour les armes tranchantes et de tir, rouge pour les armes qui écrasent.
+static func expert_color(kind: String) -> Color:
+	return EXPERT_RED if kind == "smash" or kind == "claws" else EXPERT_GOLD
+
+
 ## Joue l'animation. `await` rend la main au moment de l'impact (le reste de l'effet continue seul).
 static func play(board: BoardView, a: Unit, d: Unit, hit: bool, ability: String = "") -> void:
 	var sp: float = UnitView._speed()
 	if sp <= 0.0 or board == null or not board.is_inside_tree():
 		return
 	var kind: String = kind_for(a.weapon, ability)
+	var ex: bool = is_expert(a) and BattleFx.enabled()
 	var pa: Vector2 = board.hex_px(a.hex)
 	var pb: Vector2 = board.hex_px(d.hex)
 	var av: UnitView = board.view_of(a)
 	var dir: Vector2 = (pb - pa).normalized() if pb != pa else Vector2.RIGHT
 	if is_projectile(kind):
 		var end: Vector2 = projectile_end(pa, pb, hit, a.id)
+		if ex:
+			_expert_trail(board, pa + CHEST, end, expert_color(kind), sp)
 		await _projectile(board, kind, pa + CHEST, end, sp)
 		return
 	if av != null:
 		av.lunge(pb)
+		if ex:
+			av.squash()
 	await board.get_tree().create_timer(0.09 * sp).timeout
 	match kind:
 		"thrust":
@@ -64,6 +85,48 @@ static func play(board: BoardView, a: Unit, d: Unit, hit: bool, ability: String 
 			_claws(board, pb, dir, sp)
 		"bash":
 			_bash(board, pa + dir * 16.0 + CHEST, dir, sp)
+	if ex:
+		_expert_flare(board, kind, pa + CHEST, pb + CHEST, dir, sp)
+
+
+## Variante experte d'un coup de mêlée : éclat de couleur et seconde traînée plus longue, sans délai supplémentaire (effets lancés à part).
+static func _expert_flare(board: BoardView, kind: String, from: Vector2, to: Vector2, dir: Vector2, sp: float) -> void:
+	var col: Color = expert_color(kind)
+	var l := _line(board, 3.4, col)
+	var a: Vector2 = to - dir * 26.0 + dir.orthogonal() * 10.0
+	var b: Vector2 = to + dir * 22.0 - dir.orthogonal() * 12.0
+	if kind == "thrust":
+		a = from + dir * 14.0
+		b = to + dir * 24.0
+	elif kind == "smash":
+		a = to + Vector2(-12.0, -58.0)
+		b = to + Vector2(6.0, 8.0)
+	l.points = PackedVector2Array([a, a])
+	var tw: Tween = l.create_tween()
+	tw.tween_method(func(k: float) -> void: l.points = PackedVector2Array([a, a.lerp(b, k)]), 0.0, 1.0, 0.1 * sp)
+	tw.tween_property(l, "modulate:a", 0.0, 0.2 * sp)
+	tw.tween_callback(l.queue_free)
+	_ring(board, to + Vector2(0.0, 6.0), 30.0, sp)
+	var spark := Line2D.new()
+	spark.width = 2.0
+	spark.default_color = Color(col, 0.9)
+	spark.points = PackedVector2Array([to + Vector2(-9, 0), to + Vector2(9, 0)])
+	spark.position = Vector2.ZERO
+	board.add_fx(spark)
+	var sp2: Line2D = spark.duplicate() as Line2D
+	sp2.points = PackedVector2Array([to + Vector2(0, -9), to + Vector2(0, 9)])
+	board.add_fx(sp2)
+	for n in [spark, sp2]:
+		_fade_free(n, 0.22 * sp)
+
+
+## Traînée colorée le long du tir d'un expert.
+static func _expert_trail(board: BoardView, from: Vector2, to: Vector2, col: Color, sp: float) -> void:
+	var l := _line(board, 2.6, Color(col, 0.85))
+	l.points = PackedVector2Array([from, to])
+	var tw: Tween = l.create_tween()
+	tw.tween_property(l, "modulate:a", 0.0, 0.3 * sp)
+	tw.tween_callback(l.queue_free)
 
 
 static func _line(board: BoardView, width: float, col: Color) -> Line2D:

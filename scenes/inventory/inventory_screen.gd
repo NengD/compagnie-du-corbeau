@@ -516,6 +516,15 @@ func _build_left() -> void:
 		pic.unit = u
 		perks.add_child(pic)
 	_left.add_child(perks)
+	Backstory.ensure(u)
+	if u.goal.size() > 0:  # une ligne : l'objectif personnel ; l'histoire complète est dans l'infobulle
+		var gl := UiKit.sub(Backstory.summary(u), 11, true)
+		gl.clip_text = true
+		gl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		gl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		gl.mouse_filter = Control.MOUSE_FILTER_STOP
+		gl.tooltip_text = u.backstory + "\n\n" + Backstory.summary(u)
+		_left.add_child(gl)
 	var masteries: Array[String] = Perks.mastery_summary(u)  # maîtrises de l'équipement porté : dans l'infobulle de la rangée (pas de ligne en plus : la fiche doit tenir en 1280x720)
 	if not masteries.is_empty():
 		perks.tooltip_text = "Maîtrises de l'équipement porté :

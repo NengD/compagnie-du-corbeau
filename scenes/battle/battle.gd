@@ -728,7 +728,10 @@ func _refresh_marks() -> void:
 			cost_text = "%d PA" % cost
 		for f in state.foes_of(cur):
 			if _can_hit(cur, f) or Settings.show_hit_pct:
-				targets.append({"hex": f.hex, "pct": state.hit_chance(cur, f, _ability)})
+				var tg: String = ""
+				if cur.is_ranged() and _ability == "":
+					tg = Cover.short_tag(state.cells, cur.hex, f.hex)
+				targets.append({"hex": f.hex, "pct": state.hit_chance(cur, f, _ability), "tag": tg})
 	board.set_marks(_reach if pl else {}, path_set, cur.hex if cur != null and state.over == "" else null, cost_hex, cost_text, targets)
 	_pips.ap = cur.ap if cur != null else 0
 	_pips.cost = cost
@@ -908,6 +911,10 @@ func _refresh_inspect() -> void:
 		row.add_child(UiKit.label("Toucher %d %%" % state.hit_chance(cur, ins, _ability), 16, GameTheme.GOLD, true))
 		row.add_child(UiKit.label("Dégâts %d–%d" % [roundi(int(w["min"]) * dm), roundi(int(w["max"]) * dm)], 16, GameTheme.GOLD, true))
 		_inspect_box.add_child(row)
+		if cur.is_ranged() and _ability == "":
+			var tg: Array[String] = Cover.tags(state.cells, cur.hex, ins.hex)
+			if not tg.is_empty():
+				_inspect_box.add_child(UiKit.sub(" · ".join(tg)))
 		if not _can_hit(cur, ins):
 			var why: String = "Pas assez de PA ou trop fatigué."
 			if Hex.distance(cur.hex, ins.hex) > cur.weapon_range():

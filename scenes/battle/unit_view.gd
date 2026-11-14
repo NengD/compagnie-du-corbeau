@@ -16,6 +16,7 @@ var _fading: bool = false
 var _walk: float = 0.0  ## 0..1 : avancement du pas en cours (balancement)
 var _walk_amp: float = 1.0  ## 1 = marche, ~1.7 = course (fuite)
 var _step_dir: float = 1.0  ## alterne à chaque pas : l'inclinaison bascule d'un côté à l'autre
+var _squash: float = 0.0  ## 0..0.08 : écrasement vertical du coup d'expert
 var _fall: float = 0.0  ## 0..1 : chute de la figurine qui meurt
 var _arrows: Array[float] = []  ## angles des flèches plantées dans la figurine
 
@@ -72,7 +73,7 @@ static func _speed() -> float:
 func _apply_pose() -> void:
 	var sx: float = -1.0 if unit.side == "e" else 1.0
 	var breath: float = (sin(_t * 2.0 + _phase) if Quality.value("map_anim") else 0.0) * 0.012 + 0.012
-	var sy: float = 1.0 + breath
+	var sy: float = 1.0 + breath - _squash
 	var k: float = figure.base_scale
 	figure.scale = Vector2(sx * k, sy * k)
 	# balancement de marche : rebond vertical + légère inclinaison (plus marquée et penchée vers l'avant en course)
@@ -138,6 +139,15 @@ func lunge(toward: Vector2) -> void:
 	tw.tween_property(self, "_off", dir * 9.0, 0.09 * _speed()).set_ease(Tween.EASE_OUT)
 	tw.tween_property(self, "_off", Vector2.ZERO, 0.16 * _speed()).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
+
+
+## Léger écrasement de la figurine pendant un coup d'expert (aucune attente ; rien si _speed() vaut 0).
+func squash() -> void:
+	if _speed() <= 0.0:
+		return
+	var tw: Tween = create_tween()
+	tw.tween_property(self, "_squash", 0.08, 0.07 * _speed())
+	tw.tween_property(self, "_squash", 0.0, 0.14 * _speed())
 
 
 ## Recul et flash rouge quand l'unité est touchée.

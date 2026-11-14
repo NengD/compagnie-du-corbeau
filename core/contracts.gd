@@ -51,6 +51,7 @@ static func make_merc(key: String, rng: RandomNumberGenerator, taken: Array) -> 
 	u.faction = "p"
 	u.wage = int(t["wage"])
 	Traits.assign(u)  ## 1 ou 2 traits de caractère (graine dérivée de l'id : l'aléa de la partie n'est pas touché)
+	Backstory.assign(u)  ## histoire et objectif personnel (même principe : graine dérivée de l'id)
 	return u
 
 

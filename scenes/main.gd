@@ -29,6 +29,8 @@ var _fade_tween: Tween
 var _fading_out: bool = false
 var _pending: Callable
 var _booted: bool = false
+var _mode_label: Label  ## « Mode fer » et progression du scénario (en-tête)
+var _scenario_screen: bool = false  ## l'écran de fin de scénario est affiché
 
 
 func _ready() -> void:
@@ -68,6 +70,7 @@ func _ready() -> void:
 	Game.save_failed.connect(func(reason: String) -> void: _toast.show_notice("Sauvegarde impossible", reason))
 
 	Game.changed.connect(_update_header)
+	Game.changed.connect(_check_scenario_end)
 	Game.location_changed.connect(_on_screen_change)
 	Game.battle_started.connect(func() -> void: _go(_show_battle.bind(false)))
 	Game.battle_finished.connect(_on_screen_change)
@@ -167,6 +170,9 @@ func _build_header() -> Control:
 		pair.add_child(v)
 		_values[key] = v
 		row.add_child(pair)
+	_mode_label = UiKit.label("", 13, GameTheme.GOLD)  # scénario en cours (progression) et mode fer
+	_mode_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(_mode_label)
 	row.add_child(UiKit.spacer())
 	_actions = UiKit.hbox(6)
 	row.add_child(_actions)
@@ -214,6 +220,7 @@ func _update_header() -> void:
 	_values["Couronnes"].text = str(Game.gold)
 	_values["Renom"].text = str(Game.renown)
 	_values["Solde/jour"].text = str(Game.wages())
+	_update_mode_label()
 	for c in _actions.get_children():
 		_actions.remove_child(c)
 		c.queue_free()
@@ -244,6 +251,28 @@ func _update_header() -> void:
 		_actions.add_child(menu_b)
 
 
+## Mode fer et suivi du scénario, à droite des chiffres de l'en-tête.
+func _update_mode_label() -> void:
+	var parts: Array[String] = []
+	var tips: Array[String] = []
+	if Ironman.is_on(Game.extras):
+		parts.append("⛓ " + Ironman.LABEL)
+		tips.append(Ironman.HINT)
+	var sc: String = Scenarios.summary(Game.extras, Game.scenario_context())
+	if sc != "":
+		parts.append(sc)
+		tips.append(str(Scenarios.data(Scenarios.active(Game.extras)).get("rule", "")))
+	_mode_label.text = "   ".join(parts)
+	_mode_label.tooltip_text = "\n".join(tips)
+	_mode_label.visible = not parts.is_empty() and not Game.roster.is_empty()
+
+
+## Une victoire ou une défaite de scénario vient de tomber : on passe par l'écran de fin (hors bataille et menu).
+func _check_scenario_end() -> void:
+	if Scenarios.end_pending(Game.extras) and not _scenario_screen and not _in_menu and Game.battle == null and not Game.game_over:
+		_go(_route)
+
+
 # --- Écrans ---
 
 func _clear_content() -> void:
@@ -259,7 +288,21 @@ func _route() -> void:
 		return
 	_clear_content()
 	set_compact_header(false)
-	if Game.ending_pending() and not Game.game_over:
+	_scenario_screen = false
+	if Scenarios.end_pending(Game.extras) and not Game.game_over:
+		_scenario_screen = true
+		var sc_end := ScenarioEndScreen.new()
+		sc_end.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		sc_end.action.connect(func(what: String) -> void:
+			Scenarios.acknowledge(Game.extras)
+			_scenario_screen = false
+			Game.save()
+			if what == "free":
+				_go(_route)
+			else:
+				_go(_show_menu))
+		_content.add_child(sc_end)
+	elif Game.ending_pending() and not Game.game_over:
 		var ending := EndingScreen.new()
 		ending.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		ending.action.connect(func(what: String) -> void:
@@ -332,6 +375,7 @@ func _enter_game() -> void:
 # --- Menu principal ---
 
 func _show_menu() -> void:
+	_wipe_ironman_if_over()
 	_cancel_pause()
 	_in_menu = true
 	Tutorial.hide_card()
@@ -346,18 +390,24 @@ func _show_menu() -> void:
 	_update_header()
 
 
-## Point d'entrée unique d'une nouvelle partie (menu principal ET en-tête) : difficulté (déjà choisie), puis l'étape
-## « Votre compagnie » (nom, bannière), puis même tutoriel, même fondu. L'étape est sautée en tests (BattleScreen.speed == 0).
-func _start_new_game(level: String) -> void:
+## Point d'entrée unique d'une nouvelle partie (menu principal ET en-tête) : difficulté (déjà choisie), puis « Départ » (partie libre ou
+## scénario, mode fer), puis l'étape « Votre compagnie » (nom, bannière), puis même tutoriel, même fondu. `opts` vide = l'étape
+## « Départ » n'a pas encore eu lieu ; les étapes d'écran sont sautées en tests (BattleScreen.speed == 0).
+func _start_new_game(level: String, opts: Dictionary = {}) -> void:
 	if BattleScreen.speed <= 0.0 or not is_inside_tree():
-		_begin_new_game(level, {})
+		_begin_new_game(level, {}, opts)
 		return
-	CompanySetup.open(self, func(setup: Dictionary) -> void: _begin_new_game(level, setup),
-		func() -> void: DifficultyPanel.open(self, _start_new_game, level))
+	if opts.is_empty():
+		ScenarioPanel.open(self, func(picked: Dictionary) -> void: _start_new_game(level, picked),
+			func() -> void: DifficultyPanel.open(self, _start_new_game, level))
+		return
+	CompanySetup.open(self, func(setup: Dictionary) -> void: _begin_new_game(level, setup, opts),
+		func() -> void: ScenarioPanel.open(self, func(picked: Dictionary) -> void: _start_new_game(level, picked),
+			func() -> void: DifficultyPanel.open(self, _start_new_game, level), opts))
 
 
-func _begin_new_game(level: String, setup: Dictionary) -> void:
-	Game.new_game(-1, level)
+func _begin_new_game(level: String, setup: Dictionary, opts: Dictionary = {}) -> void:
+	Game.new_game(-1, level, opts)
 	if not setup.is_empty():
 		Game.set_company_identity(setup)
 	if not Settings.tutorial_seen:
@@ -380,10 +430,18 @@ func _on_menu_action(what: String) -> void:
 					_menu.refresh())
 		"achievements":
 			AchievementsScreen.open(self)
+		"codex":
+			CodexScreen.open(self)
 		"options":
 			OptionsPanel.open(self)
 		"quit":
 			get_tree().quit()
+
+
+## Mode fer : la compagnie est anéantie et l'écran de fin a été vu (on quitte pour le menu) -> la sauvegarde disparaît.
+func _wipe_ironman_if_over() -> void:
+	if Ironman.should_wipe(Game.extras, Game.game_over):
+		Game.delete_slot(0)
 
 
 # --- Mode de navigation (clavier / souris) ---
@@ -421,8 +479,14 @@ func _top_modal_layer() -> Node:
 
 func _input(event: InputEvent) -> void:
 	_track_input_mode(event)
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1 and CodexScreen.can_open(self):
+		CodexScreen.open(self)  # touche F1 : encyclopédie (partout, hors saisie de texte et autre fenêtre)
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_I:
 		_open_inventory()  # touche I : inventaire (hors menu, bataille et fenêtres ouvertes)
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_J and not _in_menu and Game.battle == null and not Game.game_over and not Game.roster.is_empty() and _count_modals(self) == 0 and not (get_viewport().gui_get_focus_owner() is LineEdit):
+		ChronicleScreen.open(self)  # touche J : journal de campagne et mémorial
 		return
 	if not (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		return
@@ -478,13 +542,17 @@ func _open_pause() -> void:
 	var resume := UiKit.button("Reprendre", "pri")
 	resume.pressed.connect(_cancel_pause)
 	box.add_child(resume)
-	var saves := UiKit.button("Sauvegarder / Charger")
+	var saves := UiKit.button("Sauvegarder / Charger" if not Ironman.is_on(Game.extras) else "Sauvegarder / Charger (mode fer : indisponible)")
+	saves.disabled = Ironman.is_on(Game.extras)
 	saves.pressed.connect(func() -> void: SlotsPanel.open(self, true, func() -> void:
 		_cancel_pause()
 		_go(_enter_game)))
 	box.add_child(saves)
 	var opts := UiKit.button("Options")
 	opts.pressed.connect(func() -> void: OptionsPanel.open(self))
+	var codex := UiKit.button("Encyclopédie (F1)")
+	codex.pressed.connect(func() -> void: CodexScreen.open(self))
+	box.add_child(codex)
 	var achv := UiKit.button("Succès et statistiques")
 	achv.pressed.connect(func() -> void: AchievementsScreen.open(self))
 	box.add_child(achv)

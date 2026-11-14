@@ -650,6 +650,7 @@ func _paint_rock(l: Node2D, p: Vector2, h: Vector2i) -> void:
 func _paint_floor(l: Node2D) -> void:
 	if state == null:
 		return
+	RegionDecor.paint(l, self)  # décor de région (ambiance du biome et de la faction)
 	for d in decals.items:
 		_paint_decal(l, d)
 	var dead_at: Dictionary = {}
@@ -1014,3 +1015,5 @@ func _paint_hud(l: Node2D) -> void:
 		l.draw_rect(r, Color("8f3328"))
 		l.draw_rect(r, Color("f0a090"), false, 1.0)
 		l.draw_string(font, Vector2(p2.x - 16, p2.y - 49), "%d %%" % t["pct"], HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color.WHITE)
+		if t.has("tag") and str(t["tag"]) != "":
+			l.draw_string(font, Vector2(p2.x - 30, p2.y - 63), str(t["tag"]), HORIZONTAL_ALIGNMENT_CENTER, 60, 9, Color("f0e0a0"))

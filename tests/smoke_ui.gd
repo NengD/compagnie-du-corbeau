@@ -122,9 +122,12 @@ func _run() -> void:
 	root.add_child(main)
 	await _frames(2)
 	await _check_company_setup(main)
+	await _check_systemes(main)
 	_check_tooltip_wrap(main)
 	await _check_keyboard_focus(main)
 	await _check_formation_panel(main)
+	await _check_chronicle(main)
+	await _check_market_trade(main)
 	await _check_perk_tree(main)
 	# --- Ville ---
 	var camp: Node = _find(main, "Camp")
@@ -275,10 +278,76 @@ func _run() -> void:
 		mk.call("close")
 		await _frames(2)
 		_check(get_nodes_in_group("market_screen").is_empty(), "plus de marché ouvert")
+	# Écran des captifs : construction + choix
+	var cap_box := VBoxContainer.new()
+	root.add_child(cap_box)
+	var cap_d: Dictionary = {"men": [{"name": "Test", "level": 2, "leader": false}], "faction": "", "title": ""}
+	game.extras["captives"] = cap_d
+	var cap_done: Array = [""]
+	CaptivesScreen.build(cap_box, cap_d, func(l: String) -> void: cap_done[0] = l)
+	_check(_find_all(cap_box, func(n: Node) -> bool: return n is Button).size() == 3, "captifs : trois choix")
+	var cap_gold: int = game.gold
+	(_find_all(cap_box, func(n: Node) -> bool: return n is Button)[0] as Button).pressed.emit()
+	_check(game.gold > cap_gold and cap_done[0] != "", "captifs : rançon encaissée")
+	cap_box.queue_free()
 	_step("jour %d, or %d, %d hommes" % [game.day, game.gold, game.roster.size()])
 	print("\nSmoke UI : %s" % ("OK" if _errors == 0 else "%d erreur(s)" % _errors))
 	quit(0 if _errors == 0 else 1)
 
+
+
+## Départ (scénarios, mode fer), écran de fin de scénario et encyclopédie.
+func _check_systemes(main: Node) -> void:
+	var picked: Array = []
+	var panel: Object = ScenarioPanel.open(main, func(o: Dictionary) -> void: picked.append(o))
+	await _frames(1)
+	var modal: Node = panel.get("modal")
+	var picks: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text == "Choisir")
+	_check(picks.size() == Scenarios.keys().size(), "départ : un bouton par scénario (%d)" % picks.size())
+	(picks[1] as Button).pressed.emit()
+	await _frames(1)
+	var boxes: Array = _find_all(modal, func(n: Node) -> bool: return n is CheckBox)
+	_check(boxes.size() == 1, "départ : case mode fer")
+	(boxes[0] as CheckBox).button_pressed = true
+	(boxes[0] as CheckBox).toggled.emit(true)
+	var go: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text == "Suivant")
+	(go[0] as Button).pressed.emit()
+	await _frames(1)
+	_check(picked.size() == 1 and picked[0]["scenario"] == Scenarios.keys()[1] and picked[0]["ironman"] == true, "départ : choix transmis")
+	# partie en mode fer + scénario
+	main._start_new_game("normal", {"scenario": "course", "ironman": true})
+	await _frames(2)
+	_check(Scenarios.active(game.extras) == "course" and Ironman.is_on(game.extras), "départ : scénario et mode fer actifs")
+	var lab: Label = main.get("_mode_label")
+	_check(lab.visible and lab.text.contains("Mode fer") and lab.text.contains("Contrats"), "en-tête : mode fer et progression")
+	game.stats["contracts_done"] = 5
+	game.scenario_tick()
+	game.changed.emit()
+	await _frames(2)
+	var end: Node = _find(main, "ScenarioEndScreen")
+	_check(end != null, "écran de fin de scénario affiché")
+	if end != null:
+		end.emit_signal("action", "free")
+		await _frames(2)
+		_check(not Scenarios.end_pending(game.extras) and _find(main, "ScenarioEndScreen") == null, "fin de scénario : retour en partie libre")
+	# encyclopédie
+	var cx: Object = load("res://scenes/codex/codex_screen.gd").open(main)
+	await _frames(1)
+	var cm: Node = cx.get("modal")
+	var cat_btns: Array = _find_all(cm, func(n: Node) -> bool: return n is Button and (n as Button).text == "Talents")
+	_check(cat_btns.size() == 1, "encyclopédie : catégorie Talents")
+	(cat_btns[0] as Button).pressed.emit()
+	await _frames(1)
+	_check(_all_text(cm).contains(str(Data.PERKS["bretteur"]["n"])), "encyclopédie : liste des talents")
+	var srch: LineEdit = _find_all(cm, func(n: Node) -> bool: return n is LineEdit)[0] as LineEdit
+	srch.text = "zzzz"
+	srch.text_changed.emit("zzzz")
+	await _frames(1)
+	_check(_all_text(cm).contains("Aucune fiche"), "encyclopédie : recherche sans résultat")
+	cm.call("close")
+	await _frames(1)
+	game.new_game(5)
+	await _frames(2)
 
 ## Régression : à la création de partie, les boutons de couleur, d'emblème et de motif de « Votre compagnie » doivent
 ## réellement mettre l'aperçu à jour (bug corrigé : `sync` capturé vide par les fonctions anonymes).
@@ -414,6 +483,48 @@ func _count(n: Node) -> int:
 
 
 ## Composant FormationPanel (scenes/inventory/formation_panel.gd) : affichage, sélection, glisser-déposer, plafond du champ.
+func _check_market_trade(main: Node) -> void:
+	if not game.in_settlement():
+		return
+	game.gold = 5000
+	var scr: Node = load("res://scenes/market/market_screen.gd").open(main)
+	await _frames(2)
+	var tab: Array = _find_all(scr, func(n: Node) -> bool: return n is Button and (n as Button).text == "Marchandises")
+	_check(tab.size() == 1, "marché : onglet Marchandises présent")
+	(tab[0] as Button).pressed.emit()
+	await _frames(3)
+	var buy: Array = _find_all(scr, func(n: Node) -> bool: return n is Button and (n as Button).text == "Acheter 1" and not (n as Button).disabled)
+	_check(not buy.is_empty(), "marché : boutons d'achat de marchandises")
+	(buy[0] as Button).pressed.emit()
+	await _frames(3)
+	var held: Dictionary = game.extras.get("trade", {}).get("cargo", {})
+	_check(not held.is_empty(), "marché : l'achat remplit la cargaison")
+	var known: Array = _find_all(scr, func(n: Node) -> bool: return n is Label and (n as Label).text.begins_with("Prix connus : ") and not (n as Label).text.ends_with("aucun"))
+	_check(not known.is_empty(), "marché : les prix connus s'affichent")
+	scr.call("close")
+	await _frames(2)
+	game.extras.erase("trade")
+
+
+func _check_chronicle(main: Node) -> void:
+	game.fallen.append({"name": "Test Tombé", "bg": "Fermier", "lvl": 2, "kills": 3, "day": 4})
+	var chron: Script = load("res://core/chronicle.gd")
+	chron.record(game.extras, game.day, "battle", "Victoire : essai du journal")
+	var modal: Node = load("res://scenes/chronicle/chronicle_screen.gd").open(main)
+	await _frames(2)
+	var texts: Array = _find_all(modal, func(n: Node) -> bool: return n is Label and (n as Label).text.contains("essai du journal"))
+	_check(not texts.is_empty(), "journal : l'entrée récente s'affiche")
+	var tab_btns: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text == "Mémorial")
+	_check(tab_btns.size() == 1, "journal : onglet Mémorial présent")
+	(tab_btns[0] as Button).pressed.emit()
+	await _frames(3)
+	var dead: Array = _find_all(modal, func(n: Node) -> bool: return n is Label and (n as Label).text.contains("Test Tombé"))
+	_check(not dead.is_empty(), "mémorial : l'homme tombé figure")
+	modal.call("close")
+	await _frames(2)
+	game.fallen.pop_back()
+
+
 func _check_formation_panel(main: Node) -> void:
 	var panel: Control = load("res://scenes/inventory/formation_panel.gd").new()
 	panel.position = Vector2(20, 20)

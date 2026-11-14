@@ -24,7 +24,7 @@ static func eval_pos(s: BattleState, u: Unit, h: Vector2i, field: Dictionary = {
 	var high: float = 10.0 if CombatRules.terrain_at(s.cells, h)["h"] + Scenery.height_bonus(s.cells, h) > 0 else 0.0
 	if bool(w["ranged"]):
 		var want: int = maxi(2, rng_u - 1)  # portée maximale (un cran en retrait de la limite)
-		return (50.0 if shot else 0.0) - absf(md - want) * 3.0 - (40.0 if md == 1 else 0.0) + high
+		return (50.0 if shot else 0.0) - absf(md - want) * 3.0 - (40.0 if md == 1 else 0.0) + high + Cover.position_score(s.cells, h, foes)
 	if md > rng_u and field.has(h):  # on compte la marche réelle (rivières, obstacles), pas la distance à vol d'oiseau
 		md = maxi(md, int(field[h]) / 2)
 	var adj_allies: int = 0

@@ -138,6 +138,8 @@ func _rebuild() -> void:
 
 
 func _restore_scroll(sc: ScrollContainer, value: int) -> void:
+	if not is_inside_tree():
+		return  # l'écran a été retiré pendant la reconstruction (nouvelle partie, changement d'écran)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if is_instance_valid(sc):
@@ -217,6 +219,10 @@ func _build_company(root: VBoxContainer) -> void:
 	banner_open.tooltip_text = "Nom, couleurs et emblème de la compagnie"
 	banner_open.pressed.connect(func() -> void: BannerScreen.open(self))
 	actions.add_child(banner_open)
+	var chron_open := UiKit.button("Journal (J)")
+	chron_open.tooltip_text = "Journal de campagne et mémorial des hommes tombés"
+	chron_open.pressed.connect(func() -> void: ChronicleScreen.open(self))
+	actions.add_child(chron_open)
 	actions.add_child(UiKit.sub("%d/%d hommes · %d au combat (maximum %d), les autres en réserve" % [Game.roster.size(), Game.max_roster(), Formation.field_count(Game.formation_slots()), Data.FIGHTERS], 13, false))
 	root.add_child(actions)
 	var flow := _flow(root)
@@ -227,6 +233,20 @@ func _build_company(root: VBoxContainer) -> void:
 		for f in Game.fallen:
 			parts.append("%s (%s, niv. %d, jour %d)" % [f["name"], f["bg"], f["lvl"], f["day"]])
 		root.add_child(UiKit.sub("Tombés au combat : " + " · ".join(parts)))
+
+
+## Histoire courte et objectif personnel d'un homme (core/backstory.gd).
+func _story_lines(c: VBoxContainer, m: Unit) -> void:
+	Backstory.ensure(m)
+	if m.backstory == "":
+		return
+	var st := UiKit.sub(m.backstory, 12)
+	st.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	c.add_child(st)
+	var gl := UiKit.sub(Backstory.summary(m), 12)
+	gl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	gl.add_theme_color_override("font_color", GameTheme.GOLD if bool(m.goal.get("done", false)) else GameTheme.MUTE)
+	c.add_child(gl)
 
 
 func _who_header(parent: Node, m: Unit, sub_text: String, with_level: bool) -> void:
@@ -259,6 +279,7 @@ func _roster_card(flow: Node, m: Unit, index: int) -> void:
 	var tc: Control = TraitChips.row(m)
 	if tc != null:
 		c.add_child(tc)
+	_story_lines(c, m)
 	var bond_txt: String = Bonds.summary(m, Game.roster)
 	if bond_txt != "":
 		var bl := UiKit.sub(bond_txt, 12)
@@ -403,6 +424,7 @@ func _build_recruits(root: VBoxContainer) -> void:
 		var rt: Control = TraitChips.row(u)
 		if rt != null:
 			c.add_child(rt)
+		_story_lines(c, u)
 		var rp: Control = PerkIcon.row(u)
 		if rp != null:
 			c.add_child(rp)

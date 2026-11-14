@@ -124,6 +124,20 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   `Game.finish_battle` découpée (`_settle_roster`, `_battle_outcome_lines`, `_loot_and_objectives`) ; test de cohérence des tables
   (`tests/suites/suite_coherence_donnees.gd`). Choix assumés : `Game.gd` n'a pas été éclaté en modules (les autoloads ne se typent pas
   dans `core/`, l'extraction aurait remplacé le typage par des accès dynamiques) et `Data.gd` reste en dictionnaires (aucun `.tres`).
+- **Vague de fonctions (6 sessions)** — état persistant nouveau dans `Game.extras["clé"]` (un sous-dictionnaire par fonction, clé absente = défaut) :
+  **Recrues avec un passé** (`core/backstory.gd`, `Unit.backstory/goal`, objectif personnel + récompense, assignés à la création ou à la volée depuis l'id, et
+  toujours avant l'écriture de la sauvegarde) ; **journal et mémorial** (`core/chronicle.gd`, `Game.extras["chronicle"]` borné, `scenes/chronicle/`, touche J) ;
+  **capture et rançon** (`core/captives.gd`, `scenes/battle/captives_screen.gd`, ennemis humains brisés après une victoire : rançon / libérer / exécuter) ;
+  **hauteur et couvert** (`core/cover.gd`, modificateurs de toucher à distance, étiquettes « Couvert » / « Hauteur », pris en compte par l'IA) ;
+  **rencontres de route à choix** (`core/road_encounters.gd`, négocier / soudoyer / fuir / piège avec chance affichée) ; **saisons** (`core/seasons.gd`, dérivées
+  du jour, 30 jours chacune, effets sur déplacement et vivres, teinte et neige sur la carte) ; **commerce** (`core/trade.gd`, `core/trade_data.gd`, onglet
+  Marchandises `scenes/market/trade_panel.gd`, cargaison limitée, prix connus, `Game.extras["trade"]`) ; **guerres de factions** (`core/wars.gd`, `Game.extras["wars"]`,
+  changements de propriétaire des lieux frontaliers, marqueurs sur la carte et dans la légende) ; **scénarios** (`core/scenarios.gd`, `core/scenarios_data.gd`,
+  `scenes/newgame/scenario_panel.gd`, écran de fin `scenes/ending/scenario_end_screen.gd`), **mode fer** (`core/ironman.gd` : une seule sauvegarde, supprimée à la
+  fin de partie) et **encyclopédie** (`core/codex.gd`, `scenes/codex/`, touche F1, menu principal et pause) ; **graphismes** : apparences variées par faction,
+  équipement visible (arme au dos, carquois, étendard de la compagnie), décors de région (`core/region_look.gd`, `scenes/battle/region_decor.gd`, sans effet sur les
+  règles), animations marquées pour les talents experts, portraits uniques (chefs de faction, objets rares) — sprites générés par `tools/gen_sprites.py` et
+  `tools/gen_sprites_vari.py`. `sim_campaign.gd` signale désormais les clés qui diffèrent quand la sauvegarde n'est pas idempotente.
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`
@@ -185,6 +199,7 @@ core/              # logique pure, SANS dépendance aux nœuds de scène -> test
   ai.gd            # prochaine action ennemie (brigands, goules), fuite
   save_io.gd       # sauvegarde : version, migration, lecture validée, écriture sûre (SaveIO)
   impact_feel.gd   # paliers de ressenti des coups (tremblement + arrêt sur image)
+  backstory.gd / chronicle.gd / captives.gd / cover.gd / seasons.gd / road_encounters.gd / trade.gd / wars.gd / scenarios.gd / ironman.gd / codex.gd  # fonctions récentes (voir État actuel)
   contracts.gd     # génération des contrats (par lieu), recrues, ennemis
   world.gd         # carte : terrain (bruit), lieux, bandes errantes, chemins (AStarGrid2D), déplacement
 scenes/

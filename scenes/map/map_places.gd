@@ -580,6 +580,45 @@ static func paint_borders(l: CanvasItem, lines: Array, k: float = 1.0) -> void:
 	for c in by_col:
 		if not (by_col[c] as PackedVector2Array).is_empty():
 			l.draw_multiline(by_col[c], c, 1.1 * k)
+	paint_war_borders(l, lines, k)
+
+
+## Frontières en guerre : liseré rouge sombre et deux épées croisées au milieu du plus long tronçon (états lus dans Game.extras["wars"]).
+static func paint_war_borders(l: CanvasItem, lines: Array, k: float = 1.0) -> void:
+	var loop: MainLoop = Engine.get_main_loop()
+	var game: Node = (loop as SceneTree).root.get_node_or_null("/root/Game") if loop is SceneTree else null
+	if game == null:
+		return
+	var ex: Variant = game.get("extras")
+	if typeof(ex) != TYPE_DICTIONARY:
+		return
+	var prs: Array = Wars.pairs(ex)
+	if prs.is_empty():
+		return
+	var hot := Color(0.78, 0.16, 0.12, 0.85)
+	for pr in prs:
+		var best_len: float = 0.0
+		var best_mid: Vector2 = Vector2.ZERO
+		for ln in lines:
+			var a: String = str(ln["a"])
+			var b: String = str(ln["b"])
+			if not ((a == pr[0] and b == pr[1]) or (a == pr[1] and b == pr[0])):
+				continue
+			var pts: PackedVector2Array = ln["pts"]
+			if pts.size() < 2:
+				continue
+			l.draw_polyline(pts, hot, 2.2 * k)
+			var total: float = 0.0
+			for i in pts.size() - 1:
+				total += pts[i].distance_to(pts[i + 1])
+			if total > best_len:
+				best_len = total
+				best_mid = pts[pts.size() / 2]
+		if best_len > 0.0:
+			var r: float = 9.0 * k
+			l.draw_circle(best_mid, r * 1.25, Color(0.1, 0.06, 0.04, 0.75))
+			l.draw_line(best_mid + Vector2(-r, -r) * 0.8, best_mid + Vector2(r, r) * 0.8, Color("e0d6bd"), 2.0 * k)
+			l.draw_line(best_mid + Vector2(r, -r) * 0.8, best_mid + Vector2(-r, r) * 0.8, Color("e0d6bd"), 2.0 * k)
 
 
 ## Bornes frontières : petite pierre dressée, coiffée des couleurs des deux voisins.
