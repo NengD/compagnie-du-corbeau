@@ -177,7 +177,8 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 		raw *= Perks.mmult(a, "vs_down_dmg")  ## Marteleur
 	if a.weapon_broken():
 		raw *= Data.BROKEN_WEAPON_DMG
-	var real_arm: int = d.arm_h if head else d.arm_b
+	var zone: String = "head" if head else Limbs.roll_zone(d, rng)  ## bras / jambes seulement si l'homme porte la pièce (sinon : corps, sans tirage de plus)
+	var real_arm: int = Limbs.zone_armor(d, zone)
 	var arm: int = real_arm + (Perks.armor_soak(d, head) if real_arm > 0 else 0)  ## Bourre épaisse, Tête dure…
 	if a.has_perk("briseur") and arm < LIGHT_ARMOR:
 		raw *= 1.1
@@ -189,7 +190,7 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 	else:
 		var eff_arm: float = float(w["arm"]) * Perks.weapon_field(a, "arm") * Perks.arm_mult(a)
 		var ign: float = float(w["ign"]) + Perks.weapon_field(a, "ign") + float(ab.get("ign_add", 0.0))
-		var mat_m: Dictionary = DamageTypes.zone_mods(a, d, head)  ## type de dégât × matériau de la pièce touchée (core/materials_data.gd)
+		var mat_m: Dictionary = DamageTypes.zone_mods_for(a, d, zone)  ## type de dégât × matériau de la pièce touchée (core/materials_data.gd)
 		eff_arm *= float(mat_m["arm"])
 		ign *= float(mat_m["ign"])
 		if not ammo_m.is_empty():
@@ -198,21 +199,18 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 		var edged: bool = not d.perks.is_empty() and Perks.is_edged(a)
 		if edged:
 			eff_arm *= Perks.mmult(d, "edge_arm")  ## Maillons serrés
-		var ad: float = raw * eff_arm * float(ab.get("armor", 1.0)) * Upkeep.oil_mult(d, head)  ## haubert huilé : l'armure s'use moins
+		var ad: float = raw * eff_arm * float(ab.get("armor", 1.0)) * Upkeep.oil_mult(d, zone != "body")  ## haubert huilé : l'armure s'use moins
 		arm_d = minf(float(arm), ad)
 		hp_d = maxf(0.0, raw * ign - float(arm) * 0.1)
 		if ad > float(arm):
 			hp_d += (ad - float(arm)) / (eff_arm * float(ab.get("armor", 1.0))) * (1.0 - ign)
 		if edged:
 			hp_d *= Perks.mmult(d, "edge_hp")
-	return {"head": head, "hp": roundi(hp_d), "armor": roundi(arm_d), "zone_armor": arm}
+	return {"head": head, "zone": zone, "hp": roundi(hp_d), "armor": roundi(arm_d), "zone_armor": arm}
 
 
 static func apply_damage(d: Unit, dmg: Dictionary) -> void:
-	if bool(dmg["head"]):
-		d.arm_h = maxi(0, d.arm_h - int(dmg["armor"]))
-	else:
-		d.arm_b = maxi(0, d.arm_b - int(dmg["armor"]))
+	Limbs.wear_zone(d, str(dmg.get("zone", "head" if bool(dmg["head"]) else "body")), int(dmg["armor"]))
 	d.hp -= int(dmg["hp"])
 
 

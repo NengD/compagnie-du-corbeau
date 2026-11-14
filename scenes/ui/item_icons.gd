@@ -16,7 +16,7 @@ static var _cache: Dictionary = {}
 ## Nom de fichier (sans extension) d'un objet, ou "" si le genre est inconnu.
 static func file_of(kind: String, key: String) -> String:
 	match kind:
-		"weapon", "head", "body", "tool", "food", "ammo":
+		"weapon", "head", "body", "arms", "legs", "tool", "food", "ammo":
 			return "%s_%s" % [kind, key]
 		"shield":
 			return "shield_%s" % key if key == "targe" or key == "pavois" else "shield_bouclier"

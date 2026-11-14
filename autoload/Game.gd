@@ -227,7 +227,7 @@ func wages() -> int:
 func repair_cost() -> int:
 	var missing: int = 0
 	for m in roster:
-		missing += (m.head_armor_max() - m.arm_h) + (m.body_armor_max() - m.arm_b)
+		missing += (m.head_armor_max() - m.arm_h) + (m.body_armor_max() - m.arm_b) + Limbs.total_max(m) - Limbs.total_cur(m)  ## bras et jambes compris
 	var gear: int = 0
 	for m in roster:
 		gear += gear_repair_cost(m)
@@ -998,6 +998,7 @@ func resolve_event(choice_id: String) -> Dictionary:
 		for m in roster:
 			m.arm_h = m.head_armor_max()
 			m.arm_b = m.body_armor_max()
+			Limbs.restore_all(m)
 			m.weapon_dur = -1
 			m.shield_dur = -1
 		lines.append("armures réparées")
@@ -1087,6 +1088,7 @@ func repair() -> void:
 	for m in roster:
 		m.arm_h = m.head_armor_max()
 		m.arm_b = m.body_armor_max()
+		Limbs.restore_all(m)
 		m.weapon_dur = -1
 		m.shield_dur = -1
 	add_news(["Armures, armes et boucliers réparés pour %d couronnes%s." % [c, (" ; carquois remplis (+%d)" % int(refilled["pieces"])) if int(refilled["pieces"]) > 0 else ""]])
@@ -1135,7 +1137,7 @@ func repair_piece(m: Unit, slot: String, step: float) -> bool:
 	var c: int = repair_piece_cost(m, slot, step)
 	_spend(c)
 	var pts: int = Upkeep.apply_repair(m, slot, step)
-	add_news(["%s : %s réparé%s (+%d points) pour %d couronnes." % [m.unit_name, Upkeep.slot_label(slot).to_lower(), "e" if slot == "weapon" or slot == "body" else "", pts, c]])
+	add_news(["%s : %s réparé%s (+%d points) pour %d couronnes." % [m.unit_name, Upkeep.slot_label(slot).to_lower(), Upkeep.participle_end(slot), pts, c]])
 	_after_change()
 	return true
 
@@ -1806,6 +1808,8 @@ func _settle_roster(b: BattleState, win: bool) -> Dictionary:
 		m.hp = maxi(1, bu.hp)
 		m.arm_h = bu.arm_h
 		m.arm_b = bu.arm_b
+		m.arm_a = bu.arm_a
+		m.arm_l = bu.arm_l
 		m.weapon = bu.weapon  ## changements d'arme en bataille (Inventory.bag_swap) conservés
 		m.shield = bu.shield
 		m.bag = bu.bag.duplicate(true)

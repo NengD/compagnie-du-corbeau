@@ -138,6 +138,16 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   équipement visible (arme au dos, carquois, étendard de la compagnie), décors de région (`core/region_look.gd`, `scenes/battle/region_decor.gd`, sans effet sur les
   règles), animations marquées pour les talents experts, portraits uniques (chefs de faction, objets rares) — sprites générés par `tools/gen_sprites.py` et
   `tools/gen_sprites_vari.py`. `sim_campaign.gd` signale désormais les clés qui diffèrent quand la sauvegarde n'est pas idempotente.
+- **Armes et armures (2 vagues)** : **grades de qualité** (`core/item_grade.gd` : grossière / correcte / fine / maîtresse, clé `"q"` de l'objet, absente = correcte ;
+  `Unit.weapon_q/head_q/body_q/shield_q` conservés à l'équipement, à la vente et à l'achat ; étiquettes dans `ItemCell` et les infobulles) ; **entretien**
+  (`core/upkeep.gd` : aiguiser une arme tranchante, huiler les mailles, bonus temporaire qui expire après N combats ; atelier `scenes/camp/workshop_screen.gd` :
+  réparation par paliers 25/50/100 %, forgeron selon le type de lieu) ; **types de dégâts et matériaux** (`core/damage_types.gd`, `core/materials.gd`,
+  `core/materials_data.gd` : le type vient de `Data.WEAPON_FAMILIES[...]["dmg_type"]`, la matrice type × matériau module efficacité et traversée) ;
+  **deux mains** (`core/handedness.gd`) ; **boucliers** rondache / targe / pavois (`core/shields.gd`, `Unit.shield_kind`) ; **munitions** (`core/ammo.gd`,
+  `Unit.quiver/ammo_kind`, carquois rechargé au camp, entrées « ammo » au marché) ; **contenu** : 10 armes, 10 armures de faction, 5 armes à histoire dont la
+  progression suit le porteur (`core/legends.gd`, clé d'objet `"kills"`), `docs/builds.md` régénéré ; **emplacements Bras et Jambes** (kinds `"arms"` / `"legs"`,
+  armure propre, familles et maîtrises, zones de touche : tête 25 %, le reste du corps répartit une part vers bras/jambes seulement si une pièce est équipée —
+  sans pièce, comportement inchangé).
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

@@ -312,7 +312,7 @@ func _attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dict
 	else:
 		if int(res["armor"]) > 0:
 			board.float_text(d.hex, "−%d" % res["armor"], Color("cfd9e4"), -14.0)
-		board.float_text(d.hex, ("Tête ! " if res["head"] else "") + "−%d" % res["hp"], Color("ff7a68"), 0.0, 18 if res["head"] else 15)
+		board.float_text(d.hex, ("Tête ! " if res["head"] else ("Bras ! " if res.get("zone", "") == "arms" else ("Jambe ! " if res.get("zone", "") == "legs" else ""))) + "−%d" % res["hp"], Color("ff7a68"), 0.0, 18 if res["head"] else 15)
 	for ex in res.get("extra", []):  # riposte, balayage, second javelot : coups déclenchés par une maîtrise
 		var xr: Dictionary = ex
 		var xt: Unit = xr["target"]

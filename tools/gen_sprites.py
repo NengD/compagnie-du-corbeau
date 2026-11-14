@@ -822,6 +822,8 @@ def main():
     gen_sprites_vari.main_vari()
     import gen_equip_art  # armes, casques et armures ajoutés (contenu d'équipement)
     gen_equip_art.main_sprites()
+    import gen_limb_art  # brassards et jambières (emplacements Bras et Jambes)
+    gen_limb_art.main_sprites()
     print("calques écrits dans", OUT, "-", len(os.listdir(OUT)), "fichiers")
 
 

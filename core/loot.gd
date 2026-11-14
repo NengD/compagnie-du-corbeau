@@ -3,7 +3,7 @@ extends RefCounted
 ## Butin et objets de l'inventaire. Un objet = {"kind": "weapon" | "head" | "body" | "shield", "key": clé de Data}.
 ## Logique pure : l'aléa est injecté.
 
-const KINDS: Array[String] = ["weapon", "shield", "head", "body", "tool"]
+const KINDS: Array[String] = ["weapon", "shield", "head", "body", "arms", "legs", "tool"]
 const SELL_RATE: float = 0.4  ## part du prix de base reçue à la vente
 const BASE_CHANCE: float = 0.15  ## chance de récupérer une armure entièrement détruite
 const WEAPON_CHANCE: float = 0.45
@@ -30,6 +30,10 @@ static func data_of(it: Dictionary) -> Dictionary:
 			return Data.HEAD[it["key"]]
 		"body":
 			return Data.BODY[it["key"]]
+		"arms":
+			return Data.ARMS[it["key"]]
+		"legs":
+			return Data.LEGS[it["key"]]
 		"shield":
 			return Shields.data(it["key"])
 		"ammo":
@@ -89,7 +93,7 @@ static func dmg_max(it: Dictionary) -> int:
 ## Armure maximale d'un casque ou d'une armure (0 pour les autres objets).
 static func armor_max(it: Dictionary) -> int:
 	var k: String = str(it["kind"])
-	if k != "head" and k != "body":
+	if k != "head" and k != "body" and k != "arms" and k != "legs":
 		return 0
 	var a: int = int(data_of(it).get("a", 0))
 	return a if not it.has("q") else int(round(float(a) * ItemGrade.armor_mult(grade_of(it))))
@@ -142,7 +146,7 @@ static func describe(it: Dictionary) -> String:
 	match str(it["kind"]):
 		"weapon":
 			return "%d–%d dégâts · %d PA%s" % [dmg_min(it), dmg_max(it), d["ap"], _wear_text(it)]
-		"head", "body":
+		"head", "body", "arms", "legs":
 			return "Armure %d · poids %d%s" % [armor_max(it), d["w"], " · abîmée %d/%d" % [armor_of(it), armor_max(it)] if wear_ratio(it) < 1.0 else ""]
 		"shield":
 			return "+%d déf. mêlée, +%d déf. distance · poids %d%s" % [d["mdef"], d["rdef"], d["w"], _wear_text(it)]
@@ -167,6 +171,10 @@ static func is_valid(it: Variant) -> bool:
 			return Data.HEAD.has(it["key"])
 		"body":
 			return Data.BODY.has(it["key"])
+		"arms":
+			return Data.ARMS.has(it["key"]) and it["key"] != "none"
+		"legs":
+			return Data.LEGS.has(it["key"]) and it["key"] != "none"
 		"shield":
 			return true
 		"tool":
@@ -188,6 +196,9 @@ static func pieces_of(u: Unit) -> Array:
 		out.append({"item": head_item(u), "ratio": clampf(float(u.arm_h) / maxf(1.0, float(u.head_armor_max())), 0.0, 1.0)})
 	if u.body != "none":
 		out.append({"item": body_item(u), "ratio": clampf(float(u.arm_b) / maxf(1.0, float(u.body_armor_max())), 0.0, 1.0)})
+	for s in Limbs.SLOTS:  # bras et jambes : après le reste, l'ordre des tirages d'avant ne bouge pas
+		if Limbs.worn(u, s):
+			out.append({"item": Limbs.piece_item(u, s), "ratio": clampf(float(Limbs.cur(u, s)) / maxf(1.0, float(Limbs.armor_max(u, s))), 0.0, 1.0)})
 	return out
 
 
@@ -296,6 +307,16 @@ static func equip(u: Unit, it: Dictionary) -> Array:
 			u.body = str(it["key"])
 			u.body_q = grade_of(it)
 			u.arm_b = u.body_armor_max()
+		"arms", "legs":
+			var s: String = str(it["kind"])
+			if Limbs.worn(u, s):
+				removed.append(ItemGrade.with_grade(item(s, Limbs.key_of(u, s)), Limbs.grade(u, s)))
+			if s == "arms":
+				u.arms = str(it["key"])
+			else:
+				u.legs = str(it["key"])
+			Limbs.set_grade(u, s, grade_of(it))
+			Limbs.set_cur(u, s, Limbs.armor_max(u, s))
 	return removed
 
 

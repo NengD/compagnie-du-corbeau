@@ -3,9 +3,9 @@ extends RefCounted
 ## Matériau d'une pièce d'armure et effet du type de dégât sur elle (tables : core/materials_data.gd). Fonctions pures.
 
 
-## Matériau de la pièce `key` de l'emplacement `slot` ("head" | "body"). "nu" si aucune armure.
+## Matériau de la pièce `key` de l'emplacement `slot` ("head" | "body" | "arms" | "legs"). "nu" si aucune armure.
 static func of(slot: String, key: String) -> String:
-	var table: Dictionary = Data.HEAD if slot == "head" else Data.BODY
+	var table: Dictionary = Data.HEAD if slot == "head" else (Data.BODY if slot == "body" else Limbs.table(slot))
 	if key == "none" or not table.has(key):
 		return "nu"
 	return of_entry(slot, key, table[key])
@@ -29,6 +29,18 @@ static func of_entry(slot: String, key: String, d: Dictionary) -> String:
 
 static func of_unit(u: Unit, head: bool) -> String:
 	return of("head", u.head) if head else of("body", u.body)
+
+
+## Matériau de la zone touchée ("head" | "body" | "arms" | "legs").
+static func of_zone(u: Unit, zone: String) -> String:
+	match zone:
+		"head":
+			return of("head", u.head)
+		"arms":
+			return of("arms", u.arms)
+		"legs":
+			return of("legs", u.legs)
+	return of("body", u.body)
 
 
 static func label(material: String) -> String:

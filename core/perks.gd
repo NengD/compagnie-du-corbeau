@@ -308,7 +308,7 @@ static func weapon_base(weapon_key: String) -> String:
 ## Famille d'une pièce d'armure : `slot` = "head" ou "body" ("" si inconnue).
 static func armor_family(slot: String, key: String) -> String:
 	for f in Data.ARMOR_FAMILIES:
-		if (Data.ARMOR_FAMILIES[f][slot] as Array).has(key):
+		if (Data.ARMOR_FAMILIES[f].get(slot, []) as Array).has(key):
 			return str(f)
 	return ""
 
@@ -325,6 +325,12 @@ static func uncovered_gear() -> Array[String]:
 	for k in Data.BODY:
 		if armor_family("body", str(k)) == "":
 			out.append("corps:" + str(k))
+	for k in Data.ARMS:
+		if armor_family("arms", str(k)) == "":
+			out.append("bras:" + str(k))
+	for k in Data.LEGS:
+		if armor_family("legs", str(k)) == "":
+			out.append("jambes:" + str(k))
 	return out
 
 
@@ -338,7 +344,9 @@ static func family_active(u: Unit, fam: String) -> bool:
 		var af: Dictionary = Data.ARMOR_FAMILIES[fam]
 		var hb: bool = armor_family("head", u.head) == fam
 		var bb: bool = armor_family("body", u.body) == fam
-		return (hb and bb) if str(af["rule"]) == "all" else (hb or bb)
+		var ab: bool = armor_family("arms", u.arms) == fam  ## bras et jambes : « none » appartient au tissu léger, une pièce lourde casse sa règle « all »
+		var lb: bool = armor_family("legs", u.legs) == fam
+		return (hb and bb and ab and lb) if str(af["rule"]) == "all" else (hb or bb or ab or lb)
 	return false
 
 
@@ -432,7 +440,7 @@ static func mastery_line(u: Unit, kind: String, key: String) -> String:
 			fam = weapon_family(key)
 		"shield":
 			fam = "bouclier"
-		"head", "body":
+		"head", "body", "arms", "legs":
 			fam = armor_family(kind, key)
 	if fam == "":
 		return ""
@@ -487,6 +495,12 @@ static func family_members(fam: String) -> String:
 			names.append(str(Data.HEAD[k]["n"]))
 		for k in af["body"]:
 			names.append(str(Data.BODY[k]["n"]))
+		for k in af.get("arms", []):
+			if k != "none":
+				names.append(str(Data.ARMS[k]["n"]))
+		for k in af.get("legs", []):
+			if k != "none":
+				names.append(str(Data.LEGS[k]["n"]))
 	return ", ".join(names)
 
 

@@ -31,6 +31,11 @@ static func zone_mods(a: Unit, d: Unit, head: bool) -> Dictionary:
 	return Materials.mods(Materials.of_unit(d, head), of_unit(a))
 
 
+## Idem pour une zone quelconque : "head", "body", "arms" ou "legs".
+static func zone_mods_for(a: Unit, d: Unit, zone: String) -> Dictionary:
+	return Materials.mods(Materials.of_zone(d, zone), of_unit(a))
+
+
 ## Efficacité de l'arme de `a` contre `d` : {"type": "Tranchant", "verdict": "efficace" | "peu efficace" | "normal" | "", "material": "Mailles",
 ## "score": float}. On regarde le corps (75 % des coups) puis la tête si le corps est nu. `verdict` "" : cible sans armure.
 static func versus(a: Unit, d: Unit) -> Dictionary:

@@ -16,7 +16,7 @@ signal hovered(item: Dictionary)
 
 const GHOSTS: Dictionary = {
 	"head": ["head", "casque"], "body": ["body", "gambison"], "weapon": ["weapon", "epee"], "shield": ["shield", ""],
-	"bag": ["food", "ration"], "tool": ["tool", "pierre"],
+	"bag": ["food", "ration"], "tool": ["tool", "pierre"], "arms": ["arms", "manches_mailles"], "legs": ["legs", "chausses_mailles"],
 }
 const BG := Color("14100c")
 const BG_HI := Color("241c13")

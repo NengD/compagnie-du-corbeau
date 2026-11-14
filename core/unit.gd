@@ -31,6 +31,12 @@ static var next_id: int = 1
 @export var body: String = "tunique"
 @export var arm_h: int = 0
 @export var arm_b: int = 0
+var arms: String = "none"  ## brassards / épaulières (clé de Data.ARMS, voir core/limbs.gd) ; "none" = pas de pièce
+var legs: String = "none"  ## jambières / grèves (clé de Data.LEGS)
+var arm_a: int = 0  ## armure courante des bras
+var arm_l: int = 0  ## armure courante des jambes
+var arms_q: int = 0  ## grades de ces deux pièces (voir ItemGrade)
+var legs_q: int = 0
 
 @export var level: int = 1
 @export var xp: int = 0
@@ -88,7 +94,7 @@ static func alloc_id() -> int:
 
 
 func weight() -> int:
-	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(shield_data()["w"]) if shield else 0)
+	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(shield_data()["w"]) if shield else 0) + Limbs.weight(self)
 	if perks.is_empty():
 		return w
 	return maxi(0, w - Perks.weight_cut(self, w) - int(Perks.mfx(self, "weight_cut")))  ## Carapace, Maillons serrés
@@ -320,6 +326,14 @@ func body_armor_max() -> int:
 	return a if body_q == 0 else int(round(float(a) * ItemGrade.armor_mult(body_q)))
 
 
+func arms_armor_max() -> int:
+	return Limbs.armor_max(self, "arms")
+
+
+func legs_armor_max() -> int:
+	return Limbs.armor_max(self, "legs")
+
+
 func reset_for_battle() -> void:
 	hp = clampi(hp, 1, hp_max)
 	ap = Data.AP_PER_TURN
@@ -377,6 +391,7 @@ func to_dict() -> Dictionary:
 	d["backstory"] = backstory
 	d["goal"] = goal.duplicate(true)
 	ItemGrade.write_unit(self, d)  ## grades de l'équipement et entretien (clés absentes = défaut)
+	Limbs.write_unit(self, d)  ## bras et jambes (clés absentes = pas de pièce)
 	return d
 
 
@@ -417,6 +432,7 @@ static func from_dict(d: Dictionary) -> Unit:
 	if typeof(g) == TYPE_DICTIONARY and (g as Dictionary).has("kind") and (g as Dictionary).has("target"):
 		u.goal = (g as Dictionary).duplicate(true)
 	ItemGrade.read_unit(u, d)
+	Limbs.read_unit(u, d)
 	if u.side == "p":
 		Backstory.ensure(u)  # ancienne sauvegarde : histoire et objectif tirés de l'id, sans toucher à l'aléa de la partie
 	return u

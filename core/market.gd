@@ -13,7 +13,7 @@ const MAX_ENTRIES: int = 72  ## au-delà, les plus anciennes entrées (hors vivr
 const WEAR_MIN: float = 0.5  ## durabilité minimale d'un objet d'occasion
 const NEW_CHANCE: float = 0.55  ## part des objets neufs
 const PRESENCE: float = 0.85  ## chance qu'un modèle du catalogue soit en rayon
-const ORDER: Dictionary = {"food": 0, "weapon": 1, "shield": 2, "head": 3, "body": 4, "tool": 5, "ammo": 6}
+const ORDER: Dictionary = {"food": 0, "weapon": 1, "shield": 2, "head": 3, "body": 4, "arms": 4, "legs": 4, "tool": 5, "ammo": 6}
 
 
 static func food(qty: int) -> Dictionary:
@@ -84,6 +84,10 @@ static func _extra_stock(out: Array, shop: Dictionary, city: bool, rng: RandomNu
 				var a: Dictionary = Loot.item("ammo", Ammo.item_key(str(l), str(kind)))
 				a["qty"] = rng.randi_range(2, 5) if str(kind) == Ammo.DEFAULT_KIND else rng.randi_range(1, 3)
 				out.append(a)
+	for slot in Limbs.SLOTS:  # bras et jambes : tirages tout à la fin, ceux d'avant ne bougent pas
+		for key in shop.get(slot, []):
+			for e in _copies(slot, str(key), rng, 2):
+				out.append(e)
 
 
 ## Tire le grade des objets du rayon (armes, boucliers, casques, armures). Un seul tirage `rng` en amont : les tirages précédents
@@ -190,7 +194,7 @@ static func add_sold(stock: Array, it: Dictionary) -> void:
 static func filtered(stock: Array, filter: String) -> Array[int]:
 	var out: Array[int] = []
 	for i in stock.size():
-		if filter == "all" or str(stock[i]["kind"]) == filter:
+		if Inventory.kind_matches(str(stock[i]["kind"]), filter):
 			out.append(i)
 	return out
 

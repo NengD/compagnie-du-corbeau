@@ -498,7 +498,9 @@ func _build_left() -> void:
 	var r2 := UiKit.hbox(GAP)
 	r2.alignment = BoxContainer.ALIGNMENT_CENTER
 	r2.add_child(_slot_cell(u, "weapon"))
+	r2.add_child(_slot_cell(u, "arms"))  # bras et jambes de part et d'autre du corps : la poupée garde ses deux rangées
 	r2.add_child(_slot_cell(u, "body"))
+	r2.add_child(_slot_cell(u, "legs"))
 	r2.add_child(_slot_cell(u, "shield"))
 	doll.add_child(r1)
 	doll.add_child(r2)
@@ -571,6 +573,19 @@ func _slot_cell(u: Unit, slot: String) -> Control:
 	return _make_cell(loc, it, SLOT, kind)
 
 
+## Infobulle de la rangée « Bras, jambes » : chaque pièce portée avec son armure.
+func _limbs_tip(u: Unit) -> String:
+	var parts: Array[String] = []
+	for s in Limbs.SLOTS:
+		if Limbs.worn(u, s):
+			parts.append("%s : %s %d/%d" % [Limbs.label(s), Loot.item_name(Limbs.piece_item(u, s)), Limbs.cur(u, s), Limbs.armor_max(u, s)])
+		else:
+			parts.append("%s : rien" % Limbs.label(s))
+	return "Armure des bras et des jambes (une part des coups au corps vise le bras ou la jambe, si la pièce est portée).
+" + "
+".join(parts)
+
+
 func _stat_rows(u: Unit) -> Array:
 	var w: Dictionary = u.weapon_data()
 	var morale: int = clampi(u.morale, 0, Data.MORALE_NAMES.size() - 1)
@@ -578,6 +593,7 @@ func _stat_rows(u: Unit) -> Array:
 		StatRow.new("heart", maxi(0, u.hp), u.hp_max, GameTheme.BLOOD, "%d / %d" % [maxi(0, u.hp), u.hp_max], "Points de vie", "PV"),
 		StatRow.new("head:casque", u.arm_h, maxi(1, u.head_armor_max()), Color("9a948a"), "%d / %d" % [u.arm_h, u.head_armor_max()], "Armure de la tête", "Armure tête"),
 		StatRow.new("body:gambison", u.arm_b, maxi(1, u.body_armor_max()), GameTheme.STEEL, "%d / %d" % [u.arm_b, u.body_armor_max()], "Armure du corps", "Armure corps"),
+		StatRow.new("arms:manches_mailles", Limbs.total_cur(u), maxi(1, Limbs.total_max(u)), Color("8a929a"), "%d / %d" % [Limbs.total_cur(u), Limbs.total_max(u)], _limbs_tip(u), "Bras, jambes"),
 		StatRow.new("hourglass", u.fat, maxi(1, u.fat_max_eff()), Color("8a6a3a"), "%d / %d" % [u.fat, u.fat_max_eff()], "Fatigue actuelle / endurance (réduite par le poids porté : %d)" % u.weight(), "Fatigue"),
 		StatRow.new("chevrons", u.ini_eff(), 160, Color("6f8f8a"), str(u.ini_eff()), "Initiative effective (réduite par le poids et la fatigue)", "Initiative"),
 		StatRow.new("ring", u.eff("resolve"), 100, Color("7a5a9a"), str(u.eff("resolve")), "Détermination : résiste aux tests de moral", "Détermination"),
@@ -709,7 +725,7 @@ func hover(loc: Variant = null) -> void:
 		_preview_box.add_child(UiKit.sub("Changement impossible.", 12, false))
 		return
 	var before: Dictionary = Inventory.stats(u)
-	for pair in [["weight", "Poids", true], ["fat", "Endurance", false], ["ini", "Initiative", false], ["arm_h", "Armure tête", false], ["arm_b", "Armure corps", false]]:
+	for pair in [["weight", "Poids", true], ["fat", "Endurance", false], ["ini", "Initiative", false], ["arm_h", "Armure tête", false], ["arm_b", "Armure corps", false], ["arm_a", "Armure bras", false], ["arm_l", "Armure jambes", false]]:
 		var k: String = pair[0]
 		if int(before[k]) == int(after[k]) and k != "weight":
 			continue

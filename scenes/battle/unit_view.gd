@@ -195,7 +195,8 @@ func _draw() -> void:
 	draw_circle(Vector2(-18, 17), 3.0, GameTheme.MORALE_COLORS[unit.morale])
 	var ha: int = unit.head_armor_max()
 	var ba: int = unit.body_armor_max()
-	draw_rect(Rect2(-13, 14 if ha > 0 else 15, 28, 10 if ha > 0 else 7), Color("120f0c"))
+	var lm: int = Limbs.total_max(unit)  ## bras et jambes : une seule fine barre fusionnée (somme des pièces), seulement si l'homme en porte
+	draw_rect(Rect2(-13, 14 if ha > 0 else 15, 28, (10 if ha > 0 else 7) + (2.2 if lm > 0 else 0.0)), Color("120f0c"))
 	if ha > 0:
 		draw_rect(Rect2(-12, 15, 26.0 * unit.arm_h / ha, 2.5), Color("cfc8b8"))
 	if ba > 0:
@@ -207,4 +208,7 @@ func _draw() -> void:
 		draw_line(base + dir, base + dir + dir.rotated(0.5) * 0.4, Color("b04a3a"), 1.3)
 		draw_line(base + dir, base + dir + dir.rotated(-0.5) * 0.4, Color("b04a3a"), 1.3)
 	var hp_y: float = 21.0 if ha > 0 else (19.0 if ba > 0 else 16.0)
+	if lm > 0:
+		draw_rect(Rect2(-12, hp_y, 26.0 * float(Limbs.total_cur(unit)) / float(lm), 1.6), Color("8a929a"))
+		hp_y += 2.2
 	draw_rect(Rect2(-12, hp_y, 26.0 * maxf(0.0, unit.hp) / unit.hp_max, 2.5), Color("c4483a"))

@@ -7,7 +7,7 @@ extends RefCounted
 ##  - forgeron variable selon le type de lieu (village : bon marché, sans mailles ; ville : tout ; forge du QG : remise conservée).
 ## La réparation globale (`Game.repair`) reste inchangée et n'utilise rien de ce fichier.
 
-const SLOTS: Array[String] = ["weapon", "shield", "head", "body"]
+const SLOTS: Array[String] = ["weapon", "shield", "head", "body", "arms", "legs"]  ## bras et jambes en dernier : l'ordre d'avant ne bouge pas
 const STEPS: Array[float] = [0.25, 0.5, 1.0]
 const ARMOR_POINT_PRICE: float = 0.5  ## couronne par point d'armure (comme la réparation globale)
 
@@ -150,7 +150,23 @@ static func slot_label(slot: String) -> String:
 			return "Bouclier"
 		"head":
 			return "Casque"
+		"arms":
+			return "Brassards"
+		"legs":
+			return "Jambières"
 	return "Armure"
+
+
+## Terminaison du participe « réparé » selon le genre du nom de l'emplacement (arme, armure : « e » ; brassards : « s » ; jambières : « es »).
+static func participle_end(slot: String) -> String:
+	match slot:
+		"weapon", "body":
+			return "e"
+		"arms":
+			return "s"
+		"legs":
+			return "es"
+	return ""
 
 
 ## État d'une pièce portée : {"have", "cur", "max", "key"}.
@@ -162,6 +178,8 @@ static func piece(u: Unit, slot: String) -> Dictionary:
 			return {"have": u.shield, "cur": u.shield_dur_now(), "max": u.shield_dur_max(), "key": ""}
 		"head":
 			return {"have": u.head != "none", "cur": u.arm_h, "max": u.head_armor_max(), "key": u.head}
+		"arms", "legs":
+			return {"have": Limbs.worn(u, slot), "cur": Limbs.cur(u, slot), "max": Limbs.armor_max(u, slot), "key": Limbs.key_of(u, slot)}
 	return {"have": u.body != "none", "cur": u.arm_b, "max": u.body_armor_max(), "key": u.body}
 
 
@@ -183,7 +201,7 @@ static func step_points(u: Unit, slot: String, step: float) -> int:
 ## Prix d'un point de réparation (avant coefficients).
 static func point_price(u: Unit, slot: String) -> float:
 	match slot:
-		"head", "body":
+		"head", "body", "arms", "legs":
 			return ARMOR_POINT_PRICE
 		"weapon":
 			return float(Loot.base_price(Loot.weapon_item(u))) * Data.REPAIR_GEAR_RATE / float(maxi(1, u.weapon_dur_max()))
@@ -202,7 +220,7 @@ static func why_not_repair(u: Unit, slot: String, sm: Dictionary) -> String:
 		return "Rien à réparer."
 	if missing(u, slot) <= 0:
 		return "Déjà en bon état."
-	if (slot == "head" or slot == "body") and is_mail(slot, str(piece(u, slot)["key"])) and not bool(sm["mail"]):
+	if (slot == "head" or slot == "body" or Limbs.is_slot(slot)) and is_mail(slot, str(piece(u, slot)["key"])) and not bool(sm["mail"]):
 		return "Le forgeron du village ne travaille pas les mailles."
 	return ""
 
@@ -223,4 +241,6 @@ static func apply_repair(u: Unit, slot: String, step: float) -> int:
 			u.arm_h = mini(u.head_armor_max(), u.arm_h + pts)
 		"body":
 			u.arm_b = mini(u.body_armor_max(), u.arm_b + pts)
+		"arms", "legs":
+			Limbs.set_cur(u, slot, mini(Limbs.armor_max(u, slot), Limbs.cur(u, slot) + pts))
 	return pts

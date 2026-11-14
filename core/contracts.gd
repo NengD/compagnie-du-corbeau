@@ -42,6 +42,15 @@ static func make_unit(t: Dictionary, side: String, unit_name: String, rng: Rando
 	u.hp = u.hp_max
 	u.arm_h = u.head_armor_max()
 	u.arm_b = u.body_armor_max()
+	for s in Limbs.SLOTS:  # bras / jambes des ennemis d'élite (champs facultatifs de Data.FOE) ; un seul choix = aucun tirage
+		if t.has(s):
+			var opts: Array = t[s]
+			var k: String = str(opts[0] if opts.size() == 1 else pick(opts, rng))
+			if s == "arms":
+				u.arms = k
+			else:
+				u.legs = k
+			Limbs.set_cur(u, s, Limbs.armor_max(u, s))
 	return u
 
 

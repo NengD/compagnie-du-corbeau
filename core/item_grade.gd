@@ -32,7 +32,10 @@ const BIAS_LEADER: float = 0.2  ## butin d'un chef ennemi
 const BIAS_CONTRACT: float = 0.25  ## objet rare d'un contrat gagné, par point de danger
 
 const FEMININE: Array[String] = ["fourche", "lance", "hache", "masse", "epee", "arbalete", "hallebarde", "tunique", "brigandine"]
-const PLURAL: Array[String] = ["javelot"]
+const PLURAL: Array[String] = ["javelot", "brassards_cuir", "brassards_orques"]
+## Pièces féminines au pluriel (« Manchettes fines »).
+const FEM_PLURAL: Array[String] = ["manchettes", "manicles_cloutees", "manches_mailles", "epaulieres_fer", "bandes_toile", "jambieres_cuir",
+	"guetres_cloutees", "chausses_mailles", "greves_fer", "greves_genouilleres", "jambieres_orques", "chausses_rouillees", "bandelettes_rouillees"]
 
 
 static func clamp_grade(q: int) -> int:
@@ -42,7 +45,7 @@ static func clamp_grade(q: int) -> int:
 ## Cet objet peut-il avoir un grade ? (armes, boucliers, casques, armures payantes ; ni outils, ni uniques.)
 static func gradable(it: Dictionary) -> bool:
 	var k: String = str(it.get("kind", ""))
-	if k != "weapon" and k != "shield" and k != "head" and k != "body":
+	if k != "weapon" and k != "shield" and k != "head" and k != "body" and k != "arms" and k != "legs":
 		return false
 	if Data.UNIQUES.has(str(it.get("key", ""))):
 		return false
@@ -131,11 +134,12 @@ static func graded_name(base: String, key: String, q: int) -> String:
 		return base
 	var fem: bool = FEMININE.has(key)
 	var plural: bool = PLURAL.has(key)
+	var fem_pl: bool = FEM_PLURAL.has(key)
 	match q:
 		ROUGH:
-			return "%s %s" % [base, "grossiers" if plural else ("grossière" if fem else "grossier")]
+			return "%s %s" % [base, "grossières" if fem_pl else ("grossiers" if plural else ("grossière" if fem else "grossier"))]
 		FINE:
-			return "%s %s" % [base, "fins" if plural else ("fine" if fem else "fin")]
+			return "%s %s" % [base, "fines" if fem_pl else ("fins" if plural else ("fine" if fem else "fin"))]
 	return "%s de maître" % base
 
 
@@ -151,7 +155,7 @@ static func describe(it: Dictionary) -> String:
 			parts.append("durabilité %+d %%" % roundi((dur_mult(q) - 1.0) * 100.0))
 		"shield":
 			parts.append("durabilité %+d %%" % roundi((dur_mult(q) - 1.0) * 100.0))
-		"head", "body":
+		"head", "body", "arms", "legs":
 			parts.append("armure %+d %%" % roundi((armor_mult(q) - 1.0) * 100.0))
 	parts.append("valeur ×%s" % str(price_mult(q)).replace(".", ","))
 	return "Qualité %s : %s" % [name_of(q).to_lower(), ", ".join(parts)]

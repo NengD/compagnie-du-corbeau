@@ -77,6 +77,39 @@ const BODY: Dictionary = {
 	"u_brigandine_roi": {"n": "Brigandine du Roi déchu", "a": 235, "w": 20, "price": 2600},
 }
 
+## Emplacement « Bras » : brassards, manches, épaulières, garde-bras (voir core/limbs.gd). Même fiche que HEAD / BODY (`a` armure, `w` poids,
+## `price`, `mat` matériau de Materials). Aucune pièce par défaut ("none") : un homme sans pièce se bat exactement comme avant.
+const ARMS: Dictionary = {
+	"none": {"n": "Bras nus", "a": 0, "w": 0, "price": 0},
+	"manchettes": {"n": "Manchettes de toile", "a": 12, "w": 0, "price": 40, "mat": "tissu"},
+	"brassards_cuir": {"n": "Brassards de cuir", "a": 26, "w": 1, "price": 85, "mat": "cuir"},
+	"manicles_cloutees": {"n": "Manicles cloutées", "a": 40, "w": 2, "price": 150, "mat": "cuir_cloute"},
+	"manches_mailles": {"n": "Manches de mailles", "a": 62, "w": 5, "price": 340, "mat": "mailles"},
+	"epaulieres_fer": {"n": "Épaulières de fer", "a": 90, "w": 9, "price": 640, "mat": "plates"},
+	"garde_bras_plaques": {"n": "Garde-bras à plaques", "a": 108, "w": 11, "price": 800, "mat": "plates"},
+	# Pièces au style de faction (portées par les ennemis d'élite ; récupérables en butin).
+	"brassards_orques": {"n": "Brassards de fer orques", "a": 72, "w": 7, "price": 290, "mat": "plates"},
+	"bandelettes_rouillees": {"n": "Bandelettes rouillées de revenant", "a": 40, "w": 3, "price": 60, "mat": "mailles"},
+}
+
+## Emplacement « Jambes » : bandes, jambières, guêtres, chausses, grèves.
+const LEGS: Dictionary = {
+	"none": {"n": "Jambes nues", "a": 0, "w": 0, "price": 0},
+	"bandes_toile": {"n": "Bandes de toile", "a": 12, "w": 0, "price": 40, "mat": "tissu"},
+	"jambieres_cuir": {"n": "Jambières de cuir", "a": 28, "w": 1, "price": 90, "mat": "cuir"},
+	"guetres_cloutees": {"n": "Guêtres cloutées", "a": 44, "w": 3, "price": 160, "mat": "cuir_cloute"},
+	"chausses_mailles": {"n": "Chausses de mailles", "a": 66, "w": 6, "price": 360, "mat": "mailles"},
+	"greves_fer": {"n": "Grèves de fer", "a": 96, "w": 10, "price": 680, "mat": "plates"},
+	"greves_genouilleres": {"n": "Grèves à genouillères", "a": 112, "w": 12, "price": 820, "mat": "plates"},
+	"jambieres_orques": {"n": "Jambières de fer orques", "a": 74, "w": 8, "price": 270, "mat": "plates"},
+	"chausses_rouillees": {"n": "Chausses rouillées de revenant", "a": 44, "w": 4, "price": 70, "mat": "mailles"},
+}
+
+## Part des coups « corps » (les 75 % qui ne visent pas la tête) qui visent le bras puis la jambe, quand l'homme porte la pièce.
+## Sans pièce, ces coups retombent sur le corps (et ne consomment aucun tirage de plus).
+const LIMB_HIT_ARMS: float = 0.15
+const LIMB_HIT_LEGS: float = 0.15
+
 const SHIELD: Dictionary = {"n": "Bouclier rond", "price": 120, "w": 4, "dur": 40}
 
 # --- Inventaire (core/inventory.gd) ---
@@ -109,20 +142,20 @@ const BG: Dictionary = {
 const FOE: Dictionary = {
 	"brigand": {"n": "Détrousseur", "fac": "b", "hp": [55, 65], "fat": [100, 110], "res": [40, 50], "mSk": [52, 58], "rSk": [30, 40], "mDef": [2, 8], "rDef": [2, 8], "ini": [95, 105], "w": ["gourdin", "fourche", "hache", "lance", "javelot", "dague", "baton_ferre"], "sh": 0.4, "head": ["none", "capuchon", "cagoule_cuir"], "body": ["tunique", "gambison", "cuir_cloute"], "xp": 15, "leader": false},
 	"archer": {"n": "Archer brigand", "fac": "b", "hp": [50, 58], "fat": [95, 105], "res": [38, 46], "mSk": [42, 48], "rSk": [52, 60], "mDef": [0, 5], "rDef": [3, 8], "ini": [105, 115], "w": ["arc", "arbalete", "arc_long", "arbalete_legere", "fronde"], "sh": 0.0, "head": ["capuchon", "cagoule_cuir"], "body": ["tunique", "cuir_cloute"], "xp": 15, "leader": false},
-	"balafre": {"n": "Balafré", "fac": "b", "hp": [70, 80], "fat": [110, 120], "res": [50, 60], "mSk": [60, 66], "rSk": [35, 45], "mDef": [8, 14], "rDef": [8, 12], "ini": [100, 108], "w": ["hache", "masse", "epee", "fleau", "rapiere", "marteau_guerre", "hache_bataille"], "sh": 0.6, "head": ["casque", "barbute"], "body": ["mailles", "haubert_surcot"], "xp": 30, "leader": false},
-	"chef": {"n": "Chef brigand", "fac": "b", "hp": [95, 110], "fat": [120, 130], "res": [65, 75], "mSk": [68, 75], "rSk": [40, 50], "mDef": [12, 18], "rDef": [10, 15], "ini": [105, 112], "w": ["epee"], "sh": 1.0, "head": ["heaume", "heaume_crete"], "body": ["mailles", "haubert_surcot"], "xp": 60, "leader": true, "perks": ["spec_epee", "garde_ferme"]},
+	"balafre": {"n": "Balafré", "fac": "b", "hp": [70, 80], "fat": [110, 120], "res": [50, 60], "mSk": [60, 66], "rSk": [35, 45], "mDef": [8, 14], "rDef": [8, 12], "ini": [100, 108], "w": ["hache", "masse", "epee", "fleau", "rapiere", "marteau_guerre", "hache_bataille"], "sh": 0.6, "head": ["casque", "barbute"], "body": ["mailles", "haubert_surcot"], "arms": ["manches_mailles"], "legs": ["jambieres_cuir"], "xp": 30, "leader": false},
+	"chef": {"n": "Chef brigand", "fac": "b", "hp": [95, 110], "fat": [120, 130], "res": [65, 75], "mSk": [68, 75], "rSk": [40, 50], "mDef": [12, 18], "rDef": [10, 15], "ini": [105, 112], "w": ["epee"], "sh": 1.0, "head": ["heaume", "heaume_crete"], "body": ["mailles", "haubert_surcot"], "arms": ["epaulieres_fer"], "legs": ["greves_fer"], "xp": 60, "leader": true, "perks": ["spec_epee", "garde_ferme"]},
 	"goule": {"n": "Goule", "fac": "g", "hp": [110, 130], "fat": [150, 150], "res": [48, 55], "mSk": [50, 55], "rSk": [0, 0], "mDef": [0, 5], "rDef": [0, 5], "ini": [110, 120], "w": ["griffes"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 25, "leader": false, "flank": true},
 	"vorace": {"n": "Goule vorace", "fac": "g", "hp": [220, 240], "fat": [160, 160], "res": [65, 70], "mSk": [58, 64], "rSk": [0, 0], "mDef": [0, 5], "rDef": [0, 5], "ini": [90, 95], "w": ["griffesL"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 60, "leader": false, "flank": true},
 	# Orcs ("o") : plus de PV, de défense et de compétence que les brigands.
 	"orc_jeune": {"n": "Jeune orc", "fac": "o", "hp": [75, 90], "fat": [110, 120], "res": [45, 55], "mSk": [55, 62], "rSk": [30, 40], "mDef": [3, 9], "rDef": [3, 8], "ini": [95, 105], "w": ["gourdin", "hache", "lance", "baton_ferre"], "sh": 0.4, "head": ["none", "capuchon", "casque_orque"], "body": ["tunique", "gambison", "cuirasse_peaux"], "xp": 25, "leader": false},
-	"orc_guerrier": {"n": "Guerrier orc", "fac": "o", "hp": [100, 115], "fat": [120, 130], "res": [55, 65], "mSk": [62, 68], "rSk": [30, 40], "mDef": [8, 14], "rDef": [6, 12], "ini": [90, 100], "w": ["hache", "masse", "epee", "hallebarde", "hache_bataille", "marteau_guerre"], "sh": 0.6, "head": ["casque", "casque_orque"], "body": ["gambison", "mailles", "cuirasse_peaux", "plastron_orque"], "xp": 45, "leader": false},
+	"orc_guerrier": {"n": "Guerrier orc", "fac": "o", "hp": [100, 115], "fat": [120, 130], "res": [55, 65], "mSk": [62, 68], "rSk": [30, 40], "mDef": [8, 14], "rDef": [6, 12], "ini": [90, 100], "w": ["hache", "masse", "epee", "hallebarde", "hache_bataille", "marteau_guerre"], "sh": 0.6, "head": ["casque", "casque_orque"], "body": ["gambison", "mailles", "cuirasse_peaux", "plastron_orque"], "arms": ["brassards_orques"], "xp": 45, "leader": false},
 	"berserker": {"n": "Berserker orc", "fac": "o", "hp": [110, 125], "fat": [130, 140], "res": [70, 80], "mSk": [66, 72], "rSk": [20, 30], "mDef": [0, 4], "rDef": [0, 4], "ini": [105, 115], "w": ["hache"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 50, "leader": false},
-	"orc_chef": {"n": "Chef de guerre orc", "fac": "o", "hp": [160, 180], "fat": [140, 150], "res": [75, 85], "mSk": [72, 78], "rSk": [35, 45], "mDef": [14, 20], "rDef": [10, 15], "ini": [100, 108], "w": ["hache", "epee", "hache_bataille"], "sh": 1.0, "head": ["heaume", "casque_orque"], "body": ["brigandine", "plastron_orque"], "xp": 100, "leader": true, "perks": ["cran", "spec_hache"]},
+	"orc_chef": {"n": "Chef de guerre orc", "fac": "o", "hp": [160, 180], "fat": [140, 150], "res": [75, 85], "mSk": [72, 78], "rSk": [35, 45], "mDef": [14, 20], "rDef": [10, 15], "ini": [100, 108], "w": ["hache", "epee", "hache_bataille"], "sh": 1.0, "head": ["heaume", "casque_orque"], "body": ["brigandine", "plastron_orque"], "arms": ["brassards_orques"], "legs": ["jambieres_orques"], "xp": 100, "leader": true, "perks": ["cran", "spec_hache"]},
 	# Morts-vivants ("u")
 	"squelette": {"n": "Squelette", "fac": "u", "hp": [45, 55], "fat": [110, 120], "res": [80, 90], "mSk": [48, 56], "rSk": [30, 36], "mDef": [0, 6], "rDef": [10, 16], "ini": [100, 110], "w": ["lance", "epee", "gourdin", "epee_courte"], "sh": 0.6, "head": ["none", "casque", "casque_rouille"], "body": ["none", "cotte_rouillee"], "xp": 20, "leader": false},
 	"squelette_archer": {"n": "Squelette archer", "fac": "u", "hp": [40, 50], "fat": [100, 110], "res": [80, 90], "mSk": [40, 46], "rSk": [50, 58], "mDef": [0, 4], "rDef": [8, 14], "ini": [105, 115], "w": ["arc"], "sh": 0.0, "head": ["none", "casque_rouille"], "body": ["none"], "xp": 20, "leader": false},
 	"zombie": {"n": "Zombie", "fac": "u", "hp": [90, 110], "fat": [120, 130], "res": [90, 95], "mSk": [44, 50], "rSk": [0, 0], "mDef": [0, 0], "rDef": [0, 0], "ini": [60, 75], "w": ["griffes"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 20, "leader": false},
-	"necro": {"n": "Nécromant", "fac": "u", "hp": [85, 100], "fat": [100, 110], "res": [75, 85], "mSk": [58, 64], "rSk": [40, 48], "mDef": [8, 14], "rDef": [10, 16], "ini": [105, 112], "w": ["masse"], "sh": 0.0, "head": ["capuchon"], "body": ["gambison"], "xp": 70, "leader": true, "perks": ["cran"], "raise": true},
+	"necro": {"n": "Nécromant", "fac": "u", "hp": [85, 100], "fat": [100, 110], "res": [75, 85], "mSk": [58, 64], "rSk": [40, 48], "mDef": [8, 14], "rDef": [10, 16], "ini": [105, 112], "w": ["masse"], "sh": 0.0, "head": ["capuchon"], "body": ["gambison"], "arms": ["bandelettes_rouillees"], "legs": ["chausses_rouillees"], "xp": 70, "leader": true, "perks": ["cran"], "raise": true},
 	# Soigneur orc : soigne un allié blessé (heal = PV rendus).
 	"chaman_orc": {"n": "Chaman orc", "fac": "o", "hp": [70, 85], "fat": [100, 110], "res": [65, 75], "mSk": [50, 56], "rSk": [30, 40], "mDef": [4, 9], "rDef": [6, 12], "ini": [100, 110], "w": ["gourdin"], "sh": 0.0, "head": ["none"], "body": ["tunique"], "xp": 50, "leader": false, "heal": 30},
 	# Monstres ("m"). Champs facultatifs lus par Unit.foe_data() : sprite (figurine), big (grande créature : insensible au filet),
@@ -225,11 +258,13 @@ const PROMO_RANGES: Dictionary = {
 const SHOPS: Dictionary = {
 	"village": {
 		"weapon": ["gourdin", "fourche", "lance", "arc", "fleau", "javelot", "dague", "epee_courte", "baton_ferre", "fronde"], "head": ["capuchon", "casque", "cagoule_cuir"], "body": ["tunique", "gambison", "cuir_cloute"], "shield": true,
+			"arms": ["manchettes", "brassards_cuir", "manicles_cloutees"], "legs": ["bandes_toile", "jambieres_cuir", "guetres_cloutees"],
 		"recruits": ["mendiant", "fermier", "bucheron", "braconnier"], "contracts": 2, "tool": ["pierre", "filet"],
 	},
 	"city": {
 		"weapon": ["gourdin", "fourche", "lance", "hache", "masse", "epee", "arc", "fleau", "javelot", "hallebarde", "arbalete", "dague", "epee_courte", "rapiere", "hache_bataille", "marteau_guerre", "baton_ferre", "pique", "fronde", "arbalete_legere", "arc_long"], "head": ["capuchon", "casque", "heaume", "cagoule_cuir", "barbute", "heaume_crete"],
 		"body": ["tunique", "gambison", "mailles", "brigandine", "cuir_cloute", "haubert_surcot"], "shield": true,
+			"arms": ["manchettes", "brassards_cuir", "manicles_cloutees", "manches_mailles", "epaulieres_fer", "garde_bras_plaques"], "legs": ["bandes_toile", "jambieres_cuir", "guetres_cloutees", "chausses_mailles", "greves_fer", "greves_genouilleres"],
 		"recruits": ["mendiant", "fermier", "bucheron", "braconnier", "milicien", "deserteur", "reitre"], "contracts": 3, "tool": ["pierre", "filet", "huile"],
 	},
 }
@@ -434,11 +469,11 @@ const WEAPON_FAMILIES: Dictionary = {
 const WEAPONS_NO_FAMILY: Array = ["griffes", "griffesL", "morsure", "massue_geant"]
 ## Armures : `head` / `body` = objets de la famille par emplacement ; `rule` : "any" (un seul emplacement suffit) ou "all" (les deux).
 const ARMOR_FAMILIES: Dictionary = {
-	"tissu": {"n": "Tissu léger", "head": ["none", "capuchon"], "body": ["none", "tunique"], "rule": "all", "mastery": "ma_tissu", "expert": "ex_tissu", "badge": "tunique"},
-	"matelasse": {"n": "Matelassé", "head": ["cagoule_cuir"], "body": ["gambison", "cuir_cloute", "cuirasse_peaux"], "rule": "any", "mastery": "ma_matelasse", "expert": "ex_matelasse", "badge": "gambison"},
-	"mailles": {"n": "Mailles", "head": [], "body": ["mailles", "haubert_surcot", "cotte_rouillee", "u_cotte_nuit"], "rule": "any", "mastery": "ma_mailles", "expert": "ex_mailles", "badge": "mailles"},
-	"plates": {"n": "Plates lourdes", "head": ["heaume", "heaume_crete", "u_heaume_veilleur"], "body": ["brigandine", "plastron_orque", "u_brigandine_roi"], "rule": "any", "mastery": "ma_plates", "expert": "ex_plates", "badge": "brigandine"},
-	"casque": {"n": "Casques", "head": ["casque", "barbute", "casque_orque", "casque_rouille", "u_casque_loup"], "body": [], "rule": "any", "mastery": "ma_casque", "expert": "ex_casque", "badge": "casque"},
+	"tissu": {"n": "Tissu léger", "head": ["none", "capuchon"], "body": ["none", "tunique"], "arms": ["none", "manchettes"], "legs": ["none", "bandes_toile"], "rule": "all", "mastery": "ma_tissu", "expert": "ex_tissu", "badge": "tunique"},
+	"matelasse": {"n": "Matelassé", "head": ["cagoule_cuir"], "body": ["gambison", "cuir_cloute", "cuirasse_peaux"], "arms": ["brassards_cuir", "manicles_cloutees"], "legs": ["jambieres_cuir", "guetres_cloutees"], "rule": "any", "mastery": "ma_matelasse", "expert": "ex_matelasse", "badge": "gambison"},
+	"mailles": {"n": "Mailles", "head": [], "body": ["mailles", "haubert_surcot", "cotte_rouillee", "u_cotte_nuit"], "arms": ["manches_mailles", "bandelettes_rouillees"], "legs": ["chausses_mailles", "chausses_rouillees"], "rule": "any", "mastery": "ma_mailles", "expert": "ex_mailles", "badge": "mailles"},
+	"plates": {"n": "Plates lourdes", "head": ["heaume", "heaume_crete", "u_heaume_veilleur"], "body": ["brigandine", "plastron_orque", "u_brigandine_roi"], "arms": ["epaulieres_fer", "garde_bras_plaques", "brassards_orques"], "legs": ["greves_fer", "greves_genouilleres", "jambieres_orques"], "rule": "any", "mastery": "ma_plates", "expert": "ex_plates", "badge": "brigandine"},
+	"casque": {"n": "Casques", "head": ["casque", "barbute", "casque_orque", "casque_rouille", "u_casque_loup"], "body": [], "arms": [], "legs": [], "rule": "any", "mastery": "ma_casque", "expert": "ex_casque", "badge": "casque"},
 }
 ## Archétypes de builds (docs/builds.md, généré par tools/gen_builds_doc.gd) : liste ORDONNÉE de 10 talents (niveau 11), chacun avec sa raison.
 ## Testés : chaque liste doit être atteignable (prérequis, rangs, 10 points). `weapon` / `armor` : familles visées.

@@ -10,11 +10,11 @@ extends RefCounted
 ## Règles : une arme à deux mains est incompatible avec le bouclier (équiper l'arme range le bouclier dans la réserve ;
 ## équiper le bouclier est refusé) ; seuls armes et boucliers vont dans un sac ; la réserve ne dépasse pas `cap` objets.
 
-const UNIT_SLOTS: Array[String] = ["head", "body", "weapon", "shield", "bag0", "bag1"]
+const UNIT_SLOTS: Array[String] = ["head", "body", "arms", "legs", "weapon", "shield", "bag0", "bag1"]
 const BIG: int = 1000000
 const SORT_MODES: Array[String] = ["type", "value", "wear"]
-const FILTERS: Array[String] = ["all", "weapon", "head", "body", "shield"]
-const KIND_ORDER: Dictionary = {"weapon": 0, "shield": 1, "head": 2, "body": 3, "tool": 4}
+const FILTERS: Array[String] = ["all", "weapon", "head", "body", "shield"]  ## « body » (Armures) regroupe aussi les bras et les jambes
+const KIND_ORDER: Dictionary = {"weapon": 0, "shield": 1, "head": 2, "body": 3, "arms": 4, "legs": 5, "tool": 6}
 
 
 static func at(u: Unit, slot: String) -> Dictionary:
@@ -41,6 +41,10 @@ static func slot_label(slot: String) -> String:
 			return "Tête"
 		"body":
 			return "Corps"
+		"arms":
+			return "Bras"
+		"legs":
+			return "Jambes"
 		"weapon":
 			return "Main droite"
 		"shield":
@@ -76,6 +80,8 @@ static func get_item(stash: Array, loc: Dictionary) -> Dictionary:
 			return {} if u.head == "none" else Loot.head_item(u)
 		"body":
 			return {} if u.body == "none" else Loot.body_item(u)
+		"arms", "legs":
+			return Limbs.piece_item(u, slot)
 		"weapon":
 			return Loot.weapon_item(u) if u.weapon_wears() else {}
 		"shield":
@@ -102,6 +108,10 @@ static func _take(stash: Array, loc: Dictionary) -> Dictionary:
 			u.body = "none"
 			u.arm_b = 0
 			u.body_q = 0
+		"arms", "legs":
+			u.set(slot, "none")
+			Limbs.set_cur(u, slot, 0)
+			Limbs.set_grade(u, slot, 0)
 		"weapon":
 			u.sync_quiver()  # les flèches tirées restent dans le carquois
 			u.weapon = "poings"
@@ -134,6 +144,10 @@ static func _put(stash: Array, loc: Dictionary, it: Dictionary) -> void:
 			u.body = str(it["key"])
 			u.body_q = Loot.grade_of(it)
 			u.arm_b = Loot.armor_of(it)
+		"arms", "legs":
+			u.set(slot, str(it["key"]))
+			Limbs.set_grade(u, slot, Loot.grade_of(it))
+			Limbs.set_cur(u, slot, Loot.armor_of(it))
 		"weapon":
 			u.weapon = str(it["key"])
 			u.weapon_q = Loot.grade_of(it)
@@ -155,7 +169,7 @@ static func accepts(slot: String, it: Dictionary) -> bool:
 	match slot:
 		"stash":
 			return true
-		"head", "body", "weapon", "shield":
+		"head", "body", "arms", "legs", "weapon", "shield":
 			return k == slot
 	return k == "weapon" or k == "shield" or k == "tool"  # sac
 
@@ -176,7 +190,7 @@ static func _snap(u: Unit) -> Dictionary:
 	if u == null:
 		return {}
 	return {"weapon": u.weapon, "weapon_dur": u.weapon_dur, "weapon_kills": u.weapon_kills, "shield": u.shield, "shield_dur": u.shield_dur, "head": u.head,
-		"body": u.body, "arm_h": u.arm_h, "arm_b": u.arm_b, "weapon_q": u.weapon_q, "shield_q": u.shield_q, "head_q": u.head_q, "body_q": u.body_q, "ammo": u.ammo, "shield_kind": u.shield_kind, "quiver": u.quiver, "shield_wall": u.shield_wall, "bag": u.bag.duplicate(true)}
+		"body": u.body, "arm_h": u.arm_h, "arm_b": u.arm_b, "arms": u.arms, "legs": u.legs, "arm_a": u.arm_a, "arm_l": u.arm_l, "arms_q": u.arms_q, "legs_q": u.legs_q, "weapon_q": u.weapon_q, "shield_q": u.shield_q, "head_q": u.head_q, "body_q": u.body_q, "ammo": u.ammo, "shield_kind": u.shield_kind, "quiver": u.quiver, "shield_wall": u.shield_wall, "bag": u.bag.duplicate(true)}
 
 
 static func _restore(u: Unit, s: Dictionary) -> void:
@@ -232,7 +246,7 @@ static func move(stash: Array, from: Dictionary, to: Dictionary, cap: int = Data
 	return ok(" ".join(notes))
 
 
-## Emplacement naturel de l'objet pour `u` : tête, corps, arme, bouclier (sac si le bouclier est interdit), "" si rien.
+## Emplacement naturel de l'objet pour `u` : tête, corps, bras, jambes, arme, bouclier (sac si le bouclier est interdit), "" si rien.
 static func auto_slot(u: Unit, it: Dictionary) -> String:
 	var k: String = str(it["kind"])
 	if k != "shield":
@@ -319,10 +333,14 @@ static func bag_swap_block(u: Unit, i: int) -> String:
 # --- Tri et filtre ---
 
 ## Indices de la réserve qui passent le filtre ("all", "weapon", "head", "body", "shield").
+static func kind_matches(kind: String, filter: String) -> bool:
+	return filter == "all" or kind == filter or (filter == "body" and (kind == "arms" or kind == "legs"))
+
+
 static func filtered(stash: Array, filter: String) -> Array[int]:
 	var out: Array[int] = []
 	for i in stash.size():
-		if filter == "all" or str(stash[i]["kind"]) == filter:
+		if kind_matches(str(stash[i]["kind"]), filter):
 			out.append(i)
 	return out
 
@@ -359,7 +377,7 @@ static func sort_stash(stash: Array, mode: String) -> void:
 
 ## Poids et effets sur l'endurance / l'initiative, pour l'affichage.
 static func stats(u: Unit) -> Dictionary:
-	return {"weight": u.weight(), "fat": u.fat_max_eff(), "ini": u.ini_eff(), "arm_h": u.arm_h, "arm_b": u.arm_b}
+	return {"weight": u.weight(), "fat": u.fat_max_eff(), "ini": u.ini_eff(), "arm_h": u.arm_h, "arm_b": u.arm_b, "arm_a": u.arm_a, "arm_l": u.arm_l}
 
 
 ## Statistiques de `u` si on déplaçait l'objet de `from` vers `to` (calcul sur copies ; `from`/`to` peuvent désigner `u`).
@@ -410,7 +428,7 @@ static func tooltip(it: Dictionary, sell: int = -1, who: Unit = null) -> String:
 			lines.append("Poids %d · exige une arme à une main" % int(d["w"]))
 		"ammo":
 			lines.append("%d pièces par lot · remplit les carquois au camp" % Ammo.LOT)
-		"head", "body":
+		"head", "body", "arms", "legs":
 			lines.append("Armure %d/%d · poids %d" % [Loot.armor_of(it), Loot.armor_max(it), d["w"]])
 	if it.has("q") and ItemGrade.of(it) != ItemGrade.OK:
 		lines.insert(1, ItemGrade.describe(it))

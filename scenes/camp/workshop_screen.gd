@@ -116,6 +116,8 @@ static func _piece_row(m: Unit, slot: String, p: Dictionary, sm: Dictionary, err
 			item = Loot.shield_item(m)
 		"head":
 			item = Loot.head_item(m)
+		"arms", "legs":
+			item = Limbs.piece_item(m, slot)
 		_:
 			item = Loot.body_item(m)
 	var name_l := UiKit.label("%s · %d/%d" % [Loot.item_name(item), int(p["cur"]), int(p["max"])], 14, ItemGrade.color_of(ItemGrade.of(item)) if ItemGrade.of(item) != 0 else GameTheme.INK, false)

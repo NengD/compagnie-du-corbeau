@@ -238,7 +238,7 @@ func _signature() -> String:
 	var g: String = ""
 	if gear and gear_enabled():
 		g = ",".join(back_layers(unit)) + ("B" if is_standard_bearer(unit) else "") + str(Banner.primary(company_banner()).to_html(false)) + str(Banner.secondary(company_banner()).to_html(false))
-	return "%d|%d%d%d%d|%s" % [int(unit.shield_wall), w["body"], w["head"], w["shield"], w["weapon"], g]
+	return "%d|%d%d%d%d|%s|%s%s" % [int(unit.shield_wall), w["body"], w["head"], w["shield"], w["weapon"], g, unit.arms, unit.legs]
 
 
 ## Reconstruit les calques si l'équipement, le mur de boucliers ou l'usure (armure sous 66 % et 33 %) ont changé.
@@ -302,7 +302,9 @@ func rebuild() -> void:
 	# jambes, bottes et jambières (derrière le torse)
 	_add("legs", (l["skin"].darkened(0.25) if orc else l["cloth"].darkened(0.2)))
 	_add("boots", l["leather"].darkened(0.1))
-	if of["greaves"]:
+	if Limbs.worn(unit, "legs") and gear:
+		_add("limb_legs_" + Perks.armor_family("legs", unit.legs))  # jambières portées : remplacent la jambière décorative
+	elif of["greaves"]:
 		_add("greaves")
 	var cloak: String = of["cloak"]
 	if tags.has("cape"):  # vétéran : cape aux couleurs de la compagnie
@@ -327,6 +329,8 @@ func rebuild() -> void:
 	elif not unit.shield:
 		_add("arm_off", sleeve)
 		_add("hand_off", l["skin"])
+	if gear and Limbs.worn(unit, "arms") and not unit.shield and Perks.weapon_base(w) != "arc":
+		_add("limb_off_" + Perks.armor_family("arms", unit.arms))  # brassard du bras libre
 	_add("torso_" + unit.body if unit.body != "none" else "torso_tunique", l["cloth"] if unit.body == "tunique" else (l["skin"].darkened(0.06) if orc and unit.body == "none" else Color.WHITE))
 	if unit.body == "mailles" or unit.body == "brigandine":
 		_add("skirt_" + unit.body)
@@ -339,7 +343,8 @@ func rebuild() -> void:
 		_add("torso_studded", l["leather"])
 	if extras:  # pièces d'armure distinctes selon le niveau d'armure
 		if unit.body == "mailles" or unit.body == "brigandine":
-			_add("armor_knees")
+			if not Limbs.worn(unit, "legs"):
+				_add("armor_knees")
 			_add("armor_gorget")
 		if unit.body == "brigandine" and not unit.shield and w != "arc":
 			_add("armor_pauldron_off")
@@ -424,6 +429,9 @@ func _finish_human(w: String, sleeve: Color, l: Dictionary) -> void:
 		if wear["weapon"] > 0:
 			_add("dmg_blade_" + w)
 	_add("arm_" + pose, sleeve)
+	if gear and Limbs.worn(unit, "arms"):
+		var grp: String = "bow" if pose == "arc" or pose == "arc_long" else ("xbow" if pose == "arbalete" or pose == "arbalete_legere" else "std")
+		_add("limb_arm_%s_%s" % [Perks.armor_family("arms", unit.arms), grp])
 	if unit.body == "mailles" or unit.body == "brigandine":
 		_add("pauldron_" + unit.body)
 	if elite_tags(unit).has("pauldron"):

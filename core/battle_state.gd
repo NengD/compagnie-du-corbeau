@@ -852,9 +852,10 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 		say("L'arme de %s est ébréchée." % a.unit_name, "death")
 		res["weapon_broke"] = true
 	res["head"] = dmg["head"]
+	res["zone"] = dmg["zone"]
 	res["hp"] = dmg["hp"]
 	res["armor"] = dmg["armor"]
-	say("%s touche %s%s%s : %d PV, %d armure — %d %%" % [a.unit_name, d.unit_name, " à la tête" if dmg["head"] else "", tag, dmg["hp"], dmg["armor"], ch], "hit")
+	say("%s touche %s%s%s : %d PV, %d armure — %d %%" % [a.unit_name, d.unit_name, Limbs.zone_phrase(str(dmg["zone"])), tag, dmg["hp"], dmg["armor"], ch], "hit")
 	if d.hp > 0 and ability != "":
 		_apply_ability_effects(a, d, ab, res)
 	if d.hp > 0 and int(a.foe_data().get("stun_hit", 0)) > 0 and not d.is_big() and rng.randi_range(1, 100) <= int(a.foe_data()["stun_hit"]):

@@ -171,6 +171,9 @@ static func gear_list(u: Unit) -> VBoxContainer:
 	v.add_child(kv_row("Main gauche", (Shields.label(u.shield_kind) + sh_wear) if u.shield else "—"))
 	v.add_child(kv_row("Tête", Loot.item_name(Loot.head_item(u)) if u.head != "none" else str(Data.HEAD[u.head]["n"])))
 	v.add_child(kv_row("Corps", Loot.item_name(Loot.body_item(u)) if u.body != "none" else str(Data.BODY[u.body]["n"])))
+	for s in Limbs.SLOTS:
+		if Limbs.worn(u, s):
+			v.add_child(kv_row(Limbs.label(s), Loot.item_name(Limbs.piece_item(u, s))))
 	return v
 
 
@@ -182,6 +185,8 @@ static func bars(u: Unit, extra: Array = []) -> VBoxContainer:
 		v.add_child(StatBar.new("Tête", u.arm_h, u.head_armor_max(), Color("c9c2b2")))
 	if u.body_armor_max() > 0:
 		v.add_child(StatBar.new("Corps", u.arm_b, u.body_armor_max(), GameTheme.STEEL))
+	if Limbs.total_max(u) > 0:
+		v.add_child(StatBar.new("Membres", Limbs.total_cur(u), Limbs.total_max(u), Color("8a929a")))
 	if u.side == "p":  # usure : seulement quand l'arme ou le bouclier est abîmé
 		if u.weapon_wears() and u.weapon_dur_now() < u.weapon_dur_max():
 			v.add_child(StatBar.new("Arme", u.weapon_dur_now(), u.weapon_dur_max(), Color("a98a5a")))
