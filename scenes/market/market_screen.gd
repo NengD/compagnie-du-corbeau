@@ -55,7 +55,7 @@ func _build_screen() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 16)
+		margin.add_theme_constant_override("margin_" + side, 8)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)
 	var panel := PanelContainer.new()
@@ -206,8 +206,8 @@ static func style_scrollbar(sc: ScrollContainer) -> void:
 
 
 func _build_filters() -> Control:
-	var col := UiKit.vbox(6)
-	col.custom_minimum_size = Vector2(66, 0)
+	var col := UiKit.vbox(4)
+	col.custom_minimum_size = Vector2(60, 0)
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	var group := ButtonGroup.new()
 	var reps: Dictionary = {"weapon": ["weapon", "epee"], "body": ["body", "gambison"], "head": ["head", "casque"], "shield": ["shield", ""], "tool": ["tool", "pierre"], "ammo": ["ammo", "fleche_chasse"], "food": ["food", "ration"]}
@@ -216,7 +216,7 @@ func _build_filters() -> Control:
 		b.toggle_mode = true
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(56, 52)
+		b.custom_minimum_size = Vector2(52, 40)  # compact : la colonne ne doit pas imposer une hauteur qui fasse sortir le pied de page de l'écran
 		b.tooltip_text = str(Market.FILTER_NAMES[f])
 		if f == "all":
 			b.text = "Tout"
@@ -226,7 +226,7 @@ func _build_filters() -> Control:
 			if tex != null:
 				b.icon = tex
 				b.expand_icon = true
-				b.add_theme_constant_override("icon_max_width", 36)
+				b.add_theme_constant_override("icon_max_width", 28)
 				b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			else:
 				b.text = str(Market.FILTER_NAMES[f]).substr(0, 4)

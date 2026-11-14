@@ -9,7 +9,7 @@ extends ModalOverlay
 const SLOT: int = 62
 const GAP: int = 4
 const LEFT_W: int = 404
-const FORMATION_H: int = 212
+const FORMATION_H: int = 172
 
 static var last_tab: String = "inventory"  ## onglet retenu pendant la session ("inventory" | "perks")
 
