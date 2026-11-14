@@ -165,11 +165,12 @@ static func gear_list(u: Unit) -> VBoxContainer:
 	var w: Dictionary = u.weapon_data()
 	var v := vbox(2)
 	var wear: String = "  [usure %d/%d]" % [u.weapon_dur_now(), u.weapon_dur_max()] if u.weapon_wears() else ""
-	v.add_child(kv_row("Arme", "%s · %d–%d%s" % [w["n"], w["min"], w["max"], wear]))
+	var wit: Dictionary = Loot.weapon_item(u)
+	v.add_child(kv_row("Arme", "%s · %d–%d%s" % [Loot.item_name(wit), Loot.dmg_min(wit), Loot.dmg_max(wit), wear]))
 	var sh_wear: String = "  [usure %d/%d]" % [u.shield_dur_now(), u.shield_dur_max()] if u.shield else ""
-	v.add_child(kv_row("Main gauche", (str(Data.SHIELD["n"]) + sh_wear) if u.shield else "—"))
-	v.add_child(kv_row("Tête", str(Data.HEAD[u.head]["n"])))
-	v.add_child(kv_row("Corps", str(Data.BODY[u.body]["n"])))
+	v.add_child(kv_row("Main gauche", (Shields.label(u.shield_kind) + sh_wear) if u.shield else "—"))
+	v.add_child(kv_row("Tête", Loot.item_name(Loot.head_item(u)) if u.head != "none" else str(Data.HEAD[u.head]["n"])))
+	v.add_child(kv_row("Corps", Loot.item_name(Loot.body_item(u)) if u.body != "none" else str(Data.BODY[u.body]["n"])))
 	return v
 
 

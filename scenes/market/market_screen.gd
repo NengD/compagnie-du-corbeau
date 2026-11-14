@@ -210,7 +210,7 @@ func _build_filters() -> Control:
 	col.custom_minimum_size = Vector2(66, 0)
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	var group := ButtonGroup.new()
-	var reps: Dictionary = {"weapon": ["weapon", "epee"], "body": ["body", "gambison"], "head": ["head", "casque"], "shield": ["shield", ""], "tool": ["tool", "pierre"], "food": ["food", "ration"]}
+	var reps: Dictionary = {"weapon": ["weapon", "epee"], "body": ["body", "gambison"], "head": ["head", "casque"], "shield": ["shield", ""], "tool": ["tool", "pierre"], "ammo": ["ammo", "fleche_chasse"], "food": ["food", "ration"]}
 	for f in Market.FILTERS:
 		var b := Button.new()
 		b.toggle_mode = true

@@ -793,6 +793,22 @@ func _unit_block(parent: Node, u: Unit, tag: String) -> void:
 		u.melee_skill, u.melee_def, u.ranged_skill, u.ranged_def, " · bouclier" if u.shield else ""]
 	var info := UiKit.sub(line)
 	c.add_child(info)
+	var tags: PackedStringArray = []  ## type de dégât, deux mains, bouclier, munitions
+	var dt_label: String = DamageTypes.label(DamageTypes.of_unit(u))
+	if dt_label != "":
+		tags.append(dt_label)
+	if Handedness.is_two_handed(u.weapon):
+		tags.append(Handedness.LABEL_TWO)
+	if u.shield:
+		tags.append(Shields.label(u.shield_kind))
+	if u.side == "p" and u.has_quiver():
+		tags.append(Ammo.describe(u, true))
+	elif u.uses_ammo() and u.ammo >= 0 and u.side == "p":
+		tags.append("%d projectiles" % u.ammo)
+	if not tags.is_empty():
+		c.add_child(UiKit.sub(" · ".join(tags)))
+	if u.out_of_ammo() and u.side == "p":
+		c.add_child(UiKit.label(Ammo.empty_message(u), 13, GameTheme.BLOOD, true))
 	var perk_row: Control = PerkIcon.row(u, 22)
 	if perk_row != null:
 		c.add_child(perk_row)
@@ -823,7 +839,7 @@ func _add_ability_buttons(u: Unit) -> void:
 		var b := UiKit.button("%s%s (%d PA)" % [ab["n"], left, ap], "pri" if _ability == id else "")
 		b.tooltip_text = "%s
 Coût : %d PA, %d fatigue." % [ab["d"], ap, fat]
-		b.disabled = u.ap < ap or u.fat + fat > u.fat_max_eff()
+		b.disabled = u.ap < ap or u.fat + fat > u.fat_max_eff() or (u.out_of_ammo() and not ab.has("tool"))  ## carquois vide : plus de capacité de tir
 		b.pressed.connect(func() -> void:
 			_ability = "" if _ability == id else id
 			_refresh_all())
@@ -908,16 +924,22 @@ func _refresh_inspect() -> void:
 		var w: Dictionary = cur.weapon_data()
 		var row := UiKit.hbox(14)
 		var dm: float = float(Data.ABILITIES[_ability].get("dmg", 1.0)) if _ability != "" else 1.0
+		dm *= Handedness.dmg_mult(cur.weapon) * (Handedness.ability_mult(cur.weapon) if _ability != "" and dm > 0.0 else 1.0)
 		row.add_child(UiKit.label("Toucher %d %%" % state.hit_chance(cur, ins, _ability), 16, GameTheme.GOLD, true))
 		row.add_child(UiKit.label("Dégâts %d–%d" % [roundi(int(w["min"]) * dm), roundi(int(w["max"]) * dm)], 16, GameTheme.GOLD, true))
 		_inspect_box.add_child(row)
+		var dmg_hint: String = DamageTypes.hint_line(cur, ins)
+		if dmg_hint != "":
+			_inspect_box.add_child(UiKit.sub(dmg_hint))
 		if cur.is_ranged() and _ability == "":
 			var tg: Array[String] = Cover.tags(state.cells, cur.hex, ins.hex)
 			if not tg.is_empty():
 				_inspect_box.add_child(UiKit.sub(" · ".join(tg)))
 		if not _can_hit(cur, ins):
 			var why: String = "Pas assez de PA ou trop fatigué."
-			if Hex.distance(cur.hex, ins.hex) > cur.weapon_range():
+			if cur.out_of_ammo():
+				why = Ammo.empty_message(cur)
+			elif Hex.distance(cur.hex, ins.hex) > cur.weapon_range():
 				why = "Hors de portée."
 			elif state.line_blocked(cur, ins):
 				why = "Ligne de tir bloquée."

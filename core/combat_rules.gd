@@ -7,7 +7,7 @@ const LIGHT_ARMOR: int = 70  ## armure de la zone touchée en dessous de laquell
 
 ## Portée, PA et fatigue seulement (la ligne de tir se vérifie avec `line_blocked`).
 static func can_attack(a: Unit, d: Unit) -> bool:
-	if not d.is_live() or d.side == a.side or a.morale == 0:
+	if not d.is_live() or d.side == a.side or a.morale == 0 or a.out_of_ammo():
 		return false
 	var dist: int = Hex.distance(a.hex, d.hex)
 	return dist >= 1 and dist <= a.weapon_range() and a.ap >= a.attack_ap() and a.fat + a.attack_fat() <= a.fat_max_eff()
@@ -62,6 +62,8 @@ static func can_use_ability(a: Unit, d: Unit, id: String) -> bool:
 	var ab: Dictionary = Data.ABILITIES[id]
 	if not d.is_live() or d.side == a.side or a.morale == 0:
 		return false
+	if a.out_of_ammo() and not ab.has("tool"):
+		return false  ## carquois vide : plus de tir (les outils de jet ne viennent pas du carquois)
 	if bool(ab.get("needs_target_shield", false)) and not d.shield_ok():
 		return false
 	var dist: int = Hex.distance(a.hex, d.hex)
@@ -133,7 +135,7 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 	if not d.has_perk("montagnard"):
 		ter_def = int(terrain_at(cells, d.hex)["def"])
 	if bool(w["ranged"]):
-		var sh: int = (25 if d.shield_ok() else 0) + (20 if d.shield_wall else 0)
+		var sh: int = (int(d.shield_data()["rdef"]) if d.shield_ok() else 0) + (int(d.shield_data()["wall"]) if d.shield_wall else 0)
 		var far: int = 3 - (int(Perks.mfx(a, "far_pen_cut")) if not a.perks.is_empty() else 0)
 		ch = a.eff("ranged_skill") + int(w["hit"]) - (d.eff("ranged_def") + ter_def + sh + int(Data.MDEF[d.morale])) - far * maxi(0, dist - 2)
 		if dist == 1 and (a.perks.is_empty() or Perks.mfx(a, "no_close_pen") <= 0.0):
@@ -141,7 +143,7 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 		ch -= Data.LINE_UNIT_MALUS * line_units(a, d, units)
 		ch += Cover.ranged_modifier(cells, a.hex, d.hex)  ## hauteur et couvert
 	else:
-		var sh: int = (maxi(0, 15 - int(w.get("shield_ign", 0)) - (int(Perks.mfx(a, "shield_ign")) if not a.perks.is_empty() else 0)) if d.shield_ok() else 0) + (20 if d.shield_wall else 0)
+		var sh: int = (maxi(0, int(d.shield_data()["mdef"]) - int(w.get("shield_ign", 0)) - (int(Perks.mfx(a, "shield_ign")) if not a.perks.is_empty() else 0)) if d.shield_ok() else 0) + (int(d.shield_data()["wall"]) if d.shield_wall else 0)
 		ch = a.eff("melee_skill") + int(w["hit"]) - (d.eff("melee_def") + ter_def + sh + int(Data.MDEF[d.morale]))
 		if d.shield_ok():
 			ch += int(w.get("vs_shield", 0))
@@ -164,7 +166,13 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 	var w: Dictionary = a.weapon_data()
 	var head: bool = rng.randf() < (0.35 if a.has_perk("coup_de_grace") else 0.25) + float(ab.get("head_bonus", 0.0)) + (Perks.mfx(a, "head_ch") if not a.perks.is_empty() else 0.0) - Perks.head_shield(d)
 	var raw: float = float(rng.randi_range(int(w["min"]), int(w["max"]))) * (1.5 if head else 1.0)
-	raw *= float(ab.get("dmg", 1.0)) * Perks.weapon_field(a, "dmg") * Perks.dmg_mult(a)
+	raw *= float(ab.get("dmg", 1.0)) * Perks.weapon_field(a, "dmg") * Perks.dmg_mult(a) * a.grade_dmg_mult()  ## grade de l'arme, arme aiguisée
+	raw *= Handedness.dmg_mult(a.weapon)  ## arme de mêlée à deux mains : frappe un peu plus fort
+	if float(ab.get("dmg", 1.0)) > 0.0 and not ab.is_empty():
+		raw *= Handedness.ability_mult(a.weapon)  ## ... et ses capacités encore davantage
+	var ammo_m: Dictionary = Ammo.mods_of(a)  ## munition du carquois (flèches perforantes…)
+	if not ammo_m.is_empty():
+		raw *= float(ammo_m["dmg"])
 	if not a.perks.is_empty() and (d.stunned or d.morale <= 1):
 		raw *= Perks.mmult(a, "vs_down_dmg")  ## Marteleur
 	if a.weapon_broken():
@@ -181,10 +189,16 @@ static func roll_damage(a: Unit, d: Unit, rng: RandomNumberGenerator, ab: Dictio
 	else:
 		var eff_arm: float = float(w["arm"]) * Perks.weapon_field(a, "arm") * Perks.arm_mult(a)
 		var ign: float = float(w["ign"]) + Perks.weapon_field(a, "ign") + float(ab.get("ign_add", 0.0))
+		var mat_m: Dictionary = DamageTypes.zone_mods(a, d, head)  ## type de dégât × matériau de la pièce touchée (core/materials_data.gd)
+		eff_arm *= float(mat_m["arm"])
+		ign *= float(mat_m["ign"])
+		if not ammo_m.is_empty():
+			eff_arm *= float(ammo_m["arm"])
+			ign = minf(0.95, ign + float(ammo_m["ign_add"]))
 		var edged: bool = not d.perks.is_empty() and Perks.is_edged(a)
 		if edged:
 			eff_arm *= Perks.mmult(d, "edge_arm")  ## Maillons serrés
-		var ad: float = raw * eff_arm * float(ab.get("armor", 1.0))
+		var ad: float = raw * eff_arm * float(ab.get("armor", 1.0)) * Upkeep.oil_mult(d, head)  ## haubert huilé : l'armure s'use moins
 		arm_d = minf(float(arm), ad)
 		hp_d = maxf(0.0, raw * ign - float(arm) * 0.1)
 		if ad > float(arm):

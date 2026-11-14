@@ -503,6 +503,14 @@ func _build_left() -> void:
 	doll.add_child(r1)
 	doll.add_child(r2)
 	_left.add_child(doll)
+	if u.has_quiver() and editable():  # carquois : un clic change de type de munition (voir core/ammo.gd)
+		var qb := UiKit.button("Carquois : %s" % Ammo.describe(u), "ghost")
+		var nxt_kind: String = "perforante" if Ammo.normalize_kind(u.ammo_kind) == "chasse" else "chasse"
+		qb.tooltip_text = "Passer aux munitions %s. Les pièces restantes retournent à la réserve (%d en réserve) ; « Réparer » au camp remplit le carquois (%d couronnes pour les carquois vides)." % [Ammo.KINDS[nxt_kind]["n"], Ammo.reserve_total(Game.extras), Game.quiver_cost()]
+		qb.pressed.connect(func() -> void:
+			Game.set_ammo_kind(u.id, nxt_kind)
+			_queue_rebuild())
+		_left.add_child(qb)
 
 	# Talents appris
 	var perks := HFlowContainer.new()
@@ -581,7 +589,7 @@ func _stat_rows(u: Unit) -> Array:
 		StatRow.new("weapon:arc", u.eff("ranged_skill"), 100, Color("9a8a3a"), str(u.eff("ranged_skill")), "Compétence à distance", "Distance"),
 		StatRow.new("shield:", u.eff("melee_def"), 60, Color("4a7a9a"), str(u.eff("melee_def")), "Défense contre la mêlée (bouclier non compris)", "Déf. mêlée"),
 		StatRow.new("shield:", u.eff("ranged_def"), 60, Color("3a6a8a"), str(u.eff("ranged_def")), "Défense contre les tirs (bouclier non compris)", "Déf. distance"),
-		StatRow.new("weapon:hache", int(w["max"]), 80, Color("a04a3a"), "%d – %d" % [w["min"], w["max"]], "Dégâts de l'arme : %s" % w["n"], "Dégâts"),
+		StatRow.new("weapon:hache", Loot.dmg_max(Loot.weapon_item(u)), 80, Color("a04a3a"), "%d – %d" % [Loot.dmg_min(Loot.weapon_item(u)), Loot.dmg_max(Loot.weapon_item(u))], "Dégâts de l'arme : %s" % Loot.item_name(Loot.weapon_item(u)), "Dégâts"),
 		StatRow.new("percent", float(w["arm"]) * 100.0, 150, Color("7a7a8a"), "%d %%" % roundi(float(w["arm"]) * 100.0), "Efficacité contre l'armure", "Vs armure"),
 		StatRow.new("percent", float(w["ign"]) * 100.0, 100, Color("7a8a6a"), "%d %%" % roundi(float(w["ign"]) * 100.0), "Part des dégâts qui traverse l'armure", "Traversée"),
 		StatRow.new("eye", int(w["rng"]), 6, Color("5a7a5a"), str(w["rng"]), "Portée de l'arme (en cases)", "Portée"),

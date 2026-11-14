@@ -103,6 +103,8 @@ def main() -> int:
         n += 1
     with open(os.path.join(OUT, "unknown.svg"), "w", encoding="utf-8") as f:
         f.write(unknown())
+    import gen_equip_art  # armes, casques et armures ajoutés (dessinés dans gen_equip_art.py)
+    n += gen_equip_art.main_icons()
     print("%d icônes + unknown.svg écrits dans %s" % (n, OUT))
     return 0
 

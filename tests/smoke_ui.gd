@@ -129,6 +129,7 @@ func _run() -> void:
 	await _check_chronicle(main)
 	await _check_market_trade(main)
 	await _check_perk_tree(main)
+	await _check_workshop(main)
 	# --- Ville ---
 	var camp: Node = _find(main, "Camp")
 	_check(camp != null, "l'écran de ville s'affiche au départ")
@@ -523,6 +524,32 @@ func _check_chronicle(main: Node) -> void:
 	modal.call("close")
 	await _frames(2)
 	game.fallen.pop_back()
+
+
+## Atelier du forgeron : s'ouvre en lieu, propose les paliers de réparation, et un palier réussi met à jour l'armure.
+func _check_workshop(main: Node) -> void:
+	if not game.in_settlement():
+		return
+	var m: Variant = game.roster[0]
+	var gold0: int = game.gold
+	game.gold = 5000
+	m.body = "gambison"
+	m.arm_b = 5
+	var modal: Node = load("res://scenes/camp/workshop_screen.gd").open(main)
+	await _frames(3)
+	var steps: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text.begins_with("25 %"))
+	_check(steps.size() >= 1, "atelier : paliers de réparation affichés")
+	_check(not _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text.begins_with("Aiguiser")).is_empty(), "atelier : bouton Aiguiser")
+	var before: int = m.arm_b
+	for b in steps:
+		if not (b as Button).disabled:
+			(b as Button).pressed.emit()
+			break
+	await _frames(3)
+	_check(m.arm_b > before, "atelier : un palier répare l'armure")
+	modal.call("close")
+	await _frames(2)
+	game.gold = gold0
 
 
 func _check_formation_panel(main: Node) -> void:

@@ -155,6 +155,10 @@ func _draw() -> void:
 	var illustrated: bool = GameTheme.illustrated()
 	var rarity: String = ItemIcons.rarity(item) if not item.is_empty() else "common"
 	var tint: Color = ItemIcons.quality_tint(item) if not item.is_empty() else EDGE
+	var grade: int = ItemGrade.of(item) if not item.is_empty() else 0
+	if grade != 0 and rarity != "unique":  # grade : cadre coloré (fine bleu, maîtresse violet, grossière grisâtre)
+		tint = ItemGrade.color_of(grade)
+		rarity = "graded"
 	# fond en creux
 	draw_rect(r, BG, true)
 	if illustrated:
@@ -232,6 +236,9 @@ func _draw_labels(w: float, h: float, fs: int) -> void:
 		_text(font, Vector2(2.0, y), "%d %%" % roundi(d * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, fs - 1, col, w - 5.0)
 	if qty > 1:
 		_text(font, Vector2(2.0, fs + 2.0), str(qty), HORIZONTAL_ALIGNMENT_RIGHT, fs, TEXT, w - 5.0)
+	var g: int = ItemGrade.of(item)
+	if g != 0 and w >= 40.0:  # étiquette de grade en haut à gauche (1 lettre : G, F, M)
+		_text(font, Vector2(3.0, fs + 1.0), name_letter(g), HORIZONTAL_ALIGNMENT_LEFT, fs - 1, ItemGrade.color_of(g))
 
 
 func _text(font: Font, pos: Vector2, s: String, align: HorizontalAlignment, fs: int, col: Color, width: float = -1.0) -> void:
@@ -244,6 +251,10 @@ func _draw_lock(w: float, h: float) -> void:
 	var c := Vector2(w * 0.5, h * 0.5)
 	draw_rect(Rect2(c - Vector2(s, 0.0), Vector2(s * 2.0, s * 1.4)), Color(0.8, 0.7, 0.45, 0.9), true)
 	draw_arc(c + Vector2(0, 0), s * 0.7, PI, TAU, 12, Color(0.8, 0.7, 0.45, 0.9), maxf(2.0, s * 0.25))
+
+
+static func name_letter(g: int) -> String:
+	return ItemGrade.name_of(g).substr(0, 1)
 
 
 ## 12345 -> « 12 345 » (espace insécable fine).

@@ -14,6 +14,17 @@ const WPN: Dictionary = {
 	"hallebarde": {"n": "Hallebarde", "min": 30, "max": 42, "arm": 1.1, "ign": 0.25, "ap": 6, "fat": 14, "hit": 0, "rng": 2, "h1": false, "ranged": false, "price": 520, "vs_shield": 10, "note": "Frappe à 2 cases, +10 % au toucher contre un bouclier. Deux mains."},
 	"fleau": {"n": "Fléau d'armes", "min": 30, "max": 45, "arm": 0.6, "ign": 0.4, "ap": 5, "fat": 13, "hit": 0, "rng": 1, "h1": true, "ranged": false, "price": 360, "shield_ign": 10, "note": "Contourne en partie les boucliers. Faible contre l'armure lourde."},
 	"javelot": {"n": "Javelots", "min": 25, "max": 40, "arm": 0.8, "ign": 0.25, "ap": 4, "fat": 10, "hit": 0, "rng": 4, "h1": true, "ranged": true, "price": 150, "ammo": 3, "note": "Portée 4, 3 lancers par bataille. Une main."},
+	# Armes ajoutées par la session « contenu d'équipement » (familles : voir WEAPON_FAMILIES).
+	"dague": {"n": "Dague", "min": 15, "max": 25, "arm": 0.45, "ign": 0.3, "ap": 3, "fat": 6, "hit": 15, "rng": 1, "h1": true, "ranged": false, "price": 110, "note": "Rapide : 3 PA et +15 % au toucher, mais des dégâts faibles."},
+	"epee_courte": {"n": "Épée courte", "min": 28, "max": 38, "arm": 0.75, "ign": 0.2, "ap": 4, "fat": 8, "hit": 5, "rng": 1, "h1": true, "ranged": false, "price": 340, "note": "Légère : peu de fatigue, +5 % au toucher."},
+	"rapiere": {"n": "Rapière", "min": 30, "max": 40, "arm": 0.55, "ign": 0.35, "ap": 4, "fat": 9, "hit": 15, "rng": 1, "h1": true, "ranged": false, "price": 720, "note": "Estoc précis : +15 % au toucher, passe en partie l'armure. Faible contre l'armure lourde."},
+	"hache_bataille": {"n": "Hache de bataille", "min": 42, "max": 62, "arm": 1.5, "ign": 0.1, "ap": 6, "fat": 16, "hit": -5, "rng": 1, "h1": false, "ranged": false, "price": 720, "note": "Deux mains : fend les armures les plus lourdes, mais coûte 6 PA."},
+	"marteau_guerre": {"n": "Marteau de guerre", "min": 28, "max": 40, "arm": 1.35, "ign": 0.45, "ap": 5, "fat": 13, "hit": 0, "rng": 1, "h1": true, "ranged": false, "price": 470, "note": "Concasse l'armure et en traverse une bonne part."},
+	"baton_ferre": {"n": "Bâton ferré", "min": 22, "max": 32, "arm": 0.8, "ign": 0.35, "ap": 4, "fat": 9, "hit": 10, "rng": 1, "h1": false, "ranged": false, "price": 120, "note": "Deux mains, +10 % au toucher. Arme de pèlerin et de voyageur."},
+	"pique": {"n": "Pique", "min": 26, "max": 38, "arm": 0.9, "ign": 0.3, "ap": 5, "fat": 12, "hit": 10, "rng": 2, "h1": false, "ranged": false, "price": 340, "note": "Allonge : frappe à 2 cases, +10 % au toucher. Deux mains."},
+	"fronde": {"n": "Fronde", "min": 18, "max": 28, "arm": 0.4, "ign": 0.15, "ap": 4, "fat": 6, "hit": 5, "rng": 5, "h1": true, "ranged": true, "price": 80, "note": "Portée 5, pierres à volonté. Une main : permet le bouclier."},
+	"arbalete_legere": {"n": "Arbalète légère", "min": 32, "max": 48, "arm": 0.65, "ign": 0.35, "ap": 5, "fat": 11, "hit": 5, "rng": 5, "h1": false, "ranged": true, "price": 330, "note": "Portée 5. Se recharge en 5 PA seulement. Deux mains."},
+	"arc_long": {"n": "Arc long", "min": 34, "max": 54, "arm": 0.6, "ign": 0.35, "ap": 5, "fat": 14, "hit": 0, "rng": 7, "h1": false, "ranged": true, "price": 450, "note": "Portée 7, dégâts élevés. Deux mains."},
 	"griffes": {"n": "Griffes", "min": 20, "max": 35, "arm": 0.6, "ign": 0.15, "ap": 4, "fat": 8, "hit": 0, "rng": 1, "h1": false, "ranged": false, "price": 0, "note": ""},
 	"poings": {"n": "Poings nus", "min": 5, "max": 10, "arm": 0.2, "ign": 0.1, "ap": 4, "fat": 8, "hit": 0, "rng": 1, "h1": true, "ranged": false, "price": 0, "note": "Sans arme : on frappe à mains nues."},
 	"griffesL": {"n": "Griffes énormes", "min": 35, "max": 55, "arm": 0.8, "ign": 0.15, "ap": 4, "fat": 10, "hit": 0, "rng": 1, "h1": false, "ranged": false, "price": 0, "note": ""},
@@ -25,6 +36,12 @@ const WPN: Dictionary = {
 	"u_lance_aigle": {"n": "Lance de l'Aigle", "min": 28, "max": 36, "arm": 1.0, "ign": 0.3, "ap": 4, "fat": 9, "hit": 30, "rng": 1, "h1": true, "ranged": false, "price": 1300, "note": "Lance unique : +30 % au toucher."},
 	"u_masse_glas": {"n": "Glas de fer", "min": 34, "max": 46, "arm": 1.2, "ign": 0.45, "ap": 4, "fat": 12, "hit": 5, "rng": 1, "h1": true, "ranged": false, "price": 1600, "note": "Masse unique : traverse l'armure."},
 	"u_arc_ronce": {"n": "Arc des Ronces", "min": 34, "max": 54, "arm": 0.6, "ign": 0.4, "ap": 4, "fat": 11, "hit": 5, "rng": 7, "h1": false, "ranged": true, "price": 1450, "note": "Arc unique : portée 7."},
+	# Armes à histoire (voir core/legends.gd : leur compteur de victimes débloque des bonus).
+	"u_dague_veuve": {"n": "Dague de la Veuve", "min": 18, "max": 28, "arm": 0.5, "ign": 0.35, "ap": 3, "fat": 6, "hit": 20, "rng": 1, "h1": true, "ranged": false, "price": 900, "note": "Dague unique : 3 PA, +20 % au toucher. S'aiguise à chaque victime."},
+	"u_marteau_forgeron": {"n": "Marteau du Dernier Forgeron", "min": 32, "max": 44, "arm": 1.45, "ign": 0.5, "ap": 5, "fat": 13, "hit": 5, "rng": 1, "h1": true, "ranged": false, "price": 1500, "note": "Marteau unique : écrase l'armure. Frappe de plus en plus juste."},
+	"u_hache_aurore": {"n": "Hache de l'Aurore", "min": 46, "max": 66, "arm": 1.6, "ign": 0.1, "ap": 6, "fat": 15, "hit": 0, "rng": 1, "h1": false, "ranged": false, "price": 1700, "note": "Hache de bataille unique. Plus elle tue, plus elle fend."},
+	"u_arc_mirelune": {"n": "Arc de Mirelune", "min": 36, "max": 56, "arm": 0.65, "ign": 0.4, "ap": 5, "fat": 13, "hit": 5, "rng": 7, "h1": false, "ranged": true, "price": 1500, "note": "Arc long unique. Chaque victime affine la visée."},
+	"u_pique_gardien": {"n": "Pique du Gardien du gué", "min": 28, "max": 40, "arm": 1.0, "ign": 0.3, "ap": 5, "fat": 11, "hit": 15, "rng": 2, "h1": false, "ranged": false, "price": 1200, "note": "Pique unique : allonge 2. Elle retient ceux qui passent."},
 }
 
 const HEAD: Dictionary = {
@@ -32,6 +49,12 @@ const HEAD: Dictionary = {
 	"capuchon": {"n": "Capuchon matelassé", "a": 30, "w": 0, "price": 60},
 	"casque": {"n": "Casque à nasal", "a": 90, "w": 5, "price": 280},
 	"heaume": {"n": "Heaume fermé", "a": 160, "w": 10, "price": 750},
+	# Pièces au style de faction (portées par les ennemis : Data.FOE ; récupérables en butin).
+	"cagoule_cuir": {"n": "Cagoule de cuir clouté", "a": 45, "w": 1, "price": 90},
+	"barbute": {"n": "Barbute", "a": 105, "w": 6, "price": 340},
+	"heaume_crete": {"n": "Heaume à crête", "a": 170, "w": 10, "price": 820},
+	"casque_orque": {"n": "Casque cornu orque", "a": 110, "w": 7, "price": 330},
+	"casque_rouille": {"n": "Casque rouillé de revenant", "a": 70, "w": 4, "price": 80},
 	# Objets uniques (voir UNIQUES)
 	"u_casque_loup": {"n": "Casque du Loup gris", "a": 125, "w": 4, "price": 1400},
 	"u_heaume_veilleur": {"n": "Heaume du Veilleur", "a": 195, "w": 9, "price": 2200},
@@ -43,6 +66,12 @@ const BODY: Dictionary = {
 	"gambison": {"n": "Gambison", "a": 65, "w": 6, "price": 220},
 	"mailles": {"n": "Haubert de mailles", "a": 130, "w": 14, "price": 700},
 	"brigandine": {"n": "Brigandine", "a": 190, "w": 22, "price": 1250},
+	# Pièces au style de faction (portées par les ennemis : Data.FOE ; récupérables en butin).
+	"cuir_cloute": {"n": "Cuir clouté", "a": 55, "w": 5, "price": 170},
+	"haubert_surcot": {"n": "Haubert à surcot", "a": 145, "w": 15, "price": 820},
+	"cuirasse_peaux": {"n": "Cuirasse de peaux", "a": 85, "w": 8, "price": 330},
+	"plastron_orque": {"n": "Plastron de fer orque", "a": 150, "w": 18, "price": 900},
+	"cotte_rouillee": {"n": "Cotte rouillée de revenant", "a": 90, "w": 10, "price": 300},
 	# Objets uniques (voir UNIQUES)
 	"u_cotte_nuit": {"n": "Cotte de la Nuit", "a": 165, "w": 12, "price": 1900},
 	"u_brigandine_roi": {"n": "Brigandine du Roi déchu", "a": 235, "w": 20, "price": 2600},
@@ -78,20 +107,20 @@ const BG: Dictionary = {
 
 ## Ennemis. `fac` : "b" brigands, "g" goules.
 const FOE: Dictionary = {
-	"brigand": {"n": "Détrousseur", "fac": "b", "hp": [55, 65], "fat": [100, 110], "res": [40, 50], "mSk": [52, 58], "rSk": [30, 40], "mDef": [2, 8], "rDef": [2, 8], "ini": [95, 105], "w": ["gourdin", "fourche", "hache", "lance", "javelot"], "sh": 0.4, "head": ["none", "capuchon"], "body": ["tunique", "gambison"], "xp": 15, "leader": false},
-	"archer": {"n": "Archer brigand", "fac": "b", "hp": [50, 58], "fat": [95, 105], "res": [38, 46], "mSk": [42, 48], "rSk": [52, 60], "mDef": [0, 5], "rDef": [3, 8], "ini": [105, 115], "w": ["arc", "arbalete"], "sh": 0.0, "head": ["capuchon"], "body": ["tunique"], "xp": 15, "leader": false},
-	"balafre": {"n": "Balafré", "fac": "b", "hp": [70, 80], "fat": [110, 120], "res": [50, 60], "mSk": [60, 66], "rSk": [35, 45], "mDef": [8, 14], "rDef": [8, 12], "ini": [100, 108], "w": ["hache", "masse", "epee", "fleau"], "sh": 0.6, "head": ["casque"], "body": ["mailles"], "xp": 30, "leader": false},
-	"chef": {"n": "Chef brigand", "fac": "b", "hp": [95, 110], "fat": [120, 130], "res": [65, 75], "mSk": [68, 75], "rSk": [40, 50], "mDef": [12, 18], "rDef": [10, 15], "ini": [105, 112], "w": ["epee"], "sh": 1.0, "head": ["heaume"], "body": ["mailles"], "xp": 60, "leader": true, "perks": ["spec_epee", "garde_ferme"]},
+	"brigand": {"n": "Détrousseur", "fac": "b", "hp": [55, 65], "fat": [100, 110], "res": [40, 50], "mSk": [52, 58], "rSk": [30, 40], "mDef": [2, 8], "rDef": [2, 8], "ini": [95, 105], "w": ["gourdin", "fourche", "hache", "lance", "javelot", "dague", "baton_ferre"], "sh": 0.4, "head": ["none", "capuchon", "cagoule_cuir"], "body": ["tunique", "gambison", "cuir_cloute"], "xp": 15, "leader": false},
+	"archer": {"n": "Archer brigand", "fac": "b", "hp": [50, 58], "fat": [95, 105], "res": [38, 46], "mSk": [42, 48], "rSk": [52, 60], "mDef": [0, 5], "rDef": [3, 8], "ini": [105, 115], "w": ["arc", "arbalete", "arc_long", "arbalete_legere", "fronde"], "sh": 0.0, "head": ["capuchon", "cagoule_cuir"], "body": ["tunique", "cuir_cloute"], "xp": 15, "leader": false},
+	"balafre": {"n": "Balafré", "fac": "b", "hp": [70, 80], "fat": [110, 120], "res": [50, 60], "mSk": [60, 66], "rSk": [35, 45], "mDef": [8, 14], "rDef": [8, 12], "ini": [100, 108], "w": ["hache", "masse", "epee", "fleau", "rapiere", "marteau_guerre", "hache_bataille"], "sh": 0.6, "head": ["casque", "barbute"], "body": ["mailles", "haubert_surcot"], "xp": 30, "leader": false},
+	"chef": {"n": "Chef brigand", "fac": "b", "hp": [95, 110], "fat": [120, 130], "res": [65, 75], "mSk": [68, 75], "rSk": [40, 50], "mDef": [12, 18], "rDef": [10, 15], "ini": [105, 112], "w": ["epee"], "sh": 1.0, "head": ["heaume", "heaume_crete"], "body": ["mailles", "haubert_surcot"], "xp": 60, "leader": true, "perks": ["spec_epee", "garde_ferme"]},
 	"goule": {"n": "Goule", "fac": "g", "hp": [110, 130], "fat": [150, 150], "res": [48, 55], "mSk": [50, 55], "rSk": [0, 0], "mDef": [0, 5], "rDef": [0, 5], "ini": [110, 120], "w": ["griffes"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 25, "leader": false, "flank": true},
 	"vorace": {"n": "Goule vorace", "fac": "g", "hp": [220, 240], "fat": [160, 160], "res": [65, 70], "mSk": [58, 64], "rSk": [0, 0], "mDef": [0, 5], "rDef": [0, 5], "ini": [90, 95], "w": ["griffesL"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 60, "leader": false, "flank": true},
 	# Orcs ("o") : plus de PV, de défense et de compétence que les brigands.
-	"orc_jeune": {"n": "Jeune orc", "fac": "o", "hp": [75, 90], "fat": [110, 120], "res": [45, 55], "mSk": [55, 62], "rSk": [30, 40], "mDef": [3, 9], "rDef": [3, 8], "ini": [95, 105], "w": ["gourdin", "hache", "lance"], "sh": 0.4, "head": ["none", "capuchon"], "body": ["tunique", "gambison"], "xp": 25, "leader": false},
-	"orc_guerrier": {"n": "Guerrier orc", "fac": "o", "hp": [100, 115], "fat": [120, 130], "res": [55, 65], "mSk": [62, 68], "rSk": [30, 40], "mDef": [8, 14], "rDef": [6, 12], "ini": [90, 100], "w": ["hache", "masse", "epee", "hallebarde"], "sh": 0.6, "head": ["casque"], "body": ["gambison", "mailles"], "xp": 45, "leader": false},
+	"orc_jeune": {"n": "Jeune orc", "fac": "o", "hp": [75, 90], "fat": [110, 120], "res": [45, 55], "mSk": [55, 62], "rSk": [30, 40], "mDef": [3, 9], "rDef": [3, 8], "ini": [95, 105], "w": ["gourdin", "hache", "lance", "baton_ferre"], "sh": 0.4, "head": ["none", "capuchon", "casque_orque"], "body": ["tunique", "gambison", "cuirasse_peaux"], "xp": 25, "leader": false},
+	"orc_guerrier": {"n": "Guerrier orc", "fac": "o", "hp": [100, 115], "fat": [120, 130], "res": [55, 65], "mSk": [62, 68], "rSk": [30, 40], "mDef": [8, 14], "rDef": [6, 12], "ini": [90, 100], "w": ["hache", "masse", "epee", "hallebarde", "hache_bataille", "marteau_guerre"], "sh": 0.6, "head": ["casque", "casque_orque"], "body": ["gambison", "mailles", "cuirasse_peaux", "plastron_orque"], "xp": 45, "leader": false},
 	"berserker": {"n": "Berserker orc", "fac": "o", "hp": [110, 125], "fat": [130, 140], "res": [70, 80], "mSk": [66, 72], "rSk": [20, 30], "mDef": [0, 4], "rDef": [0, 4], "ini": [105, 115], "w": ["hache"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 50, "leader": false},
-	"orc_chef": {"n": "Chef de guerre orc", "fac": "o", "hp": [160, 180], "fat": [140, 150], "res": [75, 85], "mSk": [72, 78], "rSk": [35, 45], "mDef": [14, 20], "rDef": [10, 15], "ini": [100, 108], "w": ["hache", "epee"], "sh": 1.0, "head": ["heaume"], "body": ["brigandine"], "xp": 100, "leader": true, "perks": ["cran", "spec_hache"]},
+	"orc_chef": {"n": "Chef de guerre orc", "fac": "o", "hp": [160, 180], "fat": [140, 150], "res": [75, 85], "mSk": [72, 78], "rSk": [35, 45], "mDef": [14, 20], "rDef": [10, 15], "ini": [100, 108], "w": ["hache", "epee", "hache_bataille"], "sh": 1.0, "head": ["heaume", "casque_orque"], "body": ["brigandine", "plastron_orque"], "xp": 100, "leader": true, "perks": ["cran", "spec_hache"]},
 	# Morts-vivants ("u")
-	"squelette": {"n": "Squelette", "fac": "u", "hp": [45, 55], "fat": [110, 120], "res": [80, 90], "mSk": [48, 56], "rSk": [30, 36], "mDef": [0, 6], "rDef": [10, 16], "ini": [100, 110], "w": ["lance", "epee", "gourdin"], "sh": 0.6, "head": ["none", "casque"], "body": ["none"], "xp": 20, "leader": false},
-	"squelette_archer": {"n": "Squelette archer", "fac": "u", "hp": [40, 50], "fat": [100, 110], "res": [80, 90], "mSk": [40, 46], "rSk": [50, 58], "mDef": [0, 4], "rDef": [8, 14], "ini": [105, 115], "w": ["arc"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 20, "leader": false},
+	"squelette": {"n": "Squelette", "fac": "u", "hp": [45, 55], "fat": [110, 120], "res": [80, 90], "mSk": [48, 56], "rSk": [30, 36], "mDef": [0, 6], "rDef": [10, 16], "ini": [100, 110], "w": ["lance", "epee", "gourdin", "epee_courte"], "sh": 0.6, "head": ["none", "casque", "casque_rouille"], "body": ["none", "cotte_rouillee"], "xp": 20, "leader": false},
+	"squelette_archer": {"n": "Squelette archer", "fac": "u", "hp": [40, 50], "fat": [100, 110], "res": [80, 90], "mSk": [40, 46], "rSk": [50, 58], "mDef": [0, 4], "rDef": [8, 14], "ini": [105, 115], "w": ["arc"], "sh": 0.0, "head": ["none", "casque_rouille"], "body": ["none"], "xp": 20, "leader": false},
 	"zombie": {"n": "Zombie", "fac": "u", "hp": [90, 110], "fat": [120, 130], "res": [90, 95], "mSk": [44, 50], "rSk": [0, 0], "mDef": [0, 0], "rDef": [0, 0], "ini": [60, 75], "w": ["griffes"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 20, "leader": false},
 	"necro": {"n": "Nécromant", "fac": "u", "hp": [85, 100], "fat": [100, 110], "res": [75, 85], "mSk": [58, 64], "rSk": [40, 48], "mDef": [8, 14], "rDef": [10, 16], "ini": [105, 112], "w": ["masse"], "sh": 0.0, "head": ["capuchon"], "body": ["gambison"], "xp": 70, "leader": true, "perks": ["cran"], "raise": true},
 	# Soigneur orc : soigne un allié blessé (heal = PV rendus).
@@ -121,6 +150,8 @@ const ABILITIES: Dictionary = {
 	"croc": {"n": "Croc", "weapons": ["hallebarde"], "ap_extra": 1, "fat_extra": 5, "dmg": 0.7, "expose": true, "d": "Si le coup touche, la cible est désarçonnée : −10 en défense jusqu'au début de son prochain tour."},
 	"briser_bouclier": {"n": "Briser le bouclier", "weapons": ["fleau"], "ap_extra": 1, "fat_extra": 5, "dmg": 0.9, "shield_break": 30, "needs_target_shield": true, "d": "Si le coup touche, abîme fortement le bouclier de la cible."},
 	"fleche_feu": {"n": "Flèche enflammée", "weapons": ["arc"], "ap_extra": 1, "fat_extra": 3, "hit": -5, "dmg": 0.8, "fire": true, "d": "Si le tir touche, enflamme la case de la cible (herbe et forêt)."},
+	"estoc": {"n": "Estoc", "weapons": ["rapiere"], "ap_extra": 1, "fat_extra": 4, "hit": -5, "ign_add": 0.2, "d": "Traverse 20 points d'armure de plus, −5 % au toucher."},
+	"brise_heaume": {"n": "Brise-heaume", "weapons": ["marteau_guerre", "u_marteau_forgeron"], "ap_extra": 1, "fat_extra": 6, "hit": -10, "armor": 1.4, "d": "Dégâts d'armure ×1,4, −10 % au toucher."},
 	# Capacités ouvertes par un talent (`perk`) : toute arme de mêlée.
 	"coup_puissant": {"n": "Coup puissant", "weapons": [], "perk": "force_brute", "ap_extra": 1, "fat_extra": 6, "hit": -10, "dmg": 1.35, "d": "+35 % de dégâts, −10 % au toucher."},
 	"croc_jambe": {"n": "Croc-en-jambe", "weapons": [], "perk": "croc_en_jambe", "ap_extra": 1, "fat_extra": 4, "dmg": 0.6, "expose": true, "d": "Si le coup touche, la cible a −10 en défense jusqu'au début de son prochain tour."},
@@ -193,12 +224,12 @@ const PROMO_RANGES: Dictionary = {
 ## Ce que vend chaque type de lieu (clés de WPN / HEAD / BODY) et qui s'y engage.
 const SHOPS: Dictionary = {
 	"village": {
-		"weapon": ["gourdin", "fourche", "lance", "arc", "fleau", "javelot"], "head": ["capuchon", "casque"], "body": ["tunique", "gambison"], "shield": true,
+		"weapon": ["gourdin", "fourche", "lance", "arc", "fleau", "javelot", "dague", "epee_courte", "baton_ferre", "fronde"], "head": ["capuchon", "casque", "cagoule_cuir"], "body": ["tunique", "gambison", "cuir_cloute"], "shield": true,
 		"recruits": ["mendiant", "fermier", "bucheron", "braconnier"], "contracts": 2, "tool": ["pierre", "filet"],
 	},
 	"city": {
-		"weapon": ["gourdin", "fourche", "lance", "hache", "masse", "epee", "arc", "fleau", "javelot", "hallebarde", "arbalete"], "head": ["capuchon", "casque", "heaume"],
-		"body": ["tunique", "gambison", "mailles", "brigandine"], "shield": true,
+		"weapon": ["gourdin", "fourche", "lance", "hache", "masse", "epee", "arc", "fleau", "javelot", "hallebarde", "arbalete", "dague", "epee_courte", "rapiere", "hache_bataille", "marteau_guerre", "baton_ferre", "pique", "fronde", "arbalete_legere", "arc_long"], "head": ["capuchon", "casque", "heaume", "cagoule_cuir", "barbute", "heaume_crete"],
+		"body": ["tunique", "gambison", "mailles", "brigandine", "cuir_cloute", "haubert_surcot"], "shield": true,
 		"recruits": ["mendiant", "fermier", "bucheron", "braconnier", "milicien", "deserteur", "reitre"], "contracts": 3, "tool": ["pierre", "filet", "huile"],
 	},
 }
@@ -219,6 +250,11 @@ const UNIQUES: Dictionary = {
 	"u_lance_aigle": {"kind": "weapon", "look": "lance", "story": "Une hampe de frêne, une pointe d'acier de montagne. Elle ne manque jamais sa cible."},
 	"u_masse_glas": {"kind": "weapon", "look": "masse", "story": "On l'entend sonner trois rues plus loin. Les os n'y résistent pas."},
 	"u_arc_ronce": {"kind": "weapon", "look": "arc", "story": "Un if sauvage, courbé par un maître archer qui ne l'a jamais vendu de son vivant."},
+	"u_dague_veuve": {"kind": "weapon", "look": "dague", "story": "Offerte à une veuve par le bourreau de son mari. Elle ne l'a rendue qu'après la dernière gorge."},
+	"u_marteau_forgeron": {"kind": "weapon", "look": "marteau_guerre", "story": "Le dernier forgeron de Fontfroide l'a battu avec les clous de sa propre porte, la nuit où le village a brûlé."},
+	"u_hache_aurore": {"kind": "weapon", "look": "hache_bataille", "story": "Elle fendit la herse d'un château à l'aube. Le fer en garde un reflet rose."},
+	"u_arc_mirelune": {"kind": "weapon", "look": "arc_long", "story": "Taillé dans un if foudroyé près des marais de Mirelune. On dit qu'il préfère le brouillard."},
+	"u_pique_gardien": {"kind": "weapon", "look": "pique", "story": "Le gardien d'un gué l'a tenue trois jours contre une armée. Le gué, lui, tient toujours."},
 	"u_casque_loup": {"kind": "head", "look": "casque", "story": "Un casque à nasal orné d'une gueule de loup gravée."},
 	"u_heaume_veilleur": {"kind": "head", "look": "heaume", "story": "Porté par les veilleurs de la tour d'Os, qui ne dormaient jamais."},
 	"u_cotte_nuit": {"kind": "body", "look": "mailles", "story": "Des mailles noircies à l'huile, silencieuses comme une nuit sans lune."},
@@ -380,16 +416,16 @@ const PERKS: Dictionary = {
 ## de l'homme est de la famille. Sans maîtrise, l'arme se manie normalement. `dmg_type` : tranchant | contondant | perforant (lu par la Cotte de mailles).
 ## `badge` : icône de `assets/icons/` qui orne la pastille de la maîtrise.
 const WEAPON_FAMILIES: Dictionary = {
-	"epee": {"n": "Épées", "weapons": ["epee", "u_epee_corbeau"], "mastery": "spec_epee", "expert": "ex_epee", "dmg_type": "tranchant", "badge": "epee"},
-	"hache": {"n": "Haches", "weapons": ["hache", "u_hache_fendcrane"], "mastery": "spec_hache", "expert": "ex_hache", "dmg_type": "tranchant", "badge": "hache"},
-	"masse": {"n": "Masses", "weapons": ["masse", "u_masse_glas"], "mastery": "spec_masse", "expert": "ex_masse", "dmg_type": "contondant", "badge": "masse"},
+	"epee": {"n": "Épées", "weapons": ["epee", "epee_courte", "rapiere", "dague", "u_epee_corbeau", "u_dague_veuve"], "mastery": "spec_epee", "expert": "ex_epee", "dmg_type": "tranchant", "badge": "epee"},
+	"hache": {"n": "Haches", "weapons": ["hache", "hache_bataille", "u_hache_fendcrane", "u_hache_aurore"], "mastery": "spec_hache", "expert": "ex_hache", "dmg_type": "tranchant", "badge": "hache"},
+	"masse": {"n": "Masses", "weapons": ["masse", "marteau_guerre", "u_masse_glas", "u_marteau_forgeron"], "mastery": "spec_masse", "expert": "ex_masse", "dmg_type": "contondant", "badge": "masse"},
 	"fleau": {"n": "Fléaux", "weapons": ["fleau"], "mastery": "spec_fleau", "expert": "ex_fleau", "dmg_type": "contondant", "badge": "fleau"},
-	"gourdin": {"n": "Gourdins", "weapons": ["gourdin"], "mastery": "spec_gourdin", "expert": "ex_gourdin", "dmg_type": "contondant", "badge": "gourdin"},
+	"gourdin": {"n": "Gourdins", "weapons": ["gourdin", "baton_ferre"], "mastery": "spec_gourdin", "expert": "ex_gourdin", "dmg_type": "contondant", "badge": "gourdin"},
 	"lance": {"n": "Lances", "weapons": ["lance", "u_lance_aigle"], "mastery": "spec_lance", "expert": "ex_lance", "dmg_type": "perforant", "badge": "lance"},
-	"hast": {"n": "Armes d'hast", "weapons": ["fourche", "hallebarde"], "mastery": "spec_hast", "expert": "ex_hast", "dmg_type": "perforant", "badge": "hallebarde"},
-	"arc": {"n": "Arcs", "weapons": ["arc", "u_arc_ronce"], "mastery": "spec_arc", "expert": "oeil_de_lynx", "dmg_type": "perforant", "badge": "arc"},
-	"arbalete": {"n": "Arbalètes", "weapons": ["arbalete"], "mastery": "spec_arbalete", "expert": "ex_arbalete", "dmg_type": "perforant", "badge": "arbalete"},
-	"javelot": {"n": "Javelots", "weapons": ["javelot"], "mastery": "spec_javelot", "expert": "ex_javelot", "dmg_type": "perforant", "badge": "javelot"},
+	"hast": {"n": "Armes d'hast", "weapons": ["fourche", "hallebarde", "pique", "u_pique_gardien"], "mastery": "spec_hast", "expert": "ex_hast", "dmg_type": "perforant", "badge": "hallebarde"},
+	"arc": {"n": "Arcs", "weapons": ["arc", "arc_long", "u_arc_ronce", "u_arc_mirelune"], "mastery": "spec_arc", "expert": "oeil_de_lynx", "dmg_type": "perforant", "badge": "arc"},
+	"arbalete": {"n": "Arbalètes", "weapons": ["arbalete", "arbalete_legere"], "mastery": "spec_arbalete", "expert": "ex_arbalete", "dmg_type": "perforant", "badge": "arbalete"},
+	"javelot": {"n": "Armes de jet", "weapons": ["javelot", "fronde"], "mastery": "spec_javelot", "expert": "ex_javelot", "dmg_type": "perforant", "badge": "javelot"},
 	"poings": {"n": "Mains nues", "weapons": ["poings"], "mastery": "spec_poings", "expert": "ex_poings", "dmg_type": "contondant", "badge": "poings"},
 	# Transversale : joue tant que l'homme porte un bouclier intact, quelle que soit son arme.
 	"bouclier": {"n": "Boucliers", "weapons": [], "mastery": "spec_bouclier", "expert": "ex_bouclier", "dmg_type": "", "badge": "bouclier"},
@@ -399,10 +435,10 @@ const WEAPONS_NO_FAMILY: Array = ["griffes", "griffesL", "morsure", "massue_gean
 ## Armures : `head` / `body` = objets de la famille par emplacement ; `rule` : "any" (un seul emplacement suffit) ou "all" (les deux).
 const ARMOR_FAMILIES: Dictionary = {
 	"tissu": {"n": "Tissu léger", "head": ["none", "capuchon"], "body": ["none", "tunique"], "rule": "all", "mastery": "ma_tissu", "expert": "ex_tissu", "badge": "tunique"},
-	"matelasse": {"n": "Matelassé", "head": [], "body": ["gambison"], "rule": "any", "mastery": "ma_matelasse", "expert": "ex_matelasse", "badge": "gambison"},
-	"mailles": {"n": "Mailles", "head": [], "body": ["mailles", "u_cotte_nuit"], "rule": "any", "mastery": "ma_mailles", "expert": "ex_mailles", "badge": "mailles"},
-	"plates": {"n": "Plates lourdes", "head": ["heaume", "u_heaume_veilleur"], "body": ["brigandine", "u_brigandine_roi"], "rule": "any", "mastery": "ma_plates", "expert": "ex_plates", "badge": "brigandine"},
-	"casque": {"n": "Casques", "head": ["casque", "u_casque_loup"], "body": [], "rule": "any", "mastery": "ma_casque", "expert": "ex_casque", "badge": "casque"},
+	"matelasse": {"n": "Matelassé", "head": ["cagoule_cuir"], "body": ["gambison", "cuir_cloute", "cuirasse_peaux"], "rule": "any", "mastery": "ma_matelasse", "expert": "ex_matelasse", "badge": "gambison"},
+	"mailles": {"n": "Mailles", "head": [], "body": ["mailles", "haubert_surcot", "cotte_rouillee", "u_cotte_nuit"], "rule": "any", "mastery": "ma_mailles", "expert": "ex_mailles", "badge": "mailles"},
+	"plates": {"n": "Plates lourdes", "head": ["heaume", "heaume_crete", "u_heaume_veilleur"], "body": ["brigandine", "plastron_orque", "u_brigandine_roi"], "rule": "any", "mastery": "ma_plates", "expert": "ex_plates", "badge": "brigandine"},
+	"casque": {"n": "Casques", "head": ["casque", "barbute", "casque_orque", "casque_rouille", "u_casque_loup"], "body": [], "rule": "any", "mastery": "ma_casque", "expert": "ex_casque", "badge": "casque"},
 }
 ## Archétypes de builds (docs/builds.md, généré par tools/gen_builds_doc.gd) : liste ORDONNÉE de 10 talents (niveau 11), chacun avec sa raison.
 ## Testés : chaque liste doit être atteignable (prérequis, rangs, 10 points). `weapon` / `armor` : familles visées.

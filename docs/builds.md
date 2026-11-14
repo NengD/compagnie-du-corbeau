@@ -12,16 +12,16 @@ Un point de talent par niveau (niveaux 2 à 11, soit 10 points) ; un talent du r
 
 | Famille | Armes | Maîtrise (rang 4) | Expert (rang 6) | Talents recommandés | Style de jeu |
 |---|---|---|---|---|---|
-| Épées | Épée d'armes, Lame du Corbeau | Escrimeur | Contre-pied | Bretteur, Vif, Loup solitaire | Escrimeur précis : Fente à prix d'attaque, contre-pieds gratuits. |
-| Haches | Hache, Fend-Crâne | Fendeur | Boucher | Lame affûtée, Force brute, Visée haute | Briseur d'armure : fend boucliers et plates, vise la tête. |
-| Masses | Masse d'armes, Glas de fer | Fracasseur | Marteleur | Regard glaçant, Cuir épais, Porteur de plates | Étourdisseur : traverse l'armure, enchaîne sur les étourdis. |
+| Épées | Épée d'armes, Épée courte, Rapière, Dague, Lame du Corbeau, Dague de la Veuve | Escrimeur | Contre-pied | Bretteur, Vif, Loup solitaire | Escrimeur précis : Fente à prix d'attaque, contre-pieds gratuits. |
+| Haches | Hache, Hache de bataille, Fend-Crâne, Hache de l'Aurore | Fendeur | Boucher | Lame affûtée, Force brute, Visée haute | Briseur d'armure : fend boucliers et plates, vise la tête. |
+| Masses | Masse d'armes, Marteau de guerre, Glas de fer, Marteau du Dernier Forgeron | Fracasseur | Marteleur | Regard glaçant, Cuir épais, Porteur de plates | Étourdisseur : traverse l'armure, enchaîne sur les étourdis. |
 | Fléaux | Fléau d'armes | Batteur | Moulinet | Garde ferme, Rempart, Mur vivant | Bretteur de ligne : ignore les boucliers, frappe deux ennemis, Moulinet. |
-| Gourdins | Gourdin | Assommeur | Matraqueur | Endurant, Vif, Croc-en-jambe | Harceleur : coups peu fatigants qui étourdissent, arme pauvre mais agile. |
+| Gourdins | Gourdin, Bâton ferré | Assommeur | Matraqueur | Endurant, Vif, Croc-en-jambe | Harceleur : coups peu fatigants qui étourdissent, arme pauvre mais agile. |
 | Lances | Lance, Lance de l'Aigle | Lancier | Haie de piques | Garde ferme, Rempart, Mur vivant | Haie de piques : repousse, frappe d'abord celui qui approche. |
-| Armes d'hast | Fourche, Hallebarde | Piquier | Faucheur | Jarret solide, Croc-en-jambe, Frappe vive | Piquier : deux cases de portée, faucher pour clouer l'ennemi. |
-| Arcs | Arc de chasse, Arc des Ronces | Tireur d'élite | Œil de lynx | Tireur posté, Cible mouvante, Pas léger | Archer : aucun malus au contact, portée et tir précis. |
-| Arbalètes | Arbalète | Arbalétrier | Perce-armure | Lame affûtée, Tireur posté, Rapace | Tireur lent mais lourd : recharge abrégée, carreaux perforants. |
-| Javelots | Javelots | Lanceur | Volée | Jarret solide, Pas léger, Montagnard | Tirailleur : volée de javelots puis décrochage. |
+| Armes d'hast | Fourche, Hallebarde, Pique, Pique du Gardien du gué | Piquier | Faucheur | Jarret solide, Croc-en-jambe, Frappe vive | Piquier : deux cases de portée, faucher pour clouer l'ennemi. |
+| Arcs | Arc de chasse, Arc long, Arc des Ronces, Arc de Mirelune | Tireur d'élite | Œil de lynx | Tireur posté, Cible mouvante, Pas léger | Archer : aucun malus au contact, portée et tir précis. |
+| Arbalètes | Arbalète, Arbalète légère | Arbalétrier | Perce-armure | Lame affûtée, Tireur posté, Rapace | Tireur lent mais lourd : recharge abrégée, carreaux perforants. |
+| Armes de jet | Javelots, Fronde | Lanceur | Volée | Jarret solide, Pas léger, Montagnard | Tirailleur : volée de javelots puis décrochage. |
 | Mains nues | Poings nus | Pugiliste | Poing d'acier | Loup solitaire, Frappe vive, Anguille | Moine : mains nues, esquive, étourdissements. |
 | Boucliers | Bouclier rond | Rempart | Bastion | Garde ferme, Mur vivant, Gardien | Tank : mur de boucliers peu cher, voisins protégés. |
 
@@ -30,10 +30,10 @@ Un point de talent par niveau (niveaux 2 à 11, soit 10 points) ; un talent du r
 | Famille | Pièces | Maîtrise (rang 4) | Expert (rang 6) | Talents recommandés | Style de jeu |
 |---|---|---|---|---|---|
 | Tissu léger | Tête nue, Capuchon matelassé, Rien, Tunique de lin | Foulée légère | Feu follet | Vif, Pas léger, Anguille | Léger : initiative et esquive, se bat avant les autres. |
-| Matelassé | Gambison | Bourre épaisse | Double bourre | Souffle long, Poumons de forge, Camaraderie | Intermédiaire : armure effective, endurance, moins de blessures. |
-| Mailles | Haubert de mailles, Cotte de la Nuit | Maillons serrés | Cotte maîtresse | Parade, Tête dure, Cuir épais | Fantassin : moins de poids, résiste aux lames. |
-| Plates lourdes | Heaume fermé, Heaume du Veilleur, Brigandine, Brigandine du Roi déchu | Porteur de plates | Forteresse | Carapace, Cuir épais, Regard glaçant | Forteresse : poids sans fatigue, initiative lourde, inébranlable. |
-| Casques | Casque à nasal, Casque du Loup gris | Tête dure | Heaume vissé | Nuque protégée, Tête froide, Nerfs d'acier | Tête protégée : peu de coups à la tête, résiste au choc. |
+| Matelassé | Cagoule de cuir clouté, Gambison, Cuir clouté, Cuirasse de peaux | Bourre épaisse | Double bourre | Souffle long, Poumons de forge, Camaraderie | Intermédiaire : armure effective, endurance, moins de blessures. |
+| Mailles | Haubert de mailles, Haubert à surcot, Cotte rouillée de revenant, Cotte de la Nuit | Maillons serrés | Cotte maîtresse | Parade, Tête dure, Cuir épais | Fantassin : moins de poids, résiste aux lames. |
+| Plates lourdes | Heaume fermé, Heaume à crête, Heaume du Veilleur, Brigandine, Plastron de fer orque, Brigandine du Roi déchu | Porteur de plates | Forteresse | Carapace, Cuir épais, Regard glaçant | Forteresse : poids sans fatigue, initiative lourde, inébranlable. |
+| Casques | Casque à nasal, Barbute, Casque cornu orque, Casque rouillé de revenant, Casque du Loup gris | Tête dure | Heaume vissé | Nuque protégée, Tête froide, Nerfs d'acier | Tête protégée : peu de coups à la tête, résiste au choc. |
 
 ## Ce que fait chaque maîtrise
 
@@ -55,7 +55,7 @@ Un point de talent par niveau (niveaux 2 à 11, soit 10 points) ; un talent du r
   - *Œil de lynx* (expert) : Arc en main : +2 de portée, malus de distance réduit (−2 au lieu de −3 par case) ; ouvre « Tir précis » (+20 % au toucher, 25 % de plus de viser la tête).
 - **Arbalètes** — *Arbalétrier* : Arbalètes : la recharge coûte 2 PA et 3 fatigue de moins, traversent 10 points de plus l'armure.
   - *Perce-armure* (expert) : Arbalète en main : +5 % au toucher, Tir ajusté coûte 1 PA de moins ; ouvre « Carreau perforant » (armure ×1,3, traverse 15 points de plus).
-- **Javelots** — *Lanceur* : Javelots : +10 % au toucher, +10 % de dégâts et 2 javelots de plus.
+- **Armes de jet** — *Lanceur* : Javelots : +10 % au toucher, +10 % de dégâts et 2 javelots de plus.
   - *Volée* (expert) : Javelots : 2 javelots de plus ; ouvre « Double lancer » (deux javelots d'un coup, 2 PA de plus).
 - **Mains nues** — *Pugiliste* : Mains nues : dégâts doublés, +5 % au toucher, traverse 25 points de plus l'armure et la détruit deux fois plus vite, +6 en défense (mêlée et distance).
   - *Poing d'acier* (expert) : Mains nues : chaque coup coûte 1 PA de moins, 15 % d'étourdir ; ouvre « Direct au menton » (étourdit à coup sûr).
@@ -213,7 +213,7 @@ Chaque liste tient dans les 10 points d'un homme de niveau 11, dans l'ordre : ra
 
 ### Lanceur de javelots
 
-*Tirailleur mobile : une volée de javelots puis il décroche.*  Famille d'armes : **Javelots** · armure : **Tissu léger**.
+*Tirailleur mobile : une volée de javelots puis il décroche.*  Famille d'armes : **Armes de jet** · armure : **Tissu léger**.
 
 1. **Œil sûr** (rang 1) — +10 en attaque à distance.
 2. **Vif** (rang 1) — Initiative.

@@ -210,6 +210,10 @@ func _build_company(root: VBoxContainer) -> void:
 			Game.repair()
 			Sfx.play("repair"))
 		actions.add_child(rep_b)
+		var shop_b := UiKit.button("Atelier")
+		shop_b.tooltip_text = "Réparer pièce par pièce, aiguiser les armes, huiler les mailles"
+		shop_b.pressed.connect(func() -> void: WorkshopScreen.open(self))
+		actions.add_child(shop_b)
 	else:
 		actions.add_child(UiKit.sub("Repos et réparations : dans une ville ou un village.", 13, false))
 	var inv_open := UiKit.button("Inventaire (I)")

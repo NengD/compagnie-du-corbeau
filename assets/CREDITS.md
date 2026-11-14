@@ -41,3 +41,4 @@ Généré par `tools/gen_item_icons.py` (contour sombre + dégradé or) : formes
 - `splash.png` : `tools/gen_splash.gd` ; `app_icon.svg`, `app_icon.ico`, `icons_png/icon_*.png` : `tools/gen_icon.gd` et `tools/make_ico.py`.
 - Les textures, décalcomanies, effets et cartes sont produits par le code du jeu (aucun fichier image externe).
 - Sons d'interface `buy_*`, `sell_*`, `drop_*`, `perk_0`, `paper_open_*`, `paper_close_*`, `speed_0`, `town_0`, `repair_*`, `hire_0` (`assets/audio/sfx/`) : générés procéduralement par `tools/gen_audio.gd` (aucune ressource externe), libres de droits.
+- Équipement ajouté (10 armes, 5 casques, 5 armures de faction, 5 armes à histoire) : icônes `icons_items/{weapon,head,body}_*.svg` et `icons/<clé>.svg` correspondantes, plus calques `sprites/{weapon,arm,hand,skel_arm,skel_hand,helm,torso}_*` de ces objets, dessinés par code dans `tools/gen_equip_art.py` (œuvre originale, aucune source externe).

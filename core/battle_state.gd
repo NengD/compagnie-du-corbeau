@@ -1029,6 +1029,7 @@ func _kill(d: Unit, a: Unit, cause: String = "") -> void:
 	else:
 		say("%s tombe sous les coups de %s." % [d.unit_name, a.unit_name], "death")
 		a.kills += 1
+		a.weapon_kills += 1
 		if a.side == "p":
 			xp[a.id] = int(xp.get(a.id, 0)) + (d.xp_value if d.xp_value > 0 else 15)
 	if d.side == "e" and d.leader:

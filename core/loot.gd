@@ -12,9 +12,9 @@ const ARMOR_CHANCE: float = 0.6  ## ajoutée à BASE_CHANCE × (armure restante 
 
 ## Objets rares offerts par un contrat gagné, par danger (1 à 3).
 const RARE: Dictionary = {
-	1: [["weapon", "lance"], ["head", "casque"], ["body", "gambison"]],
-	2: [["weapon", "hache"], ["weapon", "masse"], ["head", "casque"], ["body", "mailles"]],
-	3: [["weapon", "epee"], ["head", "heaume"], ["body", "mailles"], ["body", "brigandine"]],
+	1: [["weapon", "lance"], ["head", "casque"], ["body", "gambison"], ["weapon", "epee_courte"], ["weapon", "baton_ferre"], ["body", "cuir_cloute"]],
+	2: [["weapon", "hache"], ["weapon", "masse"], ["head", "casque"], ["body", "mailles"], ["weapon", "marteau_guerre"], ["weapon", "pique"], ["weapon", "arc_long"], ["head", "barbute"]],
+	3: [["weapon", "epee"], ["head", "heaume"], ["body", "mailles"], ["body", "brigandine"], ["weapon", "rapiere"], ["weapon", "hache_bataille"], ["head", "heaume_crete"], ["body", "haubert_surcot"]],
 }
 
 
@@ -31,18 +31,29 @@ static func data_of(it: Dictionary) -> Dictionary:
 		"body":
 			return Data.BODY[it["key"]]
 		"shield":
-			return Data.SHIELD
+			return Shields.data(it["key"])
+		"ammo":
+			return Ammo.item_data(str(it["key"]))
 		"tool":
 			return Data.TOOLS[it["key"]]
 	return {}
 
 
+## Nom affiché, avec le grade (« Hache fine »).
 static func item_name(it: Dictionary) -> String:
-	return str(data_of(it).get("n", "?"))
+	var n: String = str(data_of(it).get("n", "?"))
+	return ItemGrade.graded_name(n, str(it.get("key", "")), grade_of(it)) if it.has("q") else n
 
 
+## Grade d'un objet (voir ItemGrade) : 0 = correcte si la clé "q" est absente.
+static func grade_of(it: Dictionary) -> int:
+	return ItemGrade.of(it)
+
+
+## Prix de base : catalogue × coefficient du grade.
 static func base_price(it: Dictionary) -> int:
-	return int(data_of(it).get("price", 0))
+	var p: int = int(data_of(it).get("price", 0))
+	return p if not it.has("q") else int(round(float(p) * ItemGrade.price_mult(grade_of(it))))
 
 
 static func sell_base(it: Dictionary) -> int:
@@ -52,12 +63,13 @@ static func sell_base(it: Dictionary) -> int:
 # --- Usure : un objet peut porter "dur" (durabilité restante) ; absent = neuf ---
 
 static func dur_max(it: Dictionary) -> int:
+	var m: int = 0
 	match str(it["kind"]):
 		"weapon":
-			return int(Data.WPN[it["key"]].get("dur", Data.WEAPON_DUR))
+			m = int(Data.WPN[it["key"]].get("dur", Data.WEAPON_DUR))
 		"shield":
-			return int(Data.SHIELD["dur"])
-	return 0
+			m = int(Shields.data(it["key"])["dur"])
+	return m if m <= 0 or not it.has("q") else int(round(float(m) * ItemGrade.dur_mult(grade_of(it))))
 
 
 static func dur_of(it: Dictionary) -> int:
@@ -65,10 +77,22 @@ static func dur_of(it: Dictionary) -> int:
 	return m if not it.has("dur") else clampi(int(it["dur"]), 0, m)
 
 
+## Dégâts minimal / maximal affichés d'une arme (grade compris ; 0 pour les autres objets).
+static func dmg_min(it: Dictionary) -> int:
+	return int(round(float(data_of(it).get("min", 0)) * ItemGrade.dmg_mult(grade_of(it)))) if str(it["kind"]) == "weapon" else 0
+
+
+static func dmg_max(it: Dictionary) -> int:
+	return int(round(float(data_of(it).get("max", 0)) * ItemGrade.dmg_mult(grade_of(it)))) if str(it["kind"]) == "weapon" else 0
+
+
 ## Armure maximale d'un casque ou d'une armure (0 pour les autres objets).
 static func armor_max(it: Dictionary) -> int:
 	var k: String = str(it["kind"])
-	return int(data_of(it).get("a", 0)) if k == "head" or k == "body" else 0
+	if k != "head" and k != "body":
+		return 0
+	var a: int = int(data_of(it).get("a", 0))
+	return a if not it.has("q") else int(round(float(a) * ItemGrade.armor_mult(grade_of(it))))
 
 
 ## Armure actuelle d'un casque ou d'une armure : la clé facultative "arm" (absente = intacte).
@@ -91,6 +115,10 @@ static func clean(it: Dictionary) -> Dictionary:
 		out["dur"] = int(it["dur"])
 	if it.has("arm"):
 		out["arm"] = int(it["arm"])
+	if it.has("kills"):
+		Legends.with_kills(out, int(it["kills"]))  ## compteur de victimes d'une arme à histoire (core/legends.gd)
+	if it.has("q"):
+		ItemGrade.with_grade(out, int(it["q"]))  ## grade : seulement s'il est valide et admis pour cet objet
 	return out
 
 
@@ -113,11 +141,13 @@ static func describe(it: Dictionary) -> String:
 	var d: Dictionary = data_of(it)
 	match str(it["kind"]):
 		"weapon":
-			return "%d–%d dégâts · %d PA%s" % [d["min"], d["max"], d["ap"], _wear_text(it)]
+			return "%d–%d dégâts · %d PA%s" % [dmg_min(it), dmg_max(it), d["ap"], _wear_text(it)]
 		"head", "body":
-			return "Armure %d · poids %d%s" % [d["a"], d["w"], " · abîmée %d/%d" % [armor_of(it), armor_max(it)] if wear_ratio(it) < 1.0 else ""]
+			return "Armure %d · poids %d%s" % [armor_max(it), d["w"], " · abîmée %d/%d" % [armor_of(it), armor_max(it)] if wear_ratio(it) < 1.0 else ""]
 		"shield":
-			return "+15 déf. mêlée, +25 déf. distance · poids %d%s" % [d["w"], _wear_text(it)]
+			return "+%d déf. mêlée, +%d déf. distance · poids %d%s" % [d["mdef"], d["rdef"], d["w"], _wear_text(it)]
+		"ammo":
+			return str(d.get("note", ""))
 		"tool":
 			return str(d.get("note", ""))
 	return ""
@@ -141,6 +171,8 @@ static func is_valid(it: Variant) -> bool:
 			return true
 		"tool":
 			return Data.TOOLS.has(it["key"])
+		"ammo":
+			return Ammo.has_item(str(it["key"]))
 	return false
 
 
@@ -149,14 +181,31 @@ static func is_valid(it: Variant) -> bool:
 static func pieces_of(u: Unit) -> Array:
 	var out: Array = []
 	if Data.WPN[u.weapon]["price"] > 0:
-		out.append({"item": worn(item("weapon", u.weapon), u.weapon_dur_now()), "ratio": 1.0})
+		out.append({"item": weapon_item(u), "ratio": 1.0})
 	if u.shield:
-		out.append({"item": worn(item("shield"), u.shield_dur_now()), "ratio": 1.0})
+		out.append({"item": shield_item(u), "ratio": 1.0})
 	if u.head != "none":
-		out.append({"item": with_armor(item("head", u.head), u.arm_h), "ratio": clampf(float(u.arm_h) / maxf(1.0, float(Data.HEAD[u.head]["a"])), 0.0, 1.0)})
+		out.append({"item": head_item(u), "ratio": clampf(float(u.arm_h) / maxf(1.0, float(u.head_armor_max())), 0.0, 1.0)})
 	if u.body != "none":
-		out.append({"item": with_armor(item("body", u.body), u.arm_b), "ratio": clampf(float(u.arm_b) / maxf(1.0, float(Data.BODY[u.body]["a"])), 0.0, 1.0)})
+		out.append({"item": body_item(u), "ratio": clampf(float(u.arm_b) / maxf(1.0, float(u.body_armor_max())), 0.0, 1.0)})
 	return out
+
+
+## Les pièces portées par `u` sous forme d'objets, avec leur grade et leur usure / armure actuelles.
+static func weapon_item(u: Unit) -> Dictionary:
+	return Legends.with_kills(worn(ItemGrade.with_grade(item("weapon", u.weapon), u.weapon_q), u.weapon_dur_now()), u.weapon_kills)
+
+
+static func shield_item(u: Unit) -> Dictionary:
+	return worn(ItemGrade.with_grade(item("shield", Shields.item_key(u.shield_kind)), u.shield_q), u.shield_dur_now())
+
+
+static func head_item(u: Unit) -> Dictionary:
+	return with_armor(ItemGrade.with_grade(item("head", u.head), u.head_q), u.arm_h)
+
+
+static func body_item(u: Unit) -> Dictionary:
+	return with_armor(ItemGrade.with_grade(item("body", u.body), u.body_q), u.arm_b)
 
 
 ## Objet portant une usure (n'ajoute "dur" que s'il n'est pas neuf).
@@ -185,6 +234,7 @@ static func roll_battle(units: Array, rng: RandomNumberGenerator, loot_mult: flo
 			if rng.randf() < recover_chance(piece) * loot_mult:
 				var it: Dictionary = piece["item"]
 				it.erase("arm")  # armure récupérée remise en état (la chance dépend déjà des dégâts)
+				ItemGrade.roll_item(it, rng, ItemGrade.BIAS_LEADER if u.leader else 0.0)  # grade tiré (les chefs ont de meilleures pièces)
 				if dur_max(it) > 0:  # seconde main : usé en combat, puis par l'ennemi lui-même
 					worn(it, int(round(dur_of(it) * Data.WORN_LOOT_RATE)))
 				out.append(it)
@@ -203,7 +253,7 @@ static func roll_contract_bonus(danger: int, rng: RandomNumberGenerator) -> Dict
 		return {}
 	var pool: Array = RARE[clampi(danger, 1, 3)]
 	var pick: Array = pool[rng.randi() % pool.size()]
-	return item(str(pick[0]), str(pick[1]))
+	return ItemGrade.roll_item(item(str(pick[0]), str(pick[1])), rng, ItemGrade.BIAS_CONTRACT * float(danger), ItemGrade.OK)  # jamais grossier
 
 
 ## Peut-on équiper cet objet sur cette unité ? (arme à deux mains : pas de bouclier ; bouclier : arme à une main.)
@@ -219,26 +269,33 @@ static func equip(u: Unit, it: Dictionary) -> Array:
 	match str(it["kind"]):
 		"weapon":
 			if Data.WPN[u.weapon]["price"] > 0:
-				removed.append(worn(item("weapon", u.weapon), u.weapon_dur_now()))
+				removed.append(weapon_item(u))
 			u.weapon = str(it["key"])
+			u.weapon_q = grade_of(it)
 			u.weapon_dur = dur_of(it) if it.has("dur") else -1
-			u.ammo = int(Data.WPN[u.weapon].get("ammo", -1))
+			u.weapon_kills = Legends.kills_of(it)
+			u.ammo = u.full_ammo()
 			if not bool(Data.WPN[u.weapon]["h1"]) and u.shield:
 				u.shield = false
-				removed.append(worn(item("shield"), u.shield_dur_now()))
+				removed.append(shield_item(u))
+				u.shield_q = 0
 		"shield":
 			u.shield = true
+			u.shield_kind = Shields.normalize(it["key"])
+			u.shield_q = grade_of(it)
 			u.shield_dur = dur_of(it) if it.has("dur") else -1
 		"head":
 			if u.head != "none":
-				removed.append(item("head", u.head))
+				removed.append(ItemGrade.with_grade(item("head", u.head), u.head_q))
 			u.head = str(it["key"])
-			u.arm_h = int(Data.HEAD[u.head]["a"])
+			u.head_q = grade_of(it)
+			u.arm_h = u.head_armor_max()
 		"body":
 			if u.body != "none":
-				removed.append(item("body", u.body))
+				removed.append(ItemGrade.with_grade(item("body", u.body), u.body_q))
 			u.body = str(it["key"])
-			u.arm_b = int(Data.BODY[u.body]["a"])
+			u.body_q = grade_of(it)
+			u.arm_b = u.body_armor_max()
 	return removed
 
 

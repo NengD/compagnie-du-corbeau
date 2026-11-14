@@ -73,13 +73,13 @@ static func get_item(stash: Array, loc: Dictionary) -> Dictionary:
 	var u: Unit = loc["u"]
 	match slot:
 		"head":
-			return {} if u.head == "none" else Loot.with_armor(Loot.item("head", u.head), u.arm_h)
+			return {} if u.head == "none" else Loot.head_item(u)
 		"body":
-			return {} if u.body == "none" else Loot.with_armor(Loot.item("body", u.body), u.arm_b)
+			return {} if u.body == "none" else Loot.body_item(u)
 		"weapon":
-			return Loot.worn(Loot.item("weapon", u.weapon), u.weapon_dur_now()) if u.weapon_wears() else {}
+			return Loot.weapon_item(u) if u.weapon_wears() else {}
 		"shield":
-			return Loot.worn(Loot.item("shield"), u.shield_dur_now()) if u.shield else {}
+			return Loot.shield_item(u) if u.shield else {}
 	var b: int = bag_index(slot)
 	return u.bag[b] if b >= 0 and b < u.bag.size() else {}
 
@@ -97,16 +97,22 @@ static func _take(stash: Array, loc: Dictionary) -> Dictionary:
 		"head":
 			u.head = "none"
 			u.arm_h = 0
+			u.head_q = 0
 		"body":
 			u.body = "none"
 			u.arm_b = 0
+			u.body_q = 0
 		"weapon":
+			u.sync_quiver()  # les flèches tirées restent dans le carquois
 			u.weapon = "poings"
 			u.weapon_dur = -1
+			u.weapon_kills = 0
+			u.weapon_q = 0
 			u.ammo = -1
 		"shield":
 			u.shield = false
 			u.shield_dur = -1
+			u.shield_q = 0
 			u.shield_wall = false
 		_:
 			u.bag[bag_index(slot)] = {}
@@ -122,16 +128,22 @@ static func _put(stash: Array, loc: Dictionary, it: Dictionary) -> void:
 	match slot:
 		"head":
 			u.head = str(it["key"])
+			u.head_q = Loot.grade_of(it)
 			u.arm_h = Loot.armor_of(it)
 		"body":
 			u.body = str(it["key"])
+			u.body_q = Loot.grade_of(it)
 			u.arm_b = Loot.armor_of(it)
 		"weapon":
 			u.weapon = str(it["key"])
+			u.weapon_q = Loot.grade_of(it)
 			u.weapon_dur = Loot.dur_of(it) if it.has("dur") else -1
-			u.ammo = int(Data.WPN[u.weapon].get("ammo", -1))
+			u.weapon_kills = Legends.kills_of(it)
+			u.ammo = u.full_ammo()
 		"shield":
 			u.shield = true
+			u.shield_kind = Shields.normalize(it["key"])
+			u.shield_q = Loot.grade_of(it)
 			u.shield_dur = Loot.dur_of(it) if it.has("dur") else -1
 		_:
 			u.bag[bag_index(slot)] = it
@@ -163,8 +175,8 @@ static func why_not(loc: Dictionary, it: Dictionary) -> String:
 static func _snap(u: Unit) -> Dictionary:
 	if u == null:
 		return {}
-	return {"weapon": u.weapon, "weapon_dur": u.weapon_dur, "shield": u.shield, "shield_dur": u.shield_dur, "head": u.head,
-		"body": u.body, "arm_h": u.arm_h, "arm_b": u.arm_b, "ammo": u.ammo, "shield_wall": u.shield_wall, "bag": u.bag.duplicate(true)}
+	return {"weapon": u.weapon, "weapon_dur": u.weapon_dur, "weapon_kills": u.weapon_kills, "shield": u.shield, "shield_dur": u.shield_dur, "head": u.head,
+		"body": u.body, "arm_h": u.arm_h, "arm_b": u.arm_b, "weapon_q": u.weapon_q, "shield_q": u.shield_q, "head_q": u.head_q, "body_q": u.body_q, "ammo": u.ammo, "shield_kind": u.shield_kind, "quiver": u.quiver, "shield_wall": u.shield_wall, "bag": u.bag.duplicate(true)}
 
 
 static func _restore(u: Unit, s: Dictionary) -> void:
@@ -379,18 +391,29 @@ static func tooltip(it: Dictionary, sell: int = -1, who: Unit = null) -> String:
 	var key: String = str(it["key"])
 	match str(it["kind"]):
 		"weapon":
-			lines.append("Dégâts %d–%d · %s" % [d["min"], d["max"], "une main" if bool(d["h1"]) else "deux mains"])
+			lines.append("Dégâts %d–%d · %s" % [Loot.dmg_min(it), Loot.dmg_max(it), Handedness.label(key).to_lower() if int(d.get("price", 0)) > 0 else ("une main" if bool(d["h1"]) else "deux mains")])
 			lines.append("Efficacité contre l'armure ×%s · traversée %d %%" % [str(d["arm"]), roundi(float(d["ign"]) * 100.0)])
 			lines.append("Portée %d · %d PA · %d fatigue" % [d["rng"], d["ap"], d["fat"]])
+			var dtype: String = DamageTypes.of_weapon(key)
+			if dtype != "":
+				lines.append("Dégâts %s · %s" % [DamageTypes.label(dtype).to_lower(), DamageTypes.strengths_line(dtype)])
+			if Handedness.has_bonus(key):
+				lines.append("Deux mains : +%d fatigue par attaque, +%d %% de dégâts, capacités renforcées" % [Handedness.fat_extra(key), roundi((Handedness.dmg_mult(key) - 1.0) * 100.0)])
+			if Ammo.launcher_of(key) != "":
+				lines.append("Carquois : %d %s" % [Ammo.capacity(key), Ammo.LAUNCHERS[Ammo.launcher_of(key)]["many"]])
 			if int(d["hit"]) != 0:
 				lines.append("Toucher %+d %%" % int(d["hit"]))
 			if d.has("ammo"):
 				lines.append("%d projectiles par bataille" % int(d["ammo"]))
 		"shield":
-			lines.append("Défense mêlée +15, distance +25 · mur de boucliers")
+			lines.append(Shields.stat_line(key).split(" · poids")[0])
 			lines.append("Poids %d · exige une arme à une main" % int(d["w"]))
+		"ammo":
+			lines.append("%d pièces par lot · remplit les carquois au camp" % Ammo.LOT)
 		"head", "body":
-			lines.append("Armure %d/%d · poids %d" % [Loot.armor_of(it), d["a"], d["w"]])
+			lines.append("Armure %d/%d · poids %d" % [Loot.armor_of(it), Loot.armor_max(it), d["w"]])
+	if it.has("q") and ItemGrade.of(it) != ItemGrade.OK:
+		lines.insert(1, ItemGrade.describe(it))
 	var mline: String = Perks.mastery_line(who, str(it["kind"]), key)
 	if mline != "":
 		lines.append(mline if who != null else mline.replace(" (non apprise)", ""))
@@ -400,5 +423,6 @@ static func tooltip(it: Dictionary, sell: int = -1, who: Unit = null) -> String:
 		lines.append(str(d["note"]))
 	if Uniques.is_unique(key):
 		lines.append("Objet unique. " + Uniques.story(key))
+	lines.append_array(Legends.tooltip_lines(it))  ## compteur et paliers des armes à histoire
 	lines.append("Valeur de revente %s" % ("%d couronnes" % sell if sell >= 0 else "~%d couronnes (dans un lieu)" % Loot.sell_base(it)))
 	return "\n".join(lines)

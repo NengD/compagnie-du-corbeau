@@ -31,7 +31,7 @@ static func row(it: Dictionary, with_desc: bool = true) -> HBoxContainer:
 		h.add_child(r)
 	var v := UiKit.vbox(0)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	v.add_child(UiKit.label(Loot.item_name(it), 15, GameTheme.INK, true))
+	v.add_child(UiKit.label(Loot.item_name(it), 15, ItemGrade.color_of(ItemGrade.of(it)) if ItemGrade.of(it) != 0 else GameTheme.INK, true))
 	if with_desc:
 		v.add_child(UiKit.sub(Loot.describe(it)))
 	h.add_child(v)

@@ -7,13 +7,13 @@ extends RefCounted
 
 const FOOD: String = "food"
 const FOOD_KEY: String = "ration"
-const FILTERS: Array[String] = ["all", "weapon", "body", "head", "shield", "tool", "food"]
-const FILTER_NAMES: Dictionary = {"all": "Tout", "weapon": "Armes", "body": "Armures", "head": "Casques", "shield": "Boucliers", "tool": "Outils", "food": "Vivres"}
+const FILTERS: Array[String] = ["all", "weapon", "body", "head", "shield", "tool", "ammo", "food"]
+const FILTER_NAMES: Dictionary = {"all": "Tout", "weapon": "Armes", "body": "Armures", "head": "Casques", "shield": "Boucliers", "tool": "Outils", "ammo": "Munitions", "food": "Vivres"}
 const MAX_ENTRIES: int = 72  ## au-delà, les plus anciennes entrées (hors vivres) sont écartées
 const WEAR_MIN: float = 0.5  ## durabilité minimale d'un objet d'occasion
 const NEW_CHANCE: float = 0.55  ## part des objets neufs
 const PRESENCE: float = 0.85  ## chance qu'un modèle du catalogue soit en rayon
-const ORDER: Dictionary = {"food": 0, "weapon": 1, "shield": 2, "head": 3, "body": 4, "tool": 5}
+const ORDER: Dictionary = {"food": 0, "weapon": 1, "shield": 2, "head": 3, "body": 4, "tool": 5, "ammo": 6}
 
 
 static func food(qty: int) -> Dictionary:
@@ -22,6 +22,12 @@ static func food(qty: int) -> Dictionary:
 
 static func is_food(e: Dictionary) -> bool:
 	return str(e.get("kind", "")) == FOOD
+
+
+## Lot de munitions (flèches, carreaux) : une entrée empilable {"kind": "ammo", "key": "fleche_chasse", "qty": nombre de lots}.
+## Il ne passe pas par l'inventaire : l'achat remplit la réserve de munitions (Game.buy_item -> Game.extras["ammo"]).
+static func is_ammo(e: Dictionary) -> bool:
+	return str(e.get("kind", "")) == "ammo"
 
 
 static func is_stackable(e: Dictionary) -> bool:
@@ -51,8 +57,51 @@ static func generate(settlement_kind: String, rng: RandomNumberGenerator) -> Arr
 			var t: Dictionary = Loot.item("tool", str(key))
 			t["qty"] = rng.randi_range(2, 5)
 			out.append(t)
+	_extra_stock(out, shop, city, rng)
+	grade_stock(out, rng, ItemGrade.place_bias(settlement_kind))
 	sort(out)
 	return out
+
+
+## Boucliers légers et lourds (le pavois seulement en ville) et lots de munitions pour les lanceurs que le lieu vend. Tirages APRÈS les autres.
+static func _extra_stock(out: Array, shop: Dictionary, city: bool, rng: RandomNumberGenerator) -> void:
+	if bool(shop["shield"]):
+		for e in _copies("shield", "targe", rng, 2):
+			out.append(e)
+		if city:
+			for e in _copies("shield", "pavois", rng, 2):
+				out.append(e)
+	var launchers: Dictionary = {}
+	for wk in shop["weapon"]:
+		var l: String = Ammo.launcher_of(str(wk))
+		if l != "":
+			launchers[l] = true
+	for l in launchers:
+		for kind in Ammo.KINDS:
+			if str(kind) != Ammo.DEFAULT_KIND and not city:
+				continue  # les munitions spéciales se trouvent en ville
+			if rng.randf() < PRESENCE:
+				var a: Dictionary = Loot.item("ammo", Ammo.item_key(str(l), str(kind)))
+				a["qty"] = rng.randi_range(2, 5) if str(kind) == Ammo.DEFAULT_KIND else rng.randi_range(1, 3)
+				out.append(a)
+
+
+## Tire le grade des objets du rayon (armes, boucliers, casques, armures). Un seul tirage `rng` en amont : les tirages précédents
+## du rayon ne bougent pas ; un grand bourg a plus de pièces fines / maîtresses. Une pièce de grade ≠ correcte a sa durabilité /
+## son armure ramenées à la même proportion.
+static func grade_stock(stock: Array, rng: RandomNumberGenerator, bias: float) -> void:
+	var g := RandomNumberGenerator.new()
+	g.seed = rng.randi()
+	for e in stock:
+		if not ItemGrade.gradable(e):
+			continue
+		var before_ratio: float = Loot.wear_ratio(e)
+		ItemGrade.with_grade(e, ItemGrade.roll(g, bias))
+		if ItemGrade.of(e) != ItemGrade.OK and before_ratio < 1.0:
+			if Loot.dur_max(e) > 0:
+				Loot.worn(e, maxi(1, roundi(before_ratio * float(Loot.dur_max(e)))))
+			elif Loot.armor_max(e) > 0:
+				Loot.with_armor(e, maxi(1, roundi(before_ratio * float(Loot.armor_max(e)))))
 
 
 static func _copies(kind: String, key: String, rng: RandomNumberGenerator, most: int) -> Array:
@@ -105,7 +154,7 @@ static func as_item(e: Dictionary) -> Dictionary:
 
 ## Retire une unité de l'entrée n° `index` et renvoie l'objet unitaire ({} si l'indice est invalide ou si ce sont des vivres).
 static func take(stock: Array, index: int) -> Dictionary:
-	if index < 0 or index >= stock.size() or is_food(stock[index]):
+	if index < 0 or index >= stock.size() or is_food(stock[index]) or is_ammo(stock[index]):
 		return {}
 	var e: Dictionary = stock[index]
 	var it: Dictionary = as_item(e)
@@ -148,7 +197,7 @@ static func filtered(stock: Array, filter: String) -> Array[int]:
 
 ## Filtre de la réserve du joueur (mêmes catégories ; les vivres n'y figurent pas).
 static func inventory_filtered(inventory: Array, filter: String) -> Array[int]:
-	if filter == FOOD:
+	if filter == FOOD or filter == "ammo":
 		return []
 	return Inventory.filtered(inventory, filter) if filter != "tool" else _tools(inventory)
 

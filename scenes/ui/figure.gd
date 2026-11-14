@@ -14,7 +14,9 @@ const CLOTH_P: Array[Color] = [Color("3e526a"), Color("4b5a3a"), Color("5e4a34")
 const CLOTH_B: Array[Color] = [Color("6e3426"), Color("5b4a33"), Color("4b3a2c"), Color("7a5636"), Color("563028"), Color("3e3a30"), Color("6a4a2a")]
 const HOOD: Array[Color] = [Color("8a7650"), Color("6b5a40"), Color("5a5a4a"), Color("7a6a52"), Color("4e5a46")]
 const LEATHER: Array[Color] = [Color("7a5230"), Color("5e3e24"), Color("8a6a40"), Color("4a3220")]
-const SLEEVES := {"mailles": Color("8f959b"), "brigandine": Color("8f959b"), "gambison": Color("b49a6c")}
+const SLEEVES := {"mailles": Color("8f959b"), "brigandine": Color("8f959b"), "gambison": Color("b49a6c"),
+	"cuir_cloute": Color("6a4a2c"), "cuirasse_peaux": Color("8a6a46"), "plastron_orque": Color("4c4f52"), "cotte_rouillee": Color("8a5a3a"), "haubert_surcot": Color("8f959b")}
+const CLOSED_HELMS: Array[String] = ["heaume", "heaume_crete", "barbute"]  ## casques qui cachent barbe et marques du visage
 const ORC_SKIN: Array[Color] = [Color("7a9a4e"), Color("6a8a46"), Color("88a55a"), Color("5e7e44"), Color("8a9a52")]
 const ORC_HAIR := [3, 5, 6, -1]  ## coiffures humaines qui vont bien à un orc (-1 : aucune)
 const BONE: Array[Color] = [Color("d8d0b8"), Color("c8bea0"), Color("e0dac4"), Color("b8ae92")]
@@ -163,7 +165,7 @@ static func undead_style(u: Unit) -> String:
 	if u.faction != "u" or u.sprite != "" or u.weapon == "griffes" or u.weapon == "griffesL":
 		return ""
 	var st: String = UNDEAD_STYLES[int(look(u)["uvar"])]
-	if (st == "shroud" or st == "crown") and u.head != "none":
+	if u.body != "none" or ((st == "shroud" or st == "crown") and u.head != "none"):  # une cotte remplace l'armure de squelette
 		return "bare"
 	return st
 
@@ -221,9 +223,9 @@ static func wear_state(u: Unit) -> Dictionary:
 	if u.faction == "g" or u.faction == "u" or u.sprite != "":
 		return d
 	if u.body != "none" and Data.BODY.has(u.body):
-		d["body"] = wear_level(u.arm_b, float(Data.BODY[u.body]["a"]))
+		d["body"] = wear_level(u.arm_b, float(u.body_armor_max()))
 	if u.head != "none" and Data.HEAD.has(u.head):
-		d["head"] = wear_level(u.arm_h, float(Data.HEAD[u.head]["a"]))
+		d["head"] = wear_level(u.arm_h, float(u.head_armor_max()))
 	if u.shield:
 		d["shield"] = wear_level(u.shield_dur_now(), u.shield_dur_max())
 	if u.weapon_wears():
@@ -384,11 +386,11 @@ func rebuild() -> void:
 	if l["mark"] == "bruise":
 		_add("mark_bruise")
 	_add("face_%d" % l["face"])
-	if l["mark"] != "" and l["mark"] != "bruise" and l["mark"] != "patch" and unit.head != "heaume":
+	if l["mark"] != "" and l["mark"] != "bruise" and l["mark"] != "patch" and not CLOSED_HELMS.has(unit.head):
 		_add("mark_" + l["mark"])
-	if l["mark"] == "patch" and unit.head != "heaume":
+	if l["mark"] == "patch" and not CLOSED_HELMS.has(unit.head):
 		_add("mark_patch")
-	if unit.head != "heaume" and l["beard"] > 0 and bstyle != "bandana":
+	if not CLOSED_HELMS.has(unit.head) and l["beard"] > 0 and bstyle != "bandana":
 		_add("beard_%d" % l["beard"], l["hair"])
 	if bstyle == "bandana":
 		_add("bandana_face", l["cloth"].lightened(0.1))
@@ -494,6 +496,8 @@ func _build_undead(l: Dictionary) -> void:
 	var ustyle: String = undead_style(unit)
 	_add("skel_torso", bone)
 	_add("skel_rags", l["cloth"].darkened(0.25))
+	if unit.body != "none":  # cotte rouillée de revenant (Data.BODY)
+		_add("torso_" + unit.body, Color(0.9, 0.84, 0.78))
 	match ustyle:
 		"plate":
 			_add("skel_plate", Color(0.52, 0.47, 0.44))
@@ -509,7 +513,7 @@ func _build_undead(l: Dictionary) -> void:
 	match unit.head:
 		"capuchon":
 			_add("helm_capuchon", l["hood"].darkened(0.3))
-		"casque", "heaume":
+		"casque", "heaume", "casque_rouille":
 			_add("helm_" + unit.head, rust)
 	_add("weapon_" + w, rust)
 	_add("skel_arm_" + w, bone)

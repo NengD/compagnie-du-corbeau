@@ -10,6 +10,10 @@ const TABLE: Dictionary = {
 	"gourdin": "smash", "masse": "smash", "fleau": "smash", "u_masse_glas": "smash",
 	"arc": "arrow", "u_arc_ronce": "arrow", "arbalete": "bolt", "javelot": "javelin",
 	"griffes": "claws", "poings": "bash",
+	"rapiere": "thrust", "pique": "thrust", "u_pique_gardien": "thrust", "dague": "thrust", "u_dague_veuve": "thrust",
+	"epee_courte": "slash", "hache_bataille": "slash", "u_hache_aurore": "slash",
+	"marteau_guerre": "smash", "u_marteau_forgeron": "smash", "baton_ferre": "smash",
+	"arc_long": "arrow", "u_arc_mirelune": "arrow", "arbalete_legere": "bolt", "fronde": "javelin",
 }
 const ABILITY_KIND: Dictionary = {"coup_bouclier": "bash"}
 const RANGED_KINDS: Array = ["arrow", "bolt", "javelin"]

@@ -100,7 +100,8 @@ static func weapon_field(u: Unit, field: String) -> float:
 			v *= float(wp[field])
 		else:
 			v += float(wp[field])
-	return v
+	var lg: float = Legends.field(u, field)  ## armes à histoire : paliers de victimes
+	return v * lg if mult else v + lg
 
 
 ## Bonus de moral reçu d'un chef-né adjacent (+10) ou d'une voix claire à 3 cases ou moins (+5) : le plus fort seulement.

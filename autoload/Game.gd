@@ -231,16 +231,35 @@ func repair_cost() -> int:
 	var gear: int = 0
 	for m in roster:
 		gear += gear_repair_cost(m)
-	return int(ceil(float(int(ceil(missing * 0.5)) + gear) * CampBuildings.repair_mult(buildings) * Perks.roster_mult(roster, "repair_mult", true)))  ## la forge du camp et le talent Armurier rabattent le prix
+	return quiver_cost() + int(ceil(float(int(ceil(missing * 0.5)) + gear) * CampBuildings.repair_mult(buildings) * Perks.roster_mult(roster, "repair_mult", true)))  ## la forge du camp et le talent Armurier rabattent le prix
+
+
+## Couronnes pour remplir les carquois (après emploi de la réserve de munitions achetées ; voir core/ammo.gd).
+func quiver_cost() -> int:
+	return int(Ammo.refill(roster, Ammo.reserve_of(extras))["cost"])
+
+
+## Change le type de munition d'un tireur (les pièces restantes retournent à la réserve). Renvoie false si rien ne change.
+func set_ammo_kind(id: int, kind: String) -> bool:
+	var m: Unit = member(id)
+	if m == null:
+		return false
+	var reserve: Dictionary = Ammo.reserve_of(extras)
+	if not Ammo.set_kind(m, kind, reserve):
+		return false
+	Ammo.store_reserve(extras, reserve)
+	add_news(["%s : %s." % [m.unit_name, Ammo.describe(m)]])
+	_after_change()
+	return true
 
 
 ## Remise en état de l'arme et du bouclier d'un homme (proportionnelle à l'usure et au prix).
 func gear_repair_cost(m: Unit) -> int:
 	var c: int = 0
 	if m.weapon_wears():
-		c += Loot.repair_price(Loot.worn(Loot.item("weapon", m.weapon), m.weapon_dur_now()))
+		c += Loot.repair_price(Loot.weapon_item(m))
 	if m.shield:
-		c += Loot.repair_price(Loot.worn(Loot.item("shield"), m.shield_dur_now()))
+		c += Loot.repair_price(Loot.shield_item(m))
 	return c
 
 
@@ -1062,13 +1081,127 @@ func repair() -> void:
 	if location == "" or c <= 0 or gold < c:
 		return
 	_spend(c)
+	var qr: Dictionary = Ammo.reserve_of(extras)
+	var refilled: Dictionary = Ammo.refill(roster, qr, true)  ## carquois pleins (réserve d'abord)
+	Ammo.store_reserve(extras, qr)
 	for m in roster:
 		m.arm_h = m.head_armor_max()
 		m.arm_b = m.body_armor_max()
 		m.weapon_dur = -1
 		m.shield_dur = -1
-	add_news(["Armures, armes et boucliers réparés pour %d couronnes." % c])
+	add_news(["Armures, armes et boucliers réparés pour %d couronnes%s." % [c, (" ; carquois remplis (+%d)" % int(refilled["pieces"])) if int(refilled["pieces"]) > 0 else ""]])
 	_after_change()
+
+
+# --- Atelier : entretien et réparation pièce par pièce (core/upkeep.gd) ---
+
+## Forgeron du lieu où l'on se trouve (selon son type et la forge du QG). {} hors d'un lieu.
+func smith() -> Dictionary:
+	var s: Dictionary = settlement()
+	return {} if s.is_empty() else Upkeep.smith(str(s.get("kind", "village")), building_level("forge"))
+
+
+## Coefficient de remise (forge du QG, talent Armurier) appliqué aux tarifs de l'atelier.
+func upkeep_mult() -> float:
+	return CampBuildings.repair_mult(buildings) * Perks.roster_mult(roster, "repair_mult", true)
+
+
+func repair_piece_cost(m: Unit, slot: String, step: float) -> int:
+	var sm: Dictionary = smith()
+	return 0 if sm.is_empty() else Upkeep.step_cost(m, slot, step, sm, upkeep_mult())
+
+
+## Raison pour laquelle on ne peut pas réparer ce palier ici, "" si c'est possible.
+func repair_piece_block(m: Unit, slot: String, step: float) -> String:
+	var sm: Dictionary = smith()
+	if sm.is_empty() or game_over:
+		return "Il faut être dans un lieu."
+	var why: String = Upkeep.why_not_repair(m, slot, sm)
+	if why != "":
+		return why
+	if gold < repair_piece_cost(m, slot, step):
+		return "Pas assez de couronnes."
+	return ""
+
+
+## Répare un palier (0,25 / 0,5 / 1,0) d'une pièce d'un homme. Renvoie false (et pose `shop_error`) si impossible.
+func repair_piece(m: Unit, slot: String, step: float) -> bool:
+	shop_error = ""
+	if m == null or not roster.has(m) or battle != null:
+		return _shop_fail("Réparation impossible.")
+	var why: String = repair_piece_block(m, slot, step)
+	if why != "":
+		return _shop_fail(why)
+	var c: int = repair_piece_cost(m, slot, step)
+	_spend(c)
+	var pts: int = Upkeep.apply_repair(m, slot, step)
+	add_news(["%s : %s réparé%s (+%d points) pour %d couronnes." % [m.unit_name, Upkeep.slot_label(slot).to_lower(), "e" if slot == "weapon" or slot == "body" else "", pts, c]])
+	_after_change()
+	return true
+
+
+func sharpen_cost(m: Unit) -> int:
+	var sm: Dictionary = smith()
+	return 0 if sm.is_empty() else Upkeep.sharpen_cost(m, sm, upkeep_mult())
+
+
+func oil_cost(m: Unit) -> int:
+	var sm: Dictionary = smith()
+	return 0 if sm.is_empty() else Upkeep.oil_cost(m, sm, upkeep_mult())
+
+
+func sharpen_block(m: Unit) -> String:
+	var sm: Dictionary = smith()
+	if sm.is_empty() or game_over:
+		return "Il faut être dans un lieu."
+	var why: String = Upkeep.why_not_sharpen(m, sm)
+	if why == "" and gold < sharpen_cost(m):
+		return "Pas assez de couronnes."
+	return why
+
+
+func oil_block(m: Unit) -> String:
+	var sm: Dictionary = smith()
+	if sm.is_empty() or game_over:
+		return "Il faut être dans un lieu."
+	var why: String = Upkeep.why_not_oil(m, sm)
+	if why == "" and gold < oil_cost(m):
+		return "Pas assez de couronnes."
+	return why
+
+
+## Fait aiguiser l'arme de `m` (bonus de dégâts pour quelques combats).
+func sharpen(m: Unit) -> bool:
+	shop_error = ""
+	if m == null or not roster.has(m) or battle != null:
+		return _shop_fail("Impossible maintenant.")
+	var why: String = sharpen_block(m)
+	if why != "":
+		return _shop_fail(why)
+	var sm: Dictionary = smith()
+	var c: int = sharpen_cost(m)
+	_spend(c)
+	Upkeep.apply_sharpen(m, sm)
+	add_news(["%s fait aiguiser son arme chez le %s : +%d %% de dégâts pour %d combats (−%d couronnes)." % [m.unit_name, str(sm["n"]), int(sm["edge"]), int(sm["combats"]), c]])
+	_after_change()
+	return true
+
+
+## Fait huiler le haubert de `m` (l'armure s'use moins pour quelques combats).
+func oil(m: Unit) -> bool:
+	shop_error = ""
+	if m == null or not roster.has(m) or battle != null:
+		return _shop_fail("Impossible maintenant.")
+	var why: String = oil_block(m)
+	if why != "":
+		return _shop_fail(why)
+	var sm: Dictionary = smith()
+	var c: int = oil_cost(m)
+	_spend(c)
+	Upkeep.apply_oil(m, sm)
+	add_news(["%s fait huiler son haubert chez le %s : l'armure encaisse %d %% de moins pour %d combats (−%d couronnes)." % [m.unit_name, str(sm["n"]), int(sm["oil"]), int(sm["combats"]), c]])
+	_after_change()
+	return true
 
 
 func move_up(id: int) -> void:
@@ -1207,6 +1340,17 @@ func buy_item(index: int) -> bool:
 		if int(e["qty"]) <= 0:
 			stock.remove_at(index)
 		add_news(["Vivres : +%d rations pour %d couronnes." % [n, price]])
+	elif Market.is_ammo(e):  # un lot de munitions remplit la réserve (utilisée par « Réparer »), pas l'inventaire
+		if gold < price:
+			return _shop_fail("Pas assez de couronnes.")
+		_spend(price)
+		var reserve: Dictionary = Ammo.reserve_of(extras)
+		reserve[str(e["key"])] = int(reserve.get(str(e["key"]), 0)) + Ammo.LOT
+		Ammo.store_reserve(extras, reserve)
+		e["qty"] = int(e["qty"]) - 1
+		if int(e["qty"]) <= 0:
+			stock.remove_at(index)
+		add_news(["%s acheté : −%d couronnes (réserve de munitions : %d)." % [Loot.item_name(e), price, Ammo.reserve_total(extras)]])
 	else:
 		if gold < price:
 			return _shop_fail("Pas assez de couronnes.")
@@ -1666,7 +1810,15 @@ func _settle_roster(b: BattleState, win: bool) -> Dictionary:
 		m.shield = bu.shield
 		m.bag = bu.bag.duplicate(true)
 		m.weapon_dur = bu.weapon_dur
+		m.weapon_kills = bu.weapon_kills
 		m.shield_dur = bu.shield_dur
+		m.weapon_q = bu.weapon_q  ## le grade suit l'arme / le bouclier changés en bataille
+		m.shield_q = bu.shield_q
+		m.shield_kind = bu.shield_kind  ## le type de bouclier suit celui qui est porté à la fin
+		m.ammo_kind = bu.ammo_kind
+		bu.sync_quiver()  ## flèches restantes
+		m.quiver = bu.quiver
+		Upkeep.tick_battle(m)  ## arme aiguisée, haubert huilé : un combat de moins
 		_goal_note(Backstory.progress([m], "kills", bu.kills - rep_kills_before))
 		if win:
 			_goal_note(Backstory.progress([m], "wins", 1))

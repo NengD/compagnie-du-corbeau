@@ -26,6 +26,7 @@ static var next_id: int = 1
 
 @export var weapon: String = "gourdin"
 @export var shield: bool = false
+@export var shield_kind: String = "rondache"  ## type du bouclier porté (voir core/shields.gd) ; défaut = bouclier rond
 @export var head: String = "none"
 @export var body: String = "tunique"
 @export var arm_h: int = 0
@@ -37,7 +38,15 @@ static var next_id: int = 1
 @export var pending: int = 0  ## promotions en attente
 @export var wage: int = 0
 var weapon_dur: int = -1  ## usure : durabilité restante de l'arme (-1 = neuve), 0 = ébréchée
+var weapon_kills: int = 0  ## victimes de l'arme portée (armes à histoire seulement : voir core/legends.gd)
 var shield_dur: int = -1  ## idem pour le bouclier (0 = brisé)
+var weapon_q: int = 0  ## grade de l'arme portée (voir ItemGrade : -1 grossière, 0 correcte, 1 fine, 2 maîtresse)
+var shield_q: int = 0
+var head_q: int = 0
+var body_q: int = 0
+var quiver: int = -1  ## carquois : flèches / carreaux restants (-1 = plein), voir core/ammo.gd
+var ammo_kind: String = "chasse"  ## type de munition du carquois (clé de Ammo.KINDS)
+var upkeep: Dictionary = {}  ## entretien temporaire (arme aiguisée, haubert huilé), voir Upkeep : expire après N combats
 var bag: Array = [{}, {}]  ## sac : Data.BAG_SLOTS emplacements d'armes / boucliers de rechange ({} = vide, sinon un objet de Loot)
 var perks: Array[String] = []  ## talents (clés de Data.PERKS)
 var perk_points: int = 0  ## points de talent à dépenser (1 par niveau gagné, voir core/perks.gd)
@@ -79,7 +88,7 @@ static func alloc_id() -> int:
 
 
 func weight() -> int:
-	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(Data.SHIELD["w"]) if shield else 0)
+	var w: int = int(Data.HEAD[head]["w"]) + int(Data.BODY[body]["w"]) + (int(shield_data()["w"]) if shield else 0)
 	if perks.is_empty():
 		return w
 	return maxi(0, w - Perks.weight_cut(self, w) - int(Perks.mfx(self, "weight_cut")))  ## Carapace, Maillons serrés
@@ -164,8 +173,8 @@ func weapon_data() -> Dictionary:
 
 func weapon_range() -> int:
 	var r: int = int(Data.WPN[weapon]["rng"])
-	if uses_ammo() and ammo <= 0:
-		return 1  ## plus de projectiles : on frappe au contact
+	if (uses_ammo() and ammo <= 0 and not has_quiver()) or out_of_ammo():
+		return 1  ## plus de projectiles : on frappe au contact (javelots) ; un arc ou une arbalète vide ne tire plus du tout (CombatRules.can_attack)
 	return r + int(Perks.mfx(self, "range")) if is_ranged() and not perks.is_empty() else r  ## Œil de lynx
 
 
@@ -178,7 +187,7 @@ func attack_ap() -> int:
 
 
 func attack_fat() -> int:
-	return maxi(0, int(Data.WPN[weapon]["fat"]) - (3 if has_perk("endurant") else 0) - (int(Perks.mfx(self, "fat_cut")) if not perks.is_empty() else 0))
+	return maxi(0, int(Data.WPN[weapon]["fat"]) + Handedness.fat_extra(weapon) - (3 if has_perk("endurant") else 0) - (int(Perks.mfx(self, "fat_cut")) if not perks.is_empty() else 0))
 
 
 ## Mur de boucliers : PA et fatigue (Rempart les réduit).
@@ -195,17 +204,65 @@ func is_ranged() -> bool:
 
 
 func uses_ammo() -> bool:
-	return Data.WPN[weapon].has("ammo")
+	return Data.WPN[weapon].has("ammo") or has_quiver()
+
+
+## L'arme tenue se charge dans un carquois (arc, arbalète : voir core/ammo.gd) ?
+func has_quiver() -> bool:
+	return Ammo.capacity(weapon) > 0
+
+
+func quiver_cap() -> int:
+	return Ammo.capacity(weapon)
+
+
+## Carquois vide en bataille : tirer est impossible (`ammo` -1 = bataille non initialisée : illimité).
+func out_of_ammo() -> bool:
+	return has_quiver() and ammo == 0
+
+
+## Pièces dans le carquois hors bataille (plein par défaut).
+func quiver_now() -> int:
+	var cap: int = quiver_cap()
+	return cap if quiver < 0 else mini(quiver, cap)
+
+
+## Recopie les munitions restantes de la bataille dans le carquois (à appeler avant de changer d'arme et en fin de bataille).
+func sync_quiver() -> void:
+	if has_quiver() and ammo >= 0:
+		quiver = mini(ammo, quiver_cap())
+
+
+## Appelé après un changement d'arme : un autre type de lanceur (arc -> arbalète) repart d'un carquois plein de munitions de chasse.
+func on_weapon_changed(old_weapon: String) -> void:
+	var a: String = Ammo.launcher_of(old_weapon)
+	var b: String = Ammo.launcher_of(weapon)
+	if a != "" and b != "" and a != b:
+		quiver = -1
+		ammo_kind = Ammo.DEFAULT_KIND
+	ammo = full_ammo()
+
+
+## Défenses du bouclier porté (type : voir core/shields.gd).
+func shield_data() -> Dictionary:
+	return Shields.data(shield_kind)
 
 
 # --- Usure ---
 
 func weapon_dur_max() -> int:
-	return int(Data.WPN[weapon].get("dur", Data.WEAPON_DUR))
+	var m: int = int(Data.WPN[weapon].get("dur", Data.WEAPON_DUR))
+	return m if weapon_q == 0 else int(round(float(m) * ItemGrade.dur_mult(weapon_q)))
 
 
 func shield_dur_max() -> int:
-	return int(Data.SHIELD["dur"])
+	var m: int = int(shield_data()["dur"])
+	return m if shield_q == 0 else int(round(float(m) * ItemGrade.dur_mult(shield_q)))
+
+
+## Multiplicateur de dégâts de l'arme portée : grade et arme aiguisée.
+func grade_dmg_mult() -> float:
+	return ItemGrade.dmg_mult(weapon_q) * Upkeep.edge_mult(self)
 
 
 func weapon_wears() -> bool:
@@ -254,11 +311,13 @@ func is_fighting() -> bool:
 
 
 func head_armor_max() -> int:
-	return int(Data.HEAD[head]["a"])
+	var a: int = int(Data.HEAD[head]["a"])
+	return a if head_q == 0 else int(round(float(a) * ItemGrade.armor_mult(head_q)))
 
 
 func body_armor_max() -> int:
-	return int(Data.BODY[body]["a"])
+	var a: int = int(Data.BODY[body]["a"])
+	return a if body_q == 0 else int(round(float(a) * ItemGrade.armor_mult(body_q)))
 
 
 func reset_for_battle() -> void:
@@ -287,6 +346,8 @@ func reset_for_battle() -> void:
 
 ## Projectiles en début de bataille (-1 = arme sans munitions), talents compris.
 func full_ammo() -> int:
+	if has_quiver():
+		return Ammo.ENEMY_AMMO if side == "e" else quiver_now()
 	var base: int = int(Data.WPN[weapon].get("ammo", -1))
 	return base + int(Perks.weapon_field(self, "ammo")) if base >= 0 else -1
 
@@ -299,7 +360,7 @@ func duplicate_unit() -> Unit:
 const _KEYS: Array[String] = [
 	"id", "unit_name", "background", "side", "faction", "leader", "sprite", "xp_value", "foe_key", "immobile",
 	"hp_max", "fat_max", "resolve", "initiative", "melee_skill", "ranged_skill", "melee_def", "ranged_def",
-	"weapon", "shield", "head", "body", "arm_h", "arm_b", "weapon_dur", "shield_dur", "level", "xp", "kills", "pending", "wage", "hp",
+	"weapon", "shield", "shield_kind", "ammo_kind", "quiver", "head", "body", "arm_h", "arm_b", "weapon_dur", "weapon_kills", "shield_dur", "level", "xp", "kills", "pending", "wage", "hp",
 ]
 
 
@@ -315,6 +376,7 @@ func to_dict() -> Dictionary:
 	d["bonds"] = bonds.duplicate()
 	d["backstory"] = backstory
 	d["goal"] = goal.duplicate(true)
+	ItemGrade.write_unit(self, d)  ## grades de l'équipement et entretien (clés absentes = défaut)
 	return d
 
 
@@ -332,6 +394,8 @@ static func from_dict(d: Dictionary) -> Unit:
 			TYPE_STRING:
 				v = str(v)
 		u.set(k, v)
+	u.shield_kind = Shields.normalize(u.shield_kind)  # ancienne sauvegarde ou clé inconnue : bouclier rond
+	u.ammo_kind = Ammo.normalize_kind(u.ammo_kind)
 	u.perks.assign(d.get("perks", []))
 	var refund: int = Perks.migrate(u)  ## clés disparues : remplacées, ou point rendu
 	if d.has("perk_points"):
@@ -352,6 +416,7 @@ static func from_dict(d: Dictionary) -> Unit:
 	var g: Variant = d.get("goal", {})
 	if typeof(g) == TYPE_DICTIONARY and (g as Dictionary).has("kind") and (g as Dictionary).has("target"):
 		u.goal = (g as Dictionary).duplicate(true)
+	ItemGrade.read_unit(u, d)
 	if u.side == "p":
 		Backstory.ensure(u)  # ancienne sauvegarde : histoire et objectif tirés de l'id, sans toucher à l'aléa de la partie
 	return u
