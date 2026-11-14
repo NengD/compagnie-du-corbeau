@@ -88,3 +88,16 @@ func test_echec_d_ecriture_signale() -> void:
 	g.save_failed.connect(func(r: String) -> void: seen[0] = r)
 	g.save_failed.emit("test")
 	t.eq(seen[0], "test", "le signal save_failed existe")
+
+
+func test_extras_persistes_et_remis_a_zero() -> void:
+	var g: Node = t.new_game(14)
+	t.eq(g.extras, {}, "nouvelle partie : extras vide")
+	g.extras["essai"] = {"n": 3, "liste": [1, 2]}
+	var d: Dictionary = JSON.parse_string(JSON.stringify(g.to_dict()))
+	var g2: Node = t.new_game(15)
+	g2.from_dict(d)
+	t.eq(int(g2.extras["essai"]["n"]), 3, "extras restaurés")
+	d.erase("extras")
+	g2.from_dict(d)
+	t.eq(g2.extras, {}, "ancienne sauvegarde : extras vide")

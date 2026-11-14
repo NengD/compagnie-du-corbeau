@@ -52,6 +52,7 @@ var faction_standing: Dictionary = Factions.default_standing()  ## réputation a
 var story_flags: Dictionary = {}  ## histoires : "story_<id>" = jour de début, et les repères posés par leurs choix {clé: jour}
 var pending_events: Array = []  ## suites d'histoires programmées : [{"id": étape, "due_day": jour}]
 var _food_warned: bool = false
+var extras: Dictionary = {}  ## état persistant des fonctions récentes, un sous-dictionnaire par fonction (extras["chronicle"], extras["trade"]…) ; sauvegardé tel quel
 var difficulty: String = Data.DIFFICULTY_DEFAULT  ## niveau choisi à la création de la partie (voir core/difficulty.gd) ; ne change plus ensuite
 
 
@@ -65,6 +66,7 @@ func _ready() -> void:
 
 func new_game(seed_value: int = -1, p_difficulty: String = "normal") -> void:
 	difficulty = Difficulty.clean(p_difficulty)
+	extras = {}
 	if seed_value >= 0:
 		rng.seed = seed_value
 		loot_rng.seed = seed_value + 7919
@@ -1677,6 +1679,7 @@ func to_dict() -> Dictionary:
 		"last_battle_report": last_battle_report,
 		"provisions": provisions, "company_morale": company_morale, "starve_days": starve_days, "buildings": buildings.duplicate(),
 		"formation": Formation.to_dict(formation_slots()), "faction_standing": faction_standing.duplicate(), "story_flags": story_flags.duplicate(), "pending_events": pending_events.duplicate(true),
+		"extras": extras.duplicate(true),
 	}
 
 
@@ -1741,6 +1744,10 @@ func from_dict(d: Dictionary) -> void:
 		for pe in pes:
 			if typeof(pe) == TYPE_DICTIONARY and not Events.get_def(str((pe as Dictionary).get("id", ""))).is_empty():
 				pending_events.append({"id": str(pe["id"]), "due_day": int(pe.get("due_day", day))})
+	extras = {}
+	var ex: Variant = d.get("extras", {})
+	if typeof(ex) == TYPE_DICTIONARY:
+		extras = (ex as Dictionary).duplicate(true)
 	_food_warned = false
 	Factions.assign_owners(world)  ## propriétaires des lieux (anciennes sauvegardes)
 	last_battle_report = {}
