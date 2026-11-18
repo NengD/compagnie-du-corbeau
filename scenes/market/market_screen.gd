@@ -60,7 +60,7 @@ func _build_screen() -> void:
 	add_child(margin)
 	var panel := PanelContainer.new()
 	panel.theme_type_variation = "ModalPanel"
-	margin.add_child(panel)
+	FitBox.add_to(margin, panel, true)
 	var root := UiKit.vbox(8)
 	panel.add_child(root)
 

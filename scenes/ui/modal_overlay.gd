@@ -31,17 +31,19 @@ func _build(min_width: int) -> void:
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(dim)
-	var center := CenterContainer.new()
+	var center := MarginContainer.new()  # petite marge : la fenêtre trop grande est réduite pour tenir (FitBox)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for side in ["left", "right", "top", "bottom"]:
+		center.add_theme_constant_override("margin_" + side, 6)
 	add_child(center)
 	var panel := PanelContainer.new()
 	panel.theme_type_variation = "ModalPanel"
 	panel.custom_minimum_size = Vector2(min_width, 0)
-	center.add_child(panel)
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
 	panel.add_child(content)
+	FitBox.add_to(center, panel, false)
 	# Focus clavier : à l'ouverture (une fois le contenu ajouté), puis après chaque reconstruction si le joueur navigue au clavier.
 	content.child_order_changed.connect(_queue_focus.bind(false))
 	_queue_focus(true)

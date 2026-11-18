@@ -16,7 +16,10 @@ func _ready() -> void:
 	add_child(center)
 	_box = UiKit.vbox(10)
 	center.add_child(_box)
+	# Un Control nu ignore la taille de ses enfants : on la publie pour que FitBox puisse réduire le menu si la zone est trop petite.
+	_box.minimum_size_changed.connect(func() -> void: custom_minimum_size = _box.get_combined_minimum_size())
 	_rebuild()
+	custom_minimum_size = _box.get_combined_minimum_size()
 
 
 func _rebuild() -> void:

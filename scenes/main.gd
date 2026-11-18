@@ -49,7 +49,7 @@ func _ready() -> void:
 	add_child(margin)
 	var root := UiKit.vbox(12)
 	_root_box = root
-	margin.add_child(root)
+	FitBox.add_to(margin, root, true)
 	_header = _build_header()
 	root.add_child(_header)
 	_content = UiKit.vbox(0)

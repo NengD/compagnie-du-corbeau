@@ -130,6 +130,7 @@ func _run() -> void:
 	await _check_market_trade(main)
 	await _check_perk_tree(main)
 	await _check_workshop(main)
+	await _check_reactivity(main)
 	# --- Ville ---
 	var camp: Node = _find(main, "Camp")
 	_check(camp != null, "l'écran de ville s'affiche au départ")
@@ -677,3 +678,43 @@ func _all_text(n: Node) -> String:
 	for c in n.get_children():
 		out += _all_text(c)
 	return out
+
+
+## Réactivité : à 150 % d'échelle (zone virtuelle 853×480), les grands écrans doivent tenir (FitBox les réduit) et rester cliquables.
+func _check_reactivity(main: Node) -> void:
+	var old_f: float = root.content_scale_factor
+	var old_s: Vector2i = root.content_scale_size
+	var old_size: Vector2i = root.size
+	root.size = Vector2i(1280, 720)
+	root.content_scale_size = Vector2i(1280, 720)
+	root.content_scale_factor = 1.5
+	await _frames(4)
+	var vp: Vector2 = root.get_visible_rect().size
+	_check(vp.x <= 1281.0 / 1.5 + 1.0 and vp.y <= 721.0 / 1.5 + 1.0, "zone virtuelle réduite à 150 %% (%s)" % str(vp))
+	var opens: Array = [
+		["marché", "res://scenes/market/market_screen.gd", [main, 0]],
+		["inventaire", "res://scenes/inventory/inventory_screen.gd", [main, game.roster[0].id]],
+		["atelier", "res://scenes/camp/workshop_screen.gd", [main]],
+		["options", "res://scenes/menu/options_panel.gd", [main]],
+		["encyclopédie", "res://scenes/codex/codex_screen.gd", [main]],
+	]
+	for o in opens:
+		var inst: Variant = load(str(o[1])).callv("open", o[2])
+		await _frames(4)
+		var node: Node = inst as Node
+		if inst != null and node == null and "modal" in inst:
+			node = inst.modal
+		_check(node != null, "réactivité : %s s'ouvre à 150 %%" % str(o[0]))
+		if node != null:
+			for f in node.find_children("*", "FitBox", true, false):
+				var fb: FitBox = f
+				var pad: float = 2.0
+				var r: Rect2 = Rect2(fb.child.get_global_transform().origin, fb.child.size * fb.child.scale)
+				_check(fb.scale_now >= FitBox.MIN_SCALE and fb.scale_now <= 1.0, "réactivité : %s échelle d'ajustement valide (%f)" % [str(o[0]), fb.scale_now])
+				_check(fb.scale_now <= FitBox.MIN_SCALE + 0.001 or (r.size.x <= vp.x + pad and r.size.y <= vp.y + pad), "réactivité : %s tient dans %s (%s)" % [str(o[0]), str(vp), str(r.size)])
+			node.call("close")
+		await _frames(2)
+	root.content_scale_factor = old_f
+	root.content_scale_size = old_s
+	root.size = old_size
+	await _frames(2)

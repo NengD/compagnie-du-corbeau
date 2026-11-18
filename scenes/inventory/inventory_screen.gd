@@ -70,7 +70,7 @@ func _build_screen() -> void:
 	add_child(margin)
 	var root_panel := PanelContainer.new()
 	root_panel.theme_type_variation = "WindowPanel"
-	margin.add_child(root_panel)
+	FitBox.add_to(margin, root_panel, true)
 	var root := UiKit.vbox(6)
 	root_panel.add_child(root)
 
