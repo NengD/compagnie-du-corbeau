@@ -71,12 +71,12 @@ const MATRIX: Dictionary = {
 ## Matériau des pièces actuelles par clé (Data.HEAD / Data.BODY). Un champ `"mat"` dans l'entrée de Data l'emporte sur cette table ;
 ## pour une clé inconnue des deux, `Materials.of` déduit le matériau de la valeur d'armure (voir DEFAULT_BY_ARMOR).
 const HEAD_MATERIAL: Dictionary = {
-	"capuchon": "tissu", "casque": "plates", "heaume": "plates", "u_casque_loup": "plates", "u_heaume_veilleur": "plates",
+	"capuchon": "tissu", "casque": "plates", "heaume": "plates", "u_casque_loup": "plates", "u_heaume_veilleur": "plates", "u_couronne_pale": "plates",
 	"cagoule_cuir": "cuir_cloute", "barbute": "plates", "heaume_crete": "plates", "casque_orque": "plates", "casque_rouille": "plates",
 }
 const BODY_MATERIAL: Dictionary = {
 	"tunique": "tissu", "gambison": "matelasse", "mailles": "mailles", "brigandine": "ecailles",
-	"u_cotte_nuit": "mailles", "u_brigandine_roi": "plates",
+	"u_cotte_nuit": "mailles", "u_brigandine_roi": "plates", "u_peau_troll": "cuir", "u_cuirasse_roc": "plates",
 	"cuir_cloute": "cuir_cloute", "haubert_surcot": "mailles", "cuirasse_peaux": "cuir", "plastron_orque": "plates", "cotte_rouillee": "mailles",
 }
 

@@ -13,12 +13,13 @@ static func open(host: Node, report: Dictionary) -> ModalOverlay:
 	var m := ModalOverlay.open(host, 600)
 	build(m.content, report, func() -> void:
 		m.close()
-		CaptivesScreen.open_if_pending(host))
+		CaptivesScreen.open_if_pending(host),
+		(func() -> void: ReplayScreen.open(host)) if bool(report.get("has_replay", false)) else Callable())
 	return m
 
 
 ## Remplit `box` (testable sans fenêtre). `on_close` est appelé par le bouton « Continuer ».
-static func build(box: VBoxContainer, report: Dictionary, on_close: Callable) -> void:
+static func build(box: VBoxContainer, report: Dictionary, on_close: Callable, on_replay: Callable = Callable()) -> void:
 	var result: String = str(report.get("result", ""))
 	var win: bool = result == "win"
 	var heading: String = "Victoire" if win else ("Retraite" if result == "retreat" else "Défaite")
@@ -70,10 +71,15 @@ static func build(box: VBoxContainer, report: Dictionary, on_close: Callable) ->
 	if not capr.is_empty():
 		var oc: String = str(capr.get("outcome", ""))
 		box.add_child(UiKit.label(oc if oc != "" else "Prisonniers : %d (sort à décider)" % int(capr.get("n", 0)), 14, GameTheme.GOLD))
+	var btns := UiKit.hbox(10)
 	var b := UiKit.button("Continuer", "pri")
-	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	b.pressed.connect(on_close)
-	box.add_child(b)
+	btns.add_child(b)
+	if on_replay.is_valid():
+		var rp := UiKit.button("Revoir la bataille", "ghost")
+		rp.pressed.connect(on_replay)
+		btns.add_child(rp)
+	box.add_child(btns)
 
 
 static func _man_row(r: Dictionary) -> Control:

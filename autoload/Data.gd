@@ -41,6 +41,8 @@ const WPN: Dictionary = {
 	"u_marteau_forgeron": {"n": "Marteau du Dernier Forgeron", "min": 32, "max": 44, "arm": 1.45, "ign": 0.5, "ap": 5, "fat": 13, "hit": 5, "rng": 1, "h1": true, "ranged": false, "price": 1500, "note": "Marteau unique : écrase l'armure. Frappe de plus en plus juste."},
 	"u_hache_aurore": {"n": "Hache de l'Aurore", "min": 46, "max": 66, "arm": 1.6, "ign": 0.1, "ap": 6, "fat": 15, "hit": 0, "rng": 1, "h1": false, "ranged": false, "price": 1700, "note": "Hache de bataille unique. Plus elle tue, plus elle fend."},
 	"u_arc_mirelune": {"n": "Arc de Mirelune", "min": 36, "max": 56, "arm": 0.65, "ign": 0.4, "ap": 5, "fat": 13, "hit": 5, "rng": 7, "h1": false, "ranged": true, "price": 1500, "note": "Arc long unique. Chaque victime affine la visée."},
+	"u_brise_os": {"n": "Brise-Os", "min": 38, "max": 52, "arm": 1.25, "ign": 0.4, "ap": 5, "fat": 13, "hit": 0, "rng": 1, "h1": true, "ranged": false, "price": 1900, "note": "Masse légendaire : brise l'armure et les os."},
+	"u_croc_alpha": {"n": "Croc de l'Alpha", "min": 20, "max": 30, "arm": 0.55, "ign": 0.35, "ap": 3, "fat": 6, "hit": 15, "rng": 1, "h1": true, "ranged": false, "price": 1000, "note": "Dague légendaire : 3 PA, +15 % au toucher."},
 	"u_pique_gardien": {"n": "Pique du Gardien du gué", "min": 28, "max": 40, "arm": 1.0, "ign": 0.3, "ap": 5, "fat": 11, "hit": 15, "rng": 2, "h1": false, "ranged": false, "price": 1200, "note": "Pique unique : allonge 2. Elle retient ceux qui passent."},
 }
 
@@ -57,6 +59,7 @@ const HEAD: Dictionary = {
 	"casque_rouille": {"n": "Casque rouillé de revenant", "a": 70, "w": 4, "price": 80},
 	# Objets uniques (voir UNIQUES)
 	"u_casque_loup": {"n": "Casque du Loup gris", "a": 125, "w": 4, "price": 1400},
+	"u_couronne_pale": {"n": "Couronne de la Reine pâle", "a": 120, "w": 3, "price": 1200},
 	"u_heaume_veilleur": {"n": "Heaume du Veilleur", "a": 195, "w": 9, "price": 2200},
 }
 
@@ -75,6 +78,8 @@ const BODY: Dictionary = {
 	# Objets uniques (voir UNIQUES)
 	"u_cotte_nuit": {"n": "Cotte de la Nuit", "a": 165, "w": 12, "price": 1900},
 	"u_brigandine_roi": {"n": "Brigandine du Roi déchu", "a": 235, "w": 20, "price": 2600},
+	"u_peau_troll": {"n": "Peau de troll tannée", "a": 125, "w": 9, "price": 1100},
+	"u_cuirasse_roc": {"n": "Cuirasse de roc", "a": 240, "w": 22, "price": 2400},
 }
 
 ## Emplacement « Bras » : brassards, manches, épaulières, garde-bras (voir core/limbs.gd). Même fiche que HEAD / BODY (`a` armure, `w` poids,
@@ -166,6 +171,12 @@ const FOE: Dictionary = {
 	"cavalier_loup": {"n": "Cavalier de loup", "fac": "m", "hp": [80, 95], "fat": [130, 140], "res": [55, 65], "mSk": [60, 66], "rSk": [30, 40], "mDef": [6, 12], "rDef": [6, 10], "ini": [115, 125], "w": ["lance", "hache"], "sh": 0.3, "head": ["none", "capuchon"], "body": ["tunique", "gambison"], "xp": 45, "leader": false, "sprite": "wolf_rider", "swift": 1, "charge": 15, "flank": true},
 	"ogre": {"n": "Ogre", "fac": "m", "hp": [260, 300], "fat": [170, 180], "res": [70, 80], "mSk": [55, 62], "rSk": [0, 0], "mDef": [0, 4], "rDef": [0, 4], "ini": [70, 80], "w": ["massue_geant"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 120, "leader": false, "sprite": "ogre", "big": true, "stun_hit": 35, "fearless": true, "drop": [["body", "gambison", 0.4], ["weapon", "masse", 0.3]]},
 	"troll": {"n": "Troll", "fac": "m", "hp": [320, 360], "fat": [180, 190], "res": [75, 85], "mSk": [60, 66], "rSk": [0, 0], "mDef": [0, 4], "rDef": [0, 4], "ini": [80, 90], "w": ["griffesL"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 150, "leader": true, "sprite": "troll", "big": true, "regen": 5, "fearless": true, "drop": [["head", "casque", 0.4], ["body", "mailles", 0.25]]},
+	# Bêtes légendaires (voir core/legendary_data.gd : phases, butin) : stats de base, le reste vient de Legendary.
+	"leg_ogre": {"n": "Grosse-Mâchoire", "fac": "m", "hp": [480, 520], "fat": [200, 200], "res": [80, 90], "mSk": [66, 72], "rSk": [0, 0], "mDef": [4, 8], "rDef": [4, 8], "ini": [75, 85], "w": ["massue_geant"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 400, "leader": true, "sprite": "ogre", "big": true, "stun_hit": 30, "fearless": true},
+	"leg_troll": {"n": "Écorche-Gué", "fac": "m", "hp": [560, 620], "fat": [200, 200], "res": [85, 90], "mSk": [66, 72], "rSk": [0, 0], "mDef": [2, 6], "rDef": [2, 6], "ini": [80, 90], "w": ["griffesL"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 450, "leader": true, "sprite": "troll", "big": true, "fearless": true},
+	"leg_reine": {"n": "La Reine pâle", "fac": "g", "hp": [380, 420], "fat": [200, 200], "res": [85, 90], "mSk": [64, 70], "rSk": [0, 0], "mDef": [4, 10], "rDef": [4, 10], "ini": [100, 110], "w": ["griffesL"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 400, "leader": true, "raise": true, "fearless": true},
+	"leg_alpha": {"n": "Croc-Gris", "fac": "m", "hp": [300, 330], "fat": [220, 220], "res": [80, 85], "mSk": [66, 72], "rSk": [0, 0], "mDef": [12, 18], "rDef": [10, 16], "ini": [130, 140], "w": ["morsure"], "sh": 0.0, "head": ["none"], "body": ["none"], "xp": 350, "leader": true, "sprite": "wolf", "swift": 1, "fearless": true},
+	"leg_geant": {"n": "Le Géant de pierre", "fac": "m", "hp": [700, 760], "fat": [220, 220], "res": [90, 95], "mSk": [64, 70], "rSk": [0, 0], "mDef": [0, 4], "rDef": [0, 4], "ini": [60, 70], "w": ["massue_geant"], "sh": 0.0, "head": ["heaume"], "body": ["brigandine"], "xp": 500, "leader": true, "sprite": "troll", "big": true, "stun_hit": 25, "fearless": true},
 }
 
 # --- Capacités actives (liées à l'arme ou au bouclier) ---
@@ -207,6 +218,8 @@ const ABILITIES: Dictionary = {
 	# `splash` : touche aussi les cases voisines (amis compris) ; `net` : immobilise ; `fire` : enflamme.
 	"lancer_pierre": {"n": "Lancer : pierre", "weapons": [], "tool": "pierre", "ap": 4, "fat": 8, "rng": 3, "min_rng": 1, "hit": 10, "dmg_range": [8, 14], "stun": true, "d": "Portée 3. Si la pierre touche, la cible est étourdie."},
 	"lancer_huile": {"n": "Lancer : huile", "weapons": [], "tool": "huile", "ap": 5, "fat": 10, "rng": 3, "min_rng": 2, "splash": true, "dmg_range": [15, 25], "fire": true, "d": "Portée 3 (pas au contact). La case visée et ses voisines : dégâts et feu. Amis compris !"},
+	# Tir enduit : consomme un usage d'une fiole de venin du sac (`coat`), puis tire comme une attaque normale (état : core/statuses_data.gd).
+	"fleche_venimeuse": {"n": "Flèche empoisonnée", "weapons": ["arc", "arc_long", "arbalete", "arbalete_legere"], "coat": "venin", "ap_extra": 1, "fat_extra": 2, "d": "Flèche enduite de venin (1 usage de la fiole) : si le tir touche, poison pendant 4 tours."},
 	"lancer_filet": {"n": "Lancer : filet", "weapons": [], "tool": "filet", "ap": 4, "fat": 8, "rng": 3, "min_rng": 1, "hit": 5, "net": true, "d": "Portée 3. Si le filet touche, la cible ne peut pas bouger à son prochain tour. Sans effet sur les grandes créatures."},
 }
 
@@ -215,6 +228,7 @@ const TOOLS: Dictionary = {
 	"pierre": {"n": "Pierres de jet", "price": 25, "uses": 3, "ab": "lancer_pierre", "note": "3 lancers par bataille : étourdissent."},
 	"huile": {"n": "Huile bouillante", "price": 90, "uses": 1, "ab": "lancer_huile", "note": "1 lancer par bataille : zone, dégâts et feu."},
 	"filet": {"n": "Filet de chasse", "price": 60, "uses": 2, "ab": "lancer_filet", "note": "2 lancers par bataille : immobilise une cible."},
+	"venin": {"n": "Fiole de venin", "price": 70, "uses": 2, "ab": "fleche_venimeuse", "note": "2 tirs empoisonnés par bataille (arc ou arbalète) : la cible touchée s'affaiblit chaque tour."},
 }
 const STUN_AP: int = 4
 const EXPOSE_DEF: int = 10
@@ -294,6 +308,12 @@ const UNIQUES: Dictionary = {
 	"u_heaume_veilleur": {"kind": "head", "look": "heaume", "story": "Porté par les veilleurs de la tour d'Os, qui ne dormaient jamais."},
 	"u_cotte_nuit": {"kind": "body", "look": "mailles", "story": "Des mailles noircies à l'huile, silencieuses comme une nuit sans lune."},
 	"u_brigandine_roi": {"kind": "body", "look": "brigandine", "story": "Elle habillait un roi déchu. Les rivets d'or ont été arrachés, pas la solidité."},
+	# Butin des bêtes légendaires (voir core/legendary_data.gd) : une seule fois par partie.
+	"u_brise_os": {"kind": "weapon", "look": "masse", "story": "Arrachée au poing d'une bête qui terrorisait trois vallées : le manche garde l'empreinte de ses doigts."},
+	"u_peau_troll": {"kind": "body", "look": "cuirasse_peaux", "story": "Tannée sur le dos d'un troll qui se relevait de tout, sauf du feu."},
+	"u_couronne_pale": {"kind": "head", "look": "casque_rouille", "story": "Un cercle d'os et de fer rouillé. Celles qui la portaient commandaient aux morts."},
+	"u_croc_alpha": {"kind": "weapon", "look": "dague", "story": "Un croc de la taille d'une main, monté sur un manche de corne. La meute attend toujours son chef."},
+	"u_cuirasse_roc": {"kind": "body", "look": "plastron_orque", "story": "Des plaques de fer martelées dans la pierre vive : un géant les portait comme un manteau."},
 }
 
 const MAX_ROSTER: int = 10
@@ -316,8 +336,8 @@ const TERRAIN: Dictionary = {
 	"river": {"n": "Rivière profonde", "ap": 2, "fat": 0, "fat_mult": 1, "block": true, "los": false, "h": 0, "def": 0},
 }
 # --- Types de bataille, décor interactif, nuit ---
-const BATTLE_TYPES: Array = ["pitched", "ambush", "convoy", "siege", "night"]
-const BATTLE_TYPE_NAMES: Dictionary = {"pitched": "Bataille rangée", "ambush": "Embuscade", "convoy": "Convoi", "siege": "Siège", "night": "Nuit"}
+const BATTLE_TYPES: Array = ["pitched", "ambush", "convoy", "siege", "night", "defense"]
+const BATTLE_TYPE_NAMES: Dictionary = {"pitched": "Bataille rangée", "ambush": "Embuscade", "convoy": "Convoi", "siege": "Siège", "night": "Nuit", "defense": "Défense"}
 const NIGHT_SIGHT: int = 4  ## rayon de vision de chaque camp la nuit
 const NIGHT_FAR_PENALTY: int = 3  ## malus au toucher à distance, par case au-delà de 3, la nuit
 const CONVOY_ROUNDS: int = 8  ## manches à tenir pour sauver le convoi
@@ -337,6 +357,7 @@ const SCENERY: Dictionary = {
 	"wall": {"n": "Rempart", "hp": 0, "block": true, "los": false},
 	"gate": {"n": "Porte du fort", "hp": 90, "block": true, "los": true, "open_ap": 2},
 	"torch": {"n": "Torche", "hp": 0, "block": false, "los": false, "light": 3},
+	"stakes": {"n": "Pieux", "hp": 30, "block": true, "los": false},
 }
 const HILL_CLIMB_AP: int = 1  ## PA en plus pour monter sur une case plus haute
 const HILL_MELEE_BONUS: int = 10  ## au toucher en mêlée depuis une position plus haute (malus si plus basse)
@@ -451,9 +472,9 @@ const PERKS: Dictionary = {
 ## de l'homme est de la famille. Sans maîtrise, l'arme se manie normalement. `dmg_type` : tranchant | contondant | perforant (lu par la Cotte de mailles).
 ## `badge` : icône de `assets/icons/` qui orne la pastille de la maîtrise.
 const WEAPON_FAMILIES: Dictionary = {
-	"epee": {"n": "Épées", "weapons": ["epee", "epee_courte", "rapiere", "dague", "u_epee_corbeau", "u_dague_veuve"], "mastery": "spec_epee", "expert": "ex_epee", "dmg_type": "tranchant", "badge": "epee"},
+	"epee": {"n": "Épées", "weapons": ["epee", "epee_courte", "rapiere", "dague", "u_epee_corbeau", "u_dague_veuve", "u_croc_alpha"], "mastery": "spec_epee", "expert": "ex_epee", "dmg_type": "tranchant", "badge": "epee"},
 	"hache": {"n": "Haches", "weapons": ["hache", "hache_bataille", "u_hache_fendcrane", "u_hache_aurore"], "mastery": "spec_hache", "expert": "ex_hache", "dmg_type": "tranchant", "badge": "hache"},
-	"masse": {"n": "Masses", "weapons": ["masse", "marteau_guerre", "u_masse_glas", "u_marteau_forgeron"], "mastery": "spec_masse", "expert": "ex_masse", "dmg_type": "contondant", "badge": "masse"},
+	"masse": {"n": "Masses", "weapons": ["masse", "marteau_guerre", "u_masse_glas", "u_marteau_forgeron", "u_brise_os"], "mastery": "spec_masse", "expert": "ex_masse", "dmg_type": "contondant", "badge": "masse"},
 	"fleau": {"n": "Fléaux", "weapons": ["fleau"], "mastery": "spec_fleau", "expert": "ex_fleau", "dmg_type": "contondant", "badge": "fleau"},
 	"gourdin": {"n": "Gourdins", "weapons": ["gourdin", "baton_ferre"], "mastery": "spec_gourdin", "expert": "ex_gourdin", "dmg_type": "contondant", "badge": "gourdin"},
 	"lance": {"n": "Lances", "weapons": ["lance", "u_lance_aigle"], "mastery": "spec_lance", "expert": "ex_lance", "dmg_type": "perforant", "badge": "lance"},
@@ -470,10 +491,10 @@ const WEAPONS_NO_FAMILY: Array = ["griffes", "griffesL", "morsure", "massue_gean
 ## Armures : `head` / `body` = objets de la famille par emplacement ; `rule` : "any" (un seul emplacement suffit) ou "all" (les deux).
 const ARMOR_FAMILIES: Dictionary = {
 	"tissu": {"n": "Tissu léger", "head": ["none", "capuchon"], "body": ["none", "tunique"], "arms": ["none", "manchettes"], "legs": ["none", "bandes_toile"], "rule": "all", "mastery": "ma_tissu", "expert": "ex_tissu", "badge": "tunique"},
-	"matelasse": {"n": "Matelassé", "head": ["cagoule_cuir"], "body": ["gambison", "cuir_cloute", "cuirasse_peaux"], "arms": ["brassards_cuir", "manicles_cloutees"], "legs": ["jambieres_cuir", "guetres_cloutees"], "rule": "any", "mastery": "ma_matelasse", "expert": "ex_matelasse", "badge": "gambison"},
+	"matelasse": {"n": "Matelassé", "head": ["cagoule_cuir"], "body": ["gambison", "cuir_cloute", "cuirasse_peaux", "u_peau_troll"], "arms": ["brassards_cuir", "manicles_cloutees"], "legs": ["jambieres_cuir", "guetres_cloutees"], "rule": "any", "mastery": "ma_matelasse", "expert": "ex_matelasse", "badge": "gambison"},
 	"mailles": {"n": "Mailles", "head": [], "body": ["mailles", "haubert_surcot", "cotte_rouillee", "u_cotte_nuit"], "arms": ["manches_mailles", "bandelettes_rouillees"], "legs": ["chausses_mailles", "chausses_rouillees"], "rule": "any", "mastery": "ma_mailles", "expert": "ex_mailles", "badge": "mailles"},
-	"plates": {"n": "Plates lourdes", "head": ["heaume", "heaume_crete", "u_heaume_veilleur"], "body": ["brigandine", "plastron_orque", "u_brigandine_roi"], "arms": ["epaulieres_fer", "garde_bras_plaques", "brassards_orques"], "legs": ["greves_fer", "greves_genouilleres", "jambieres_orques"], "rule": "any", "mastery": "ma_plates", "expert": "ex_plates", "badge": "brigandine"},
-	"casque": {"n": "Casques", "head": ["casque", "barbute", "casque_orque", "casque_rouille", "u_casque_loup"], "body": [], "arms": [], "legs": [], "rule": "any", "mastery": "ma_casque", "expert": "ex_casque", "badge": "casque"},
+	"plates": {"n": "Plates lourdes", "head": ["heaume", "heaume_crete", "u_heaume_veilleur"], "body": ["brigandine", "plastron_orque", "u_brigandine_roi", "u_cuirasse_roc"], "arms": ["epaulieres_fer", "garde_bras_plaques", "brassards_orques"], "legs": ["greves_fer", "greves_genouilleres", "jambieres_orques"], "rule": "any", "mastery": "ma_plates", "expert": "ex_plates", "badge": "brigandine"},
+	"casque": {"n": "Casques", "head": ["casque", "barbute", "casque_orque", "casque_rouille", "u_casque_loup", "u_couronne_pale"], "body": [], "arms": [], "legs": [], "rule": "any", "mastery": "ma_casque", "expert": "ex_casque", "badge": "casque"},
 }
 ## Archétypes de builds (docs/builds.md, généré par tools/gen_builds_doc.gd) : liste ORDONNÉE de 10 talents (niveau 11), chacun avec sa raison.
 ## Testés : chaque liste doit être atteignable (prérequis, rangs, 10 points). `weapon` / `armor` : familles visées.

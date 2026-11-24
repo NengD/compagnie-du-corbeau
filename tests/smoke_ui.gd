@@ -127,6 +127,7 @@ func _run() -> void:
 	await _check_keyboard_focus(main)
 	await _check_formation_panel(main)
 	await _check_chronicle(main)
+	await _check_camp_vivant(main)
 	await _check_market_trade(main)
 	await _check_perk_tree(main)
 	await _check_workshop(main)
@@ -549,6 +550,42 @@ func _check_chronicle(main: Node) -> void:
 	modal.call("close")
 	await _frames(2)
 	game.fallen.pop_back()
+
+
+## Camp vivant : veillée à choix, fenêtre de retraite, panneau Héritage, courbes de statistiques.
+func _check_camp_vivant(main: Node) -> void:
+	var cl: Script = load("res://core/camp_life.gd")
+	var roster: Array = game.roster
+	var pend: Dictionary = {"id": "song", "a": roster[0].id, "b": -1, "day": game.day, "stake": 0, "cost": 0}
+	cl.state(game.extras)["pending"] = pend
+	var modal: Node = load("res://scenes/camp/camp_life_screen.gd").open(main)
+	_check(modal != null, "veillée : la fenêtre s'ouvre")
+	await _frames(2)
+	var btns: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and not (n as Button).disabled)
+	_check(btns.size() >= 2, "veillée : au moins deux choix cliquables")
+	(btns[0] as Button).pressed.emit()
+	await _frames(2)
+	_check(not cl.has_pending(game.extras), "veillée : le choix est appliqué")
+	var cont: Array = _find_all(modal, func(n: Node) -> bool: return n is Button and (n as Button).text == "Continuer")
+	_check(cont.size() == 1, "veillée : écran d'issue avec « Continuer »")
+	(cont[0] as Button).pressed.emit()
+	await _frames(2)
+	var st: Node = load("res://scenes/stats/stats_screen.gd").open(main)
+	await _frames(3)
+	var charts: Array = _find_all(st, func(n: Node) -> bool: return n is Control and n.get_script() != null and (n.get("pts") != null or n.get("rows") != null))
+	_check(charts.size() >= 4, "courbes : trois courbes et un histogramme (%d)" % charts.size())
+	st.call("close")
+	await _frames(2)
+	var fam: Node = load("res://scenes/camp/legacy_screen.gd").open_family(main)
+	await _frames(2)
+	_check(not _find_all(fam, func(n: Node) -> bool: return n is Label and (n as Label).text.contains("Objets de famille")).is_empty(), "héritage : le panneau s'affiche")
+	fam.call("close")
+	await _frames(2)
+	var ret: Node = load("res://scenes/camp/legacy_screen.gd").open_retire(main, roster[0].id)
+	await _frames(2)
+	_check(not _find_all(ret, func(n: Node) -> bool: return n is Button and (n as Button).text == "Confirmer la retraite").is_empty(), "retraite : la fenêtre s'affiche")
+	ret.call("close")
+	await _frames(2)
 
 
 ## Atelier du forgeron : s'ouvre en lieu, propose les paliers de réparation, et un palier réussi met à jour l'armure.

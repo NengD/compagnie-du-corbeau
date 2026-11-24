@@ -33,7 +33,13 @@ static func open(host: Node) -> ModalOverlay:
 	var close := UiKit.button("Fermer", "pri")
 	close.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	close.pressed.connect(modal.close)
-	box.add_child(close)
+	var foot := UiKit.hbox(8)
+	foot.add_child(close)
+	var curves := UiKit.button("Courbes de campagne")
+	curves.tooltip_text = "Or, renom et effectif jour après jour ; victoires et défaites par type de contrat"
+	curves.pressed.connect(func() -> void: StatsScreen.open(host))
+	foot.add_child(curves)
+	box.add_child(foot)
 	return modal
 
 

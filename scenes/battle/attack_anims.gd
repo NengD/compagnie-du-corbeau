@@ -12,7 +12,7 @@ const TABLE: Dictionary = {
 	"griffes": "claws", "poings": "bash",
 	"rapiere": "thrust", "pique": "thrust", "u_pique_gardien": "thrust", "dague": "thrust", "u_dague_veuve": "thrust",
 	"epee_courte": "slash", "hache_bataille": "slash", "u_hache_aurore": "slash",
-	"marteau_guerre": "smash", "u_marteau_forgeron": "smash", "baton_ferre": "smash",
+	"marteau_guerre": "smash", "u_marteau_forgeron": "smash", "u_brise_os": "smash", "u_croc_alpha": "thrust", "baton_ferre": "smash",
 	"arc_long": "arrow", "u_arc_mirelune": "arrow", "arbalete_legere": "bolt", "fronde": "javelin",
 }
 const ABILITY_KIND: Dictionary = {"coup_bouclier": "bash"}

@@ -216,6 +216,11 @@ func is_night() -> bool:
 ## Replace les figurines sur leurs cases et met à jour barres, moral et unité active.
 func refresh_units() -> void:
 	for u in state.units:
+		if not views.has(u.id):  # renfort arrivé après le début de la bataille
+			var nv := UnitView.new().setup(u)
+			nv.position = hex_px(u.hex)
+			_units.add_child(nv)
+			views[u.id] = nv
 		var v: UnitView = views[u.id]
 		if v.get_parent() and not v.has_meta("moving"):
 			v.position = hex_px(u.hex)
@@ -853,6 +858,14 @@ func _paint_object(l: Node2D, p: Vector2, obj: Dictionary, h: Vector2i) -> void:
 			if broken:
 				for i in 5:
 					l.draw_line(p + Vector2(-10 + i * 5, 9), p + Vector2(-6 + i * 5, 7), Color("6a4a2a"), 2.0)
+		"stakes":  # pieux taillés en pointe (défenses posées avant une bataille défensive)
+			_ellipse(l, p + Vector2(0, 10), 18, 4, Color(0, 0, 0, 0.3))
+			for i in 5:
+				var sx: float = -14.0 + i * 7.0
+				var top: float = -10.0 - float((i * 3) % 4) * (1.0 + (1.0 - hp_ratio) * 2.0)
+				l.draw_line(p + Vector2(sx, 10), p + Vector2(sx + 1.5, top), OL, 4.4)
+				l.draw_line(p + Vector2(sx, 10), p + Vector2(sx + 1.5, top), Color("8a6a40"), 2.8)
+				l.draw_circle(p + Vector2(sx + 1.5, top), 1.6, Color("d9c79a"))
 		"door":
 			_paint_door(l, p, bool(obj.get("open", false)), broken, false)
 		"gate":

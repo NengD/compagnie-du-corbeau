@@ -311,6 +311,10 @@ func test_citadelle_eloignee() -> void:
 func test_points_interet() -> void:
 	var g: Node = t.new_game(5)
 	var q: Dictionary = g.world.pois[0]
+	for pq in g.world.pois:  # (les ruines explorables et les antres proposent une aventure à choix : voir suite_aventures.gd ; on teste ici un sanctuaire)
+		if str(pq["kind"]) == "shrine":
+			q = pq
+			break
 	for k in ["ruins", "shrine", "camp", "tower", "cave"]:
 		var n: int = Events.POI_DEFS.filter(func(e: Dictionary) -> bool: return str(e["poi"]) == k).size()
 		t.check(n >= 1 and n <= 2, "1 à 2 rencontres pour %s (%d)" % [k, n])

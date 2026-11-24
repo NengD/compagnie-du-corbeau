@@ -58,6 +58,9 @@ static func generate(settlement_kind: String, rng: RandomNumberGenerator) -> Arr
 			t["qty"] = rng.randi_range(2, 5)
 			out.append(t)
 	_extra_stock(out, shop, city, rng)
+	var cg := RandomNumberGenerator.new()  ## onguents et potions : aléa dérivé, sans consommer le générateur (le reste du rayon ne bouge pas)
+	cg.seed = int(rng.state) ^ 0xB4D9
+	out.append_array(Consumables.shop_entries(settlement_kind, cg))
 	grade_stock(out, rng, ItemGrade.place_bias(settlement_kind))
 	sort(out)
 	return out

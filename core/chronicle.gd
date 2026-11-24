@@ -9,7 +9,7 @@ const MAX_ENTRIES: int = 300
 ## Genres d'entrées : clé -> libellé (l'ordre est celui des filtres de l'écran).
 const KINDS: Dictionary = {
 	"battle": "Batailles", "death": "Morts", "contract": "Contrats", "level": "Niveaux",
-	"hire": "Embauches", "goal": "Objectifs", "event": "Événements",
+	"hire": "Embauches", "goal": "Objectifs", "event": "Événements", "retire": "Retraites",
 }
 
 const EPITAPHS: Array[String] = [

@@ -24,7 +24,7 @@ static func eval_pos(s: BattleState, u: Unit, h: Vector2i, field: Dictionary = {
 	var high: float = 10.0 if CombatRules.terrain_at(s.cells, h)["h"] + Scenery.height_bonus(s.cells, h) > 0 else 0.0
 	if bool(w["ranged"]):
 		var want: int = maxi(2, rng_u - 1)  # portée maximale (un cran en retrait de la limite)
-		return (50.0 if shot else 0.0) - absf(md - want) * 3.0 - (40.0 if md == 1 else 0.0) + high + Cover.position_score(s.cells, h, foes)
+		return (50.0 if shot else 0.0) - absf(md - want) * 3.0 - (40.0 if md == 1 else 0.0) + high + Cover.position_score(s.cells, h, foes) + AiPlan.position_bonus(s, u, h)
 	if md > rng_u and field.has(h):  # on compte la marche réelle (rivières, obstacles), pas la distance à vol d'oiseau
 		md = maxi(md, int(field[h]) / 2)
 	var adj_allies: int = 0
@@ -36,14 +36,14 @@ static func eval_pos(s: BattleState, u: Unit, h: Vector2i, field: Dictionary = {
 		for a in s.allies_of(u):  # préfère les cases où plusieurs alliés encerclent déjà la cible
 			if Hex.distance(a.hex, near.hex) == 1:
 				surround += 4.0
-	return (60.0 if md <= rng_u else 0.0) - maxf(0.0, md - rng_u) * 10.0 + adj_allies + surround + high
+	return (60.0 if md <= rng_u else 0.0) - maxf(0.0, md - rng_u) * 10.0 + adj_allies + surround + high + AiPlan.position_bonus(s, u, h)
 
 
 static func target_score(s: BattleState, u: Unit, f: Unit) -> float:
 	var hc: float = s.hit_chance(u, f)
 	var missing: float = 1.0 - float(f.hp) / float(f.hp_max)
 	return hc * (1.6 - float(f.hp) / float(f.hp_max)) + (10.0 if f.morale == 0 else 0.0) + (missing * 40.0 if u.faction == "g" else 0.0) \
-		+ (25.0 if f.is_cart() else 0.0)
+		+ (25.0 if f.is_cart() else 0.0) + AiPlan.target_bonus(s, u, f, hc)
 
 
 ## Capacité à tenter contre `f` ("" = attaque simple). Ne tire l'aléa que s'il existe une capacité utile et utilisable.
@@ -132,6 +132,13 @@ static func leader_waits(s: BattleState, u: Unit) -> bool:
 ## | {"type": "shield"} | {"type": "heal"|"raise", "target": Unit} | {"type": "hit_object"|"open", "hex": Vector2i} | {"type": "end"}
 static func next_action(s: BattleState, u: Unit, memo: Dictionary) -> Dictionary:
 	var n: int = int(memo.get("n", 0))
+	if not memo.has("plan"):
+		memo["plan"] = true
+		AiPlan.on_turn(s, u)  # annonce de la charge groupée (une fois par camp)
+		var ordered: Dictionary = _order_hook(s, u)
+		if not ordered.is_empty():
+			memo["n"] = n + 1
+			return ordered
 	while n < 5:
 		var sup: Dictionary = support_action(s, u)
 		if not sup.is_empty():
@@ -161,7 +168,7 @@ static func next_action(s: BattleState, u: Unit, memo: Dictionary) -> Dictionary
 					return {"type": "ability", "id": tid, "target": f}
 		if memo.get("attacked", false) or memo.get("moved", false):
 			break
-		if holds_position(s, u) or leader_waits(s, u):
+		if holds_position(s, u) or (leader_waits(s, u) and not AiPlan.charging(s, u.side)) or AiPlan.lurking(s, u):
 			break
 		var reach: Dictionary = s.reachable(u, true)
 		if not memo.has("field"):
@@ -170,9 +177,16 @@ static func next_action(s: BattleState, u: Unit, memo: Dictionary) -> Dictionary
 				foe_hexes.append(f.hex)
 			memo["field"] = Pathfinding.distance_field(s.cells, foe_hexes)
 		var field: Dictionary = memo["field"]
+		# Ruse : feindre le repli pour attirer l'ennemi hors de sa ligne.
+		if AiPlan.feinting(s, u) and not reach.is_empty():
+			var fp: Array[Vector2i] = flee_path(s, u)
+			if not fp.is_empty():
+				memo["n"] = n + 1
+				memo["moved"] = true
+				return {"type": "move", "path": fp}
 		# Blessé : se replie vers son bord (borné à 3 fois par bataille).
 		if u.hp < u.hp_max * 0.3 and not u.leader and not bool(u.foe_data().get("fearless", false)) and u.faction != "u" and u.faction != "c" \
-				and u.retreats < 3 and not reach.is_empty() and _enemy_near(s, u, 3) and s.rng.randf() < 0.5:
+				and u.retreats < 3 and not AiPlan.charging(s, u.side) and not reach.is_empty() and _enemy_near(s, u, 3) and s.rng.randf() < 0.5:
 			u.retreats += 1
 			var rp: Array[Vector2i] = flee_path(s, u)
 			if not rp.is_empty():
@@ -206,6 +220,13 @@ static func next_action(s: BattleState, u: Unit, memo: Dictionary) -> Dictionary
 				memo["shielded"] = true
 				return {"type": "shield"}
 	return {"type": "end"}
+
+
+## POINT D'APPEL pour les ordres de groupe d'un chef (session « états et ordres ») : y appeler `Orders.ai_pick(s, u)` ;
+## renvoyer une action au format de `next_action`, ou {} pour laisser l'IA décider seule. Appelé une fois, au début du tour de l'unité.
+static func _order_hook(s: BattleState, u: Unit) -> Dictionary:
+	var oid: String = Orders.ai_pick(s, u)
+	return {"type": "order", "id": oid} if oid != "" else {}
 
 
 static func _enemy_near(s: BattleState, u: Unit, r: int) -> bool:

@@ -121,6 +121,7 @@ static func burn(s: BattleState, u: Unit) -> void:
 	if not u.is_live():
 		return
 	var d: Dictionary = Data.SCENERY["fire"]
+	Legendary.note_burn(s, u)  ## le troll légendaire ne se régénère plus tant qu'il brûle
 	var dmg: int = s.rng.randi_range(int(d["dmg"][0]), int(d["dmg"][1]))
 	u.hp -= dmg
 	u.hit_taken = true
@@ -129,6 +130,7 @@ static func burn(s: BattleState, u: Unit) -> void:
 		s.kill_env(u, "les flammes")
 	else:
 		s.morale_test(u, int(d["morale"]), "est pris par les flammes")
+		Statuses.apply(s, u, str(StatusesData.FIRE_CELL[0]), int(StatusesData.FIRE_CELL[1]))  ## il continue de brûler (torche renversée, huile, flèche enflammée)
 
 
 ## Fin de manche : les feux faiblissent, gagnent du terrain (pas sous la pluie), les eaux les éteignent.

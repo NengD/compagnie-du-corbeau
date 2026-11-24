@@ -95,6 +95,8 @@ static func company_banner() -> Dictionary:
 
 
 static func body_scale(u: Unit) -> float:
+	if u.foe_key.begins_with("leg_"):
+		return Legendary.scale_of(u)  ## bêtes légendaires : plus grandes que leurs semblables
 	if u.faction == "o":
 		return 1.25 if u.leader else 1.12
 	return 1.0

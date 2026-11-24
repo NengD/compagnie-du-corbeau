@@ -3,6 +3,7 @@ extends RefCounted
 ## État d'une bataille : plateau, unités, file d'initiative, manches, victoire. Aucune dépendance de scène.
 
 signal logged(text: String, css: String)
+signal reinforced(arrivals: Array)  ## une seconde vague ennemie surgit (liste des Unit arrivées)
 
 const DEPLOY_ROWS: Array[int] = [4, 3, 5, 2, 6, 1, 7, 0, 8]
 
@@ -33,7 +34,11 @@ var reserve: Array = []  ## clés de Data.FOE des ennemis qui surgiront d'un fla
 var hold_rounds: int = 0  ## convoi : manches à tenir pour sauver les chariots
 var start_party: int = 0  ## effectif de la compagnie au début (objectifs)
 var raised: int = 0  ## morts relevés par les nécromants
+var extras: Dictionary = {}  ## état propre à la bataille : "ia" (ruses, charge : core/ai_plan.gd), "turn_undo_used" (core/turn_undo.gd)
+var rec: BattleLog = null  ## enregistrement pour la rediffusion (core/battle_log.gd) ; null = rien n'est enregistré
 var deploy_slots: Dictionary = {}  ## formation de départ du joueur : id d'homme -> emplacement (vide : déploiement historique par rôle)
+var orders: Dictionary = {}  ## ordres de groupe : camp -> {"id", "cap", "round"} (voir core/orders.gd)
+var fx_events: Array = []  ## chiffres flottants en attente d'affichage {"hex", "text", "kind"} (états, soins, ordres) : non sauvegardé
 const LOG_MAX: int = 200
 const LIT_SIGHT: int = 8  ## de nuit, une unité éclairée est visible de si loin
 const RAISE_MAX: int = 3
@@ -81,6 +86,8 @@ static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGen
 	s.units.append_array(party)
 	s.units.append_array(foes)
 	s._make_objectives()
+	AiPlan.plan_ruses(s)
+	s.rec = BattleLog.start(s)
 	s.say(str(p_contract["title"]), "sys")
 	if s.battle_type != "pitched":
 		s.say("%s." % Data.BATTLE_TYPE_NAMES[s.battle_type], "sys")
@@ -94,6 +101,7 @@ static func create(p_contract: Dictionary, roster: Array, p_rng: RandomNumberGen
 func _layout(party: Array[Unit], foes: Array[Unit]) -> void:
 	var drng := RandomNumberGenerator.new()
 	drng.seed = int(rng.state) ^ 0x7A11
+	AiPlan.hold_back(self, foes)  # siège et convoi : une seconde vague arrive plus tard (l'embuscade a la sienne)
 	match battle_type:
 		"ambush":
 			_layout_ambush(party, foes, drng)
@@ -101,6 +109,8 @@ func _layout(party: Array[Unit], foes: Array[Unit]) -> void:
 			_layout_convoy(party, foes, drng)
 		"siege":
 			_layout_siege(party, foes)
+		"defense":
+			Defense.layout(self, party, foes, drng)  ## défense d'un lieu : milice, villageois, défenses posées (core/defense.gd)
 		_:
 			_deploy_party(party, 1, 0)
 			_deploy(foes, width - 2, width - 1)
@@ -353,6 +363,8 @@ func _place(u: Unit, slots: Array[Vector2i], used: Dictionary) -> void:
 
 func say(text: String, css: String = "") -> void:
 	log_lines.push_front({"t": text, "c": css, "g": log_group})
+	if rec != null:
+		rec.capture(self, text, css)
 	if log_lines.size() > LOG_MAX:
 		log_lines.resize(LOG_MAX)
 	logged.emit(text, css)
@@ -462,9 +474,12 @@ func new_round() -> void:
 			if rg > 0 and u.is_live() and u.hp < u.hp_max:
 				u.hp = mini(u.hp_max, u.hp + rg)
 				say("%s se régénère." % u.unit_name, "miss")
-		if round_no == Data.AMBUSH_RESERVE_ROUND and not reserve.is_empty():
+		if round_no == AiPlan.reserve_round(battle_type) and not reserve.is_empty():
 			_spawn_reserve()
 		_update_hold()
+		Legendary.on_round(self)  ## bêtes légendaires : phases, régénération
+		if battle_type == "defense":
+			Defense.on_round(self)  ## vagues d'assaillants, victoire en tenant
 	var live: Array[Unit] = []
 	for u in units:
 		if u.is_live() and not u.immobile:
@@ -473,8 +488,10 @@ func new_round() -> void:
 	live.sort_custom(func(a: Unit, b: Unit) -> bool:
 		if ambush_first and (a.side == "e") != (b.side == "e"):
 			return a.side == "e"
-		if a.ini_eff() != b.ini_eff():
-			return a.ini_eff() > b.ini_eff()
+		var ia: int = a.ini_eff() + AiPlan.ini_bonus(self, a)
+		var ib: int = b.ini_eff() + AiPlan.ini_bonus(self, b)
+		if ia != ib:
+			return ia > ib
 		return a.id < b.id)
 	queue = live
 	for u in units:
@@ -485,6 +502,7 @@ func new_round() -> void:
 func _spawn_reserve() -> void:
 	var row: int = 0 if rng.randi_range(0, 1) == 0 else height - 1
 	var col: int = width - 4
+	var arrivals: Array = []
 	for k in reserve:
 		var f: Unit = Contracts.make_foe(str(k), rng, difficulty)
 		f.reset_for_battle()
@@ -498,8 +516,11 @@ func _spawn_reserve() -> void:
 		if not placed:
 			continue
 		units.append(f)
+		arrivals.append(f)
 		say("%s surgit d'un flanc !" % f.unit_name, "sys")
 	reserve = []
+	if not arrivals.is_empty():
+		reinforced.emit(arrivals)
 
 
 ## Objectif « tenir N manches » et victoire du convoi.
@@ -538,6 +559,11 @@ func begin_turn(u: Unit) -> void:
 	Scenery.start_of_turn(self, u)
 	if not u.is_live():
 		return
+	Orders.on_turn_start(self, u)  ## le capitaine rejoue : son ordre prend fin
+	Statuses.on_turn_start(self, u)  ## saignement, poison, brûlure, gel
+	if not u.is_live():
+		return
+	Legendary.on_turn(self, u)  ## bête légendaire : phases franchies, PA de rage
 	if u.stunned:
 		u.stunned = false
 		u.ap = maxi(0, u.ap - Data.STUN_AP)
@@ -547,6 +573,8 @@ func begin_turn(u: Unit) -> void:
 ## Passe à l'unité suivante (nouvelle manche si besoin). Renvoie null si la bataille est finie.
 ## Une unité en fuite tente de se ressaisir avant d'agir.
 func next_turn() -> Unit:
+	if rec != null:
+		rec.capture(self)
 	while true:
 		if check_end():
 			current = null
@@ -600,12 +628,12 @@ func check_end() -> bool:
 		if u.is_fighting() and not u.immobile:
 			if u.side == "e":
 				enemies += 1
-			else:
+			elif u.faction != "a":  ## les miliciens d'une défense aident, mais ne comptent pas comme la compagnie
 				friends += 1
 	for o in objectives:
 		if str(o["kind"]) == "hold" and not bool(o["done"]) and pdead * 2 > start_party:
 			o["failed"] = true
-	if enemies == 0:
+	if enemies == 0 and not (battle_type == "defense" and Defense.reinforce(self)):  ## défense : la vague suivante arrive sans attendre
 		end_battle("win")
 		return true
 	if friends == 0 or (cart_total > 0 and carts == 0):
@@ -619,6 +647,7 @@ func check_end() -> bool:
 
 ## Évalue les objectifs secondaires à la fin (les primes ne sont versées qu'en cas de victoire).
 func _evaluate_objectives(result: String) -> void:
+	Defense.evaluate(self, result)  ## défense : villageois sauvés, défenses intactes
 	var lost: int = 0
 	var carts: int = 0
 	for u in units:
@@ -663,6 +692,8 @@ func _make_objectives() -> void:
 			_add_obj("fast", 10, "Finir en 10 manches", 50 * d, 5 * d)
 		"night":
 			_add_obj("no_loss", 0, "Aucun mort", 30 * d, 5 * d)
+		"defense":
+			Defense.add_objectives(self)
 		_:
 			_add_obj("no_loss", 0, "Aucun mort", 20 * d, 8 * d)
 			_add_obj("fast", 6, "Finir en 6 manches", 30 * d, 0)
@@ -806,6 +837,7 @@ func _throw(a: Unit, d: Unit, id: String) -> Dictionary:
 				x.rooted = 1
 				res["rooted"] = true
 				say("%s est pris dans le filet." % x.unit_name, "mor")
+		Statuses.on_throw(self, x, id)  ## huile : brûlure
 		if bool(ab.get("splash", false)):
 			_morale_down(x, -10, "est ébouillanté")
 	if bool(ab.get("fire", false)):
@@ -828,6 +860,8 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 		a.attacked_turn = true
 		if a.uses_ammo() and a.ammo > 0:
 			a.ammo -= 1
+		if ab.has("coat"):
+			a.tool_used[str(ab["coat"])] = int(a.tool_used.get(str(ab["coat"]), 0)) + 1  ## un usage de la fiole de venin
 	var ch: int = hit_chance(a, d, ability)
 	if free and not d.perks.is_empty():
 		ch = clampi(ch - int(Perks.mfx(d, "free_evade")), 5, 95)  ## Feu follet : les attaques d'opportunité touchent moins
@@ -858,6 +892,10 @@ func attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dicti
 	say("%s touche %s%s%s : %d PV, %d armure — %d %%" % [a.unit_name, d.unit_name, Limbs.zone_phrase(str(dmg["zone"])), tag, dmg["hp"], dmg["armor"], ch], "hit")
 	if d.hp > 0 and ability != "":
 		_apply_ability_effects(a, d, ab, res)
+	if d.hp > 0:
+		var applied: Array[String] = Statuses.on_hit(self, a, d, ability, int(dmg["hp"]))  ## saignement, poison, brûlure, gel
+		if not applied.is_empty():
+			res["statuses"] = applied
 	if d.hp > 0 and int(a.foe_data().get("stun_hit", 0)) > 0 and not d.is_big() and rng.randi_range(1, 100) <= int(a.foe_data()["stun_hit"]):
 		if _try_stun(d):
 			res["stunned"] = true
@@ -995,6 +1033,7 @@ func kill_env(d: Unit, cause: String) -> void:
 	d.dead = true
 	d.shield_wall = false
 	corpses.append(d.hex)
+	Orders.on_unit_lost(self, d)
 	say("%s succombe à %s." % [d.unit_name, cause], "death")
 
 
@@ -1022,6 +1061,7 @@ func _kill(d: Unit, a: Unit, cause: String = "") -> void:
 	d.dead = true
 	d.shield_wall = false
 	corpses.append(d.hex)
+	Orders.on_unit_lost(self, d)
 	if d.immobile:
 		say("%s est détruit." % d.unit_name, "death")
 		return
@@ -1055,6 +1095,8 @@ func _kill(d: Unit, a: Unit, cause: String = "") -> void:
 ## Ennemis de mêlée au contact qui ont droit à une attaque gratuite si `u` s'éloigne.
 func free_attackers(u: Unit) -> Array[Unit]:
 	var out: Array[Unit] = []
+	if Statuses.has(u, "ord_repli"):
+		return out  ## « Repli coordonné » : on quitte le contact sans attaque gratuite
 	for f in foes_of(u):
 		if f.morale > 0 and not f.is_ranged() and Hex.distance(f.hex, u.hex) == 1:
 			out.append(f)
@@ -1070,6 +1112,8 @@ func step(u: Unit, to: Vector2i) -> bool:
 	u.fat += int(c["fat"])
 	u.moved_cells += 1
 	var stop: bool = Scenery.on_enter(self, u) or not u.is_live()
+	if not u.statuses.is_empty():
+		Statuses.on_move(self, u)  ## l'eau éteint la brûlure
 	if not stop:
 		_spear_wall(u, prev)
 	return stop or not u.is_live()
@@ -1173,6 +1217,7 @@ func wait(u: Unit) -> void:
 func leave_if_at_edge(u: Unit) -> bool:
 	if Hex.column(u.hex) == edge_column(u):
 		u.escaped = true
+		Orders.on_unit_lost(self, u)
 		say("%s quitte le champ de bataille." % u.unit_name, "mor")
 		return true
 	return false
@@ -1197,6 +1242,8 @@ func execute(u: Unit, action: Dictionary) -> void:
 			heal_ally(u, action["target"])
 		"raise":
 			raise_dead(u, action["target"])
+		"order":
+			Orders.give(self, u, str(action["id"]))
 
 
 const HEAL_AP: int = 4
@@ -1217,6 +1264,7 @@ func heal_ally(h: Unit, t: Unit) -> bool:
 	var n: int = mini(t.hp_max - t.hp, int(h.foe_data()["heal"]))
 	t.hp += n
 	say("%s soigne %s (+%d PV)." % [h.unit_name, t.unit_name, n], "mor")
+	Statuses.on_heal(self, t)  ## un soin arrête le saignement
 	return true
 
 
@@ -1240,6 +1288,7 @@ func raise_dead(n: Unit, t: Unit) -> bool:
 	new_log_group()
 	raised += 1
 	t.dead = false
+	t.statuses = {}
 	t.hp = maxi(1, t.hp_max / 2)
 	t.morale = 3
 	t.fat = 0
@@ -1299,7 +1348,7 @@ func to_dict() -> Dictionary:
 		"undo": ({"id": undo["id"], "hex": [undo["hex"].x, undo["hex"].y], "ap": undo["ap"], "fat": undo["fat"]} if not undo.is_empty() else {}),
 		"log_group": log_group, "wear_mult": wear_mult, "difficulty": difficulty,
 		"battle_type": battle_type, "night": night, "sight_radius": sight_radius, "rain": rain, "objectives": objectives.duplicate(true),
-		"reserve": reserve.duplicate(), "hold_rounds": hold_rounds, "start_party": start_party, "raised": raised,
+		"reserve": reserve.duplicate(), "hold_rounds": hold_rounds, "start_party": start_party, "raised": raised, "extras": extras.duplicate(true), "orders": orders.duplicate(true),
 	}
 
 
@@ -1334,6 +1383,9 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> BattleStat
 	s.hold_rounds = int(d.get("hold_rounds", 0))
 	s.start_party = int(d.get("start_party", 0))
 	s.raised = int(d.get("raised", 0))
+	s.orders = Orders.clean(d.get("orders", {}))
+	if typeof(d.get("extras", null)) == TYPE_DICTIONARY:
+		s.extras = AiPlan.clean_extras(d["extras"])
 	for ud in d["units"]:
 		s.units.append(Unit.from_combat_dict(ud))
 	for id in d["queue"]:
@@ -1356,4 +1408,5 @@ static func from_dict(d: Dictionary, p_rng: RandomNumberGenerator) -> BattleStat
 	var ud: Dictionary = d.get("undo", {})
 	if not ud.is_empty() and (ud["hex"] as Array).size() == 2:
 		s.undo = {"id": int(ud["id"]), "hex": Vector2i(int(ud["hex"][0]), int(ud["hex"][1])), "ap": int(ud["ap"]), "fat": int(ud["fat"])}
+	s.rec = BattleLog.start(s, true)  # une bataille reprise : la rediffusion commence à la reprise
 	return s

@@ -47,6 +47,8 @@ const DEFS: Array = [
 	{"id": "events_10", "n": "Routes imprévues", "d": "Vivre dix événements de route.", "src": "stats", "key": "events_seen", "min": 10},
 	{"id": "travel_50", "n": "Grands voyageurs", "d": "Marcher 50 jours sur les routes.", "src": "stats", "key": "travel_days", "min": 50},
 	{"id": "ending", "n": "La menace est écartée", "d": "Mettre fin à la crise qui pèse sur le royaume.", "src": "ctx", "key": "ending", "min": 1},
+	{"id": "retire_1", "n": "Une retraite méritée", "d": "Voir un vétéran prendre sa retraite.", "src": "ctx", "key": "retired", "min": 1},
+	{"id": "campfire_10", "n": "Veillées au coin du feu", "d": "Vivre dix veillées au camp.", "src": "ctx", "key": "camp_events", "min": 10},
 ]
 
 

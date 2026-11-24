@@ -91,10 +91,20 @@ func run_campaign(seed_value: int, max_days: int) -> void:
 func step() -> void:
 	if resilient and g.gold < g.wages() * 5:
 		g.gold += 500  # mécène : évite la faillite pour que la campagne dure
+	if g.battle == null and CampLife.has_pending(g.extras) and bot.randf() < 0.8:  # veillée au camp : un choix au hasard (sinon elle se règle d'office)
+		var cv: Dictionary = g.camp_life_view()
+		var open_choices: Array = (cv.get("choices", []) as Array).filter(func(c: Dictionary) -> bool: return not bool(c["disabled"]))
+		if open_choices.is_empty():
+			fail("veillée sans choix possible")
+		else:
+			g.camp_life_choose(str(open_choices[bot.randi() % open_choices.size()]["id"]))
+			bump("veillees")
 	if g.battle != null:
 		fight()
 	elif not g.pending_event.is_empty():
 		resolve_event()
+	elif Ruins.pending(g.extras):
+		ruins_decide()
 	elif g.location != "":
 		town()
 	else:
@@ -263,8 +273,33 @@ func travel() -> void:
 		"event":
 			if str(g.pending_event.get("id", "")).begins_with("poi_"):
 				bump("points d'intérêt")
+		"ruins":  # ruines à explorer : on entre une fois sur deux (aventures : core/ruins.gd)
+			bump("ruines proposées")
+			if bot.randf() < 0.5 and g.ruins_enter(str(ev["id"])):
+				bump("ruines entrées")
+		"legend_lair":  # antre d'une bête légendaire : on attaque une fois sur trois
+			bump("antres")
+			if bot.randf() < 0.34 and g.lair_attack(str(ev["id"])):
+				bump("antres attaqués")
 		"over":
 			pass
+
+
+## Décision dans une exploration de ruines : un choix valide au hasard (avancer, fouiller, se replier, ouvrir le coffre).
+func ruins_decide() -> void:
+	var run: Dictionary = Ruins.run_of(g.extras)
+	var opts: Array = Ruins.choices(run)
+	if opts.is_empty():
+		fail("exploration de ruines sans choix possible")
+		Ruins.abandon(g.extras)
+		return
+	var pick: Dictionary = opts[bot.randi() % opts.size()]
+	var res: Dictionary = g.ruins_act(str(pick["id"]))
+	if not bool(res["ok"]):
+		fail("choix de ruines refusé : %s" % str(pick["id"]))
+		Ruins.abandon(g.extras)
+		return
+	bump("ruines : " + str(pick["id"]))
 
 
 func save_load_roundtrip() -> void:

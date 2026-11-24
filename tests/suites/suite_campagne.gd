@@ -66,7 +66,7 @@ func test_assaut_fort_devient_base_amie() -> void:
 	var renown0: int = g.renown
 	t.check(g.engage_site(fort["id"]), "assaut lancé")
 	t.eq(g.battle.contract["kind"], "assault", "contrat d'assaut")
-	t.check(g.battle.units.size() >= 5 + 9, "garnison engagée")
+	t.check(g.battle.units.size() + g.battle.reserve.size() >= 5 + 9, "garnison engagée (une partie arrive en renfort)")
 	g.battle.units[0].hp = 5  # un blessé
 	_win(g)
 	t.eq(fort["state"], "friendly", "le fort pris devient un poste ami")

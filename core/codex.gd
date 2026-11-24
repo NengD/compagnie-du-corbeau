@@ -524,6 +524,7 @@ static func _battle(d: Dictionary, k: String) -> void:
 		"convoy": "Il faut défendre ou intercepter un convoi qui avance sur le plateau.",
 		"siege": "Remparts, portes et barricades : on prend ou l'on défend une position.",
 		"night": "La vue est réduite à quelques cases ; les feux éclairent le plateau.",
+		"defense": "On défend un lieu : défenses posées avant le combat, miliciens alliés, villageois à protéger, assaillants en plusieurs vagues.",
 	}
 	_txt(d, str(texts.get(k, "")))
 

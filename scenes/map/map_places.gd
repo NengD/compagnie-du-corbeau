@@ -652,13 +652,16 @@ static func paint_poi(l: CanvasItem, kind: String, p: Vector2, k: float, done: b
 	l.draw_circle(Vector2.ZERO, 9.0 * k, Color(0, 0, 0, 0.3 * a))
 	l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	match kind:
-		"ruins":  # colonnes brisées
+		"ruins", "ruins_deep":  # colonnes brisées ; les ruines à explorer en profondeur portent une flamme d'or
 			for i in 3:
 				var x: float = (-7.0 + i * 7.0) * k
 				var h: float = (6.0 + 5.0 * float((i * 5) % 3)) * k
 				l.draw_rect(Rect2(p + Vector2(x - 2.2 * k, 4.0 * k - h), Vector2(4.4 * k, h)), stone)
 				l.draw_rect(Rect2(p + Vector2(x - 2.2 * k, 4.0 * k - h), Vector2(4.4 * k, h)), OL, false, 0.9 * k)
 				l.draw_colored_polygon(PackedVector2Array([p + Vector2(x - 2.2 * k, 4.0 * k - h), p + Vector2(x - 0.5 * k, 4.0 * k - h - 2.0 * k), p + Vector2(x + 2.2 * k, 4.0 * k - h)]), dark)
+			if kind == "ruins_deep":
+				l.draw_colored_polygon(PackedVector2Array([p + Vector2(-2.2 * k, -6.0 * k), p + Vector2(0, -13.0 * k), p + Vector2(2.2 * k, -6.0 * k)]), Color(0.95, 0.72, 0.2, a))
+				l.draw_circle(p + Vector2(0, -7.5 * k), 1.3 * k, Color(1.0, 0.92, 0.55, a))
 		"shrine":  # stèle et lueur
 			var glow: float = 0.55 + 0.25 * sin(t * 2.0) if animate else 0.6
 			l.draw_circle(p + Vector2(0, -5.0 * k), 8.5 * k, Color(1.0, 0.9, 0.5, 0.18 * glow * a))

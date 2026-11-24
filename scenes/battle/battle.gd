@@ -54,6 +54,7 @@ var _confirm_retreat: bool = false
 var _modal: ModalOverlay
 var _alive: bool = true
 var _ability: String = ""  ## capacité armée par le joueur : le prochain clic sur un ennemi l'utilise
+var _use_slot: int = -1  ## consommable armé (emplacement du sac) : le prochain clic sur un homme l'utilise sur lui
 var _zoom: float = 1.0  ## zoom de la vue (1 = plateau entier)
 var _fit_k: float = 1.0  ## échelle qui fait tenir le plateau entier dans la scène
 var _panning: bool = false
@@ -61,6 +62,7 @@ var _view_btn: Button
 var _log_filter: String = "all"  ## filtre du journal (Tout / Combat / Moral / Système), conservé pendant la bataille
 var _hot: Array[Button] = []  ## boutons d'action numérotés (touches 1 à 9), dans l'ordre d'affichage
 var _help: ModalOverlay
+var _turn_snap: Dictionary = {}  ## instantané du début du tour du joueur (« Annuler le tour », Facile seulement ; core/turn_undo.gd)
 
 
 func _ready() -> void:
@@ -148,6 +150,12 @@ func _ready() -> void:
 			_refresh_log())
 		frow.add_child(fb)
 	frow.add_child(UiKit.spacer())
+	var replay_b := UiKit.button("Revoir", "ghost", true)
+	replay_b.tooltip_text = "Rejouer la bataille depuis le début (lecture seule)."
+	replay_b.pressed.connect(func() -> void:
+		if state != null and state.rec != null:
+			ReplayScreen.open_log(self, state.rec))
+	frow.add_child(replay_b)
 	var help_b := UiKit.button("?", "ghost", true)
 	help_b.tooltip_text = "Raccourcis clavier (? ou F1)"
 	help_b.pressed.connect(_open_help)
@@ -174,7 +182,7 @@ func start(s: BattleState, resumed: bool = false) -> void:
 	board.setup(s)
 	_fit_board()
 	_title.text = str(s.contract["title"])
-	state.logged.connect(func(_t: String, _c: String) -> void: _refresh_log())
+	_wire_state()
 	_refresh_log()
 	if s.over != "":
 		_refresh_all()
@@ -183,13 +191,31 @@ func start(s: BattleState, resumed: bool = false) -> void:
 	Sfx.music("battle")
 	if not resumed:
 		Sfx.play("horn")
-	if resumed and s.current != null and s.current.is_live() and s.current.side == "p" and s.current.morale > 0:
+	if resumed and s.current != null and s.current.is_live() and s.current.side == "p" and s.current.faction != "a" and s.current.morale > 0:
 		_begin_player_turn(s.current)
 		return
 	if resumed and s.current != null and s.current.is_live():
 		s.queue.push_front(s.current)
 		s.current = null
+	if Defense.can_prepare(s):  ## défense : phase de préparation avant le premier tour (panneau dans scenes/battle/defense_panel.gd)
+		DefensePanel.open(self, s, func() -> void:
+			_refresh_all()
+			_run_turns())
+		return
 	_run_turns()
+
+
+## Branche les signaux de l'état courant (journal, renforts).
+func _wire_state() -> void:
+	state.logged.connect(func(_t: String, _c: String) -> void: _refresh_log())
+	state.reinforced.connect(_on_reinforced)
+
+
+func _on_reinforced(arrivals: Array) -> void:
+	Sfx.play("horn")
+	board.refresh_units()
+	for a in arrivals:
+		board.float_text((a as Unit).hex, "Renfort !", Color("dcc56a"), -28.0)
 
 
 func _pause(t: float) -> void:
@@ -218,7 +244,7 @@ func _run_turns() -> void:
 				return
 			await _flee_turn(u)
 			continue
-		if u.side == "e":
+		if u.side == "e" or Defense.is_ally_ai(u):  ## miliciens d'une défense : conduits par l'IA
 			await _pause(0.25)
 			if not _alive:
 				return
@@ -231,8 +257,10 @@ func _run_turns() -> void:
 func _begin_player_turn(u: Unit) -> void:
 	_busy = false
 	_ability = ""
+	_use_slot = -1
 	_reach = state.reachable(u)
 	_confirm_retreat = false
+	_turn_snap = TurnUndo.capture(state, Game.difficulty, Game.extras)
 	_refresh_all()
 	Game.save()
 
@@ -252,7 +280,7 @@ func _ai_turn(u: Unit) -> void:
 				await _pause(0.2)
 			"ability":
 				await _attack(u, a["target"], false, str(a["id"]))
-			"hit_object", "open", "heal", "raise":
+			"hit_object", "open", "heal", "raise", "order":
 				state.execute(u, a)
 				_refresh_all()
 				await _pause(0.3)
@@ -366,6 +394,28 @@ func _player_move(h: Vector2i) -> void:
 	await _move_along(u, Pathfinding.path_to(_reach, h))
 	if _alive:
 		_after_player_action()
+
+
+## « Annuler le tour » (Facile, une fois par bataille) : revient au début du tour de l'homme ; le hasard, lui, continue d'avancer.
+func _undo_turn() -> void:
+	if not _player_turn():
+		return
+	var ns: BattleState = TurnUndo.restore(state, _turn_snap, Game.difficulty, Game.extras)
+	if ns == null:
+		return
+	state = ns
+	Game.battle = ns
+	_turn_snap = {}
+	_wire_state()
+	board.setup(ns)
+	_fit_board()
+	_ability = ""
+	_inspect = null
+	_hover = null
+	_reach = ns.reachable(ns.current)
+	_refresh_log()
+	_refresh_all()
+	Game.save()
 
 
 ## Annule le dernier déplacement du joueur (PA et fatigue rendus) tant que rien d'aléatoire ne s'est produit depuis.
@@ -493,8 +543,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	elif k == KEY_H or k == KEY_HOME:
 		reset_view()
 	elif k == KEY_ESCAPE:
-		if _ability != "":
+		if _ability != "" or _use_slot >= 0:
 			_ability = ""
+			_use_slot = -1
 			_refresh_all()
 		else:
 			handled = false
@@ -594,6 +645,14 @@ func _on_stage_input(event: InputEvent) -> void:
 			return
 		var cur: Unit = state.current
 		var t: Unit = state.unit_at(h)
+		if _use_slot >= 0 and cur != null and cur.side == "p":  # un consommable est armé : le clic désigne l'homme à soigner
+			var slot: int = _use_slot
+			_use_slot = -1
+			if t != null and Consumables.targets(state, cur, slot).has(t):
+				_use_consumable(slot, t)
+			else:
+				_refresh_all()
+			return
 		if t != null:
 			_inspect = t
 			if cur != null and cur.side == "p" and t.side != "p" and _can_hit(cur, t):
@@ -681,10 +740,11 @@ func _player_turn() -> bool:
 
 
 func _refresh_all() -> void:
-	var prize: String = " · Prime %d couronnes" % state.contract["pay"] if state.contract.get("kind", "contract") == "contract" else (" · Assaut" if state.contract.get("kind", "") == "assault" else " · Embuscade")
+	var prize: String = " · Prime %d couronnes" % state.contract["pay"] if state.contract.get("kind", "contract") == "contract" else (" · Assaut" if state.contract.get("kind", "") == "assault" else (" · Ruines" if state.contract.get("kind", "") == "ruins" else " · Embuscade"))
 	_subtitle.text = "Manche %d · Danger %d/3%s" % [state.round_no, state.contract["d"], prize]
 	if state.battle_type != "pitched":
 		_subtitle.text += " · " + str(Data.BATTLE_TYPE_NAMES[state.battle_type])
+	_drain_fx()
 	_refresh_objectives()
 	board.refresh_units()
 	_refresh_queue()
@@ -780,10 +840,12 @@ func _unit_block(parent: Node, u: Unit, tag: String) -> void:
 	var n := UiKit.title(u.unit_name, 20)
 	n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	n.clip_text = true
+	if Legendary.is_legend(u):
+		n.add_theme_color_override("font_color", GameTheme.GOLD)  ## bête légendaire : nom en or
 	top.add_child(n)
 	top.add_child(UiKit.chip(str(Data.MORALE_NAMES[u.morale]), GameTheme.MORALE_COLORS[u.morale]))
 	v.add_child(top)
-	v.add_child(UiKit.sub("%s · %s%s" % [tag, u.background, " · niv. %d" % u.level if u.side == "p" else ""]))
+	v.add_child(UiKit.sub("%s · %s%s%s" % [tag, u.background, " · niv. %d" % u.level if u.side == "p" else "", " · ★ " + Legendary.tag(u) if Legendary.is_legend(u) else ""]))
 	h.add_child(v)
 	c.add_child(h)
 	c.add_child(UiKit.bars(u, [StatBar.new("Fatigue", u.fat, u.fat_max_eff(), Color("5d7f8a"))]))
@@ -814,6 +876,16 @@ func _unit_block(parent: Node, u: Unit, tag: String) -> void:
 		c.add_child(perk_row)
 	if u.shield_wall:
 		c.add_child(UiKit.label("Mur de boucliers", 13, GameTheme.GOLD, true))
+	if Statuses.any(u):  # pastilles d'état (saignement, poison…) : l'infobulle de chacune explique l'effet
+		var st_row := HFlowContainer.new()
+		st_row.add_theme_constant_override("h_separation", 4)
+		for sid in Statuses.active(u):
+			var sd: Dictionary = StatusesData.STATUSES[sid]
+			var chip: PanelContainer = UiKit.chip(str(sd["n"]) if bool(sd.get("order", false)) else "%s %d" % [sd["n"], Statuses.turns(u, sid)], sd["color"])
+			chip.tooltip_text = str(sd["d"])
+			chip.mouse_filter = Control.MOUSE_FILTER_STOP
+			st_row.add_child(chip)
+		c.add_child(st_row)
 
 
 func _refresh_current() -> void:
@@ -849,6 +921,94 @@ Coût : %d PA, %d fatigue." % [ab["d"], ap, fat]
 		_hint.text = "%s : cliquez sur un ennemi à portée (ou de nouveau sur le bouton, ou Échap, pour annuler)." % Data.ABILITIES[_ability]["n"]
 
 
+## Chiffres flottants en attente (états, soins, ordres) posés par le moteur (BattleState.fx_events).
+func _drain_fx() -> void:
+	if state == null or board == null or state.fx_events.is_empty():
+		return
+	var evs: Array = state.fx_events
+	state.fx_events = []
+	var per_hex: Dictionary = {}
+	for e in evs:
+		var h: Vector2i = e["hex"]
+		var k: int = int(per_hex.get(h, 0))
+		per_hex[h] = k + 1
+		var kind: String = str(e["kind"])
+		var col: Color = GameTheme.GOLD
+		if StatusesData.STATUSES.has(kind):
+			col = StatusesData.STATUSES[kind]["color"]
+		elif kind == "heal":
+			col = Color("8fd18b")
+		board.float_text(h, str(e["text"]), col, -14.0 - 14.0 * float(k % 3), 14)
+
+
+## Boutons d'ordres de groupe : seulement pour le capitaine (talent de chef, sinon le plus aguerri de la compagnie).
+func _add_order_buttons(u: Unit) -> void:
+	if not Orders.is_captain(state, u):
+		return
+	for id in OrdersData.ORDER_IDS:
+		var od: Dictionary = OrdersData.ORDERS[id]
+		var b := UiKit.button("%s (%d PA)" % [od["n"], od["ap"]])
+		var why: String = Orders.why_not(state, u, id)
+		b.disabled = why != ""
+		b.tooltip_text = "%s\nCoût : %d PA, %d fatigue. Un ordre par manche." % [od["d"], od["ap"], od["fat"]] + ("\n" + why if why != "" else "")
+		b.pressed.connect(_give_order.bind(id))
+		_reg_hot(b)
+		_actions.add_child(b)
+
+
+func _give_order(id: String) -> void:
+	if _busy or state.current == null or not Orders.give(state, state.current, id):
+		return
+	_ability = ""
+	_use_slot = -1
+	if id == "mur":
+		Sfx.play("shield_wall")
+	_after_player_action()
+
+
+## Boutons des onguents et potions du sac (« Utiliser un objet »).
+func _add_item_buttons(u: Unit) -> void:
+	for bi in Consumables.slots_of(u):
+		var cd: Dictionary = ConsumablesData.ITEMS[str(u.bag[bi]["key"])]
+		var b := UiKit.button("%s (%d PA)" % [cd["n"], cd["ap"]], "pri" if _use_slot == bi else "")
+		b.disabled = not Consumables.can_use(state, u, bi)
+		b.tooltip_text = "%s\nCoût : %d PA." % [cd["note"], cd["ap"]] + ("\nPersonne n'en a besoin." if Consumables.targets(state, u, bi).is_empty() else "")
+		b.pressed.connect(_use_item.bind(bi))
+		_reg_hot(b)
+		_actions.add_child(b)
+	if _use_slot >= 0:
+		var names: PackedStringArray = []
+		for x in Consumables.targets(state, u, _use_slot):
+			names.append("lui-même" if x == u else x.unit_name)
+		_hint.text = "Cliquez sur l'homme à soigner (%s) — ou Échap pour annuler." % ", ".join(names)
+
+
+## Un seul bénéficiaire possible : on l'utilise tout de suite ; plusieurs : le consommable est armé et le clic suivant désigne l'homme.
+func _use_item(slot: int) -> void:
+	if _busy or state.current == null:
+		return
+	if _use_slot == slot:
+		_use_slot = -1
+		_refresh_all()
+		return
+	var tg: Array[Unit] = Consumables.targets(state, state.current, slot)
+	if tg.is_empty():
+		return
+	_ability = ""
+	if tg.size() == 1:
+		_use_consumable(slot, tg[0])
+	else:
+		_use_slot = slot
+		_refresh_all()
+
+
+func _use_consumable(slot: int, t: Unit) -> void:
+	if _busy or state.current == null or not Consumables.use(state, state.current, slot, t):
+		return
+	_use_slot = -1
+	_after_player_action()
+
+
 ## Numérote le bouton (touches 1 à 9) et ajoute la touche à son texte.
 func _reg_hot(b: Button) -> void:
 	if _hot.size() >= 9:
@@ -874,6 +1034,8 @@ func _refresh_actions() -> void:
 		_reg_hot(sw)
 		_actions.add_child(sw)
 	_add_ability_buttons(u)
+	_add_order_buttons(u)
+	_add_item_buttons(u)
 	for bi in u.bag.size():  # changement d'arme : objets du sac
 		if (u.bag[bi] as Dictionary).is_empty() or str(u.bag[bi]["kind"]) == "tool":
 			continue
@@ -889,6 +1051,11 @@ func _refresh_actions() -> void:
 		undo_b.tooltip_text = "Revenir à la case de départ et récupérer les PA et la fatigue du déplacement (tant que vous n'avez pas attaqué)."
 		undo_b.pressed.connect(_undo_move)
 		_actions.add_child(undo_b)
+	if TurnUndo.can_use(state, _turn_snap, Game.difficulty, Game.extras):
+		var undo_t := UiKit.button("Annuler le tour")
+		undo_t.tooltip_text = "Facile : revient au début du tour de cet homme (une seule fois par bataille). Le hasard n'est pas rejoué à l'identique : les prochains jets seront différents."
+		undo_t.pressed.connect(_undo_turn)
+		_actions.add_child(undo_t)
 	var wait_b := UiKit.button("Attendre" + Shortcuts.tag("W"))
 	wait_b.disabled = u.waited
 	wait_b.pressed.connect(_wait_turn)
@@ -1009,13 +1176,18 @@ func _show_end() -> void:
 		box.add_child(UiKit.para("Pas un sou pour ce contrat." if is_contract else "Les survivants s'enfuient à travers champs."))
 	var dead: Array = []
 	for u in state.units:
-		if u.side == "p" and u.dead and not u.immobile:
+		if u.side == "p" and u.dead and not u.immobile and u.faction != "a":  # (les miliciens d'une défense ne sont pas de la compagnie)
 			dead.append(u.unit_name)
 	if dead.is_empty():
 		box.add_child(UiKit.sub("Aucun mort à déplorer."))
 	else:
 		box.add_child(UiKit.label("Tombés : " + ", ".join(dead), 15, Color("ff8a78")))
 	box.add_child(UiKit.sub("Le détail (hommes, butin, prime) suit."))
+	if state.rec != null and state.rec.frame_count() > 0:
+		var rb := UiKit.button("Revoir la bataille", "ghost", true)
+		rb.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		rb.pressed.connect(func() -> void: ReplayScreen.open_log(self, state.rec))
+		box.add_child(rb)
 	var b := UiKit.button("Continuer", "pri")
 	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	b.pressed.connect(func() -> void: Game.finish_battle())

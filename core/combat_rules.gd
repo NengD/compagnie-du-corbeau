@@ -23,6 +23,9 @@ static func abilities_of(u: Unit) -> Array[String]:
 		if ab.has("tool"):
 			if tool_left(u, str(ab["tool"])) > 0:
 				out.append(k)
+		elif ab.has("coat"):  # tir enduit : arme listée + un usage restant de la fiole du sac
+			if tool_left(u, str(ab["coat"])) > 0 and not u.out_of_ammo() and ((ab["weapons"] as Array).has(u.weapon) or (ab["weapons"] as Array).has(Perks.weapon_base(u.weapon))):
+				out.append(k)
 		elif ab.has("perk"):
 			var ws: Array = ab["weapons"]  # vide : toute arme de mêlée ; sinon l'arme tenue (ou son modèle, pour une arme unique)
 			if u.has_perk(str(ab["perk"])) and ((ws.is_empty() and not u.is_ranged()) or ws.has(u.weapon) or ws.has(Perks.weapon_base(u.weapon))):
@@ -157,7 +160,7 @@ static func hit_chance(a: Unit, d: Unit, units: Array, cells: Dictionary = {}, b
 			ch += Data.HILL_MELEE_BONUS
 		elif ha < hd:
 			ch -= Data.HILL_MELEE_BONUS
-	return clampi(ch - Perks.def_bonus(d, units, bool(w["ranged"])) + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + Perks.hit_bonus(a, d, units) + Perks.family_hit(a, d) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units), 5, 95)
+	return clampi(ch - Perks.def_bonus(d, units, bool(w["ranged"])) + bonus + charge_bonus(a) + int(Perks.weapon_field(a, "hit")) + Perks.hit_bonus(a, d, units) + Perks.family_hit(a, d) + int(Data.MSK[a.morale]) + Bonds.hit_bonus(a, units) + (Statuses.hit_bonus(a) if not a.statuses.is_empty() else 0), 5, 95)
 
 
 ## Tire les dégâts d'un coup qui touche. Retour : {head, hp, armor} (ne modifie pas la cible).
@@ -221,6 +224,8 @@ static func morale_test_fails(u: Unit, modifier: int, rng: RandomNumberGenerator
 	var chance: int = clampi(u.eff("resolve") + modifier, 5, 95)
 	if rng.randi_range(1, 100) > chance:
 		u.morale -= 1
+		if u.morale == 0 and Statuses.has(u, "ord_tenir"):
+			u.morale = 1  ## « Tenez la ligne » : l'homme ne peut pas être mis en fuite
 		return true
 	return false
 

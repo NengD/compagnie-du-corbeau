@@ -210,10 +210,14 @@ static func site_label(s: Dictionary) -> String:
 
 
 ## Le contrat de bataille « assaut » d'un lieu hostile (vague 0).
-static func assault_contract(s: Dictionary, world: World) -> Dictionary:
+static func assault_contract(s: Dictionary, world: World, extras: Dictionary = {}) -> Dictionary:
 	var t: Dictionary = SITE_TYPES[s["kind"]]
 	var waves: Array = citadel_waves(str(s["faction"])) if s["kind"] == "citadel" else []
 	var foes: Array = (waves[0] as Array).duplicate() if not waves.is_empty() else garrison(str(s["kind"]))
+	var beast: String = Legendary.site_boss(extras, s) if waves.is_empty() else ""  ## une bête légendaire peut garder le lieu
+	if beast != "":
+		foes.append(str(LegendaryData.LEGENDS[beast]["foe"]))
+		foes.append_array(LegendaryData.LEGENDS[beast]["pack"])
 	return {
 		"kind": "assault", "battle_type": "siege", "site_id": str(s["id"]), "type": str(s["faction"]), "d": 3, "foes": foes, "waves": waves, "wave": 0,
 		"final": s["kind"] == "citadel", "title": "Assaut : " + str(s["name"]), "desc": "", "employer": "", "origin": "",

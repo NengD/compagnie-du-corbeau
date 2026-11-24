@@ -931,7 +931,7 @@ func _paint_dynamic(l: Node2D) -> void:
 	for q in w.pois:
 		var qp: Vector2 = w.poi_pos(q)
 		if _in_view(qp):
-			MapPlaces.paint_poi(l, str(q["kind"]), qp, 0.8 * iz, bool(q.get("done", false)), _t, animate)
+			MapPlaces.paint_poi(l, "ruins_deep" if Ruins.is_deep(q) and not bool(q.get("done", false)) else str(q["kind"]), qp, 0.8 * iz, bool(q.get("done", false)), _t, animate)
 	# Contrat : drapeau sur le lieu à atteindre
 	if not Game.active_contract.is_empty():
 		var tp: Vector2 = Game.contract_target()

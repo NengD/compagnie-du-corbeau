@@ -173,6 +173,14 @@ func _all_scenarios() -> void:
 	await _modal("journal", func() -> Variant: return load("res://scenes/chronicle/chronicle_screen.gd").open(main))
 	await _modal("mémorial", func() -> Variant: return load("res://scenes/chronicle/chronicle_screen.gd").open(main, "memorial"))
 	await _modal("succès", func() -> Variant: return load("res://scenes/achievements/achievements_screen.gd").open(main))
+	await _modal("courbes de campagne", func() -> Variant: return load("res://scenes/stats/stats_screen.gd").open(main))
+	await _modal("héritage", func() -> Variant: return load("res://scenes/camp/legacy_screen.gd").open_family(main))
+	await _modal("retraite d'un vétéran", func() -> Variant: return load("res://scenes/camp/legacy_screen.gd").open_retire(main, game.roster[0].id))
+	await _modal("veillée au camp", func() -> Variant:
+		game.extras["camp_life"] = {"pending": {"id": "mutiny", "a": game.roster[0].id, "b": -1, "day": game.day, "stake": 0, "cost": 75}}
+		var m: Variant = load("res://scenes/camp/camp_life_screen.gd").open(main)
+		game.extras.erase("camp_life")
+		return m)
 	await _modal("raccourcis", func() -> Variant: return load("res://scenes/ui/shortcuts.gd").open(main, "battle"))
 	await _modal("atelier", func() -> Variant: return load("res://scenes/camp/workshop_screen.gd").open(main))
 	await _modal("pause", func() -> Variant:
@@ -182,12 +190,37 @@ func _all_scenarios() -> void:
 		var men: Array = []
 		for u in game.roster:
 			men.append({"u": u.to_dict(), "hp_before": u.hp_max, "hp_after": u.hp_max - 10, "xp": 12, "kills": 2, "wounds": ["Coupure"]})
-		return load("res://scenes/battle/summary_screen.gd").open(main, {"result": "win", "title": "Contrat : chasser les brigands de la route", "gold": 300, "renown": 20, "fallen": ["Un tel"], "men": men,
+		return load("res://scenes/battle/summary_screen.gd").open(main, {"result": "win", "title": "Contrat : chasser les brigands de la route", "gold": 300, "renown": 20, "fallen": ["Un tel"], "men": men, "has_replay": true,
 			"loot": [{"kind": "weapon", "key": str(root.get_node("/root/Data").WPN.keys()[0])}, {"kind": "head", "key": str(root.get_node("/root/Data").HEAD.keys()[0])}], "goals": ["Objectif secondaire accompli"]}))
+	await _modal("rediffusion", func() -> Variant:
+		var rg := RandomNumberGenerator.new()
+		rg.seed = 5
+		var lib: RefCounted = load("res://tools/sim_lib.gd").new()
+		var bs: BattleState = BattleState.create(lib.make_contract(["b"], 2, "plain", "pitched"), lib.make_party(rg, 6), rg)
+		for i in 40:
+			var bu: Unit = bs.next_turn()
+			if bu == null:
+				break
+			bs.play_ai_turn(bu)
+		bs.rec.finalize(bs)
+		return ReplayScreen.open_log(main, bs.rec))
 	await _modal("captifs", func() -> Variant:
 		var m := ModalOverlay.open(main, 520)
 		load("res://scenes/battle/captives_screen.gd").build(m.content, {"men": [{"name": "Brigand", "level": 2, "leader": true}, {"name": "Archer", "level": 1}], "faction": "h1"}, Callable())
 		return m)
+	await _modal("ruines (entrée)", func() -> Variant: return load("res://scenes/ruins/ruins_screen.gd").open_entry(main, "Ruines de la Crypte oubliée de Val-Cendre", "crypte", 3, Callable(), Callable()))
+	await _modal("ruines (niveau)", func() -> Variant:
+		var run: Dictionary = {"poi": "p0", "name": "Ruines de la Crypte oubliée de Val-Cendre", "theme": "crypte", "d": 3, "stage": 1, "stages": 3, "phase": "choice", "searched": false}
+		return load("res://scenes/ruins/ruins_screen.gd").open_run(main, run, {"text": "Un piège à pression ! Une dalle s'abaisse et des pointes jaillissent.", "lines": ["Hugues le Roux : -20 PV", "+120 couronnes", "Trouvé : Haubert de mailles fin"]}, Callable()))
+	await _modal("ruines (coffre)", func() -> Variant:
+		var run2: Dictionary = {"poi": "p0", "name": "Citadelle orque", "theme": "citadelle", "d": 3, "stage": 3, "stages": 3, "phase": "chest", "searched": true}
+		return load("res://scenes/ruins/ruins_screen.gd").open_run(main, run2, {}, Callable()))
+	await _modal("antre légendaire", func() -> Variant: return load("res://scenes/ruins/ruins_screen.gd").open_lair(main, "troll", Callable(), Callable()))
+	await _modal("préparation de défense", func() -> Variant:
+		var dc: Dictionary = {"kind": "contract", "type": "b", "type_contract": "defense", "battle_type": "defense", "d": 3, "foes": ["brigand", "brigand", "archer", "chef"], "title": "Défendre le village des Trois-Ponts", "desc": "", "employer": "x", "origin": "x",
+			"origin_id": "", "pay": 900, "days": 1, "tx": 0.0, "ty": 0.0, "ox": 0.0, "oy": 0.0, "target_name": "x", "biome": "plain"}
+		var ds: BattleState = BattleState.create(dc, game.roster, game.rng, 3, 1.0, "normal", game.formation_slots())
+		return load("res://scenes/battle/defense_panel.gd").open(main, ds, Callable()))
 	await _modal("marché", func() -> Variant: return load("res://scenes/market/market_screen.gd").open(main, 0))
 	await _modal("marché (marchandises)", func() -> Variant:
 		var s: Variant = load("res://scenes/market/market_screen.gd").open(main, 0)

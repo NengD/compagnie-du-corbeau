@@ -16,7 +16,13 @@ static func open(host: Node, tab: String = "journal") -> ModalOverlay:
 	var close_b := UiKit.button("Fermer", "pri")
 	close_b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	close_b.pressed.connect(func() -> void: modal.close())
-	modal.content.add_child(close_b)
+	var foot := UiKit.hbox(8)
+	foot.add_child(close_b)
+	var stats_b := UiKit.button("Courbes et statistiques")
+	stats_b.tooltip_text = "Or, renom et effectif jour après jour ; victoires et défaites par type de contrat"
+	stats_b.pressed.connect(func() -> void: StatsScreen.open(host))
+	foot.add_child(stats_b)
+	modal.content.add_child(foot)
 	var rebuild: Array = [Callable()]
 	rebuild[0] = func() -> void:
 		for c in body.get_children():
@@ -98,6 +104,19 @@ static func _build_memorial(box: VBoxContainer) -> void:
 	var fallen: Array = Game.fallen
 	box.add_child(UiKit.sub("%d homme%s tombé%s au service de la compagnie." % [fallen.size(), "s" if fallen.size() > 1 else "", "s" if fallen.size() > 1 else ""] if not fallen.is_empty() else "Personne n'est encore tombé. Cela ne durera pas.", 14))
 	var list: VBoxContainer = _scroll(box)
+	var retired: Array = Legacy.state(Game.extras)["retired"]
+	if not retired.is_empty():
+		list.add_child(UiKit.label("Retraités et instructeurs", 15, GameTheme.GOLD, true))
+		for i in range(retired.size() - 1, -1, -1):
+			var r: Dictionary = retired[i]
+			var rp := PanelContainer.new()
+			rp.theme_type_variation = "Card"
+			var rv := UiKit.vbox(2)
+			rv.add_child(UiKit.label("%s %s" % ["★" if str(r["role"]) == "instructor" else "☆", str(r["name"])], 17, GameTheme.INK, true))
+			rv.add_child(UiKit.sub("%s · niveau %d · %d victime%s · %s au jour %d%s" % [str(r["bg"]), int(r["lvl"]), int(r["kills"]), "s" if int(r["kills"]) > 1 else "", str(Legacy.ROLES.get(str(r["role"]), "retraité")), int(r["day"]), (" · lègue « %s »" % str(r["hl"])) if str(r["hl"]) != "" else ""], 13))
+			rp.add_child(rv)
+			list.add_child(rp)
+		list.add_child(UiKit.label("Tombés au combat", 15, GameTheme.GOLD, true))
 	for i in range(fallen.size() - 1, -1, -1):
 		var f: Dictionary = fallen[i]
 		var p := PanelContainer.new()

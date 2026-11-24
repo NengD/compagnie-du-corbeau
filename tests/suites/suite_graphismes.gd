@@ -69,10 +69,15 @@ func test_back_gear_and_bearer() -> void:
 	u.bag = [{}, {}]
 	t.eq(Figure.back_layers(u).size(), 0, "sac vide : rien dans le dos")
 	var g: Node = t.new_game(7)
-	var ag: Node = (Engine.get_main_loop() as SceneTree).root.get_node("Game")  # l'autoload, que lit Figure
-	var saved: Array[Unit] = ag.roster
-	ag.roster = g.roster
+	# Figure lit la compagnie de l'autoload Game s'il existe (pas encore créé quand les suites tournent depuis _init) ; sinon `Unit.leader`.
+	var ag: Node = t.root.get_node_or_null("Game")
+	var saved: Array[Unit] = []
+	if ag != null:
+		saved = ag.roster
+		ag.roster = g.roster
 	var first: Unit = g.roster[0]
+	for m in g.roster:
+		m.leader = (m == first)
 	t.check(Figure.is_standard_bearer(first), "le premier homme porte l'étendard")
 	t.check(not Figure.is_standard_bearer(g.roster[1]), "les autres non")
 	var f: Figure = Figure.new().setup(first)
@@ -81,7 +86,8 @@ func test_back_gear_and_bearer() -> void:
 	t.check(with_gear > f2.get_child_count() or not Figure.gear_enabled(), "l'étendard ajoute des calques")
 	f.free()
 	f2.free()
-	ag.roster = saved
+	if ag != null:
+		ag.roster = saved
 
 
 func test_region_look() -> void:

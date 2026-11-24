@@ -275,6 +275,12 @@ func _process(delta: float) -> void:
 	if not Game.pending_event.is_empty():
 		_open_event()  ## le temps est en pause tant qu'un événement attend un choix
 		return
+	if Game.battle == null and (RuinsFlow.busy(self) or RuinsFlow.resume(self)):
+		return  ## exploration de ruines : le temps est en pause tant qu'une décision attend (scenes/ruins/)
+	if CampLife.has_pending(Game.extras):
+		if not _modal_open():
+			CampLifeScreen.open(self)  ## veillée de bivouac : le temps est en pause tant qu'elle attend un choix
+		return
 	if _speed == 0 or Game.world.path.is_empty():
 		return
 	var d: Dictionary = Game.world.dest
@@ -302,6 +308,8 @@ func _process(delta: float) -> void:
 			_open_event()
 		"site":
 			_open_site(str(ev["id"]))
+		"ruins", "legend_lair":
+			RuinsFlow.on_map_event(self, ev)
 	_update_status()
 
 

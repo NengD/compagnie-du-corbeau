@@ -197,7 +197,7 @@ func _build_contract() -> void:
 	c.add_child(UiKit.title(str(ac["title"]), 19))
 	var to: Vector2 = Game.contract_target()
 	var pts: Array[Vector2] = Game.world.find_path(Game.world.player_pos, to)
-	var kind_name: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison"}.get(str(ac.get("type_contract", "kill")), "Éliminer")
+	var kind_name: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison", "defense": "Défense", "legend": "Bête légendaire"}.get(str(ac.get("type_contract", "kill")), "Éliminer")
 	c.add_child(UiKit.sub("%s · %s : %s · ≈ %.1f j · prime %d couronnes%s" % [kind_name, "Destination" if Contracts.is_transport(ac) else "Lieu", ac["target_name"], Game.world.path_days(pts), ac["pay"], " (à l'arrivée)" if Contracts.is_transport(ac) else ""]))
 	var r2 := UiKit.hbox(6)
 	var go := UiKit.button("Aller sur place", "pri", true)

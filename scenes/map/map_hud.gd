@@ -317,7 +317,7 @@ func refresh_pill() -> void:
 	if ac.is_empty():
 		return
 	var pts: Array[Vector2] = Game.world.find_path(Game.world.player_pos, Game.contract_target())
-	var kind_name: String = {"kill": "Éliminer", "hunt": "Chasse", "escort": "Escorte", "delivery": "Livraison"}.get(str(ac.get("type_contract", "kill")), "Éliminer")
+	var kind_name: String = {"kill": "Éliminer", "hunt": "Chasse", "escort": "Escorte", "delivery": "Livraison", "defense": "Défense", "legend": "Légendaire"}.get(str(ac.get("type_contract", "kill")), "Éliminer")
 	_pill_title.text = str(ac["title"])
 	_pill_title.tooltip_text = str(ac["title"])
 	_pill_line.text = "%s · %s · ≈ %.1f j" % [kind_name, ac["target_name"], Game.world.path_days(pts)]

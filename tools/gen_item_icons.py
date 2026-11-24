@@ -38,6 +38,9 @@ UNIQUES = {
     ("weapon", "u_masse_glas"): "masse", ("weapon", "u_arc_ronce"): "arc",
     ("head", "u_casque_loup"): "casque", ("head", "u_heaume_veilleur"): "heaume",
     ("body", "u_cotte_nuit"): "mailles", ("body", "u_brigandine_roi"): "brigandine",
+    # butin des bêtes légendaires (core/legendary_data.gd)
+    ("weapon", "u_brise_os"): "masse", ("weapon", "u_croc_alpha"): "dague", ("head", "u_couronne_pale"): "casque_rouille",
+    ("body", "u_peau_troll"): "cuirasse_peaux", ("body", "u_cuirasse_roc"): "plastron_orque",
 }
 
 DEFS = ('<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%s"/>'

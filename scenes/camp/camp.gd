@@ -63,13 +63,24 @@ func _ready() -> void:
 		if i >= 0 and i < _tab_names.size() and _tab_names[i] == "Marché" and mode == "town":
 			MarketScreen.open(self))
 	Game.changed.connect(_rebuild)
+	Game.changed.connect(_check_camp_life)
 	_rebuild()
+	_check_camp_life.call_deferred()
 
 
 func _exit_tree() -> void:
 	if Game.changed.is_connected(_rebuild):
 		Game.changed.disconnect(_rebuild)
+	if Game.changed.is_connected(_check_camp_life):
+		Game.changed.disconnect(_check_camp_life)
 	_close_modal()
+
+
+## Une veillée attend une réponse (core/camp_life.gd) : sa fenêtre s'ouvre ici, au camp.
+func _check_camp_life() -> void:
+	if not is_inside_tree() or Game.game_over or Game.battle != null or not CampLife.has_pending(Game.extras) or CampLifeScreen.is_open():
+		return
+	CampLifeScreen.open(self)
 
 
 func _build_head() -> Control:
@@ -227,6 +238,10 @@ func _build_company(root: VBoxContainer) -> void:
 	chron_open.tooltip_text = "Journal de campagne et mémorial des hommes tombés"
 	chron_open.pressed.connect(func() -> void: ChronicleScreen.open(self))
 	actions.add_child(chron_open)
+	var legacy_open := UiKit.button("Héritage")
+	legacy_open.tooltip_text = "Instructeur du camp, retraités et objets de famille"
+	legacy_open.pressed.connect(func() -> void: LegacyScreen.open_family(self))
+	actions.add_child(legacy_open)
 	actions.add_child(UiKit.sub("%d/%d hommes · %d au combat (maximum %d), les autres en réserve" % [Game.roster.size(), Game.max_roster(), Formation.field_count(Game.formation_slots()), Data.FIGHTERS], 13, false))
 	root.add_child(actions)
 	var flow := _flow(root)
@@ -284,6 +299,9 @@ func _roster_card(flow: Node, m: Unit, index: int) -> void:
 	if tc != null:
 		c.add_child(tc)
 	_story_lines(c, m)
+	var heirloom: Dictionary = Legacy.held_by(Game.extras, m)
+	if not heirloom.is_empty():
+		c.add_child(UiKit.label("Objet de famille : %s (%s)" % [str(heirloom["name"]), Legacy.bonus_text(heirloom)], 12, GameTheme.GOLD))
 	var bond_txt: String = Bonds.summary(m, Game.roster)
 	if bond_txt != "":
 		var bl := UiKit.sub(bond_txt, 12)
@@ -314,6 +332,11 @@ func _roster_card(flow: Node, m: Unit, index: int) -> void:
 		up.tooltip_text = "Monter dans l'ordre"
 		up.pressed.connect(Game.move_up.bind(m.id))
 		row.add_child(up)
+	if Game.roster.size() > 1 and Legacy.retire_block(m, Game.roster.size(), Game.battle != null) == "":
+		var rt := UiKit.button("Retraite", "ghost", true)
+		rt.tooltip_text = "Il ne combattra plus : instructeur du camp ou retraite honorée, avec un objet de famille."
+		rt.pressed.connect(func() -> void: LegacyScreen.open_retire(self, m.id))
+		row.add_child(rt)
 	if Game.roster.size() > 1:
 		if _confirm_dismiss == m.id:
 			var yes := UiKit.button("Confirmer le renvoi", "pri", true)
@@ -391,7 +414,7 @@ func _build_contracts(root: VBoxContainer) -> void:
 			if Data.FACTIONS.has(str(ct.get("vs_faction", ""))):
 				c.add_child(UiKit.sub("Dessert la cause contre : " + Factions.name_of(str(ct["vs_faction"])) + " (prime majorée)", 12))
 		c.add_child(UiKit.para(str(ct["desc"])))
-		var kind_txt: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison"}.get(str(ct.get("type_contract", "kill")), "Éliminer")
+		var kind_txt: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison", "defense": "Défense", "legend": "Bête légendaire"}.get(str(ct.get("type_contract", "kill")), "Éliminer")
 		if Contracts.is_transport(ct):
 			var risk: String = "embuscade possible (%s)" % Data.FACTION_NAMES[ct["type"]] if float(ct.get("ambush_at", -1.0)) >= 0.0 else "route réputée sûre"
 			c.add_child(UiKit.sub("%s · destination : %s · prime à l'arrivée · %s" % [kind_txt, ct["target_name"], "risque : " + risk]))

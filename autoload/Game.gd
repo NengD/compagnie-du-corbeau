@@ -148,6 +148,7 @@ func achievement_context() -> Dictionary:
 		"arcs": (Campaign.arc_summary(campaign) as Array).filter(func(a: Dictionary) -> bool: return a["phase"] == "done").size(),
 		"uniques": (campaign.get("uniques_taken", []) as Array).size(),
 		"ending": 1 if (bool(campaign.get("ending_pending", false)) or bool(campaign.get("free_mode", false))) else 0,
+		"retired": Legacy.retired_count(extras), "camp_events": CampLife.events_seen(extras),
 	}
 
 
@@ -687,6 +688,10 @@ func _restock(s: Dictionary) -> void:
 	s["stock"] = Market.generate(str(s["kind"]), _stock_rng(s))
 	s["rare"] = Campaign.rare_stock(s, day, campaign["uniques_taken"])
 	Campaign.post_arcs(campaign, world, s, day, renown)
+	if n_contracts >= 2:  # « Défendre X » et « Chasser la bête de … » (rares, graine dérivée) : ils prennent la place d'un contrat ordinaire, après le premier
+		var extra_c: Array = Defense.gen_contracts(world, s, renown, day) + Legendary.gen_contract(extras, world, s, renown, day)
+		for xc in extra_c:
+			(s["contracts"] as Array).insert(1, xc)
 	var ci: int = s["contracts"].size() - 1  # les contrats d'arc prennent la place d'un contrat ordinaire
 	while s["contracts"].size() > n_contracts and ci >= 0:
 		if not s["contracts"][ci].has("arc"):
@@ -818,6 +823,7 @@ func advance_time(days: float) -> void:
 				lines.append("%s est remis de sa blessure (%s)." % [m.unit_name, n.to_lower()])
 		lines.append_array(Campaign.daily(campaign, world, campaign_rng, day, renown, Difficulty.threat_mult(difficulty)))
 		lines.append_array(Wars.daily(extras, world, Wars.rng_for_day(day), day, [location]))  ## guerres entre factions (core/wars.gd)
+		lines.append_array(_camp_daily())  ## camp vivant (mutinerie, veillée de route) et historique des courbes
 		_goal_note(Backstory.progress(roster, "days", 1))
 		var deserter: String = _pay_or_desert(1)
 		if deserter != "":
@@ -898,6 +904,9 @@ func visit_poi(id: String) -> Dictionary:
 		return {}
 	if world.poi_pos(q).distance_to(world.player_pos) > World.ARRIVE_PX * 1.5:
 		return {}
+	var adv: Dictionary = _poi_adventure(q)  # ruines à explorer ou bête légendaire : un choix s'offre au joueur
+	if not adv.is_empty():
+		return adv
 	var def: Dictionary = Events.poi_pick(str(q["kind"]), campaign_rng)
 	if def.is_empty():
 		return {}
@@ -907,6 +916,144 @@ func visit_poi(id: String) -> Dictionary:
 	add_news(["La compagnie s'arrête à : %s." % q["name"]])
 	save()
 	return {"type": "event", "event": def}
+
+
+# --- Aventures : ruines à explorer, antres de bêtes légendaires (core/ruins.gd, core/legendary.gd) ---
+
+## Point d'intérêt qui propose une aventure : {"type": "ruins"|"legend_lair", "id", ...} ({} sinon). Le temps s'arrête, rien n'est encore engagé.
+func _poi_adventure(q: Dictionary) -> Dictionary:
+	var beast: String = Legendary.poi_beast(extras, q)
+	if beast != "":
+		world.stop()
+		add_news(["La compagnie s'arrête à : %s. Une bête gîte ici." % q["name"]])
+		return {"type": "legend_lair", "id": str(q["id"]), "beast": beast}
+	if Ruins.explorable(extras, q):
+		world.stop()
+		add_news(["La compagnie s'arrête à : %s." % q["name"]])
+		return {"type": "ruins", "id": str(q["id"])}
+	return {}
+
+
+## Attaque la bête légendaire qui gîte au point d'intérêt `id`.
+func lair_attack(id: String) -> bool:
+	var q: Dictionary = world.poi_by_id(id)
+	var beast: String = Legendary.poi_beast(extras, q) if not q.is_empty() else ""
+	if beast == "" or battle != null or roster.is_empty():
+		return false
+	var title: String = "L'antre de %s" % str(LegendaryData.LEGENDS[beast]["title"]).split(",")[0]
+	add_news(["La compagnie s'enfonce dans l'antre : %s." % title])
+	start_battle(Legendary.lair_contract(beast, title, world.biome_at(world.poi_pos(q))))
+	return battle != null
+
+
+## Entre dans les ruines du point `id` : le premier combat commence. Renvoie false si impossible.
+func ruins_enter(id: String) -> bool:
+	var q: Dictionary = world.poi_by_id(id)
+	if q.is_empty() or battle != null or roster.is_empty() or not Ruins.explorable(extras, q):
+		return false
+	var run: Dictionary = Ruins.start(extras, q, renown, world.region_danger(world.poi_pos(q)))
+	q["done"] = true
+	add_news(["La compagnie s'enfonce dans %s." % q["name"]])
+	Chronicle.record(extras, day, "event", "Exploration de %s." % str(q["name"]))
+	start_battle(Ruins.battle_contract(run, world))
+	return battle != null
+
+
+## Soigne ou blesse un homme au hasard (jamais mortel) ; renvoie la ligne de compte rendu.
+func _ruins_hurt(amount: int) -> String:
+	if roster.is_empty():
+		return ""
+	var v: Unit = roster[campaign_rng.randi() % roster.size()]
+	v.hp = maxi(1, v.hp + amount)
+	return "%s : %d PV" % [v.unit_name, amount]
+
+
+## Choix du joueur dans les ruines (`Ruins.choices`). Renvoie {"ok", "text", "lines", "battle": un combat commence}.
+func ruins_act(choice_id: String) -> Dictionary:
+	var run: Dictionary = Ruins.run_of(extras)
+	var res: Dictionary = {"ok": false, "text": "", "lines": [], "battle": false}
+	if run.is_empty() or battle != null or not Ruins.pending(extras) or roster.is_empty():
+		return res
+	var ok_ids: Array = Ruins.choices(run).map(func(c: Dictionary) -> String: return str(c["id"]))
+	if not ok_ids.has(choice_id):
+		return res
+	res["ok"] = true
+	var lines: Array = res["lines"]
+	match choice_id:
+		"advance":
+			var ev: Dictionary = Ruins.advance_event(campaign_rng, int(run["d"]))
+			res["text"] = str(ev["text"])
+			if ev.has("hp_one"):
+				lines.append(_ruins_hurt(int(ev["hp_one"])))
+			run["phase"] = "battle"
+			start_battle(Ruins.battle_contract(run, world))
+			res["battle"] = battle != null
+		"search":
+			run["searched"] = true
+			var o: Dictionary = Ruins.search(campaign_rng, int(run["d"]))
+			res["text"] = str(o["text"])
+			if o.has("gold"):
+				_earn(int(o["gold"]))
+				lines.append("+%d couronnes" % int(o["gold"]))
+			if o.has("item"):
+				add_to_stash([o["item"]])
+				lines.append("Trouvé : %s" % Loot.item_name(o["item"]))
+			if o.has("hp_one"):
+				lines.append(_ruins_hurt(int(o["hp_one"])))
+			if bool(o.get("battle", false)):
+				run["phase"] = "battle"
+				run["extra"] = true
+				start_battle(Ruins.battle_contract(run, world, true))
+				res["battle"] = battle != null
+		"retreat":
+			res["text"] = "La compagnie remonte à la lumière, avec ses blessures et ce qu'elle a pu sauver."
+			Chronicle.record(extras, day, "event", "Repli des ruines de %s." % str(run["name"]))
+			Ruins.abandon(extras)
+		"open":
+			var ch: Dictionary = Ruins.chest(campaign_rng, int(run["d"]), campaign["uniques_taken"])
+			res["text"] = str(RuinsData.THEMES[str(run["theme"])]["chest"])
+			_earn(int(ch["gold"]))
+			lines.append("+%d couronnes" % int(ch["gold"]))
+			add_to_stash(ch["items"])
+			_note_uniques(ch["items"])
+			for it in ch["items"]:
+				lines.append("Butin : %s" % Loot.item_name(it))
+			lines.append(str(ch["clue"]))
+			var st: Dictionary = Ruins.state(extras)
+			st["explored"] = int(st["explored"]) + 1
+			st["clues"] = int(st["clues"]) + 1
+			story_flags["ruin_clue_" + str(run["poi"])] = day
+			stat_add("ruins_explored")
+			Chronicle.record(extras, day, "event", "Coffre des ruines de %s ouvert." % str(run["name"]))
+			Ruins.abandon(extras)
+	if roster.is_empty():
+		game_over = true
+	add_news([str(res["text"])] + lines)
+	_after_change()
+	return res
+
+
+## Suites d'une bataille propres aux aventures (défense, bêtes légendaires, ruines) : lignes de compte rendu.
+func _adventure_after(b: BattleState, c: Dictionary, win: bool) -> Array:
+	var out: Array = []
+	if b.battle_type == "defense":
+		var af: Dictionary = Defense.aftermath(b, win)
+		if int(af["standing"]) != 0:
+			world.change_standing(str(c.get("origin_id", "")), int(af["standing"]))
+		if int(af["renown"]) > 0:
+			gain_renown(int(af["renown"]))
+		out.append_array(af["lines"])
+		Chronicle.record(extras, day, "battle", "Défense : %s." % str(c.get("title", "")))
+	if win:
+		var lg: Array = Legendary.report_lines(b)
+		if not lg.is_empty():
+			stat_add("legends_slain", float(lg.size()))
+			for l in lg:
+				Chronicle.record(extras, day, "battle", str(l))
+		out.append_array(lg)
+	if c.get("kind", "") == "ruins":
+		out.append(Ruins.on_battle_end(extras, win, c))
+	return out
 
 
 ## Part du trajet origine → destination déjà parcourue par la compagnie (0 à 1).
@@ -1074,7 +1221,124 @@ func rest() -> void:
 	if roster.size() < before:
 		lines.push_front("Faute de paie, un homme a déserté.")
 	add_news(lines)
+	_camp_life_rest()  ## veillée au camp (au plus une par repos)
 	_after_change()
+
+
+# --- Camp vivant, retraite et historique (core/camp_life.gd, core/legacy.gd, core/stats_history.gd) ---
+
+func _camp_ctx() -> Dictionary:
+	return {"day": day, "gold": gold, "provisions": provisions, "morale": company_morale, "fallen": fallen.size(), "road": location == "", "random": random_events}
+
+
+## Point de l'historique des courbes pour aujourd'hui.
+func _stats_point() -> void:
+	StatsHistory.record(extras, day, {"gold": gold, "renown": renown, "men": roster.size(), "wins": int(stats.get("battles_won", 0)),
+		"losses": int(stats.get("battles_lost", 0)) + int(stats.get("retreats", 0)), "fallen": int(stats.get("men_fallen", 0)), "food": provisions})
+
+
+## Suivi quotidien : mutinerie annoncée, veillée de route, événement resté sans réponse tranché d'office ; historique.
+func _camp_daily() -> Array:
+	var lines: Array = []
+	if not roster.is_empty():
+		lines.append_array(CampLife.daily(extras, roster, CampLife.rng_for(day, 1), _camp_ctx()))
+		var auto: String = CampLife.expired_choice(extras, day)
+		if auto != "":
+			lines.append_array(camp_life_choose(auto, true))
+	_stats_point()
+	return lines
+
+
+func _camp_life_rest() -> void:
+	if not random_events or roster.size() < 2:
+		return
+	var ev: Dictionary = CampLife.roll(extras, roster, CampLife.rng_for(day, 3), _camp_ctx(), CampLifeData.REST_CHANCE)
+	if not ev.is_empty():
+		add_news(["Veillée au camp : il se passe quelque chose autour du feu."])
+		changed.emit()
+
+
+## Veillée en attente décrite pour la fenêtre : {"title", "text", "choices": [...]} ou {} (aucune).
+func camp_life_view() -> Dictionary:
+	return CampLife.describe(CampLife.pending(extras), roster, _camp_ctx())
+
+
+## Applique le choix de la veillée en attente. `silent` : sans sauvegarde ni signal (appel depuis le passage des jours) ;
+## renvoie alors les lignes de nouvelles. Sinon renvoie aussi les lignes (déjà ajoutées aux nouvelles).
+func camp_life_choose(choice: String, silent: bool = false) -> Array:
+	var res: Dictionary = CampLife.resolve(extras, choice, roster, CampLife.rng_for(day, 20 + CampLife.events_seen(extras)), _camp_ctx())
+	if not bool(res["ok"]):
+		return []
+	var g: int = int(res["gold"])
+	if g > 0:
+		_earn(g)
+	elif g < 0:
+		_spend(mini(-g, maxi(0, gold)))
+	morale_add(float(res["morale"]))
+	provisions = clampi(provisions + int(res["provisions"]), 0, maxi(provisions, provisions_cap()))
+	for id in res["leave"]:
+		var m: Unit = member(int(id))
+		if m != null and roster.size() > 1:
+			roster.erase(m)  ## son équipement part avec lui
+	if str(res["chron"]) != "":
+		Chronicle.record(extras, day, "event", str(res["chron"]))
+	if not silent:
+		add_news(res["lines"])
+		_stats_point()
+		_after_change()
+	return res["lines"]
+
+
+## Retire un vétéran de la compagnie (voir core/legacy.gd) : `role` "instructor" ou "memorial", `piece_kind` : pièce léguée ("" = aucune).
+func retire_man(id: int, role: String, piece_kind: String) -> bool:
+	var m: Unit = member(id)
+	if m == null or Legacy.retire_block(m, roster.size(), battle != null) != "":
+		return false
+	var r: Dictionary = Legacy.retire(extras, m, day, role, piece_kind)
+	if not bool(r["ok"]):
+		add_news([str(r["msg"])])
+		return false
+	roster.erase(m)
+	add_to_stash(r["items"])
+	var hl: Dictionary = r["heirloom"]
+	Chronicle.record(extras, day, "retire", "%s (%s, niveau %d) prend sa retraite%s%s." % [m.unit_name, m.background, m.level, " et forme les recrues du camp" if role == "instructor" else "", " ; il lègue « %s »" % str(hl["name"]) if not hl.is_empty() else ""])
+	add_news([str(r["msg"])])
+	_stats_point()
+	_after_change()
+	return true
+
+
+## Remet un objet de famille à un homme de la même origine.
+func bestow_heirloom(hid: int, heir_id: int) -> bool:
+	var heir: Unit = member(heir_id)
+	if heir == null or battle != null:
+		return false
+	var r: Dictionary = Legacy.bestow(extras, hid, heir, roster)
+	add_news([str(r["msg"])])
+	if not bool(r["ok"]):
+		return false
+	add_to_stash(r["removed"])
+	Chronicle.record(extras, day, "event", str(r["msg"]))
+	_after_change()
+	return true
+
+
+## Engage au demi-tarif une recrue « fils / fille de » l'ancien (demi-tarif de son origine).
+func hire_heir(hid: int) -> bool:
+	var h: Dictionary = Legacy.heirloom_by_id(extras, hid)
+	var price: int = Legacy.heir_price(h) if not h.is_empty() else 0
+	if h.is_empty() or price <= 0 or gold < price or roster.size() >= max_roster() or battle != null:
+		return false
+	var u: Unit = Legacy.make_heir(extras, h, CampLife.rng_for(day, 90 + int(Legacy.state(extras)["sons"])), _names())
+	if u == null:
+		return false
+	_spend(price)
+	stat_add("men_hired")
+	roster.append(u)
+	Chronicle.record(extras, day, "hire", "%s rejoint la compagnie pour %d couronnes." % [u.unit_name, price])
+	add_news(["%s rejoint la compagnie." % u.unit_name])
+	_after_change()
+	return true
 
 
 func repair() -> void:
@@ -1528,6 +1792,7 @@ func prepare_loot() -> Array:
 		pending_loot = []
 		if battle.over == "win":
 			pending_loot = Loot.roll_battle(battle.units, loot_rng, Difficulty.loot_mult(difficulty) * Perks.roster_mult(roster, "loot_mult"))
+			pending_loot.append_array(Legendary.loot_for(battle, extras))  ## bête légendaire tuée : butin unique, une seule fois par partie
 			if battle.contract.get("kind", "contract") == "contract":
 				var rare: Dictionary = Loot.roll_contract_bonus(int(battle.contract.get("d", 1)), loot_rng)
 				if not rare.is_empty():
@@ -1668,7 +1933,7 @@ func engage_site(id: String) -> bool:
 	if s.is_empty() or s["state"] != "hostile" or battle != null or roster.is_empty():
 		return false
 	add_news(["La compagnie donne l'assaut : %s." % s["name"]])
-	start_battle(Campaign.assault_contract(s, world))
+	start_battle(Campaign.assault_contract(s, world, extras))
 	return battle != null
 
 
@@ -1831,7 +2096,7 @@ func _settle_roster(b: BattleState, win: bool) -> Dictionary:
 		var scar: String = Injuries.roll_permanent(m, rng, difficulty)
 		if scar != "":
 			add_news(["%s garde une séquelle : %s." % [m.unit_name, str(Data.INJURIES[scar]["n"]).to_lower()]])
-		var xp_gain: int = int(round(float(Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))) * Perks.fx_mult(m, "xp_mult")))  ## talent Apprenti zélé
+		var xp_gain: int = int(round(float(Difficulty.xp(difficulty, int(b.xp.get(m.id, 0)) + (15 * int(c["d"]) if win else 5))) * Perks.fx_mult(m, "xp_mult") * Legacy.xp_mult(extras)))  ## talent Apprenti zélé, instructeur du camp
 		m.xp += xp_gain
 		level_check(m)
 		var rep_wounds: Array = []
@@ -1854,6 +2119,7 @@ func _battle_outcome_lines(b: BattleState, win: bool, dead_names: Array) -> Arra
 	var is_contract: bool = c.get("kind", "contract") == "contract"
 	var is_ambush: bool = c.get("kind", "") == "ambush"  ## embuscade de route ou d'événement (sans bande errante)
 	var is_assault: bool = c.get("kind", "") == "assault"  ## assaut d'un lieu hostile (éventuellement en plusieurs vagues)
+	var is_ruins: bool = c.get("kind", "") == "ruins"  ## niveau d'une exploration de ruines (voir core/ruins.gd)
 	var lines: Array = []
 	if win:
 		stat_add("battles_won")
@@ -1878,6 +2144,8 @@ func _battle_outcome_lines(b: BattleState, win: bool, dead_names: Array) -> Arra
 			active_contract = {}
 		elif is_assault:
 			lines.append_array(_assault_won(c))
+		elif is_ruins:
+			pass  # ni prime ni renom : le butin et le coffre sont la récompense
 		elif is_ambush:
 			lines.append("Embuscade repoussée : +%d renom." % gain_renown(15 * int(c["d"])))
 		else:
@@ -1894,7 +2162,7 @@ func _battle_outcome_lines(b: BattleState, win: bool, dead_names: Array) -> Arra
 			lines.append_array(_faction_result(c, "lost"))
 			lines.append_array(_arc_result(c, false))
 			active_contract = {}
-		elif is_ambush or is_assault:
+		elif is_ambush or is_assault or is_ruins:
 			pass
 		else:
 			var p: Dictionary = world.party_by_id(int(c["party_id"]))
@@ -1902,6 +2170,7 @@ func _battle_outcome_lines(b: BattleState, win: bool, dead_names: Array) -> Arra
 				p["cooldown"] = 2.0
 	if not dead_names.is_empty():
 		lines.append("Tombés : %s." % ", ".join(dead_names))
+	lines.append_array(_adventure_after(b, c, win))
 	return lines
 
 
@@ -1941,6 +2210,7 @@ func finish_battle() -> void:
 	var renown_before: int = renown
 	var settled: Dictionary = _settle_roster(b, win)
 	var dead_names: Array = settled["dead"]
+	StatsHistory.record_battle(extras, c, win)
 	var lines: Array = _battle_outcome_lines(b, win, dead_names)
 	var spoils: Dictionary = _loot_and_objectives(b, win, lines)
 	if win and gold > gold_before:  # primes : comptent pour les objectifs « couronnes » de ceux qui ont combattu
@@ -1954,6 +2224,13 @@ func finish_battle() -> void:
 	var men_report: Array = settled["men"]
 	last_battle_report = {"result": b.over, "title": str(c.get("title", "")), "day": day, "men": men_report, "loot": loot.duplicate(true),
 		"gold": gold - gold_before, "renown": renown - renown_before, "lines": lines.duplicate(), "fallen": dead_names.duplicate(), "objectives": obj_report, "goals": goal_lines.duplicate()}
+	if b.rec != null:  # rediffusion : la dernière bataille seulement (extras["last_replay"], borné, compressé)
+		b.rec.finalize(b)
+		if b.rec.is_valid():
+			extras["last_replay"] = b.rec.pack()
+			last_battle_report["has_replay"] = true
+		else:
+			extras.erase("last_replay")
 	var cap: Dictionary = Captives.collect(b, win) if next_wave.is_empty() else {}
 	if cap.is_empty():
 		extras.erase("captives")
@@ -1966,6 +2243,7 @@ func finish_battle() -> void:
 	add_news(lines)
 	if roster.is_empty():
 		game_over = true
+	_stats_point()
 	check_achievements()
 	save()
 	battle_finished.emit()

@@ -107,6 +107,7 @@ func _places_section(root: VBoxContainer) -> void:
 	_row(b, Icon.new("contract", {}), "Lieu du contrat en cours")
 	_row(b, Icon.new("visited", {}), "Lieu déjà visité")
 	_row(b, Icon.new("poi_ruins", {}), "Ruines (point d'intérêt : on s'y arrête une fois)")
+	_row(b, Icon.new("poi_ruins_deep", {}), "Ruines à flamme d'or : exploration par niveaux, avec un coffre au bout")
 	_row(b, Icon.new("poi_shrine", {}), "Sanctuaire")
 	_row(b, Icon.new("poi_camp", {}), "Camp abandonné")
 	_row(b, Icon.new("poi_tower", {}), "Tour de guet")

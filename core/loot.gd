@@ -39,7 +39,7 @@ static func data_of(it: Dictionary) -> Dictionary:
 		"ammo":
 			return Ammo.item_data(str(it["key"]))
 		"tool":
-			return Data.TOOLS[it["key"]]
+			return Consumables.tool_data(str(it["key"]))  ## outil de jet ou consommable
 	return {}
 
 
@@ -178,7 +178,7 @@ static func is_valid(it: Variant) -> bool:
 		"shield":
 			return true
 		"tool":
-			return Data.TOOLS.has(it["key"])
+			return Consumables.tool_valid(str(it["key"]))
 		"ammo":
 			return Ammo.has_item(str(it["key"]))
 	return false
@@ -255,6 +255,7 @@ static func roll_battle(units: Array, rng: RandomNumberGenerator, loot_mult: flo
 		for dr in u.foe_data().get("drop", []):  # dépouilles des monstres
 			if rng.randf() < float(dr[2]) * loot_mult:
 				out.append(item(str(dr[0]), str(dr[1])))
+	out.append_array(Consumables.roll_loot(units))  ## onguents et potions (aléa à part : ne touche pas au tirage du butin d'équipement)
 	return out
 
 

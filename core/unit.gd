@@ -85,6 +85,7 @@ var tool_used: Dictionary = {}  ## outil -> lancers déjà faits dans cette bata
 var retreats: int = 0  ## replis déjà faits dans cette bataille (borne le comportement « blessé qui se replie »)
 var riposte_round: int = -1  ## manche de sa dernière riposte (maîtrise de l'épée : une par manche)
 var wall_round: int = -1  ## manche de sa dernière attaque de mur de lances
+var statuses: Dictionary = {}  ## états de combat {id de StatusesData -> tours restants} : saignement, poison, brûlure, gel, ordres (jamais hors bataille)
 
 
 static func alloc_id() -> int:
@@ -152,6 +153,8 @@ func eff(k: String) -> int:
 			v += int(td.get("hit_stat", {}).get(k, 0))
 	if exposed and (k == "melee_def" or k == "ranged_def"):
 		v -= Data.EXPOSE_DEF
+	if not statuses.is_empty() and (k == "melee_def" or k == "ranged_def"):
+		v += Statuses.def_bonus(self)  ## ordre « Tenez la ligne »
 	return v
 
 
@@ -166,7 +169,7 @@ func fat_max_eff() -> int:
 
 func ini_eff() -> int:
 	var w: int = weight()
-	return eff("initiative") - w - (int(float(w) * Perks.mfx(self, "ini_heavy")) if not perks.is_empty() else 0) - fat
+	return eff("initiative") - w - (int(float(w) * Perks.mfx(self, "ini_heavy")) if not perks.is_empty() else 0) - fat - (Statuses.ini_penalty(self) if not statuses.is_empty() else 0)
 
 
 func move_fat() -> int:
@@ -356,6 +359,7 @@ func reset_for_battle() -> void:
 	retreats = 0
 	riposte_round = -1
 	wall_round = -1
+	statuses = {}
 
 
 ## Projectiles en début de bataille (-1 = arme sans munitions), talents compris.
@@ -460,6 +464,8 @@ func combat_dict() -> Dictionary:
 		"rooted": rooted, "moved_cells": moved_cells, "tool_used": tool_used.duplicate(), "retreats": retreats,
 		"riposte_round": riposte_round, "wall_round": wall_round,
 	})
+	if not statuses.is_empty():
+		d["statuses"] = statuses.duplicate()  ## clé absente = aucun état
 	return d
 
 
@@ -484,6 +490,7 @@ static func from_combat_dict(d: Dictionary) -> Unit:
 	u.retreats = int(d.get("retreats", 0))
 	u.riposte_round = int(d.get("riposte_round", -1))
 	u.wall_round = int(d.get("wall_round", -1))
+	u.statuses = Statuses.clean(d.get("statuses", {}))
 	for k in d.get("tool_used", {}):
 		u.tool_used[str(k)] = int(d["tool_used"][k])
 	u.hex = Vector2i(int(d.get("q", 0)), int(d.get("r", 0)))

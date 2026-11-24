@@ -24,6 +24,10 @@ static func add(a: Unit, b: Unit, delta: int) -> void:
 	if a == null or b == null or a == b or a.id == b.id or delta == 0:
 		return
 	var v: int = clampi(get_bond(a, b.id) + delta, -LIMIT, LIMIT)
+	if v == 0:  ## un lien nul n'existe pas (la sauvegarde ne le conserve pas)
+		a.bonds.erase(b.id)
+		b.bonds.erase(a.id)
+		return
 	a.bonds[b.id] = v
 	b.bonds[a.id] = v
 

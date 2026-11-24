@@ -181,6 +181,8 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, 18.0, Color(0, 0, 0, 0.3))
 	_ellipse(Vector2(0, 11), 17, 5.6)
 	draw_arc(Vector2.ZERO, 17, 0.0, TAU, 40, Color(BASE_COLORS[unit.side], 0.75), 1.6, true)
+	if Legendary.is_legend(unit):  # bête légendaire : anneau d'or au pied
+		draw_arc(Vector2.ZERO, 21, 0.0, TAU, 40, Color(GameTheme.GOLD, 0.95), 2.4, true)
 	if is_current:
 		var pulse: float = 0.5 + 0.5 * sin(_t * 3.0)
 		_ellipse(Vector2(0, 11), 24, 8.5)
@@ -193,6 +195,14 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	draw_circle(Vector2(-18, 17), 3.6, OL)
 	draw_circle(Vector2(-18, 17), 3.0, GameTheme.MORALE_COLORS[unit.morale])
+	if Legendary.is_legend(unit):  # étoile d'or « Légendaire » à côté des barres
+		var star := PackedVector2Array()
+		for i in 10:
+			var r: float = 6.0 if i % 2 == 0 else 2.6
+			var a: float = -PI / 2.0 + TAU * i / 10.0
+			star.append(Vector2(21.0, 18.0) + Vector2(cos(a), sin(a)) * r)
+		draw_colored_polygon(star, GameTheme.GOLD)
+		draw_polyline(star + PackedVector2Array([star[0]]), OL, 1.0)
 	var ha: int = unit.head_armor_max()
 	var ba: int = unit.body_armor_max()
 	var lm: int = Limbs.total_max(unit)  ## bras et jambes : une seule fine barre fusionnée (somme des pièces), seulement si l'homme en porte
@@ -212,3 +222,9 @@ func _draw() -> void:
 		draw_rect(Rect2(-12, hp_y, 26.0 * float(Limbs.total_cur(unit)) / float(lm), 1.6), Color("8a929a"))
 		hp_y += 2.2
 	draw_rect(Rect2(-12, hp_y, 26.0 * maxf(0.0, unit.hp) / unit.hp_max, 2.5), Color("c4483a"))
+	if not unit.statuses.is_empty():  # pastilles d'état (saignement, poison, brûlure, gel, ordres) sous les barres
+		var sids: Array[String] = Statuses.active(unit)
+		for i in sids.size():
+			var sc := Vector2(-9.0 + 7.5 * i, hp_y + 8.0)
+			draw_circle(sc, 3.6, OL)
+			draw_circle(sc, 2.7, StatusesData.STATUSES[sids[i]]["color"])

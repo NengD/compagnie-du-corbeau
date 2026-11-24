@@ -172,7 +172,7 @@ func check_finish(g: Node, s: BattleState, roster: Array) -> Array[String]:
 		ids_before.append(m.id)
 	var dead_ids: Array = []
 	for u in s.units:
-		if u.side == "p" and u.dead and not u.immobile:
+		if u.side == "p" and u.dead and not u.immobile and u.faction != "a":  ## (les miliciens d'une défense ne sont pas de la compagnie)
 			dead_ids.append(u.id)
 	var win: bool = s.over == "win"
 	var obj: Dictionary = s.objective_bonus() if win else {"gold": 0, "renown": 0}
@@ -221,6 +221,7 @@ func run_battle(g: Node, seed_value: int) -> Dictionary:
 	rng.seed = seed_value
 	var party: Array = make_party(rng, int(p["men"]))
 	var contract: Dictionary = make_contract(p["factions"], int(p["danger"]), str(p["biome"]), str(p["btype"]))
+	_adventures(contract, rng, seed_value)
 	var s: BattleState = BattleState.create(contract, party, rng, 3, 1.0, difficulty)
 	var errors: Array[String] = check_state(s)
 	var r: Dictionary = play(s, seed_value % 2 == 0)
@@ -232,6 +233,24 @@ func run_battle(g: Node, seed_value: int) -> Dictionary:
 		"errors": errors, "over": fin.over, "rounds": fin.round_no, "turns": r["turns"],
 		"factions": "+".join(PackedStringArray(p["factions"])), "men": p["men"], "danger": p["danger"], "biome": p["biome"],
 	}
+
+
+## Aventures (core/defense.gd, core/legendary.gd) : défense en deux vagues pour une bataille « defense », et une bête légendaire
+## (phases, renforts) dans une bataille sur cinq, quel que soit le type.
+func _adventures(contract: Dictionary, rng: RandomNumberGenerator, seed_value: int) -> void:
+	if str(contract["battle_type"]) == "defense":
+		var foes: Array = contract["foes"]
+		if foes.size() >= 4:
+			var cfg: Dictionary = Defense.default_config(contract)
+			cfg["waves"] = [foes.slice(foes.size() / 2)]
+			cfg["rounds"] = [3 + seed_value % 3]
+			cfg["hold"] = 9 + seed_value % 4
+			contract["foes"] = foes.slice(0, foes.size() / 2)
+			contract["def"] = cfg
+	if seed_value % 5 == 0:
+		var key: String = str(LegendaryData.ORDER[(seed_value / 5) % LegendaryData.ORDER.size()])
+		(contract["foes"] as Array).append(str(LegendaryData.LEGENDS[key]["foe"]))
+		(contract["foes"] as Array).append_array(LegendaryData.LEGENDS[key]["pack"])
 
 
 ## Instance de Game pour les vérifications (aucune écriture disque).
