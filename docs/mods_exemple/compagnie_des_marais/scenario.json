@@ -1,0 +1,16 @@
+{
+	"scenarios": {
+		"marais": {
+			"n": "Les gens du marais",
+			"tag": "Quatre rôdeurs, peu d'or, 80 jours.",
+			"desc": "Chassés de leurs tourbières par un seigneur trop pressé, quatre rôdeurs vendent leur connaissance des chemins boueux.",
+			"intro": "La brume se lève sur les roseaux. Il est temps de trouver du travail.",
+			"rule": "Vous partez avec quelques vivres de plus.",
+			"men": ["braconnier", "braconnier", "bucheron", "fermier"],
+			"gold": 400, "provisions": 12, "morale": 5, "days": 80,
+			"goal": {"stat": "renown", "target": 120, "label": "Renom"},
+			"win": "Les marais n'ont plus de secrets pour vous, et le seigneur n'ose plus y mettre le pied.",
+			"lose": "La brume s'est refermée sur la compagnie."
+		}
+	}
+}

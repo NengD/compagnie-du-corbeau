@@ -128,6 +128,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	if status_text != "":
 		var col: Color = GameTheme.GOLD if state == "taken" else (GameTheme.GOOD if state == "open" else GameTheme.MUTE)
 		box.add_child(UiKit.label(wrap_text(status_text, 46), 14, col, true))
+	GameTheme.scale_tooltip(panel)  # taille des infobulles (accessibilité)
 	return panel
 
 

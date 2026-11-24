@@ -1,0 +1,3683 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "\nAlliées : "
+msgstr "\nAllies: "
+
+msgid "\nContrats : %s"
+msgstr "\nContracts: %s"
+
+msgid "\nJamais visité"
+msgstr "\nNever visited"
+
+msgid "\nPrix : ×%.2f"
+msgstr "\nPrices: ×%.2f"
+
+msgid "\nPropriétaire : %s%s"
+msgstr "\nOwner: %s%s"
+
+msgid "\nRelation avec la compagnie : %s (%+d)"
+msgstr "\nRelation with the company: %s (%+d)"
+
+msgid "\nRivales : "
+msgstr "\nRivals: "
+
+msgid "\nVisité le jour %d"
+msgstr "\nVisited on day %d"
+
+msgid "\nVivres presque épuisés !"
+msgstr "\nProvisions almost gone!"
+
+msgid "   Hommes %d/%d"
+msgstr "   Men %d/%d"
+
+msgid "  [usure %d/%d]"
+msgstr "  [wear %d/%d]"
+
+msgid "  · produit ici (bon marché)"
+msgstr "  · produced here (cheap)"
+
+msgid "  · très demandé (se vend cher)"
+msgstr "  · in high demand (sells high)"
+
+msgid " %s a eu le dessus."
+msgstr " %s had the upper hand."
+
+msgid " (%d tombé%s)"
+msgstr " (%1$d fallen)"
+
+msgid " (%s : %d de réputation)"
+msgstr " (%s: %d reputation)"
+
+msgid " (capitale)"
+msgstr " (capital)"
+
+msgid " (impossible : pas assez de ressources)"
+msgstr " (impossible: not enough resources)"
+
+msgid " (non apprise)"
+msgstr " (not learned)"
+
+msgid " (prime majorée)"
+msgstr " (increased bounty)"
+
+msgid " (à l'arrivée)"
+msgstr " (on arrival)"
+
+msgid " ; carquois remplis (+%d)"
+msgstr " ; quivers refilled (+%d)"
+
+msgid " ; il lègue « %s »"
+msgstr " ; he bequeaths \"%s\""
+
+msgid " La compagnie est au complet (%d)."
+msgstr " The company is at full strength (%d)."
+
+msgid " Une prime s'ajoute si la caravane arrive intacte, sans un seul homme perdu."
+msgstr " A bonus is added if the caravan arrives intact, without a single man lost."
+
+msgid " au bras"
+msgstr " on the arm"
+
+msgid " cesse"
+msgstr " ends"
+
+msgid " et %s vous en sait gré (+%d)"
+msgstr " and %s is grateful (+%d)"
+
+msgid " et devient instructeur du camp"
+msgstr " and becomes the camp instructor"
+
+msgid " et forme les recrues du camp"
+msgstr " and trains the camp recruits"
+
+msgid " et votre renom grandit un peu"
+msgstr " and your renown grows a little"
+
+msgid " · %d point(s) à dépenser"
+msgstr " · %d point(s) to spend"
+
+msgid " · en cale : %d (payé %d)"
+msgstr " · in the hold: %d (paid %d)"
+
+msgid " · en réserve"
+msgstr " · in reserve"
+
+msgid " · lègue « %s »"
+msgstr " · bequeaths \"%s\""
+
+msgid " · poids"
+msgstr " · weight"
+
+msgid " à la jambe"
+msgstr " on the leg"
+
+msgid " à la tête"
+msgstr " on the head"
+
+msgid " — visité le jour %d."
+msgstr " — visited on day %d."
+
+msgid "%+d PV à chaque homme"
+msgstr "%+d HP to every man"
+
+msgid "%+d couronnes"
+msgstr "%+d crowns"
+
+msgid "%+d rations"
+msgstr "%+d rations"
+
+msgid "%+d renom"
+msgstr "%+d renown"
+
+msgid "%d / %d appris"
+msgstr "%d / %d learned"
+
+msgid "%d bataille%s gagnée%s, %d perdue%s ou fuie%s ; %d ennemis abattus"
+msgstr "%1$d battle(s) won, %4$d lost or fled; %7$d enemies slain"
+
+msgid "%d captif%s"
+msgstr "%d captive|%d captives"
+
+msgid "%d couronnes"
+msgstr "%d crown|%d crowns"
+
+msgid "%d en rayon"
+msgstr "%d in stock"
+
+msgid "%d homme%s tombé%s au service de la compagnie."
+msgstr "%d man fell in the company's service.|%d men fell in the company's service."
+
+msgid "%d homme%s tombé%s, %d engagé%s"
+msgstr "%1$d fallen, %4$d hired"
+
+msgid "%d j"
+msgstr "%d d"
+
+msgid "%d lieu%s · %s (%+d)"
+msgstr "%d place(s) · %3$s (%4$s)"
+
+msgid "%d pièces par lot · remplit les carquois au camp"
+msgstr "%d pieces per lot · refills quivers at camp"
+
+msgid "%d point%s de talent à dépenser"
+msgstr "%1$d perk point(s) to spend"
+
+msgid "%d projectiles par bataille"
+msgstr "%d projectiles per battle"
+
+msgid "%d rations, ≈ %.1f jours de route. Une ration par homme et par jour de route ; achat au marché."
+msgstr "%d rations, ≈ %.1f days of travel. One ration per man per day on the road; buy at the market."
+
+msgid "%d retraité%s au mémorial%s."
+msgstr "%1$d retiree(s) in the memorial."
+
+msgid "%d × %s acheté%s : −%d couronnes."
+msgstr "%1$d × %2$s bought: −%4$d crowns."
+
+msgid "%d × %s vendu%s : +%d couronnes (%s)."
+msgstr "%1$d × %2$s sold: +%4$d crowns (%5$s)."
+
+msgid "%d/%d hommes · %d au combat (maximum %d), les autres en réserve"
+msgstr "%d/%d men · %d in battle (maximum %d), the rest in reserve"
+
+msgid "%s\nMétéo : %s"
+msgstr "%s\nWeather: %s"
+
+msgid "%s\nNiveau %d · %s\nPV %d/%d\n%s"
+msgstr "%s\nLevel %d · %s\nHP %d/%d\n%s"
+
+msgid "%s\nRivales : %s\nAlliées : %s\n%s"
+msgstr "%s\nRivals: %s\nAllies: %s\n%s"
+
+msgid "%s\nRéputation : %s (%+d)"
+msgstr "%s\nReputation: %s (%+d)"
+
+msgid "%s %d (j.%d)"
+msgstr "%s %d (d.%d)"
+
+msgid "%s %s : %s (%+d)"
+msgstr "%s %s: %s (%+d)"
+
+msgid "%s %s · ≈ %.1f j"
+msgstr "%s %s · ≈ %.1f d"
+
+msgid "%s %s — niveau %d/%d"
+msgstr "%s %s — level %d/%d"
+
+msgid "%s (%s) rejoint la compagnie à %s pour %d couronnes."
+msgstr "%s (%s) joins the company at %s for %d crowns."
+
+msgid "%s (%s, niv. %d, jour %d)"
+msgstr "%s (%s, lvl %d, day %d)"
+
+msgid "%s (%s, niveau %d) prend sa retraite%s%s."
+msgstr "%s (%s, level %d) retires%s%s."
+
+msgid "%s (%s, niveau %d) tombe au combat, %d victime%s à son actif."
+msgstr "%1$s (%2$s, level %3$d) falls in battle with %4$d kill(s) to their name."
+
+msgid "%s (jour %d/%d de la saison)\n%s"
+msgstr "%s (day %d/%d of the season)\n%s"
+
+msgid "%s : %+d"
+msgstr "%s: %+d"
+
+msgid "%s : %+d PV"
+msgstr "%s: %+d HP"
+
+msgid "%s : %+d de réputation (%s de %s)."
+msgstr "%s: %+d reputation (%s of %s)."
+
+msgid "%s : %+d de réputation."
+msgstr "%s: %+d reputation."
+
+msgid "%s : %d PV"
+msgstr "%s: %d HP"
+
+msgid "%s : %d couronnes (vu au jour %d)"
+msgstr "%s: %d crowns (seen on day %d)"
+
+msgid "%s : %d niveaux enchaînés, sans soin entre eux. On peut se replier entre deux niveaux. Danger %d/3."
+msgstr "%s: %d levels in a row, with no healing between them. You can fall back between two levels. Danger %d/3."
+
+msgid "%s : %s"
+msgstr "%s: %s"
+
+msgid "%s : %s %d/%d"
+msgstr "%s: %s %d/%d"
+
+msgid "%s : %s cesse."
+msgstr "%s: %s ends."
+
+msgid "%s : %s réparé%s (+%d points) pour %d couronnes."
+msgstr "%1$s: %2$s repaired (+%4$d points) for %5$d crowns."
+
+msgid "%s : %s%s."
+msgstr "%s: %s%s."
+
+msgid "%s : %s."
+msgstr "%s: %s."
+
+msgid "%s : +%d couronnes, +%d renom."
+msgstr "%s: +%d crowns, +%d renown."
+
+msgid "%s : niveau %d (−%d couronnes)."
+msgstr "%s: level %d (−%d crowns)."
+
+msgid "%s : rien"
+msgstr "%s: nothing"
+
+msgid "%s : −%d de réputation."
+msgstr "%s: −%d reputation."
+
+msgid "%s a juré de brûler la région. Un seul coup bien placé suffit à briser sa bande."
+msgstr "%s has sworn to burn the region. A single well-placed blow is enough to break his band."
+
+msgid "%s a pris des otages. Frappez vite, et frappez à la tête."
+msgstr "%s has taken hostages. Strike fast, and strike at the head."
+
+msgid "%s absent de la relecture"
+msgstr "%s missing from the replay"
+
+msgid "%s acheté : −%d couronnes (réserve de munitions : %d)."
+msgstr "%s bought: −%d crowns (ammo reserve: %d)."
+
+msgid "%s acheté : −%d couronnes."
+msgstr "%s bought: −%d crowns."
+
+msgid "%s apprend : %s."
+msgstr "%s learns: %s."
+
+msgid "%s contre %s · %s · encore ~%d j"
+msgstr "%s vs %s · %s · ~%d d left"
+
+msgid "%s de %s, venu%s reprendre la place laissée vide. Il faudra mériter le nom que l'on porte."
+msgstr "%1$s of %3$s, come to take the empty place. The name one bears must be earned."
+
+msgid "%s de la famille « %s » : %s"
+msgstr "%s of the \"%s\" family: %s"
+
+msgid "%s de maître"
+msgstr "Masterwork %s"
+
+msgid "%s en sort grandi : nouveau trait, %s."
+msgstr "%s comes out stronger: new trait, %s."
+
+msgid "%s est engourdi : -%d PA."
+msgstr "%s is numbed: −%d AP."
+
+msgid "%s est remis de sa blessure (%s)."
+msgstr "%s has recovered from their injury (%s)."
+
+msgid "%s est vaincu. Le monde est à vous : mode libre."
+msgstr "%s is defeated. The world is yours: free mode."
+
+msgid "%s et %s s'empoignent jusqu'à épuisement ; la rancune n'en est que plus vive."
+msgstr "%s and %s grapple to exhaustion; the grudge only grows."
+
+msgid "%s et %s s'expliquent à coups de poing, puis se serrent la main."
+msgstr "%s and %s settle it with fists, then shake hands."
+
+msgid "%s et %s trinquent entre eux et ne vous en veulent pas."
+msgstr "%s and %s drink together and hold nothing against you."
+
+msgid "%s exécuté%s : la compagnie en est ébranlée%s."
+msgstr "%1$s executed: the company is shaken."
+
+msgid "%s fait aiguiser son arme chez le %s : +%d %% de dégâts pour %d combats (−%d couronnes)."
+msgstr "%s has their weapon sharpened at the %s: +%d %% damage for %d battles (−%d crowns)."
+
+msgid "%s fait huiler son haubert chez le %s : l'armure encaisse %d %% de moins pour %d combats (−%d couronnes)."
+msgstr "%s has their hauberk oiled at the %s: armor takes %d %% less for %d battles (−%d crowns)."
+
+msgid "%s gagne en expérience."
+msgstr "%s gains experience."
+
+msgid "%s garde une séquelle : %s."
+msgstr "%s is left with a lasting effect: %s."
+
+msgid "%s jeté."
+msgstr "%s thrown."
+
+msgid "%s l'emporte sur %s en %d passes (%d et %d points de sang perdus)."
+msgstr "%s beats %s in %d rounds (%d and %d blood points lost)."
+
+msgid "%s libéré%s : le moral de la compagnie remonte%s."
+msgstr "%1$s freed: the company's morale rises."
+
+msgid "%s menace de quitter la compagnie : les hommes grondent."
+msgstr "%s threatens to leave the company: the men grumble."
+
+msgid "%s mène"
+msgstr "%s leads"
+
+msgid "%s ne peut pas le porter avec son équipement actuel."
+msgstr "%s cannot carry it with their current equipment."
+
+msgid "%s ne peut pas porter cet objet."
+msgstr "%s cannot carry this item."
+
+msgid "%s passe au niveau %d."
+msgstr "%s reaches level %d."
+
+msgid "%s prend en main : %s."
+msgstr "%s takes up: %s."
+
+msgid "%s prend sa retraite%s."
+msgstr "%s retires%s."
+
+msgid "%s quitte la compagnie."
+msgstr "%s leaves the company."
+
+msgid "%s range : %s."
+msgstr "%s stows: %s."
+
+msgid "%s regagne %d PV."
+msgstr "%s regains %d HP."
+
+msgid "%s rejoint la compagnie"
+msgstr "%s joins the company"
+
+msgid "%s rejoint la compagnie pour %d couronnes."
+msgstr "%s joins the company for %d crowns."
+
+msgid "%s rejoint la compagnie."
+msgstr "%s joins the company."
+
+msgid "%s rend ce qu'il avait gardé (+2 rations) ; il n'oubliera pas l'accusation."
+msgstr "%s gives back what they had kept (+2 rations); they won't forget the accusation."
+
+msgid "%s repart de zéro auprès de l'entraîneur : tous ses talents sont à rechoisir."
+msgstr "%s starts over with the trainer: all their perks are to be chosen again."
+
+msgid "%s reprend son souffle (−%d fatigue)."
+msgstr "%s catches their breath (−%d fatigue)."
+
+msgid "%s retrouve du cœur : %s."
+msgstr "%s takes heart again: %s."
+
+msgid "%s reçoit : %s."
+msgstr "%s receives: %s."
+
+msgid "%s reçoit « %s » (%s)."
+msgstr "%s receives \"%s\" (%s)."
+
+msgid "%s s'équipe : %s."
+msgstr "%s equips: %s."
+
+msgid "%s sonne la charge !"
+msgstr "%s sounds the charge!"
+
+msgid "%s subit %s : %d PV."
+msgstr "%s suffers %s: %d HP."
+
+msgid "%s tient la contrée sous sa botte. Sa tête vaudra de l'or, et la paix."
+msgstr "%s holds the land under their boot. Their head will be worth gold, and peace."
+
+msgid "%s tombe aux mains de %s, qui l'arrache à %s."
+msgstr "%s falls into the hands of %s, who wrests it from %s."
+
+msgid "%s utilise %s %s."
+msgstr "%s uses %s %s."
+
+msgid "%s vendu : +%d couronnes."
+msgstr "%s sold: +%d crowns."
+
+msgid "%s vendu."
+msgstr "%s sold."
+
+msgid "%s · %d contrat(s) · prix ×%.2f\nRéputation : %s (%+d)"
+msgstr "%s · %d contract(s) · prices ×%.2f\nReputation: %s (%+d)"
+
+msgid "%s · %d fiche%s"
+msgstr "%s · %d record(s)"
+
+msgid "%s · %d victime%s · solde %d/jour%s"
+msgstr "%1$s · %2$d kill(s) · wage %4$d/day%5$s"
+
+msgid "%s · %s : %s · ≈ %.1f j · prime %d couronnes%s"
+msgstr "%s · %s: %s · ≈ %.1f d · reward %d crowns%s"
+
+msgid "%s · %s niv. %d · %s, jour %d%s"
+msgstr "%s · %s lvl %d · %s, day %d%s"
+
+msgid "%s · %s · ≈ %.1f j"
+msgstr "%s · %s · ≈ %.1f d"
+
+msgid "%s · Lieu : %s · ennemis : %s, environ %d"
+msgstr "%s · Place: %s · enemies: %s, about %d"
+
+msgid "%s · destination : %s · prime à l'arrivée · %s"
+msgstr "%s · destination: %s · reward on arrival · %s"
+
+msgid "%s · niveau %d"
+msgstr "%s · level %d"
+
+msgid "%s · niveau %d · %d talent%s appris"
+msgstr "%1$s · level %2$d · %3$d perk(s) learned"
+
+msgid "%s · niveau %d · %d victime%s"
+msgstr "%1$s · level %2$d · %3$d kill(s)"
+
+msgid "%s · niveau %d · %d victime%s · %s au jour %d%s"
+msgstr "%1$s · level %2$d · %3$d kill(s) · %5$s on day %6$d%7$s"
+
+msgid "%s · niveau %s · danger %d/3"
+msgstr "%s · level %s · danger %d/3"
+
+msgid "%s · prix ×%.2f · réputation : %s (%+d)"
+msgstr "%s · prices ×%.2f · reputation: %s (%+d)"
+
+msgid "%s · solde %d/jour"
+msgstr "%s · wage %d/day"
+
+msgid "%s — %s (niveau %d/%d)"
+msgstr "%s — %s (level %d/%d)"
+
+msgid "%s — embuscade dans les décombres"
+msgstr "%s — ambush in the rubble"
+
+msgid "%s — rang %d"
+msgstr "%s — rank %d"
+
+msgid "%s — étape %d/%d%s"
+msgstr "%s — step %d/%d%s"
+
+msgid "%s, %s de %s"
+msgstr "%s, %s of %s"
+
+msgid "%s, niveau %d, %d victime%s. Il ne combattra plus et ne coûtera plus de solde. Sa retraite sera inscrite au mémorial."
+msgstr "%1$s, level %2$d, %3$d kill(s). They will no longer fight nor cost wages. Their retirement will be entered in the memorial."
+
+msgid "+%d PV par jour de route, +%d PV au repos, blessures guéries %d jour%s plus vite par jour."
+msgstr "+%1$d HP per day on the road, +%2$d HP at rest, injuries healed %3$d day(s) faster per day."
+
+msgid "+%d XP à chaque homme"
+msgstr "+%d XP to every man"
+
+msgid "+%d couronnes"
+msgstr "+%d crowns"
+
+msgid "+%d emplacements de réserve (%d au total)."
+msgstr "+%d reserve slots (%d in total)."
+
+msgid "+%d homme%s dans la compagnie (jusqu'à %d)."
+msgstr "+%1$d men in the company (up to %3$d)."
+
+msgid "+150 couronnes"
+msgstr "+150 crowns"
+
+msgid "+{cut} couronnes, liens −1 avec les deux"
+msgstr "+{cut} crowns, bonds −1 with both"
+
+msgid ", %s vous hait (%d)"
+msgstr ", %s hates you (%d)"
+
+msgid ", instructeur : %s"
+msgstr ", instructor: %s"
+
+msgid "1 jour de marche"
+msgstr "1 day's march"
+
+msgid "Abandonner"
+msgstr "Give up"
+
+msgid "Abattez %s et son escorte : la bande se dispersera. Prime élevée."
+msgstr "Slay %s and their escort: the band will scatter. High reward."
+
+msgid "Abattre 100 ennemis."
+msgstr "Slay 100 enemies."
+
+msgid "Abattre 500 ennemis."
+msgstr "Slay 500 enemies."
+
+msgid "Abattre le Géant de pierre de {town}"
+msgstr "Slay the Stone Giant of {town}"
+
+msgid "Abattre un chef lors d'une chasse au chef."
+msgstr "Slay a chief during a warlord hunt."
+
+msgid "Abattre un premier ennemi."
+msgstr "Slay a first enemy."
+
+msgid "Abattue"
+msgstr "Slain"
+
+msgid "Accepter"
+msgstr "Accept"
+
+msgid "Acceptez un contrat, rendez-vous à l'endroit indiqué : le combat s'engage. Des bandes errantes peuvent aussi vous tomber dessus."
+msgstr "Accept a contract and go to the indicated place: battle is joined. Roaming bands may also fall upon you."
+
+msgid "Achat %d · Revente %d"
+msgstr "Buy %d · Sell %d"
+
+msgid "Acheter 1"
+msgstr "Buy 1"
+
+msgid "Achetez et vendez par double-clic ou en glissant un objet d'un panneau à l'autre. Les objets achetés rejoignent la réserve : équipez-les ensuite depuis l'inventaire (touche I)."
+msgstr "Buy and sell by double-clicking or by dragging an item from one panel to the other. Purchased items go to the stash: equip them afterwards from the inventory (I key)."
+
+msgid "Achetez où c'est bon marché (« produit ici »), revendez là où c'est « très demandé ». Les marchandises voyagent dans vos chariots, pas dans la réserve."
+msgstr "Buy where it is cheap (\"produced here\"), sell where it is \"in high demand\". Goods travel in your wagons, not in the stash."
+
+msgid "Actuel : "
+msgstr "Current: "
+
+msgid "Admirée"
+msgstr "Admired"
+
+msgid "Affaires en cours"
+msgstr "Ongoing matters"
+
+msgid "Affamé, %s déserte pendant la nuit."
+msgstr "Starving, %s deserts in the night."
+
+msgid "Affichage"
+msgstr "Display"
+
+msgid "Affronter la bête"
+msgstr "Face the beast"
+
+msgid "Aiguisage (armes tranchantes) : +%d %% de dégâts pendant %d combats. Huile (mailles) : l'armure s'use %d %% de moins pendant %d combats."
+msgstr "Sharpening (edged weapons): +%d %% damage for %d battles. Oil (mail): armor wears %d %% less for %d battles."
+
+msgid "Aiguiser (%d)"
+msgstr "Sharpen (%d)"
+
+msgid "Aller"
+msgstr "Go"
+
+msgid "Aller sur place"
+msgstr "Go there"
+
+msgid "Amener un homme au niveau 11."
+msgstr "Bring a man to level 11."
+
+msgid "Amener un homme au niveau 6."
+msgstr "Bring a man to level 6."
+
+msgid "Amis : "
+msgstr "Friends: "
+
+msgid "Améliorer (%d couronnes)"
+msgstr "Upgrade (%d crowns)"
+
+msgid "Annuler"
+msgstr "Cancel"
+
+msgid "Antidote"
+msgstr "Antidote"
+
+msgid "Apprendre"
+msgstr "Learn"
+
+msgid "Apprendre 10 talents au total."
+msgstr "Learn 10 perks in total."
+
+msgid "Après la bataille de l'automne, des goules rôdent sur le champ. Les paysans refusent d'y labourer."
+msgstr "After the autumn battle, ghouls prowl the field. The peasants refuse to plow it."
+
+msgid "Arbre de talents : 1 point par niveau gagné."
+msgstr "Perk tree: 1 point per level gained."
+
+msgid "Arme"
+msgstr "Weapon"
+
+msgid "Arme aiguisée : +%d %% de dégâts pendant %d combats."
+msgstr "Weapon sharpened: +%d %% damage for %d battles."
+
+msgid "Armure %d/%d · poids %d"
+msgstr "Armor %d/%d · weight %d"
+
+msgid "Armure bras"
+msgstr "Arm armor"
+
+msgid "Armure corps"
+msgstr "Body armor"
+
+msgid "Armure de la tête"
+msgstr "Head armor"
+
+msgid "Armure du corps"
+msgstr "Body armor"
+
+msgid "Armure jambes"
+msgstr "Leg armor"
+
+msgid "Armure tête"
+msgstr "Head armor"
+
+msgid "Armures, armes et boucliers réparés pour %d couronnes%s."
+msgstr "Armor, weapons and shields repaired for %d crowns%s."
+
+msgid "Arrête un saignement et rend 6 PV. Usage unique, à soi-même ou à un allié au contact (3 PA)."
+msgstr "Stops bleeding and restores 6 HP. Single use, on yourself or an adjacent ally (3 AP)."
+
+msgid "Assaut"
+msgstr "Assault"
+
+msgid "Assauts"
+msgstr "Assaults"
+
+msgid "Atelier"
+msgstr "Workshop"
+
+msgid "Atelier du forgeron"
+msgstr "Blacksmith's workshop"
+
+msgid "Atteindre 1 500 de renom."
+msgstr "Reach 1,500 renown."
+
+msgid "Atteindre 500 de renom."
+msgstr "Reach 500 renown."
+
+msgid "Au bivouac, il se passe quelque chose autour du feu."
+msgstr "Something happens around the fire at the bivouac."
+
+msgid "Au fond de la chambre, un coffre de fer repose sur un sarcophage."
+msgstr "At the back of the chamber, an iron chest rests on a sarcophagus."
+
+msgid "Au jour %d, le dernier homme du Corbeau est tombé ou a déserté. Personne ne chantera leurs noms."
+msgstr "On day %d, the last man of the Raven fell or deserted. No one will sing their names."
+
+msgid "Au moins un homme doit rester sur le champ de bataille."
+msgstr "At least one man must stay on the battlefield."
+
+msgid "Au petit matin"
+msgstr "In the early morning"
+
+msgid "Au sommet"
+msgstr "At the summit"
+
+msgid "Aube"
+msgstr "Dawn"
+
+msgid "Aucun"
+msgstr "None"
+
+msgid "Aucun combat pour l'instant."
+msgstr "No battle yet."
+
+msgid "Aucun contrat à pourvoir pour l'instant. Revenez dans quelques jours."
+msgstr "No contracts available right now. Come back in a few days."
+
+msgid "Aucun effet (non construit)."
+msgstr "No effect (not built)."
+
+msgid "Aucun marchand ici."
+msgstr "No merchant here."
+
+msgid "Aucun point de talent à dépenser."
+msgstr "No perk points to spend."
+
+msgid "Aucun pour l'instant : un vétéran en lègue un en prenant sa retraite."
+msgstr "None for now: a veteran bequeaths one when retiring."
+
+msgid "Aucun talent appris%s."
+msgstr "No perks learned%s."
+
+msgid "Aucun talent à réinitialiser."
+msgstr "No perks to reset."
+
+msgid "Aucune fiche ne correspond."
+msgstr "No record matches."
+
+msgid "Automne"
+msgstr "Autumn"
+
+msgid "Autoriser le duel"
+msgstr "Allow the duel"
+
+msgid "Autres"
+msgstr "Other"
+
+msgid "Avancer vers le niveau suivant"
+msgstr "Advance to the next level"
+
+msgid "Avoir dix hommes sous la bannière."
+msgstr "Have ten men under the banner."
+
+msgid "Bandage"
+msgstr "Bandage"
+
+msgid "Bande dispersée : +%d renom."
+msgstr "Band scattered: +%d renown."
+
+msgid "Bande errante"
+msgstr "Roaming band"
+
+msgid "Bandes errantes"
+msgstr "Roaming bands"
+
+msgid "Bannière"
+msgstr "Banner"
+
+msgid "Bannière de la compagnie"
+msgstr "Company banner"
+
+msgid "Baptême du feu"
+msgstr "Baptism of fire"
+
+msgid "Batailles"
+msgstr "Battles"
+
+msgid "Batailles gagnées"
+msgstr "Battles won"
+
+msgid "Batailles perdues"
+msgstr "Battles lost"
+
+msgid "Battre en retraite plutôt que mourir."
+msgstr "Retreat rather than die."
+
+msgid "Blessures : "
+msgstr "Injuries: "
+
+msgid "Boire à la mémoire des tombés"
+msgstr "Drink to the memory of the fallen"
+
+msgid "Bouclier"
+msgstr "Shield"
+
+msgid "Bouclier rond"
+msgstr "Round shield"
+
+msgid "Boue et averses : marche un peu plus lente (−4 %), pluie plus fréquente."
+msgstr "Mud and showers: slightly slower marching (−4 %), more frequent rain."
+
+msgid "Bourse bien remplie"
+msgstr "Well-filled purse"
+
+msgid "Bras"
+msgstr "Arms"
+
+msgid "Bras, jambes"
+msgstr "Arms, legs"
+
+msgid "Brassards"
+msgstr "Bracers"
+
+msgid "Brigands : rôdent et poursuivent"
+msgstr "Bandits: prowl and pursue"
+
+msgid "Brigands près de {town}"
+msgstr "Bandits near {town}"
+
+msgid "Briseurs de murailles"
+msgstr "Wall breakers"
+
+msgid "Brûlure"
+msgstr "Burn"
+
+msgid "Butin : %s"
+msgstr "Loot: %s"
+
+msgid "Butin récupéré : %d objet%s."
+msgstr "Loot recovered: %1$d item(s)."
+
+msgid "Bâtiments du camp"
+msgstr "Camp buildings"
+
+msgid "Bête légendaire"
+msgstr "Legendary beast"
+
+msgid "Camp abandonné"
+msgstr "Abandoned camp"
+
+msgid "Capitale de faction (plus grande, remparts et étendards)"
+msgstr "Faction capital (larger, with ramparts and banners)"
+
+msgid "Caravane intacte : prime de %d couronnes."
+msgstr "Caravan intact: bonus of %d crowns."
+
+msgid "Caravane vers "
+msgstr "Caravan to "
+
+msgid "Cargaison : %d / %d"
+msgstr "Cargo: %d / %d"
+
+msgid "Carquois : %d %s"
+msgstr "Quiver: %d %s"
+
+msgid "Carquois : %s"
+msgstr "Quiver: %s"
+
+msgid "Carte du monde"
+msgstr "World map"
+
+msgid "Casques"
+msgstr "Helmets"
+
+msgid "Cent jours de route"
+msgstr "A hundred days on the road"
+
+msgid "Centurion"
+msgstr "Centurion"
+
+msgid "Cet emplacement n'accepte pas %s."
+msgstr "This slot does not accept %s."
+
+msgid "Cet emplacement n'existe pas."
+msgstr "This slot does not exist."
+
+msgid "Cet homme ne fait pas partie de la compagnie."
+msgstr "This man is not part of the company."
+
+msgid "Cet objet de famille a déjà un porteur."
+msgstr "This family item already has a bearer."
+
+msgid "Changement impossible."
+msgstr "Change not possible."
+
+msgid "Chanter avec eux"
+msgstr "Sing along with them"
+
+msgid "Chaque nuit, des tambours de guerre. Les éclaireurs de {town} ne sont pas rentrés."
+msgstr "Every night, war drums. The scouts of {town} have not come back."
+
+msgid "Chaque soir, le tertre vomit des silhouettes aux armures rouillées. Le vieux château les a-t-il appelées ?"
+msgstr "Every evening, the mound spews out figures in rusted armor. Did the old castle call them?"
+
+msgid "Chargez !"
+msgstr "Charge!"
+
+msgid "Chasse"
+msgstr "Hunt"
+
+msgid "Chasse au chef"
+msgstr "Warlord hunt"
+
+msgid "Chasser la Reine pâle de {town}"
+msgstr "Hunt the Pale Queen of {town}"
+
+msgid "Chasser la bête des marais de {town}"
+msgstr "Hunt the marsh beast of {town}"
+
+msgid "Chasser le loup alpha de {town}"
+msgstr "Hunt the alpha wolf of {town}"
+
+msgid "Chasser le troll du gué de {town}"
+msgstr "Hunt the ford troll of {town}"
+
+msgid "Chasses"
+msgstr "Hunts"
+
+msgid "Chasseurs de têtes"
+msgstr "Headhunters"
+
+msgid "Chef de bande aux abois"
+msgstr "Cornered band leader"
+
+msgid "Chefs abattus (chasses)"
+msgstr "Warlords slain (hunts)"
+
+msgid "Citadelle (le dernier défi)"
+msgstr "Citadel (the last challenge)"
+
+msgid "Citadelle orque"
+msgstr "Orc citadel"
+
+msgid "Coffre des ruines de %s ouvert."
+msgstr "Chest of the ruins of %s opened."
+
+msgid "Coffre-fort"
+msgstr "Strongbox"
+
+msgid "Collines"
+msgstr "Hills"
+
+msgid "Colosses de la montagne"
+msgstr "Mountain colossi"
+
+msgid "Comment jouer "
+msgstr "How to play "
+
+msgid "Compagnie"
+msgstr "Company"
+
+msgid "Compagnie : hommes, équipement, bannière"
+msgstr "Company: men, equipment, banner"
+
+msgid "Compagnie au complet"
+msgstr "Company at full strength"
+
+msgid "Compagnie et bandes"
+msgstr "Company and bands"
+
+msgid "Compagnie soudée"
+msgstr "Tight-knit company"
+
+msgid "Compétence de mêlée"
+msgstr "Melee skill"
+
+msgid "Compétence à distance"
+msgstr "Ranged skill"
+
+msgid "Confirmer (%d cr.)"
+msgstr "Confirm (%d cr.)"
+
+msgid "Confirmer (−5 renom)"
+msgstr "Confirm (−5 renown)"
+
+msgid "Confirmer l'abandon (−5 renom)"
+msgstr "Confirm abandoning (−5 renown)"
+
+msgid "Confirmer le renvoi"
+msgstr "Confirm dismissal"
+
+msgid "Contrat abandonné : %s (−5 renom)."
+msgstr "Contract abandoned: %s (−5 renown)."
+
+msgid "Contrat accepté : %s. Cap sur %s."
+msgstr "Contract accepted: %s. Heading for %s."
+
+msgid "Contrat en cours"
+msgstr "Contract in progress"
+
+msgid "Contrat en cours : %s\nPrime : %d couronnes%s"
+msgstr "Contract in progress: %s\nReward: %d crowns%s"
+
+msgid "Contrat final : abattre %s."
+msgstr "Final contract: slay %s."
+
+msgid "Contrat rempli : %s (+%d couronnes)."
+msgstr "Contract fulfilled: %s (+%d crowns)."
+
+msgid "Contrat rempli : %s. +%d couronnes, +%d renom."
+msgstr "Contract fulfilled: %s. +%d crowns, +%d renown."
+
+msgid "Contrat rempli : +%d couronnes, +%d renom."
+msgstr "Contract fulfilled: +%d crowns, +%d renown."
+
+msgid "Contrats"
+msgstr "Contracts"
+
+msgid "Contrats remplis"
+msgstr "Contracts fulfilled"
+
+msgid "Contrebandiers armés"
+msgstr "Armed smugglers"
+
+msgid "Convoyeurs"
+msgstr "Convoy guards"
+
+msgid "Corbeau noir"
+msgstr "Black raven"
+
+msgid "Corps"
+msgstr "Body"
+
+msgid "Correcte"
+msgstr "Fair"
+
+msgid "Couleur principale"
+msgstr "Main color"
+
+msgid "Couleur secondaire (emblème et chevron)"
+msgstr "Secondary color (emblem and chevron)"
+
+msgid "Courbes et statistiques"
+msgstr "Curves and statistics"
+
+msgid "Couronnes dépensées"
+msgstr "Crowns spent"
+
+msgid "Couronnes gagnées"
+msgstr "Crowns earned"
+
+msgid "Croc-Gris, le loup alpha"
+msgstr "Greyfang, the alpha wolf"
+
+msgid "Crypte oubliée"
+msgstr "Forgotten crypt"
+
+msgid "Crépuscule"
+msgstr "Dusk"
+
+msgid "Danger %d sur 3"
+msgstr "Danger %d of 3"
+
+msgid "Dans la salle du capitaine, un coffre a échappé aux pillards."
+msgstr "In the captain's hall, one chest escaped the looters."
+
+msgid "Dents-de-pierre"
+msgstr "Stonetooth"
+
+msgid "Depuis l'hiver, des créatures grises sortent des marais. Elles ne mangent pas que des poissons."
+msgstr "Since winter, grey creatures have been coming out of the marshes. They don't eat only fish."
+
+msgid "Des armes forgées en ville pour la garnison de {dest}. Mieux vaut qu'elles n'atterrissent pas ailleurs."
+msgstr "Weapons forged in town for the garrison of {dest}. Better that they don't end up elsewhere."
+
+msgid "Des bandits ont forcé la porte d'un couvent. L'abbesse offre une bourse pour le retour du calice."
+msgstr "Bandits forced the door of a convent. The abbess offers a purse for the return of the chalice."
+
+msgid "Des brigands rançonnent la route du moulin."
+msgstr "Bandits are extorting travelers on the mill road."
+
+msgid "Des bêtes difformes rôdent autour du charnier depuis la dernière peste."
+msgstr "Misshapen beasts have prowled around the charnel pit since the last plague."
+
+msgid "Des chartes de privilèges à remettre à {dest} avant la prochaine foire."
+msgstr "Charters of privilege to deliver to {dest} before the next fair."
+
+msgid "Des contrebandiers refusent de payer la taxe du bailli et ont tué le percepteur."
+msgstr "Smugglers refuse to pay the bailiff's tax and have killed the tax collector."
+
+msgid "Des détrousseurs ont fait d'un chêne creux leur tanière. Les enfants du village ont déserté les bois."
+msgstr "Footpads have made a hollow oak their lair. The village children have abandoned the woods."
+
+msgid "Des lettres de change pour {dest} : elles ne doivent pas se perdre en route."
+msgstr "Bills of exchange for {dest}: they must not be lost on the way."
+
+msgid "Des maraudeurs verts ont emporté le bétail de trois hameaux. Il faut le reprendre, et leur apprendre."
+msgstr "Green marauders carried off the cattle of three hamlets. It must be taken back, and a lesson taught."
+
+msgid "Des messagers retrouvés sans tête sur la route. Les orcs ont laissé un message sans équivoque."
+msgstr "Messengers found headless on the road. The orcs left an unambiguous message."
+
+msgid "Des orcs descendent de la montagne, poussés par la faim. Ils ne repartiront pas d'eux-mêmes."
+msgstr "Orcs are coming down from the mountain, driven by hunger. They will not leave on their own."
+
+msgid "Des orcs ont pris la tour de guet. Leur chef exige un tribut de sang."
+msgstr "Orcs have taken the watchtower. Their chief demands a tribute in blood."
+
+msgid "Des orcs rançonnent les passeurs et empalent ceux qui refusent. Le commerce est à l'arrêt."
+msgstr "Orcs extort the ferrymen and impale those who refuse. Trade has stopped."
+
+msgid "Des pillards de tombes ont réveillé ce qui dormait. Aucun n'est ressorti pour le dire."
+msgstr "Tomb robbers have awakened what slept. None came out to tell the tale."
+
+msgid "Des pèlerins fatigués se rendent à {dest}. On vous demande de les mener sans histoire."
+msgstr "Weary pilgrims are traveling to {dest}. You are asked to lead them there without trouble."
+
+msgid "Des ruines anciennes : on dit qu'elles cachent encore quelque chose."
+msgstr "Ancient ruins: it is said they still hide something."
+
+msgid "Des squelettes arpentent la vieille route. On parle d'un nécromant."
+msgstr "Skeletons walk the old road. There is talk of a necromancer."
+
+msgid "Des squelettes en cotte de mailles ont attaqué un convoi. Ils ne dormaient pas, eux."
+msgstr "Skeletons in mail attacked a convoy. They were not asleep."
+
+msgid "Des voyageurs retrouvés en lambeaux sur la route de {town}. Les loups, eux, ont fui."
+msgstr "Travelers found in tatters on the road to {town}. The wolves fled."
+
+msgid "Dessert la cause contre : "
+msgstr "Sides against: "
+
+msgid "Destination"
+msgstr "Destination"
+
+msgid "Deux mains : +%d fatigue par attaque, +%d %% de dégâts, capacités renforcées"
+msgstr "Two hands: +%d fatigue per attack, +%d %% damage, stronger abilities"
+
+msgid "Disponible : cliquez pour le choisir."
+msgstr "Available: click to choose it."
+
+msgid "Disposition automatique"
+msgstr "Automatic arrangement"
+
+msgid "Dispute sur les vivres"
+msgstr "Dispute over provisions"
+
+msgid "Distance"
+msgstr "Distance"
+
+msgid "Donner l'assaut"
+msgstr "Storm the place"
+
+msgid "Double ration ce soir (−3 rations) : les querelles se perdent dans la soupe."
+msgstr "Double rations tonight (−3 rations): quarrels get lost in the soup."
+
+msgid "Doubler les rations ce soir"
+msgstr "Double the rations tonight"
+
+msgid "Duel au camp : %s l'emporte sur %s."
+msgstr "Duel at camp: %s beats %s."
+
+msgid "Durabilité %d/%d"
+msgstr "Durability %d/%d"
+
+msgid "Déf. distance"
+msgstr "Ranged def."
+
+msgid "Déf. mêlée"
+msgstr "Melee def."
+
+msgid "Défaite. "
+msgstr "Defeat. "
+
+msgid "Défense : %s."
+msgstr "Defense: %s."
+
+msgid "Défense contre la mêlée (bouclier non compris)"
+msgstr "Defense against melee (shield not included)"
+
+msgid "Défense contre les tirs (bouclier non compris)"
+msgstr "Defense against missiles (shield not included)"
+
+msgid "Défense mêlée +%d, distance +%d · mur de boucliers +%d · poids %d"
+msgstr "Melee defense +%d, ranged +%d · shield wall +%d · weight %d"
+
+msgid "Dégâts"
+msgstr "Damage"
+
+msgid "Dégâts %d–%d · %s"
+msgstr "Damage %d–%d · %s"
+
+msgid "Dégâts %s · %s"
+msgstr "Damage %s · %s"
+
+msgid "Dégâts de l'arme : %s"
+msgstr "Weapon damage: %s"
+
+msgid "Déjà en bon état."
+msgstr "Already in good condition."
+
+msgid "Déjà exploré."
+msgstr "Already explored."
+
+msgid "Déplier la mini-carte"
+msgstr "Expand the minimap"
+
+msgid "Désert de roche"
+msgstr "Rocky desert"
+
+msgid "Détails : contrat, factions, menace, lieux, hommes (F)"
+msgstr "Details: contract, factions, threat, places, men (F)"
+
+msgid "Détails · jour %d · difficulté %s"
+msgstr "Details · day %d · difficulty %s"
+
+msgid "Détenir 3 000 couronnes à la fois."
+msgstr "Hold 3,000 crowns at once."
+
+msgid "Détermination"
+msgstr "Resolve"
+
+msgid "Détermination : résiste aux tests de moral"
+msgstr "Resolve: resists morale checks"
+
+msgid "Dévoreurs de la combe"
+msgstr "Devourers of the combe"
+
+msgid "Eau"
+msgstr "Water"
+
+msgid "Eau (lacs, mer : infranchissable)"
+msgstr "Water (lakes, sea: impassable)"
+
+msgid "Effectif %d/%d · réserve %d/%d"
+msgstr "Headcount %d/%d · reserve %d/%d"
+
+msgid "Effets"
+msgstr "Effects"
+
+msgid "Efficacité contre l'armure"
+msgstr "Armor effectiveness"
+
+msgid "Efficacité contre l'armure ×%s · traversée %d %%"
+msgstr "Armor effectiveness ×%s · penetration %d %%"
+
+msgid "Embauches"
+msgstr "Hires"
+
+msgid "Emblème"
+msgstr "Emblem"
+
+msgid "Embuscade ! %s vous tombe dessus."
+msgstr "Ambush! %s falls upon you."
+
+msgid "Embuscade : "
+msgstr "Ambush: "
+
+msgid "Embuscade en chemin"
+msgstr "Ambush on the way"
+
+msgid "Embuscade repoussée : +%d renom."
+msgstr "Ambush repelled: +%d renown."
+
+msgid "Embuscade sur la route de %s"
+msgstr "Ambush on the road to %s"
+
+msgid "Embuscade sur la route de %s !"
+msgstr "Ambush on the road to %s!"
+
+msgid "Embuscades"
+msgstr "Ambushes"
+
+msgid "Embuscades de la combe"
+msgstr "Ambushes of the combe"
+
+msgid "Emplacement vide."
+msgstr "Empty slot."
+
+msgid "Emplacements de la réserve"
+msgstr "Reserve slots"
+
+msgid "Employeur : sa réputation est en jeu."
+msgstr "Employer: their reputation is at stake."
+
+msgid "En bataille : 9 points d'action (PA) par tour, une case coûte 2 PA, une attaque 4 à 6 PA. Cliquez une case dorée pour bouger, un ennemi marqué d'un pourcentage pour frapper."
+msgstr "In battle: 9 action points (AP) per turn, a tile costs 2 AP, an attack 4 to 6 AP. Click a golden tile to move, an enemy marked with a percentage to strike."
+
+msgid "En route vers %s — encore ≈ %.1f jour%s."
+msgstr "On the way to %s — about %.1f more day(s)."
+
+msgid "Encyclopédie"
+msgstr "Encyclopedia"
+
+msgid "Endurance"
+msgstr "Stamina"
+
+msgid "Engager"
+msgstr "Hire"
+
+msgid "Engager un fils ou une fille (%d couronnes)"
+msgstr "Hire a son or daughter (%d crowns)"
+
+msgid "Engourdissement"
+msgstr "Numbness"
+
+msgid "Ennemis abattus"
+msgstr "Enemies slain"
+
+msgid "Enthousiaste"
+msgstr "Enthusiastic"
+
+msgid "Entrer dans les ruines"
+msgstr "Enter the ruins"
+
+msgid "Environ une chance sur deux ; sinon {a} s'en va"
+msgstr "About a one in two chance; otherwise {a} leaves"
+
+msgid "Escorte"
+msgstr "Escort"
+
+msgid "Escortes"
+msgstr "Escorts"
+
+msgid "Escortes et livraisons"
+msgstr "Escorts and deliveries"
+
+msgid "Estimée"
+msgstr "Estimated"
+
+msgid "Exigence de tribut"
+msgstr "Tribute demand"
+
+msgid "Exiger un duel réglé"
+msgstr "Demand a settled duel"
+
+msgid "Exiger une rançon"
+msgstr "Demand a ransom"
+
+msgid "Exp."
+msgstr "XP"
+
+msgid "Expert"
+msgstr "Expert"
+
+msgid "Exploration de %s."
+msgstr "Exploring %s."
+
+msgid "Exploration de ruines"
+msgstr "Exploring ruins"
+
+msgid "Expérience"
+msgstr "Experience"
+
+msgid "Expérience : %d points, prochain niveau à %d."
+msgstr "Experience: %d points, next level at %d."
+
+msgid "FACTIONS"
+msgstr "FACTIONS"
+
+msgid "Factions"
+msgstr "Factions"
+
+msgid "Fatigue actuelle / endurance (réduite par le poids porté : %d)"
+msgstr "Current fatigue / stamina (reduced by the weight carried: %d)"
+
+msgid "Faute de paie, %s déserte."
+msgstr "For lack of pay, %s deserts."
+
+msgid "Faute de paie, un homme a déserté."
+msgstr "For lack of pay, a man deserted."
+
+msgid "Fermer (D ou Échap)"
+msgstr "Close (D or Esc)"
+
+msgid "Fermer (Échap)"
+msgstr "Close (Esc)"
+
+msgid "Festin dans la grange"
+msgstr "Feast in the barn"
+
+msgid "Fille"
+msgstr "Daughter"
+
+msgid "Fils"
+msgstr "Son"
+
+msgid "Fin d'histoire"
+msgstr "End of the story"
+
+msgid "Fine"
+msgstr "Fine"
+
+msgid "Fiole de courage"
+msgstr "Vial of courage"
+
+msgid "Fièvre des tombes"
+msgstr "Grave fever"
+
+msgid "Fonder une nouvelle compagnie"
+msgstr "Found a new company"
+
+msgid "Fort de brigands"
+msgstr "Bandit fort"
+
+msgid "Fortin en ruine"
+msgstr "Ruined fortlet"
+
+msgid "Forêt"
+msgstr "Forest"
+
+msgid "Forêt (lente)"
+msgstr "Forest (slow)"
+
+msgid "Forêt dense"
+msgstr "Dense forest"
+
+msgid "Fouiller ce niveau"
+msgstr "Search this level"
+
+msgid "Fouiller les sacs"
+msgstr "Search the bags"
+
+msgid "Frontières"
+msgstr "Borders"
+
+msgid "Fumées à l'horizon"
+msgstr "Smoke on the horizon"
+
+msgid "Gagne un cran de moral (un fuyard se ressaisit). Usage unique, à soi-même ou à un allié au contact (4 PA)."
+msgstr "Gains one morale step (a fleeing man rallies). Single use, on yourself or an adjacent ally (4 AP)."
+
+msgid "Gagner 25 batailles."
+msgstr "Win 25 battles."
+
+msgid "Gagner 5 000 couronnes au total."
+msgstr "Earn 5,000 crowns in total."
+
+msgid "Gagner cinq batailles sans aucune perte."
+msgstr "Win five battles without any loss."
+
+msgid "Gagner une bataille sans perdre un seul homme."
+msgstr "Win a battle without losing a single man."
+
+msgid "Gagner une bataille."
+msgstr "Win a battle."
+
+msgid "Garder"
+msgstr "Keep"
+
+msgid "Gel"
+msgstr "Frost"
+
+msgid "Goule-reine légendaire"
+msgstr "Legendary ghoul queen"
+
+msgid "Goules : rôdent près des ruines"
+msgstr "Ghouls: prowl near ruins"
+
+msgid "Goules près de {town}"
+msgstr "Ghouls near {town}"
+
+msgid "Grand écu lourd : une vraie muraille contre les flèches et un mur de boucliers redoutable."
+msgstr "Large heavy scutum: a real wall against arrows and a fearsome shield wall."
+
+msgid "Grands voyageurs"
+msgstr "Great travelers"
+
+msgid "Grosse-Mâchoire, l'ogre des marais"
+msgstr "Big-Jaw, the marsh ogre"
+
+msgid "Grossière"
+msgstr "Crude"
+
+msgid "Grotte"
+msgstr "Cave"
+
+msgid "Guerre ! %s et %s en viennent aux armes. Leurs marches s'embrasent."
+msgstr "War! %s and %s come to blows. Their marches are ablaze."
+
+msgid "Gué"
+msgstr "Ford"
+
+msgid "Gué (traversée lente)"
+msgstr "Ford (slow crossing)"
+
+msgid "Guérit le poison. Usage unique, à soi-même ou à un allié au contact (3 PA)."
+msgstr "Cures poison. Single use, on yourself or an adjacent ally (3 AP)."
+
+msgid "Géant légendaire"
+msgstr "Legendary giant"
+
+msgid "Habitués du champ"
+msgstr "Regulars of the field"
+
+msgid "Halte. Cliquez sur la carte pour avancer · ZQSD ou flèches : caméra · H : recentrer."
+msgstr "Halted. Click on the map to advance · WASD or arrows: camera · H: recenter."
+
+msgid "Haranguer la compagnie"
+msgstr "Rally the company"
+
+msgid "Haubert huilé : l'armure s'use %d %% de moins pendant %d combats."
+msgstr "Oiled hauberk: armor wears %d %% less for %d battles."
+
+msgid "Hiver"
+msgstr "Winter"
+
+msgid "Hommes"
+msgstr "Men"
+
+msgid "Hommes dans la compagnie"
+msgstr "Men in the company"
+
+msgid "Hommes de parole"
+msgstr "Men of their word"
+
+msgid "Hommes de talent"
+msgstr "Men of talent"
+
+msgid "Hommes engagés"
+msgstr "Men hired"
+
+msgid "Huiler (%d)"
+msgstr "Oil (%d)"
+
+msgid "Héritage"
+msgstr "Legacy"
+
+msgid "Héritage de la compagnie"
+msgstr "Company legacy"
+
+msgid "Il est tombé en tenant sa place."
+msgstr "He fell holding his place."
+
+msgid "Il faut %d couronnes pour que l'entraîneur rende tous les talents."
+msgstr "%d crowns are needed for the trainer to return all perks."
+
+msgid "Il faut %d talent%s pour ce rang (%d appris)."
+msgstr "%1$d perk(s) needed for this rank (%4$d learned)."
+
+msgid "Il faut d'abord : %s."
+msgstr "First you need: %s."
+
+msgid "Il faut être dans un lieu."
+msgstr "You must be in a place."
+
+msgid "Il faut être dans une ville ou un village pour trouver un forgeron."
+msgstr "You must be in a town or village to find a blacksmith."
+
+msgid "Il faut être niveau %d ou gravement blessé."
+msgstr "Must be level %d or gravely injured."
+
+msgid "Il ne combattra plus : instructeur du camp ou retraite honorée, avec un objet de famille."
+msgstr "He will fight no more: camp instructor or honored retirement, with a family item."
+
+msgid "Il savait ce que le métier coûtait."
+msgstr "He knew what the trade cost."
+
+msgid "Il y a déjà %d hommes sur le champ de bataille : mettez-en un en réserve d'abord."
+msgstr "There are already %d men on the battlefield: put one in reserve first."
+
+msgid "Impossible maintenant."
+msgstr "Not possible now."
+
+msgid "Impossible pendant une bataille."
+msgstr "Not possible during a battle."
+
+msgid "Impossible à équiper ici."
+msgstr "Cannot be equipped here."
+
+msgid "Incendie de ferme"
+msgstr "Farm fire"
+
+msgid "Initiative"
+msgstr "Initiative"
+
+msgid "Initiative effective (réduite par le poids et la fatigue)"
+msgstr "Effective initiative (reduced by weight and fatigue)"
+
+msgid "Instructeur du camp (+%d %% d'XP pour tous)"
+msgstr "Camp instructor (+%d %% XP for everyone)"
+
+msgid "Instructeur du camp : %s (+%d %% d'XP pour tous après chaque bataille)."
+msgstr "Camp instructor: %s (+%d %% XP for everyone after each battle)."
+
+msgid "Instructeur du camp, retraités et objets de famille"
+msgstr "Camp instructor, retirees and family items"
+
+msgid "Interdire le pari"
+msgstr "Forbid the bet"
+
+msgid "Inventaire"
+msgstr "Inventory"
+
+msgid "Inventaire (I)"
+msgstr "Inventory (I)"
+
+msgid "Inventaire et fiches (I)"
+msgstr "Inventory and records (I)"
+
+msgid "Jamais visité\n"
+msgstr "Never visited\n\n"
+
+msgid "Jambes"
+msgstr "Legs"
+
+msgid "Jambières"
+msgstr "Greaves"
+
+msgid "Jeter"
+msgstr "Discard"
+
+msgid "Jour %d"
+msgstr "Day %d"
+
+msgid "Jour %d · %d hommes · %d couronnes · renom %d"
+msgstr "Day %d · %d men · %d crowns · renown %d"
+
+msgid "Jour %d · %s, %s"
+msgstr "Day %d · %s, %s"
+
+msgid "Journal (J)"
+msgstr "Journal (J)"
+
+msgid "Journal de campagne et mémorial des hommes tombés"
+msgstr "Campaign journal and memorial of the fallen"
+
+msgid "Journal de la compagnie"
+msgstr "Company journal"
+
+msgid "Journées de marche"
+msgstr "Days of marching"
+
+msgid "Jours longs et chemins secs : marche un peu plus rapide (+6 %), ciel le plus souvent dégagé."
+msgstr "Long days and dry roads: slightly faster marching (+6 %), skies mostly clear."
+
+msgid "Jusqu'au premier sang, sans mort"
+msgstr "To first blood, no killing"
+
+msgid "L'abbé disparu"
+msgstr "The missing abbot"
+
+msgid "L'affaire s'éteint d'elle-même : l'un des deux hommes n'est plus là."
+msgstr "The matter dies out by itself: one of the two men is no longer here."
+
+msgid "L'antre de %s"
+msgstr "The lair of %s"
+
+msgid "L'arme est déjà fraîchement aiguisée."
+msgstr "The weapon is already freshly sharpened."
+
+msgid "L'arme est ébréchée : il faut d'abord la réparer."
+msgstr "The weapon is chipped: it must be repaired first."
+
+msgid "L'armure (barres grise et bleue) absorbe les coups avant les PV (barre rouge). Les haches broient l'armure, les masses passent au travers."
+msgstr "Armor (grey and blue bars) absorbs blows before HP (red bar). Axes crush armor, maces get through it."
+
+msgid "L'avant-poste du seigneur est tombé en une nuit. Ses archers pendent aux créneaux."
+msgstr "The lord's outpost fell in a single night. Its archers hang from the battlements."
+
+msgid "L'entraîneur rend tous les talents sous forme de points, contre %d couronnes."
+msgstr "The trainer returns all perks as points, for %d crowns."
+
+msgid "L'exploration s'achève dans la déroute : les ruines gardent leurs secrets."
+msgstr "The exploration ends in a rout: the ruins keep their secrets."
+
+msgid "L'écouter jusqu'au bout"
+msgstr "Hear him out"
+
+msgid "La Compagnie"
+msgstr "The Company"
+
+msgid "La Compagnie du Corbeau est fondée. Cinq lames, peu de couronnes, beaucoup de routes."
+msgstr "The Raven Company is founded. Five blades, few crowns, many roads."
+
+msgid "La Faucheuse"
+msgstr "The Reaper"
+
+msgid "La Reine pâle, souveraine des goules"
+msgstr "The Pale Queen, sovereign of the ghouls"
+
+msgid "La caravane arrive, mais des hommes sont tombés en route : pas de prime."
+msgstr "The caravan arrives, but men fell on the way: no bonus."
+
+msgid "La cargaison est pleine."
+msgstr "The cargo hold is full."
+
+msgid "La chambre du gardien"
+msgstr "The warden's chamber"
+
+msgid "La chanson de %s monte dans la nuit, et les visages se détendent."
+msgstr "The song of %s rises in the night, and faces relax."
+
+msgid "La cloche de la chapelle sonne seule. Au pied de l'église, la terre bouge."
+msgstr "The chapel bell rings by itself. At the foot of the church, the ground moves."
+
+msgid "La compagnie arrive à %s."
+msgstr "The company arrives at %s."
+
+msgid "La compagnie arrive à : %s."
+msgstr "The company arrives at: %s."
+
+msgid "La compagnie donne l'assaut : %s."
+msgstr "The company storms the place: %s."
+
+msgid "La compagnie n'est plus"
+msgstr "The company is no more"
+
+msgid "La compagnie ne peut pas rester sans personne."
+msgstr "The company cannot stay with nobody."
+
+msgid "La compagnie remonte à la lumière, avec ses blessures et ce qu'elle a pu sauver."
+msgstr "The company climbs back into the light, with its wounds and what it could save."
+
+msgid "La compagnie s'arrête à : %s."
+msgstr "The company halts at: %s."
+
+msgid "La compagnie s'arrête à : %s. Une bête gîte ici."
+msgstr "The company halts at: %s. A beast lairs here."
+
+msgid "La compagnie s'enfonce dans %s."
+msgstr "The company delves into %s."
+
+msgid "La compagnie s'enfonce dans l'antre : %s."
+msgstr "The company delves into the lair: %s."
+
+msgid "La compagnie écoute %s jusqu'au bout. On le regarde autrement ensuite."
+msgstr "The company hears %s out. They are looked at differently afterwards."
+
+msgid "La couleur principale peint aussi les boucliers de vos hommes ; les vétérans portent des atours dans ses teintes."
+msgstr "The main color also paints your men's shields; veterans wear finery in its shades."
+
+msgid "La cour d'armes"
+msgstr "The armory yard"
+
+msgid "La crypte des Veilleurs"
+msgstr "The crypt of the Watchers"
+
+msgid "La garde tourne mal : %s et %s ne s'adressent pas un mot."
+msgstr "The watch goes badly: %s and %s don't say a word to each other."
+
+msgid "La horde du gué"
+msgstr "The horde of the ford"
+
+msgid "La menace est écartée"
+msgstr "The threat is gone"
+
+msgid "La meute du charnier"
+msgstr "The pack of the charnel pit"
+
+msgid "La mort est définitive. Gagnez de l'expérience pour promouvoir vos hommes."
+msgstr "Death is final. Gain experience to promote your men."
+
+msgid "La nef aux racines"
+msgstr "The nave of roots"
+
+msgid "La nuit passe, sans suite."
+msgstr "The night passes, without consequence."
+
+msgid "La nuit tombe et le feu craque. {a} se met à parler de lui, la voix basse : « {story} »"
+msgstr "Night falls and the fire crackles. {a} starts talking about himself, in a low voice: \"{story}\""
+
+msgid "La nécropole oubliée"
+msgstr "The forgotten necropolis"
+
+msgid "La paix est signée entre %s et %s.%s"
+msgstr "Peace is signed between %s and %s.%s"
+
+msgid "La palissade des Écorcheurs"
+msgstr "The Flayers' palisade"
+
+msgid "La pièce choisie devient un objet de famille nommé, avec un petit bonus pour celui qui la recevra. Le reste de l'équipement rejoint la réserve."
+msgstr "The chosen piece becomes a named family item, with a small bonus for whoever receives it. The rest of the equipment goes to the stash."
+
+msgid "La salle des trophées"
+msgstr "The trophy hall"
+
+msgid "La tour prise"
+msgstr "The captured tower"
+
+msgid "Lande"
+msgstr "Heath"
+
+msgid "Le Géant de pierre"
+msgstr "The Stone Giant"
+
+msgid "Le bouclier de la compagnie : équilibré."
+msgstr "The company shield: balanced."
+
+msgid "Le bouclier est rangé dans la réserve."
+msgstr "The shield is put in the stash."
+
+msgid "Le bouclier est rangé dans le sac."
+msgstr "The shield is put in the bag."
+
+msgid "Le bruit attire des occupants : ils fondent sur vous !"
+msgstr "The noise draws occupants: they rush at you!"
+
+msgid "Le butin de la ruine : de l'or, des pièces de qualité, peut-être un objet rare."
+msgstr "The ruin's loot: gold, quality pieces, perhaps a rare item."
+
+msgid "Le butin du couvent"
+msgstr "The convent's loot"
+
+msgid "Le camp a déjà un instructeur."
+msgstr "The camp already has an instructor."
+
+msgid "Le camp suit la compagnie : on améliore ses bâtiments où que l'on soit."
+msgstr "The camp follows the company: improve its buildings wherever you are."
+
+msgid "Le chef est la clef : %s abattu, le reste fuira. Ou se battra jusqu'au bout."
+msgstr "The chief is the key: %s slain, the rest will flee. Or fight to the end."
+
+msgid "Le cimetière dévasté"
+msgstr "The ravaged cemetery"
+
+msgid "Le coffre du chef de guerre, hérissé de pointes, est ouvert d'un coup de hache."
+msgstr "The warlord's chest, bristling with spikes, is opened with an axe blow."
+
+msgid "Le contrat est perdu."
+msgstr "The contract is lost."
+
+msgid "Le contrat final s'ouvre à %d de renom (menace ≥ %d) ou si la menace atteint 100. Prendre les lieux de %s la fait reculer."
+msgstr "The final contract opens at %d renown (threat ≥ %d) or if the threat reaches 100. Taking the places of %s pushes it back."
+
+msgid "Le cortège sans fin"
+msgstr "The endless procession"
+
+msgid "Le dernier gardien est tombé. Le coffre est à portée."
+msgstr "The last guardian has fallen. The chest is within reach."
+
+msgid "Le donjon éventré"
+msgstr "The gutted keep"
+
+msgid "Le fils d'un drapier est aux mains de brigands. Il faut les déloger avant la prochaine lune."
+msgstr "A draper's son is in the hands of bandits. They must be dislodged before the next moon."
+
+msgid "Le forgeron du village ne travaille pas les mailles."
+msgstr "The village blacksmith doesn't work mail."
+
+msgid "Le fort est à nous"
+msgstr "The fort is ours"
+
+msgid "Le froid ralentit la marche (−10 %) et creuse l'appétit : +25 % de rations consommées. Neige fréquente."
+msgstr "Cold slows the march (−10 %) and sharpens appetites: +25 % rations consumed. Frequent snow."
+
+msgid "Le glas sans sonneur"
+msgstr "The tolling without a bell-ringer"
+
+msgid "Le haubert est déjà fraîchement huilé."
+msgstr "The hauberk is already freshly oiled."
+
+msgid "Le haubert est détruit : il faut d'abord le réparer."
+msgstr "The hauberk is destroyed: it must be repaired first."
+
+msgid "Le laisser partir"
+msgstr "Let him go"
+
+msgid "Le marchand de %s propose %d articles en rayon ; la réserve de la compagnie compte %d/%d emplacements."
+msgstr "The merchant of %s offers %d items in stock; the company stash holds %d/%d slots."
+
+msgid "Le moral est au plus bas depuis des jours. {a} parle tout haut de partir, avec sa part de l'or et son équipement, et d'autres l'écoutent."
+msgstr "Morale has been at rock bottom for days. {a} talks openly of leaving, with his share of the gold and his equipment, and others listen."
+
+msgid "Le narthex effondré"
+msgstr "The collapsed narthex"
+
+msgid "Le nécromant de la tour"
+msgstr "The necromancer of the tower"
+
+msgid "Le pari est perdu : −%d couronnes."
+msgstr "The bet is lost: −%d crowns."
+
+msgid "Le pari tourne en votre faveur : +%d couronnes."
+msgstr "The bet turns in your favor: +%d crowns."
+
+msgid "Le parvis envahi"
+msgstr "The overrun forecourt"
+
+msgid "Le plafond lâche quelques blocs sur la colonne."
+msgstr "The ceiling drops a few blocks on the column."
+
+msgid "Le prix du sang"
+msgstr "The price of blood"
+
+msgid "Le puits aux ossements"
+msgstr "The well of bones"
+
+msgid "Le puits maudit"
+msgstr "The cursed well"
+
+msgid "Le repaire du chef"
+msgstr "The chief's lair"
+
+msgid "Le repaire du vieux chêne"
+msgstr "The lair of the old oak"
+
+msgid "Le sanctuaire souterrain"
+msgstr "The underground sanctuary"
+
+msgid "Le seigneur veut la mort de %s. Il paie l'escorte, mais pas la prudence."
+msgstr "The lord wants %s dead. He pays for the escort, but not for caution."
+
+msgid "Le totem sanglant"
+msgstr "The bloody totem"
+
+msgid "Le tour est annulé."
+msgstr "The turn is cancelled."
+
+msgid "Le vieil abbé a été vu entrer dans la crypte, puis plus rien. Des bruits d'os depuis."
+msgstr "The old abbot was seen entering the crypt, then nothing. Sounds of bones since."
+
+msgid "Les affamés du marais"
+msgstr "The starving of the marsh"
+
+msgid "Les alliés à 3 cases ou moins quittent le contact sans subir d'attaque gratuite, jusqu'au prochain tour du capitaine."
+msgstr "Allies within 3 tiles leave contact without suffering a free attack, until the captain's next turn."
+
+msgid "Les alliés à 4 cases ou moins gagnent +10 % au toucher et +15 d'initiative, jusqu'au prochain tour du capitaine."
+msgstr "Allies within 4 tiles gain +10 % to hit and +15 initiative, until the captain's next turn."
+
+msgid "Les alliés à 4 cases ou moins gagnent +10 en défense et ne peuvent plus être mis en fuite, jusqu'au prochain tour du capitaine."
+msgstr "Allies within 4 tiles gain +10 defense and cannot be routed, until the captain's next turn."
+
+msgid "Les anciens gardiens ne reposent plus. Le seigneur offre une bourse à qui les renverra en terre."
+msgstr "The ancient guardians rest no more. The lord offers a purse to whoever puts them back in the ground."
+
+msgid "Les cryptes de la chapelle"
+msgstr "The chapel crypts"
+
+msgid "Les dalles du chœur ont cédé : un trou mène plus bas."
+msgstr "The choir flagstones gave way: a hole leads lower."
+
+msgid "Les enfants parlent à des morts qui ne sont pas de leur famille. Le médecin de {town} veut en finir."
+msgstr "Children speak to dead people who are not family. The physician of {town} wants it ended."
+
+msgid "Les envoyer monter la garde ensemble"
+msgstr "Send them to stand watch together"
+
+msgid "Les exécuter"
+msgstr "Execute them"
+
+msgid "Les galeries des tombes"
+msgstr "The tomb galleries"
+
+msgid "Les gardes n'osent plus emprunter la combe. Deux messagers y ont perdu la vie."
+msgstr "The guards no longer dare use the combe. Two messengers lost their lives there."
+
+msgid "Les hommes grondent"
+msgstr "The men grumble"
+
+msgid "Les hommes murmurent : le moral est au plus bas. Une prime, du repos ou une victoire apaiserait les esprits."
+msgstr "The men murmur: morale is at its lowest. A bounty, rest or a victory would calm spirits."
+
+msgid "Les laisser faire"
+msgstr "Let them be"
+
+msgid "Les laisser s'expliquer"
+msgstr "Let them explain"
+
+msgid "Les libérer"
+msgstr "Free them"
+
+msgid "Les loups de la forêt"
+msgstr "The wolves of the forest"
+
+msgid "Les membres s'engourdissent : 2 PA de moins au début de chaque tour."
+msgstr "Limbs grow numb: 2 fewer AP at the start of each turn."
+
+msgid "Les morts du champ de bataille"
+msgstr "The dead of the battlefield"
+
+msgid "Les morts frappent aux portes du tertre. Le prêtre a perdu la raison."
+msgstr "The dead knock at the doors of the mound. The priest has lost his mind."
+
+msgid "Les murs d'une forteresse ancienne ont été rafistolés de palissades et de crânes. Les orcs y gardent un butin."
+msgstr "The walls of an ancient fortress have been patched with palisades and skulls. The orcs guard loot there."
+
+msgid "Les occupants sont mis en fuite : on peut reprendre l'exploration."
+msgstr "The occupants are put to flight: exploration can resume."
+
+msgid "Les orcs ont dressé une palissade de troncs près de {town}. On y entend des chants de guerre."
+msgstr "The orcs have raised a log palisade near {town}. War chants can be heard there."
+
+msgid "Les orcs réclament du grain, du fer et des femmes. Le bailli préfère payer en lames."
+msgstr "The orcs demand grain, iron and women. The bailiff prefers to pay in blades."
+
+msgid "Les ossements de l'ossuaire sont rongés. Quelque chose de très affamé s'y est installé."
+msgstr "The bones in the ossuary are gnawed. Something very hungry has settled there."
+
+msgid "Les palissades"
+msgstr "The palisades"
+
+msgid "Les péages illégaux étranglent le commerce. Qu'on en finisse."
+msgstr "Illegal tolls are strangling trade. Put an end to it."
+
+msgid "Les racines ont avalé un temple. Quelque chose s'y est installé : on entend gratter sous les dalles."
+msgstr "Roots have swallowed a temple. Something has settled there: scratching can be heard under the flagstones."
+
+msgid "Les recrues changent avec le temps."
+msgstr "Recruits change over time."
+
+msgid "Les remercier, sans plus"
+msgstr "Thank them, nothing more"
+
+msgid "Les revenants du tertre"
+msgstr "The revenants of the mound"
+
+msgid "Les récoltes sont rentrées : vivres moins chers (−15 %). Brumes matinales."
+msgstr "The harvests are in: cheaper provisions (−15 %). Morning mists."
+
+msgid "Les réconcilier par une prime"
+msgstr "Reconcile them with a bounty"
+
+msgid "Les soldats tombés l'an dernier se relèvent à la nuit. Leurs veuves n'osent plus regarder par la fenêtre."
+msgstr "The soldiers who fell last year rise at night. Their widows no longer dare look out the window."
+
+msgid "Les survivants s'enfuient."
+msgstr "The survivors flee."
+
+msgid "Les séparer"
+msgstr "Separate them"
+
+msgid "Les talents se choisissent à part, depuis le bouton « Talents » (%d point%s à dépenser)."
+msgstr "Perks are chosen separately, from the \"Perks\" button (%1$d point(s) to spend)."
+
+msgid "Les tombes de la chapelle se sont ouvertes cette nuit. Quelqu'un les relève."
+msgstr "The graves of the chapel opened tonight. Someone is raising them."
+
+msgid "Les tombes de {town} s'ouvrent la nuit. Une reine des goules mène la meute et relève les morts derrière elle."
+msgstr "The graves of {town} open at night. A ghoul queen leads the pack and raises the dead behind her."
+
+msgid "Les tombes sont ouvertes, les cercueils vides. Le fossoyeur de {town} a perdu la raison."
+msgstr "The graves are open, the coffins empty. The gravedigger of {town} has lost his mind."
+
+msgid "Les têtes sur les piques"
+msgstr "The heads on the pikes"
+
+msgid "Les villageois fuient vers la ville : des rugissements montent de la forêt."
+msgstr "Villagers flee toward the town: roars rise from the forest."
+
+msgid "Les villageois ont tracé une croix sur la carte, là où %s s'est terré. À vous de finir le travail."
+msgstr "The villagers marked a cross on the map where %s has gone to ground. It is up to you to finish the job."
+
+msgid "Les vivres s'épuisent : il n'en reste que pour %d jour%s de route."
+msgstr "Provisions are running out: only enough for %d day(s) of travel."
+
+msgid "Les vivres sont au maximum."
+msgstr "Provisions are at maximum."
+
+msgid "Les Écorcheurs de {town}"
+msgstr "The Flayers of {town}"
+
+msgid "Lieu"
+msgstr "Place"
+
+msgid "Lieu du contrat en cours"
+msgstr "Place of the current contract"
+
+msgid "Lieu déjà visité"
+msgstr "Place already visited"
+
+msgid "Lieu pris"
+msgstr "Place taken"
+
+msgid "Lieux"
+msgstr "Places"
+
+msgid "Lieux hostiles"
+msgstr "Hostile places"
+
+msgid "Livraison"
+msgstr "Delivery"
+
+msgid "Livraisons"
+msgstr "Deliveries"
+
+msgid "Lot de %d %s %s"
+msgstr "Lot of %d %s %s"
+
+msgid "Loup alpha légendaire"
+msgstr "Legendary alpha wolf"
+
+msgid "Légendaire"
+msgstr "Legendary"
+
+msgid "Légende de la carte"
+msgstr "Map legend"
+
+msgid "Légende de la carte (L)"
+msgstr "Map legend (L)"
+
+msgid "Légère et peu fatigante, mais elle protège peu des tirs."
+msgstr "Light and not very tiring, but it offers little protection from missiles."
+
+msgid "Magasin"
+msgstr "Shop"
+
+msgid "Main blanche"
+msgstr "White Hand"
+
+msgid "Main droite"
+msgstr "Right hand"
+
+msgid "Main gauche"
+msgstr "Left hand"
+
+msgid "Marais"
+msgstr "Marsh"
+
+msgid "Marais (très lent)"
+msgstr "Marsh (very slow)"
+
+msgid "Marchand rare : %s acheté pour %d couronnes."
+msgstr "Rare merchant: %s bought for %d crowns."
+
+msgid "Marchand rare : pièce d'exception, un seul exemplaire."
+msgstr "Rare merchant: exceptional piece, a single copy."
+
+msgid "Marchandise inconnue."
+msgstr "Unknown goods."
+
+msgid "Marcher 50 jours sur les routes."
+msgstr "March 50 days on the roads."
+
+msgid "Marcher sur "
+msgstr "March over "
+
+msgid "Marcher vers le lieu du contrat"
+msgstr "March to the contract's place"
+
+msgid "Marché"
+msgstr "Market"
+
+msgid "Maîtres mercenaires"
+msgstr "Master mercenaries"
+
+msgid "Maîtresse"
+msgstr "Masterwork"
+
+msgid "Maîtrise"
+msgstr "Mastery"
+
+msgid "Membres"
+msgstr "Limbs"
+
+msgid "Menace"
+msgstr "Threat"
+
+msgid "Menace montante"
+msgstr "Rising threat"
+
+msgid "Menace montante : %s\nPalier %d/%d : %s\nOuvrez « Détails » (F) pour le contrat final et les affaires en cours."
+msgstr "Rising threat: %s\nTier %d/%d: %s\nOpen \"Details\" (F) for the final contract and ongoing matters."
+
+msgid "Menace écrasée"
+msgstr "Threat crushed"
+
+msgid "Mener à bon port cinq escortes ou livraisons."
+msgstr "Bring five escorts or deliveries safely to port."
+
+msgid "Mettez fin à %s et à sa garde rapprochée. La prime est à la hauteur du risque."
+msgstr "Put an end to %s and their close guard. The reward matches the risk."
+
+msgid "Mettre aussi une pièce"
+msgstr "Put in a coin too"
+
+msgid "Mettre fin à la crise qui pèse sur le royaume."
+msgstr "Put an end to the crisis weighing on the kingdom."
+
+msgid "Miser avec eux"
+msgstr "Bet with them"
+
+msgid "Mode fer"
+msgstr "Ironman mode"
+
+msgid "Mode fer : une seule sauvegarde automatique, aucun retour en arrière. La compagnie anéantie, la partie est effacée."
+msgstr "Ironman mode: a single automatic save, no going back. If the company is wiped out, the game is erased."
+
+msgid "Monstres : loups, ogres, trolls"
+msgstr "Monsters: wolves, ogres, trolls"
+
+msgid "Montagne"
+msgstr "Mountain"
+
+msgid "Montagnes (infranchissables)"
+msgstr "Mountains (impassable)"
+
+msgid "Monter dans l'ordre"
+msgstr "Climb in order"
+
+msgid "Moral"
+msgstr "Morale"
+
+msgid "Moral +1, lien −2 avec {a}"
+msgstr "Morale +1, bond −2 with {a}"
+
+msgid "Moral +2, liens +1 avec {a}"
+msgstr "Morale +2, bonds +1 with {a}"
+
+msgid "Moral +3"
+msgstr "Morale +3"
+
+msgid "Moral +3, liens +1 (si des hommes sont tombés)"
+msgstr "Morale +3, bonds +1 (if men have fallen)"
+
+msgid "Moral +5, liens +1 avec {a}"
+msgstr "Morale +5, bonds +1 with {a}"
+
+msgid "Moral : %s (%d/100)"
+msgstr "Morale: %s (%d/100)"
+
+msgid "Moral de la compagnie : %s (%d/100).\nIl fixe le moral de départ des hommes en bataille (< %d : Hésitant, > %d : Confiant)."
+msgstr "Company morale: %s (%d/100).\nIt sets the men's starting morale in battle (< %d: Wavering, > %d: Confident)."
+
+msgid "Moral de la compagnie : %s. Il fixe le moral de départ des hommes en bataille (< 25 : Hésitant, > 80 : Confiant)."
+msgstr "Company morale: %s. It sets the men's starting morale in battle (< 25: Wavering, > 80: Confident)."
+
+msgid "Moral −1"
+msgstr "Morale −1"
+
+msgid "Moral −1, lien +2"
+msgstr "Morale −1, bond +2"
+
+msgid "Moral −2, lien −1 avec {a}"
+msgstr "Morale −2, bond −1 with {a}"
+
+msgid "Morose"
+msgstr "Gloomy"
+
+msgid "Morts"
+msgstr "Dead"
+
+msgid "Morts-vivants"
+msgstr "Undead"
+
+msgid "Morts-vivants près de {town}"
+msgstr "Undead near {town}"
+
+msgid "Motif du champ"
+msgstr "Field pattern"
+
+msgid "Munitions"
+msgstr "Ammunition"
+
+msgid "Munitions ordinaires."
+msgstr "Ordinary ammunition."
+
+msgid "Mur de boucliers !"
+msgstr "Shield wall!"
+
+msgid "Mutinerie : %s quitte la compagnie avec son équipement et %d couronnes."
+msgstr "Mutiny: %s leaves the company with their equipment and %d crowns."
+
+msgid "Méfiante"
+msgstr "Wary"
+
+msgid "Mémorial"
+msgstr "Memorial"
+
+msgid "Mêlée"
+msgstr "Melee"
+
+msgid "Mêlée devant, tireurs derrière (la réserve ne change pas)"
+msgstr "Melee in front, shooters behind (the reserve does not change)"
+
+msgid "Neige et toundra (froid du nord)"
+msgstr "Snow and tundra (northern cold)"
+
+msgid "Niv. %d"
+msgstr "Lvl %d"
+
+msgid "Niveau %d — choisissez trois attributs à améliorer."
+msgstr "Level %d — choose three attributes to improve."
+
+msgid "Niveau franchi (%d/%d). Les hommes reprennent leur souffle, sans pouvoir se soigner."
+msgstr "Level cleared (%d/%d). The men catch their breath, but cannot heal."
+
+msgid "Niveau maximal"
+msgstr "Maximum level"
+
+msgid "Niveaux"
+msgstr "Levels"
+
+msgid "Nom de la compagnie"
+msgstr "Company name"
+
+msgid "Nom, couleurs et emblème de la compagnie"
+msgstr "Company name, colors and emblem"
+
+msgid "Noms de régions"
+msgstr "Region names"
+
+msgid "Nuit"
+msgstr "Night"
+
+msgid "Nuit sans lune"
+msgstr "Moonless night"
+
+msgid "Nécropole"
+msgstr "Necropolis"
+
+msgid "Objectifs remplis : +%d couronnes, +%d renom."
+msgstr "Objectives fulfilled: +%d crowns, +%d renown."
+
+msgid "Objet de famille"
+msgstr "Family item"
+
+msgid "Objet de famille : %s (%s)"
+msgstr "Family item: %s (%s)"
+
+msgid "Objet de famille légué"
+msgstr "Bequeathed family item"
+
+msgid "Objet introuvable."
+msgstr "Item not found."
+
+msgid "Objets de famille"
+msgstr "Family items"
+
+msgid "Ocre d'origine"
+msgstr "Original ochre"
+
+msgid "Offrir une tournée"
+msgstr "Buy a round"
+
+msgid "Ogre légendaire"
+msgstr "Legendary ogre"
+
+msgid "On a jeté les pestiférés dans un puits. Il y a quelques jours, il s'est mis à déborder."
+msgstr "Plague victims were thrown into a well. A few days ago, it started to overflow."
+
+msgid "On boit en silence à ceux qui ne sont plus là. Le nom des tombés passe de bouche en bouche."
+msgstr "They drink in silence to those who are no longer here. The names of the fallen pass from mouth to mouth."
+
+msgid "On dit de %s qu'il ne dort jamais. Surprenez-le, et le pays respirera."
+msgstr "It is said of %s that they never sleep. Surprise them, and the land will breathe."
+
+msgid "On dit que ces monstres furent des hommes, emportés par la maladie. Le prêtre de {town} veut les voir brûler."
+msgstr "It is said these monsters were men, carried off by disease. The priest of {town} wants to see them burn."
+
+msgid "On déterre les morts au cimetière. Les villageois n'osent plus sortir."
+msgstr "The dead are being dug up in the cemetery. The villagers no longer dare go out."
+
+msgid "On ne l'a pas oublié autour du feu."
+msgstr "He is not forgotten around the fire."
+
+msgid "On retourne chaque pierre. Rien, sinon de la poussière."
+msgstr "Every stone is turned. Nothing but dust."
+
+msgid "On rit, %s un peu moins que les autres."
+msgstr "They laugh, %s a little less than the others."
+
+msgid "On trouve des rations dans le sac de %s (+3). Il baisse les yeux."
+msgstr "Rations are found in the bag of %s (+3). He lowers his eyes."
+
+msgid "Onguent de brûlure"
+msgstr "Burn ointment"
+
+msgid "Orcs : hordes qui poursuivent"
+msgstr "Orcs: hordes that pursue"
+
+msgid "Orcs près de {town}"
+msgstr "Orcs near {town}"
+
+msgid "Ordre « Chargez ! » : +10 % au toucher et +15 d'initiative."
+msgstr "\"Charge!\" order: +10 % to hit and +15 initiative."
+
+msgid "Ordre « Repli coordonné » : quitte le contact sans attaque gratuite."
+msgstr "\"Coordinated retreat\" order: leaves contact without a free attack."
+
+msgid "Ordre « Tenez la ligne » : +10 en défense, ne peut plus être mis en fuite."
+msgstr "\"Hold the line\" order: +10 defense, cannot be routed."
+
+msgid "Ossements en marche"
+msgstr "Marching bones"
+
+msgid "Ossuaire éventré"
+msgstr "Gutted ossuary"
+
+msgid "Outils"
+msgstr "Tools"
+
+msgid "Ouvrir le coffre"
+msgstr "Open the chest"
+
+msgid "Ouvrir le marché"
+msgstr "Open the market"
+
+msgid "PV"
+msgstr "HP"
+
+msgid "Palier %d/%d : %s"
+msgstr "Tier %d/%d: %s"
+
+msgid "Pari interdit. %s et %s ravalent leur défi."
+msgstr "Bet forbidden. %s and %s swallow their challenge."
+
+msgid "Part des dégâts qui traverse l'armure"
+msgstr "Share of damage that passes through armor"
+
+msgid "Partir"
+msgstr "Leave"
+
+msgid "Pas assez de couronnes."
+msgstr "Not enough crowns."
+
+msgid "Pas d'instructeur. Un vétéran (niveau %d ou gravement blessé) peut prendre sa retraite depuis sa fiche de la Compagnie."
+msgstr "No instructor. A veteran (level %d or gravely injured) can retire from his Company sheet."
+
+msgid "Pas de place dans le sac pour ranger le bouclier."
+msgstr "No room in the bag to store the shield."
+
+msgid "Pas de soin entre les niveaux : les blessures restent."
+msgstr "No healing between levels: injuries remain."
+
+msgid "Pas encore assez de jours écoulés."
+msgstr "Not enough days have passed yet."
+
+msgid "Pas pendant une bataille."
+msgstr "Not during a battle."
+
+msgid "Pas un de moins"
+msgstr "Not one fewer"
+
+msgid "Passer aux munitions %s. Les pièces restantes retournent à la réserve (%d en réserve) ; « Réparer » au camp remplit le carquois (%d couronnes pour les carquois vides)."
+msgstr "Switch to %s ammunition. Remaining pieces go back to the stash (%d in stash); \"Repair\" at camp refills the quiver (%d crowns for empty quivers)."
+
+msgid "Passer son chemin"
+msgstr "Pass by"
+
+msgid "Patrouille : "
+msgstr "Patrol: "
+
+msgid "Pause (Espace)"
+msgstr "Pause (Space)"
+
+msgid "Pavois"
+msgstr "Pavise"
+
+msgid "Perd 3 PV au début de chaque tour et 15 d'initiative. Un antidote le guérit."
+msgstr "Loses 3 HP at the start of each turn and 15 initiative. An antidote cures it."
+
+msgid "Perd 4 PV au début de chaque tour, l'armure n'y peut rien. S'arrête avec un bandage, un soin, ou au bout de quelques tours."
+msgstr "Loses 4 HP at the start of each turn, armor is no help. Stops with a bandage, healing, or after a few turns."
+
+msgid "Perd 5 PV au début de chaque tour et risque de perdre le moral. S'éteint dans l'eau (gué, rivière) ou avec un onguent."
+msgstr "Loses 5 HP at the start of each turn and may lose morale. Goes out in water (ford, river) or with an ointment."
+
+msgid "Perdre dix hommes au combat."
+msgstr "Lose ten men in battle."
+
+msgid "Personne dans la compagnie."
+msgstr "No one in the company."
+
+msgid "Personne n'est encore tombé. Cela ne durera pas."
+msgstr "No one has fallen yet. That will not last."
+
+msgid "Personne ne cherche d'engagement ici pour l'instant."
+msgstr "No one is looking to hire here for now."
+
+msgid "Pestiférés"
+msgstr "Plague victims"
+
+msgid "Peut les rapprocher… ou envenimer les choses"
+msgstr "May bring them together… or make things worse"
+
+msgid "Pillards du marché"
+msgstr "Market raiders"
+
+msgid "Pièce d'exception"
+msgstr "Exceptional piece"
+
+msgid "Place du marché"
+msgstr "Market square"
+
+msgid "Plaine"
+msgstr "Plain"
+
+msgid "Plaine (coût normal)"
+msgstr "Plain (normal cost)"
+
+msgid "Plaine cultivée"
+msgstr "Farmland"
+
+msgid "Plus de %s : tirer est impossible."
+msgstr "No more %s: shooting is impossible."
+
+msgid "Plus de vivres : %d homme%s à jeun (−%d PV, le moral chute)."
+msgstr "No more provisions: %1$d man|men going hungry (−%3$d HP, morale drops)."
+
+msgid "Plus tard"
+msgstr "Later"
+
+msgid "Plus un convoi ne passe le gué sans être détroussé. Les marchands menacent de partir."
+msgstr "No convoy crosses the ford without being robbed. The merchants threaten to leave."
+
+msgid "Poids"
+msgstr "Weight"
+
+msgid "Poids %d · exige une arme à une main"
+msgstr "Weight %d · requires a one-handed weapon"
+
+msgid "Poids de l'équipement porté"
+msgstr "Weight of the equipment carried"
+
+msgid "Pointe étroite et trempée : abîme davantage l'armure et passe un peu mieux, au prix de dégâts légèrement moindres."
+msgstr "Narrow tempered point: damages armor more and penetrates a bit better, at the cost of slightly less damage."
+
+msgid "Points de talent : %d"
+msgstr "Perk points: %d"
+
+msgid "Points de vie"
+msgstr "Hit points"
+
+msgid "Poison"
+msgstr "Poison"
+
+msgid "Pont"
+msgstr "Bridge"
+
+msgid "Pont et rivière"
+msgstr "Bridge and river"
+
+msgid "Porté par %s."
+msgstr "Carried by %s."
+
+msgid "Portée"
+msgstr "Range"
+
+msgid "Portée %d · %d PA · %d fatigue"
+msgstr "Range %d · %d AP · %d fatigue"
+
+msgid "Portée de l'arme (en cases)"
+msgstr "Weapon range (in tiles)"
+
+msgid "Posséder un objet unique."
+msgstr "Own a unique item."
+
+msgid "Poursuivre la route"
+msgstr "Continue on the road"
+
+msgid "Prairie"
+msgstr "Meadow"
+
+msgid "Premier sang"
+msgstr "First blood"
+
+msgid "Première prime"
+msgstr "First reward"
+
+msgid "Prendre cinq lieux hostiles."
+msgstr "Take five hostile places."
+
+msgid "Prendre en main"
+msgstr "Take up"
+
+msgid "Prendre un fort ou un repaire hostile."
+msgstr "Take a hostile fort or lair."
+
+msgid "Printemps"
+msgstr "Spring"
+
+msgid "Prix : %d couronnes"
+msgstr "Price: %d crowns"
+
+msgid "Prix connus : "
+msgstr "Known prices: "
+
+msgid "Promouvoir (%d)"
+msgstr "Promote (%d)"
+
+msgid "Punir {b}"
+msgstr "Punish {b}"
+
+msgid "Qu'il repose là où la terre est douce."
+msgstr "May he rest where the earth is soft."
+
+msgid "Qualité %s : %s"
+msgstr "%s quality: %s"
+
+msgid "Quartier général"
+msgstr "Headquarters"
+
+msgid "Quelque chose remonte du puits abandonné. Le bétail s'en écarte et les chiens se taisent."
+msgstr "Something is rising from the abandoned well. Cattle shy away and dogs fall silent."
+
+msgid "Quelques PV perdus ; rancune ou respect"
+msgstr "A few HP lost; grudge or respect"
+
+msgid "Quelques étals sous les halles : peu de choix, mais des prix honnêtes pour qui passe."
+msgstr "A few stalls under the market hall: little choice, but honest prices for passersby."
+
+msgid "Quitter la ville"
+msgstr "Leave town"
+
+msgid "Quitter le contact d'un ennemi lui offre une attaque gratuite. La fatigue monte à chaque action. Le moral chute quand un camarade tombe."
+msgstr "Leaving an enemy's reach gives it a free attack. Fatigue rises with every action. Morale drops when a comrade falls."
+
+msgid "Rang %d · %s"
+msgstr "Rank %d · %s"
+
+msgid "Ranger dans la réserve"
+msgstr "Put in the stash"
+
+msgid "Rangée arrière, case %d"
+msgstr "Back row, slot %d"
+
+msgid "Rangée avant, case %d"
+msgstr "Front row, slot %d"
+
+msgid "Rangée du milieu, case %d"
+msgstr "Middle row, slot %d"
+
+msgid "Rançon : %s rendu%s contre %d couronnes%s."
+msgstr "Ransom: %1$s returned for %3$d crowns%4$s."
+
+msgid "Rançons et otages"
+msgstr "Ransoms and hostages"
+
+msgid "Rations : un homme en mange une par jour de route."
+msgstr "Rations: a man eats one per day of travel."
+
+msgid "Rayon de vue sur la carte +%d %%."
+msgstr "Map sight radius +%d %%."
+
+msgid "Razzia sur les troupeaux"
+msgstr "Cattle raid"
+
+msgid "Rechercher…"
+msgstr "Search…"
+
+msgid "Record d'or : %d couronnes · effectif maximal : %d hommes"
+msgstr "Gold record: %d crowns · maximum headcount: %d men"
+
+msgid "Recruter"
+msgstr "Recruit"
+
+msgid "Remettre à %s"
+msgstr "Hand over to %s"
+
+msgid "Remplir 10 contrats."
+msgstr "Fulfill 10 contracts."
+
+msgid "Remplir 30 contrats."
+msgstr "Fulfill 30 contracts."
+
+msgid "Remplir un contrat."
+msgstr "Fulfill a contract."
+
+msgid "Remplit les carquois au camp (« Réparer ») avant de payer à la pièce. %s"
+msgstr "Refills quivers at camp (\"Repair\") before paying per piece. %s"
+
+msgid "Rend %d points."
+msgstr "Restores %d points."
+
+msgid "Rendez-vous : %s · prime %d couronnes. Un seul contrat à la fois."
+msgstr "Meeting point: %s · reward %d crowns. Only one contract at a time."
+
+msgid "Renom gagné +%d %%."
+msgstr "Renown gained +%d %%."
+
+msgid "Renvoyer"
+msgstr "Dismiss"
+
+msgid "Repaire d'orcs"
+msgstr "Orc lair"
+
+msgid "Repartir"
+msgstr "Set off again"
+
+msgid "Repli coordonné"
+msgstr "Coordinated retreat"
+
+msgid "Repli coordonné !"
+msgstr "Coordinated retreat!"
+
+msgid "Repli des ruines de %s."
+msgstr "Withdrawal from the ruins of %s."
+
+msgid "Replier la mini-carte"
+msgstr "Collapse the minimap"
+
+msgid "Repos et réparations : dans une ville ou un village."
+msgstr "Rest and repairs: in a town or village."
+
+msgid "Retire 40 de fatigue et dégourdit les membres. Usage unique, pour soi (3 PA)."
+msgstr "Removes 40 fatigue and loosens the limbs. Single use, on yourself (3 AP)."
+
+msgid "Retour à la carte"
+msgstr "Back to the map"
+
+msgid "Retour à la carte avec ce qu'on a déjà trouvé et les blessures subies."
+msgstr "Back to the map with what has been found and the injuries suffered."
+
+msgid "Retour à la lumière"
+msgstr "Back into the light"
+
+msgid "Retraite de %s"
+msgstr "Retirement of %s"
+
+msgid "Retraite honorée"
+msgstr "Honored retirement"
+
+msgid "Retraite. "
+msgstr "Retreat. "
+
+msgid "Retraites"
+msgstr "Retirements"
+
+msgid "Retraités (%d)"
+msgstr "Retirees (%d)"
+
+msgid "Retraités et instructeurs"
+msgstr "Retirees and instructors"
+
+msgid "Rien"
+msgstr "Nothing"
+
+msgid "Rien dans ce sac."
+msgstr "Nothing in this bag."
+
+msgid "Rien dans le sac de %s : c'est %s qui perd la face."
+msgstr "Nothing in the bag of %s: it is %s who loses face."
+
+msgid "Rien à déplacer."
+msgstr "Nothing to move."
+
+msgid "Rien à réparer."
+msgstr "Nothing to repair."
+
+msgid "Rien à signaler pour l'instant. Les batailles, les morts et les exploits seront consignés ici."
+msgstr "Nothing to report for now. Battles, deaths and deeds will be recorded here."
+
+msgid "Rien à vendre ici."
+msgstr "Nothing for sale here."
+
+msgid "Rien."
+msgstr "Nothing."
+
+msgid "Rivaux : "
+msgstr "Rivals: "
+
+msgid "Rixe autour du feu"
+msgstr "Brawl around the fire"
+
+msgid "Roche et éboulis"
+msgstr "Rock and scree"
+
+msgid "Route"
+msgstr "Road"
+
+msgid "Route (déplacement plus rapide)"
+msgstr "Road (faster travel)"
+
+msgid "Route coupée près de {town}"
+msgstr "Road cut near {town}"
+
+msgid "Routes imprévues"
+msgstr "Unforeseen roads"
+
+msgid "Ruines"
+msgstr "Ruins"
+
+msgid "Ruines (point d'intérêt : on s'y arrête une fois)"
+msgstr "Ruins (point of interest: you stop there once)"
+
+msgid "Ruines à flamme d'or : exploration par niveaux, avec un coffre au bout"
+msgstr "Golden-flame ruins: level-by-level exploration, with a chest at the end"
+
+msgid "Réclamer le silence"
+msgstr "Call for silence"
+
+msgid "Réinit."
+msgstr "Reset"
+
+msgid "Réinitialisation indisponible."
+msgstr "Reset unavailable."
+
+msgid "Réparation impossible."
+msgstr "Repair impossible."
+
+msgid "Réparations −%d %%, usure des armes et boucliers −%d %%."
+msgstr "Repairs −%d %%, weapon and shield wear −%d %%."
+
+msgid "Réparer armures, armes et boucliers (%d couronnes)"
+msgstr "Repair armor, weapons and shields (%d crowns)"
+
+msgid "Réparer pièce par pièce, aiguiser les armes, huiler les mailles"
+msgstr "Repair piece by piece, sharpen weapons, oil mail"
+
+msgid "Réserve"
+msgstr "Stash"
+
+msgid "Réserve\n%d/%d"
+msgstr "Stash\n%d/%d"
+
+msgid "Réserve %d/%d"
+msgstr "Stash %d/%d"
+
+msgid "Réserve pleine : %d objet%s vendu%s d'office (+%d couronnes)."
+msgstr "Stash full: %1$d item(s) sold automatically (+%4$d crowns)."
+
+msgid "Réserve pleine."
+msgstr "Stash full."
+
+msgid "Réserve vide. Le butin des batailles arrive ici."
+msgstr "Stash empty. Battle loot arrives here."
+
+msgid "Réserve, case %d"
+msgstr "Stash, slot %d"
+
+msgid "Rétablir les couleurs d'origine"
+msgstr "Restore the original colors"
+
+msgid "Réussite"
+msgstr "Success"
+
+msgid "S'y arrêter déclenche une rencontre (une seule fois)."
+msgstr "Stopping there triggers an encounter (only once)."
+
+msgid "Sa solde est restée impayée ; sa dette, elle, est éteinte."
+msgstr "Their wages went unpaid; their debt, though, is forgiven."
+
+msgid "Sac %d"
+msgstr "Bag %d"
+
+msgid "Sagesse du retrait"
+msgstr "The wisdom of withdrawal"
+
+msgid "Saignement"
+msgstr "Bleeding"
+
+msgid "Sanctuaire"
+msgstr "Sanctuary"
+
+msgid "Sang-versé"
+msgstr "Bloodshed"
+
+msgid "Sans %s, ses hommes ne tiendront pas trois jours. Allez le chercher."
+msgstr "Without %s, his men will not last three days. Go and fetch him."
+
+msgid "Scénario « %s » : %s."
+msgstr "Scenario \"%s\": %s."
+
+msgid "Se moquer gentiment"
+msgstr "Tease gently"
+
+msgid "Se replier"
+msgstr "Fall back"
+
+msgid "Se reposer un jour (+%d PV, −%d solde)"
+msgstr "Rest a day (+%d HP, −%d wages)"
+
+msgid "Se reposer un jour (+15 PV, −%d solde)"
+msgstr "Rest a day (+15 HP, −%d wages)"
+
+msgid "Seul l'entraîneur d'une ville ou d'un village peut réinitialiser les talents (en route, c'est impossible)."
+msgstr "Only the trainer of a town or village can reset perks (impossible on the road)."
+
+msgid "Seul un haubert de mailles s'huile."
+msgstr "Only a mail hauberk can be oiled."
+
+msgid "Seul un homme de la même origine (%s) peut le porter."
+msgstr "Only a man of the same origin (%s) can wear it."
+
+msgid "Seule une arme tranchante (épée, hache) s'aiguise."
+msgstr "Only an edged weapon (sword, axe) can be sharpened."
+
+msgid "Silence. %s se tait, vexé, et la veillée s'éteint."
+msgstr "Silence. %s falls quiet, offended, and the evening dies out."
+
+msgid "Son rôle"
+msgstr "Their role"
+
+msgid "Sous des gravats, une bourse moisie : quelques couronnes."
+msgstr "Under the rubble, a moldy purse: a few crowns."
+
+msgid "Sous l'autel, un reliquaire oublié luit dans la poussière."
+msgstr "Under the altar, a forgotten reliquary gleams in the dust."
+
+msgid "Sous les pierres écroulées, un escalier descend vers une crypte. L'air y est froid, et des os craquent dans le noir."
+msgstr "Under the fallen stones, a stair leads down to a crypt. The air is cold, and bones creak in the dark."
+
+msgid "Succès : %s."
+msgstr "Achievement: %s."
+
+msgid "Suivant : "
+msgstr "Next: "
+
+msgid "Sur la carte, cliquez pour vous déplacer : chaque jour de route coûte la solde de la compagnie. Villes et villages proposent des contrats, des recrues et un marchand."
+msgstr "On the map, click to move: every day on the road costs the company's wages. Towns and villages offer contracts, recruits and a merchant."
+
+msgid "Survolez un objet pour voir son effet sur les statistiques."
+msgstr "Hover over an item to see its effect on stats."
+
+msgid "Survolez un talent pour son détail ; cliquez sur un talent disponible pour le choisir."
+msgstr "Hover over a perk for details; click an available perk to choose it."
+
+msgid "Talent appris."
+msgstr "Perk learned."
+
+msgid "Talents"
+msgstr "Perks"
+
+msgid "Talents (%d)"
+msgstr "Perks (%d)"
+
+msgid "Talents appris"
+msgstr "Perks learned"
+
+msgid "Tambours dans les collines"
+msgstr "Drums in the hills"
+
+msgid "Targe légère"
+msgstr "Light targe"
+
+msgid "Temple écroulé"
+msgstr "Collapsed temple"
+
+msgid "Tenez la ligne !"
+msgstr "Hold the line!"
+
+msgid "Tenir 100 jours."
+msgstr "Last 100 days."
+
+msgid "Tenir 365 jours."
+msgstr "Last 365 days."
+
+msgid "Tenir la cagnotte"
+msgstr "Keep the kitty"
+
+msgid "Terminer un arc de trois contrats liés."
+msgstr "Complete an arc of three linked contracts."
+
+msgid "Terrain"
+msgstr "Terrain"
+
+msgid "Terres gelées"
+msgstr "Frozen lands"
+
+msgid "Tient la ligne"
+msgstr "Holds the line"
+
+msgid "Tombés : %s."
+msgstr "Fallen: %s."
+
+msgid "Tombés au combat"
+msgstr "Fallen in battle"
+
+msgid "Tombés au combat : "
+msgstr "Fallen in battle: "
+
+msgid "Tonique de vigueur"
+msgstr "Vigor tonic"
+
+msgid "Toucher %+d %%"
+msgstr "Hit %+d %%"
+
+msgid "Tour de guet"
+msgstr "Watchtower"
+
+msgid "Tous les porteurs de bouclier à 2 cases ou moins (le capitaine compris) forment un mur de boucliers gratuitement."
+msgstr "All shield bearers within 2 tiles (the captain included) form a shield wall for free."
+
+msgid "Tout"
+msgstr "All"
+
+msgid "Tout (%d)"
+msgstr "All (%d)"
+
+msgid "Traversée"
+msgstr "Penetration"
+
+msgid "Trier :"
+msgstr "Sort:"
+
+msgid "Trois colonnes de fumée au-dessus des collines. Les moissons sont perdues si la horde avance."
+msgstr "Three columns of smoke above the hills. The harvests are lost if the horde advances."
+
+msgid "Trois fermes brûlées en une semaine. Les villageois de {town} savent où les coupables se cachent."
+msgstr "Three farms burned in a week. The villagers of {town} know where the culprits hide."
+
+msgid "Trois nuits de suite, des cris. Au matin, des traces de griffes sur les portes de {town}."
+msgstr "Three nights in a row, screams. In the morning, claw marks on the doors of {town}."
+
+msgid "Trois vagues enchaînées, sans soin entre elles. Une défaite ou une retraite laisse la citadelle debout."
+msgstr "Three waves in a row, with no healing between them. A defeat or retreat leaves the citadel standing."
+
+msgid "Troll légendaire"
+msgstr "Legendary troll"
+
+msgid "Trouvé : %s"
+msgstr "Found: %s"
+
+msgid "Tête"
+msgstr "Head"
+
+msgid "Un abbé porte des reliques jusqu'à {dest}. Il refuse de voyager sans escorte armée."
+msgstr "An abbot carries relics to {dest}. He refuses to travel without an armed escort."
+
+msgid "Un ancien sergent a levé une troupe de déserteurs. Il se croit déjà seigneur."
+msgstr "A former sergeant has raised a troop of deserters. He already thinks himself a lord."
+
+msgid "Un berger a été dévoré. On a vu des silhouettes voûtées dans la brume."
+msgstr "A shepherd was devoured. Hunched silhouettes were seen in the mist."
+
+msgid "Un bruit de pierres déplacées sous la chapelle. Le sacristain jure avoir vu des yeux luire."
+msgstr "A sound of shifting stones under the chapel. The sexton swears he saw eyes glowing."
+
+msgid "Un butin unique attend celui qui l'abattra. Cette bête change de comportement à mesure qu'elle saigne."
+msgstr "A unique loot awaits whoever slays it. This beast changes behavior as it bleeds."
+
+msgid "Un camp abandonné : cendres froides et sacs éventrés."
+msgstr "An abandoned camp: cold ashes and gutted bags."
+
+msgid "Un carnet moisi décrit une bête qui hante encore la région : un nom y est souligné trois fois."
+msgstr "A moldy notebook describes a beast that still haunts the region: one name is underlined three times."
+
+msgid "Un chargement de grain pour {dest}, où l'on a faim. Chaque sac manquant sera réclamé."
+msgstr "A load of grain for {dest}, where people are hungry. Every missing sack will be claimed."
+
+msgid "Un chef de guerre ambitieux"
+msgstr "An ambitious warlord"
+
+msgid "Un coffret de médicaments pour les malades de {dest}. Chaque jour compte."
+msgstr "A box of medicines for the sick of {dest}. Every day counts."
+
+msgid "Un colis scellé doit arriver à {dest}. Ne posez pas de questions."
+msgstr "A sealed parcel must reach {dest}. Ask no questions."
+
+msgid "Un convoi de marchands cherche des lames pour rejoindre {dest}."
+msgstr "A convoy of merchants seeks blades to reach {dest}."
+
+msgid "Un couloir de niches funéraires mène à une porte de bronze."
+msgstr "A corridor of burial niches leads to a bronze door."
+
+msgid "Un coupable, ou une fausse accusation"
+msgstr "A culprit, or a false accusation"
+
+msgid "Un défi"
+msgstr "A challenge"
+
+msgid "Un escalier en colimaçon monte vers la tour."
+msgstr "A spiral staircase climbs toward the tower."
+
+msgid "Un escalier humide s'enfonce plus bas."
+msgstr "A damp staircase leads further down."
+
+msgid "Un géant bardé de plaques de fer martelées dans la pierre. Ses coups étourdissent les plus braves."
+msgstr "A giant clad in iron plates hammered into the stone. His blows stun the bravest."
+
+msgid "Un géant cuirassé descend de la montagne et écrase les hameaux. Les flèches ricochent sur sa carapace."
+msgstr "An armored giant comes down from the mountain and crushes the hamlets. Arrows ricochet off his carapace."
+
+msgid "Un homme"
+msgstr "A man"
+
+msgid "Un homme en robe noire achète des cadavres. {town} commence à s'en inquiéter."
+msgstr "A man in a black robe buys corpses. {town} is starting to worry."
+
+msgid "Un jeune seigneur doit être confié à ses oncles, à {dest}. Sa mère craint les enlèvements."
+msgstr "A young lord must be entrusted to his uncles at {dest}. His mother fears kidnappings."
+
+msgid "Un jour de repos à %s. −%d couronnes de solde."
+msgstr "A day of rest at %s. −%d crowns in wages."
+
+msgid "Un jour de repos. −%d couronnes de solde."
+msgstr "A day of rest. −%d crowns in wages."
+
+msgid "Un journal de fouilleur s'achève sur ces mots : « Ils sont tous remontés, sauf lui. »"
+msgstr "A digger's journal ends with these words: \"They all came back up, except him.\""
+
+msgid "Un loup immense au pelage de cendre. Il ne chasse jamais seul, et il hurle quand le sang coule."
+msgstr "An immense wolf with an ash-grey coat. It never hunts alone, and howls when blood flows."
+
+msgid "Un maître d'armes, blessé, rentre à {dest}. Il paiera de sa bourse la sécurité de la route."
+msgstr "A wounded weapon master returns to {dest}. He will pay from his own purse for a safe road."
+
+msgid "Un message pour un homme de {dest} qui n'aime pas qu'on le dérange. Remettez-le en main propre."
+msgstr "A message for a man of {dest} who doesn't like to be disturbed. Deliver it in person."
+
+msgid "Un nom qui circule"
+msgstr "A name going around"
+
+msgid "Un nom qui fait trembler les paysans. Ils ont pris le grand chemin comme on prend un champ."
+msgstr "A name that makes the peasants tremble. They have taken the high road as one takes a field."
+
+msgid "Un notable doit rejoindre {dest} sans encombre. Les routes sont peu sûres."
+msgstr "A notable must reach {dest} unharmed. The roads are unsafe."
+
+msgid "Un nouveau combat, sans soin entre les deux. Un piège peut surprendre la colonne."
+msgstr "Another battle, with no healing between the two. A trap may surprise the column."
+
+msgid "Un ogre si vieux que les pères racontent sa légende à leurs fils. Il s'enrage quand on le blesse vraiment."
+msgstr "An ogre so old that fathers tell his legend to their sons. He rages when truly wounded."
+
+msgid "Un ogre énorme a éventré des charrettes entières. Les paysans parlent de Grosse-Mâchoire, qui ne meurt jamais."
+msgstr "An enormous ogre has gutted entire carts. The peasants speak of Big-Jaw, who never dies."
+
+msgid "Un orc plus grand que les autres unit les clans. Mieux vaut le saigner avant qu'il ne soit un roi."
+msgstr "An orc bigger than the rest unites the clans. Better to bleed him before he becomes a king."
+
+msgid "Un outil se lance, il ne s'équipe pas."
+msgstr "A tool is thrown, not equipped."
+
+msgid "Un pari"
+msgstr "A bet"
+
+msgid "Un passage étroit s'ouvre derrière l'autel."
+msgstr "A narrow passage opens behind the altar."
+
+msgid "Un percepteur et ses coffres doivent atteindre {dest}. Ils ont déjà perdu un convoi."
+msgstr "A tax collector and his chests must reach {dest}. They have already lost one convoy."
+
+msgid "Un piège à pression ! Une dalle s'abaisse et des pointes jaillissent."
+msgstr "A pressure trap! A slab sinks and spikes shoot out."
+
+msgid "Un plan de siège destiné à {dest}. Certains paieraient cher pour le lire en route."
+msgstr "A siege plan meant for {dest}. Some would pay dearly to read it on the road."
+
+msgid "Un reliquaire pour {dest} : le prieur promet une récompense… et des prières."
+msgstr "A reliquary for {dest}: the prior promises a reward… and prayers."
+
+msgid "Un râtelier oublié porte une pièce d'équipement encore bonne."
+msgstr "A forgotten rack holds a piece of equipment still good."
+
+msgid "Un sanctuaire oublié, où brûle parfois une bougie."
+msgstr "A forgotten sanctuary, where a candle sometimes burns."
+
+msgid "Un toast entre amis"
+msgstr "A toast between friends"
+
+msgid "Un tonneau de vin de messe est attendu à {dest}. L'abbé a payé d'avance, et il compte."
+msgstr "A cask of mass wine is expected at {dest}. The abbot paid in advance, and he is counting."
+
+msgid "Un totem d'os a surgi à la lisière de la forêt. Les orcs de la région s'y rassemblent."
+msgstr "A bone totem has appeared at the forest's edge. The orcs of the region gather there."
+
+msgid "Un troll dont les plaies se referment à vue d'œil. Seul le feu l'empêche de guérir."
+msgstr "A troll whose wounds close before your eyes. Only fire keeps him from healing."
+
+msgid "Un troll tient le gué et écorche quiconque le franchit. On dit qu'il guérit de tout, sauf du feu."
+msgstr "A troll holds the ford and flays whoever crosses. They say he heals from everything but fire."
+
+msgid "Un troupeau de moutons et ses bergers pour {dest}. La laine vaut cher, les loups aussi."
+msgstr "A flock of sheep and their shepherds for {dest}. Wool is worth much, and so are wolves."
+
+msgid "Un vieux fortin dont les remparts s'écroulent. Des feux de camp récents noircissent la cour : on y a élu domicile."
+msgstr "An old fortlet whose ramparts are crumbling. Recent campfires blacken the courtyard: someone has moved in."
+
+msgid "Un émissaire porte la paix, ou la guerre, jusqu'à {dest}. Il tient à arriver vivant."
+msgstr "An envoy carries peace, or war, to {dest}. He is keen to arrive alive."
+
+msgid "Une année entière"
+msgstr "A whole year"
+
+msgid "Une arme à deux mains interdit le bouclier (et le sac est plein)."
+msgstr "A two-handed weapon forbids a shield (and the bag is full)."
+
+msgid "Une arme à deux mains interdit le bouclier."
+msgstr "A two-handed weapon forbids a shield."
+
+msgid "Une bande a pillé deux fermes et campe dans les bois."
+msgstr "A band has looted two farms and camps in the woods."
+
+msgid "Une bande descend la nuit sur les étals de {town}. On cherche des lames qui ne dorment pas."
+msgstr "A band descends at night on the stalls of {town}. Blades that don't sleep are wanted."
+
+msgid "Une bourse pour sceller la paix : %s et %s topent là (−40 couronnes)."
+msgstr "A purse to seal the peace: %s and %s shake on it (−40 crowns)."
+
+msgid "Une caravane de sel pour {dest} : lourde, lente, tentante."
+msgstr "A salt caravan for {dest}: heavy, slow, tempting."
+
+msgid "Une carte à demi effacée marque des repères que seuls les anciens du pays reconnaîtraient."
+msgstr "A half-faded map marks landmarks only the old folk of the land would recognize."
+
+msgid "Une chanson"
+msgstr "A song"
+
+msgid "Une cloche neuve pour l'église de {dest}. Elle est lourde, fragile et bénie."
+msgstr "A new bell for the church of {dest}. It is heavy, fragile and blessed."
+
+msgid "Une croix de bois au bord de la route, et c'est tout."
+msgstr "A wooden cross by the roadside, and that is all."
+
+msgid "Une dalle bascule : un homme chute et se meurtrit."
+msgstr "A slab tips: a man falls and is bruised."
+
+msgid "Une fois par niveau : or, équipement… mais aussi pièges et embuscades."
+msgstr "Once per level: gold, equipment… but also traps and ambushes."
+
+msgid "Une garnison nombreuse. Pas de soin avant le combat : préparez-vous."
+msgstr "A large garrison. No healing before the fight: be ready."
+
+msgid "Une goule gigantesque et pâle, qui relève les morts et appelle les affamés des cimetières."
+msgstr "A gigantic, pale ghoul that raises the dead and calls the hungry from graveyards."
+
+msgid "Une grange isolée résonne de grognements la nuit. Le fermier n'est jamais revenu de son champ."
+msgstr "An isolated barn echoes with growls at night. The farmer never came back from his field."
+
+msgid "Une grotte sombre, dont l'entrée sent la bête."
+msgstr "A dark cave, whose entrance smells of beast."
+
+msgid "Une herse levée laisse passer vers l'intérieur."
+msgstr "A raised portcullis lets you in."
+
+msgid "Une histoire au coin du feu"
+msgstr "A story by the fire"
+
+msgid "Une horde a franchi les collines et brûle les granges. Il faut la briser."
+msgstr "A horde has crossed the hills and burns barns. It must be broken."
+
+msgid "Une jeune mariée doit gagner {dest}, où l'attend son époux. Sa famille paie bien la discrétion."
+msgstr "A young bride must reach {dest}, where her husband awaits. Her family pays well for discretion."
+
+msgid "Une lettre scellée promet une récompense à qui rapportera « ce qui dort sous la colline »."
+msgstr "A sealed letter promises a reward to whoever brings back \"what sleeps under the hill\"."
+
+msgid "Une légende vivante"
+msgstr "A living legend"
+
+msgid "Une main"
+msgstr "One hand"
+
+msgid "Une meute d'hommes en haillons, plus féroce que n'importe quel loup, terrorise les bûcherons de {town}."
+msgstr "A pack of ragged men, fiercer than any wolf, terrorizes the woodcutters of {town}."
+
+msgid "Une meute descend des collines chaque nuit, conduite par un loup gris énorme que les bergers nomment Croc-Gris."
+msgstr "A pack comes down from the hills each night, led by an enormous grey wolf the shepherds call Greyfang."
+
+msgid "Une nuit de garde côte à côte : %s et %s finissent par parler."
+msgstr "A night of guard side by side: %s and %s end up talking."
+
+msgid "Une patrouille de la %s est lancée à vos trousses."
+msgstr "A patrol of the %s has been sent on your trail."
+
+msgid "Une porte vermoulue donne sur le donjon."
+msgstr "A rotten door opens onto the keep."
+
+msgid "Une prime pour chacun (−%d couronnes) : les murmures cessent. Pour l'instant."
+msgstr "A bounty for each man (−%d crowns): the murmurs stop. For now."
+
+msgid "Une procession de squelettes remonte la route de {town} à la tombée de la nuit, torches éteintes."
+msgstr "A procession of skeletons climbs the road from {town} at nightfall, torches out."
+
+msgid "Une retraite méritée"
+msgstr "A well-earned retirement"
+
+msgid "Une récompense pend au cou de %s, et personne n'ose la réclamer. Voilà une affaire de mercenaires."
+msgstr "A reward hangs at the neck of %s, and no one dares claim it. A job for mercenaries."
+
+msgid "Une tour de guet. Qui veille encore là-haut ?"
+msgstr "A watchtower. Who still keeps watch up there?"
+
+msgid "Une tournée pour %s, et la veillée dure tard (−20 couronnes)."
+msgstr "A round for %s, and the evening runs late (−20 crowns)."
+
+msgid "Une veuve a veillé son mari… et ce qui est revenu n'est plus lui. Elle supplie qu'on la délivre."
+msgstr "A widow kept vigil over her husband… and what returned is no longer him. She begs to be delivered."
+
+msgid "Une volée de fléchettes rouillées jaillit d'un mur."
+msgstr "A volley of rusty darts shoots from a wall."
+
+msgid "Vague repoussée : une autre arrive aussitôt !"
+msgstr "Wave repelled: another arrives at once!"
+
+msgid "Valeur de revente %s"
+msgstr "Resale value %s"
+
+msgid "Valider"
+msgstr "Confirm"
+
+msgid "Veillée au camp"
+msgstr "Evening at camp"
+
+msgid "Veillée au camp : il se passe quelque chose autour du feu."
+msgstr "Evening at camp: something happens around the fire."
+
+msgid "Veillée funèbre"
+msgstr "Funeral wake"
+
+msgid "Veillées au coin du feu"
+msgstr "Evenings by the fire"
+
+msgid "Vendre (dans un lieu seulement)"
+msgstr "Sell (in a place only)"
+
+msgid "Vendre 1"
+msgstr "Sell 1"
+
+msgid "Vendre pour %d couronnes"
+msgstr "Sell for %d crowns"
+
+msgid "Verser une prime à chacun"
+msgstr "Pay a bounty to each"
+
+msgid "Victoires et défaites par type de combat"
+msgstr "Victories and defeats by type of fight"
+
+msgid "Victoires sans perte"
+msgstr "Victories without loss"
+
+msgid "Village"
+msgstr "Village"
+
+msgid "Ville"
+msgstr "Town"
+
+msgid "Ville (bannière de son propriétaire)"
+msgstr "Town (its owner's banner)"
+
+msgid "Ville libre (sans seigneur, bannière grise)"
+msgstr "Free town (no lord, grey banner)"
+
+msgid "Visité le jour %d\n"
+msgstr "Visited on day %d\n\n"
+
+msgid "Vitesse ×%d (Espace : pause)"
+msgstr "Speed ×%d (Space: pause)"
+
+msgid "Vivre dix veillées au camp."
+msgstr "Spend ten evenings at camp."
+
+msgid "Vivre dix événements de route."
+msgstr "Experience ten road events."
+
+msgid "Vivres"
+msgstr "Provisions"
+
+msgid "Vivres (rations) · %.1f jours de route"
+msgstr "Provisions (rations) · %.1f days of travel"
+
+msgid "Vivres +2, moral −1, lien −4 entre eux"
+msgstr "Provisions +2, morale −1, bond −4 between them"
+
+msgid "Vivres : %d rations (≈ %.1f jours de route, stock max %d)"
+msgstr "Provisions: %d rations (≈ %.1f days of travel, max stock %d)"
+
+msgid "Vivres : %d rations, ≈ %.1f jours de route.%s\nUne ration par homme et par jour de route ; achat au marché."
+msgstr "Provisions: %d rations, ≈ %.1f days of travel.%s\nOne ration per man per day on the road; buy at the market."
+
+msgid "Vivres : +%d rations pour %d couronnes."
+msgstr "Provisions: +%d rations for %d crowns."
+
+msgid "Vivres presque épuisés !"
+msgstr "Provisions almost gone!"
+
+msgid "Vivres ×%d\nUne ration nourrit un homme pour un jour de route.\nUn achat prend %d rations pour %d couronnes.\nVous en avez %d sur %d."
+msgstr "Provisions ×%d\nOne ration feeds a man for a day of travel.\nOne purchase takes %d rations for %d crowns.\nYou have %d of %d."
+
+msgid "Vivres −%d %%, +%s de moral de compagnie par jour de bon repas."
+msgstr "Provisions −%d %%, +%s company morale per day of good meals."
+
+msgid "Vivres −3, moral +4, lien +1"
+msgstr "Provisions −3, morale +4, bond +1"
+
+msgid "Voir aussi"
+msgstr "See also"
+
+msgid "Voir un vétéran prendre sa retraite."
+msgstr "See a veteran retire."
+
+msgid "Vos mots tombent à plat : %s s'en va avec sa part."
+msgstr "Your words fall flat: %s leaves with their share."
+
+msgid "Votre compagnie (votre bannière)"
+msgstr "Your company (your banner)"
+
+msgid "Votre service pèse dans la guerre de %s contre %s."
+msgstr "Your service weighs in the war of %s against %s."
+
+msgid "Vous laissez partir %s, sans haine. Les autres respirent."
+msgstr "You let %s go, without hatred. The others breathe."
+
+msgid "Vous les séparez. %s et %s se jettent un dernier regard noir."
+msgstr "You separate them. %s and %s cast each other one last dark look."
+
+msgid "Vous mettez une pièce de plus (−15 couronnes) : on trinque à la compagnie."
+msgstr "You add one more coin (−15 crowns): they toast the company."
+
+msgid "Vous n'en avez pas en cargaison."
+msgstr "You have none in your cargo."
+
+msgid "Vous parlez de la route faite, des primes à venir. %s baisse la tête et reste."
+msgstr "You speak of the road traveled, of bounties to come. %s lowers their head and stays."
+
+msgid "Vous reprenez le refrain avec %s. On en parlera longtemps."
+msgstr "You take up the refrain with %s. It will be talked about for a long time."
+
+msgid "Vous tenez la cagnotte et prélevez votre part : +%d couronnes."
+msgstr "You keep the kitty and take your share: +%d crowns."
+
+msgid "Vous êtes chez le %s : tarifs ×%s, %s."
+msgstr "You are at the %s: rates ×%s, %s."
+
+msgid "Vs armure"
+msgstr "Vs armor"
+
+msgid "Vétéran"
+msgstr "Veteran"
+
+msgid "alliée"
+msgstr "allied"
+
+msgid "après-midi"
+msgstr "afternoon"
+
+msgid "arme aiguisée (%d combat%s)"
+msgstr "weapon sharpened (%1$d battle(s))"
+
+msgid "armure %+d %%"
+msgstr "armor %+d %%"
+
+msgid "armures réparées"
+msgstr "armor repaired"
+
+msgid "au combat"
+msgstr "in battle"
+
+msgid "autre chose que des armes et boucliers"
+msgstr "something other than weapons and shields"
+
+msgid "ce genre d'objet"
+msgstr "this kind of item"
+
+msgid "compagnie au complet : +100 couronnes à la place"
+msgstr "company at full strength: +100 crowns instead"
+
+msgid "compagnie au complet : +30 couronnes à la place"
+msgstr "company at full strength: +30 crowns instead"
+
+msgid "de chasse"
+msgstr "hunting"
+
+msgid "deux mains"
+msgstr "two hands"
+
+msgid "deviennent amis"
+msgstr "become friends"
+
+msgid "durabilité %+d %%"
+msgstr "durability %+d %%"
+
+msgid "dégagé"
+msgstr "clear"
+
+msgid "dégâts %+d %%"
+msgstr "damage %+d %%"
+
+msgid "embuscade possible (%s)"
+msgstr "possible ambush (%s)"
+
+msgid "fichier temporaire incomplet (disque plein ?)"
+msgstr "incomplete temporary file (disk full?)"
+
+msgid "flèche"
+msgstr "arrow"
+
+msgid "flèches"
+msgstr "arrows"
+
+msgid "forgeron de village"
+msgstr "village blacksmith"
+
+msgid "grossière"
+msgstr "crude"
+
+msgid "grossières"
+msgstr "crude"
+
+msgid "haubert huilé (%d combat%s)"
+msgstr "hauberk oiled (%1$d battle(s))"
+
+msgid "instructeur du camp"
+msgstr "camp instructor"
+
+msgid "le poison"
+msgstr "poison"
+
+msgid "le saignement"
+msgstr "bleeding"
+
+msgid "max %d"
+msgstr "max %d"
+
+msgid "maître forgeron"
+msgstr "master blacksmith"
+
+msgid "menace %+d"
+msgstr "threat %+d"
+
+msgid "moral %+d"
+msgstr "morale %+d"
+
+msgid "mêlée"
+msgstr "melee"
+
+msgid "ne travaille pas les mailles"
+msgstr "doesn't work mail"
+
+msgid "nouveau contrat à %s"
+msgstr "new contract at %s"
+
+msgid "objectif atteint"
+msgstr "objective reached"
+
+msgid "objet unique : %s"
+msgstr "unique item: %s"
+
+msgid "perte %d"
+msgstr "loss %d"
+
+msgid "profit %d"
+msgstr "profit %d"
+
+msgid "renom %+d"
+msgstr "renown %+d"
+
+msgid "renommage impossible (%s)"
+msgstr "rename impossible (%s)"
+
+msgid "retraité"
+msgstr "retiree"
+
+msgid "risque : "
+msgstr "risk: "
+
+msgid "route réputée sûre"
+msgstr "road known to be safe"
+
+msgid "s'éteint dans l'eau"
+msgstr "goes out in water"
+
+msgid "se prennent en grippe"
+msgstr "take a dislike to each other"
+
+msgid "ses brûlures"
+msgstr "their burns"
+
+msgid "soigné"
+msgstr "healed"
+
+msgid "sur %s"
+msgstr "on %s"
+
+msgid "sur lui-même"
+msgstr "on himself"
+
+msgid "travaille les mailles"
+msgstr "works mail"
+
+msgid "un autre"
+msgstr "another"
+
+msgid "un homme"
+msgstr "a man"
+
+msgid "un homme a déserté faute de paie"
+msgstr "a man deserted for lack of pay"
+
+msgid "un point de la carte"
+msgstr "a point on the map"
+
+msgid "une main"
+msgstr "one hand"
+
+msgid "valeur ×%s"
+msgstr "value ×%s"
+
+msgid "{a} accuse {b} d'avoir gardé pour lui une part de rations. Les voix montent."
+msgstr "{a} accuses {b} of having kept a share of the rations for himself. Voices rise."
+
+msgid "{a} emporte son équipement et une part de l'or, moral +4"
+msgstr "{a} takes his equipment and a share of the gold, morale +4"
+
+msgid "{a} entonne une vieille chanson de marche, un peu faux. Quelques voix la reprennent, puis d'autres."
+msgstr "{a} strikes up an old marching song, a little off-key. A few voices pick it up, then more."
+
+msgid "{a} et {b} ne se supportent plus. Un mot de trop, et les voilà qui s'empoignent devant toute la compagnie."
+msgstr "{a} and {b} can't stand each other any longer. One word too many, and they are grappling in front of the whole company."
+
+msgid "{a} et {b} se sont lancé un défi à la lueur du feu, et tous les yeux se tournent vers vous : la mise est de {stake} couronnes."
+msgstr "{a} and {b} have thrown down a challenge by the firelight, and every eye turns to you: the stake is {stake} crowns."
+
+msgid "{a} et {b}, inséparables, proposent de mettre en commun leurs économies pour offrir une tournée à la compagnie."
+msgstr "{a} and {b}, inseparable, offer to pool their savings to buy the company a round."
+
+msgid "{a} jette sa ceinture aux pieds de {b} : leur querelle ne s'éteindra pas autrement. Toute la compagnie retient son souffle."
+msgstr "{a} throws his belt at {b}'s feet: their quarrel will not end otherwise. The whole company holds its breath."
+
+msgid "{n} appelle ses plus voraces !"
+msgstr "{n} calls his hungriest!"
+
+msgid "{n} brandit sa massue à deux mains !"
+msgstr "{n} brandishes his club with both hands!"
+
+msgid "{n} est pris de fureur : plus rien ne l'arrête !"
+msgstr "{n} is seized by fury: nothing stops him now!"
+
+msgid "{n} grogne : ses chairs se ressoudent plus vite encore."
+msgstr "{n} growls: his flesh knits together even faster."
+
+msgid "{n} gronde : la pierre craque, il marche plus vite."
+msgstr "{n} rumbles: the stone cracks, he walks faster."
+
+msgid "{n} hurle à la mort : d'autres loups accourent !"
+msgstr "{n} howls to the death: more wolves come running!"
+
+msgid "{n} hurle, les yeux injectés de sang : il s'enrage !"
+msgstr "{n} howls, eyes bloodshot: he goes berserk!"
+
+msgid "{n} pousse un long cri : la meute répond !"
+msgstr "{n} lets out a long cry: the pack answers!"
+
+msgid "{n}, acculé, devient fou de rage."
+msgstr "{n}, cornered, goes mad with rage."
+
+msgid "~%d couronnes (dans un lieu)"
+msgstr "~%d crowns (in a place)"
+
+msgid "±{stake} couronnes (une chance sur deux environ), moral +1"
+msgstr "±{stake} crowns (about a one in two chance), morale +1"
+
+msgid "À remettre à un homme de la même origine (%s)."
+msgstr "To be given to a man of the same origin (%s)."
+
+msgid "Échec"
+msgstr "Failure"
+
+msgid "Écorche-Gué, le troll qui se relève"
+msgstr "Fordflayer, the troll who rises again"
+
+msgid "Éliminer"
+msgstr "Eliminate"
+
+msgid "Équipement"
+msgstr "Equipment"
+
+msgid "Équiper sur %s"
+msgstr "Equip on %s"
+
+msgid "Étals, forgerons et colporteurs : tout ce qu'une compagnie peut désirer se vend ici, pour qui en paie le prix."
+msgstr "Stalls, blacksmiths and peddlers: everything a company could desire is sold here, for whoever pays the price."
+
+msgid "État de la compagnie"
+msgstr "State of the company"
+
+msgid "Éteint la brûlure et rend 8 PV. Usage unique, à soi-même ou à un allié au contact (3 PA)."
+msgstr "Puts out the burn and restores 8 HP. Single use, on yourself or an adjacent ally (3 AP)."
+
+msgid "Été"
+msgstr "Summer"
+
+msgid "Événement de route"
+msgstr "Road event"
+
+msgid "Événement de route."
+msgstr "Road event."
+
+msgid "Événements"
+msgstr "Events"
+
+msgid "Événements de route"
+msgstr "Road events"
+
+msgid "à découvrir en ville"
+msgstr "to be discovered in town"
+
+msgid "échec"
+msgstr "failure"
+
+msgid "écriture impossible (%s)"
+msgstr "cannot write (%s)"
+
+msgid "équilibre"
+msgstr "balance"
+
+msgid "−%d jour%s"
+msgstr "−%1$d day(s)"
+
+msgid "−15 couronnes, moral +4, liens +1"
+msgstr "−15 crowns, morale +4, bonds +1"
+
+msgid "−20 couronnes, moral +4, liens +2 ; parfois un bon trait"
+msgstr "−20 crowns, morale +4, bonds +2; sometimes a good trait"
+
+msgid "−40 couronnes, lien +6"
+msgstr "−40 crowns, bond +6"
+
+msgid "−{cost} couronnes, moral +12"
+msgstr "−{cost} crowns, morale +12"
+
+msgid "≈ %.1f j"
+msgstr "≈ %.1f d"
+
+msgid "≈ %d jour%s de route"
+msgstr "≈ %1$d day(s) of travel"
+
+msgid "⚔ Guerres en cours (liseré rouge sur la frontière)"
+msgstr "⚔ Ongoing wars (red edge on the border)"
+

@@ -290,7 +290,7 @@ static func _add_place(w: World, g: RandomNumberGenerator, owner: String, kind: 
 				nm = str(c)
 				break
 	if nm == "":  # liste épuisée : on pioche dans la liste générale
-		for c in Data.TOWNS:
+		for c in Mods.towns():
 			if not used.has(str(c)):
 				nm = str(c)
 				break

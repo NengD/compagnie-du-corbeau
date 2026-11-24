@@ -1,0 +1,419 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Élimination"
+msgstr "Elimination"
+
+msgid "%s · danger %d sur 3"
+msgstr "%s · danger %d of 3"
+
+msgid "%s · destination : %s · prime à l'arrivée · risque : %s"
+msgstr "%s · destination: %s · reward on arrival · risk: %s"
+
+msgid "Touches"
+msgstr "Keys"
+
+msgid "Cliquez sur une touche, puis appuyez sur la nouvelle. Échap annule la saisie (et reste réservée)."
+msgstr "Click a key, then press the new one. Esc cancels the entry (and stays reserved)."
+
+msgid "Par défaut"
+msgstr "Default"
+
+msgid "Toutes les touches sont revenues à leurs valeurs par défaut."
+msgstr "All keys are back to their default values."
+
+msgid "Ajouter une seconde touche"
+msgstr "Add a second key"
+
+msgid "Rétablir les touches par défaut de cette action"
+msgstr "Restore this action's default keys"
+
+msgid "Cliquer, puis appuyer sur la nouvelle touche"
+msgstr "Click, then press the new key"
+
+msgid "Appuyez…"
+msgstr "Press…"
+
+msgid "« %s » : appuyez sur la nouvelle touche (Échap : annuler)."
+msgstr "\"%s\": press the new key (Esc: cancel)."
+
+msgid "Saisie annulée."
+msgstr "Entry cancelled."
+
+msgid "« %s » : %s."
+msgstr "\"%s\": %s."
+
+msgid "%s est déjà attribuée à : %s. Échanger les touches ?"
+msgstr "%s is already assigned to: %s. Swap the keys?"
+
+msgid "Échanger"
+msgstr "Swap"
+
+msgid "Touches échangées."
+msgstr "Keys swapped."
+
+msgid "Refuser"
+msgstr "Decline"
+
+msgid "Aucun changement."
+msgstr "No change."
+
+msgid "Chargé"
+msgstr "Loaded"
+
+msgid "Chargé avec avertissements"
+msgstr "Loaded with warnings"
+
+msgid "Ignoré (erreur)"
+msgstr "Skipped (error)"
+
+msgid "Mods"
+msgstr "Mods"
+
+msgid "Dossier : %s\nUn mod ne contient que des données JSON (aucun script). Les changements s'appliquent au prochain lancement du jeu."
+msgstr "Folder: %s\nA mod contains only JSON data (no script). Changes apply at the next launch of the game."
+
+msgid "Aucun mod trouvé. Créez un dossier dans le dossier ci-dessus avec un fichier mod.json (voir docs/mods.md)."
+msgstr "No mod found. Create a folder in the folder above with a mod.json file (see docs/mods.md)."
+
+msgid "Ouvrir le dossier"
+msgstr "Open the folder"
+
+msgid "Auteur : %s"
+msgstr "Author: %s"
+
+msgid "Contenu — "
+msgstr "Content — "
+
+msgid "Langue"
+msgstr "Language"
+
+msgid "Accessibilité"
+msgstr "Accessibility"
+
+msgid "Mode daltonien"
+msgstr "Colorblind mode"
+
+msgid "Taille des infobulles"
+msgstr "Tooltip size"
+
+msgid "Réduire les animations (tremblement, flashs, neige, brouillard)"
+msgstr "Reduce animations (shake, flashes, snow, fog)"
+
+msgid "Texte plus contrasté (s'applique pleinement aux prochains écrans)"
+msgstr "Higher-contrast text (fully applies to the next screens)"
+
+msgid "Touches et mods"
+msgstr "Keys and mods"
+
+msgid "Touches…"
+msgstr "Keys…"
+
+msgid "Mods (%d chargé%s)…"
+msgstr "Mods (%d loaded)…"
+
+msgid "déserteur"
+msgstr "deserter"
+
+msgid " / flèches"
+msgstr " / arrows"
+
+msgid "Déplacer la caméra ; %s : plus vite"
+msgstr "Move the camera; %s: faster"
+
+msgid "Journal de campagne et mémorial"
+msgstr "Campaign journal and memorial"
+
+msgid "Configurer les touches…"
+msgstr "Configure keys…"
+
+msgid "Inspecter l'unité suivante"
+msgstr "Inspect the next unit"
+
+msgid "Inspecter l'unité précédente"
+msgstr "Inspect the previous unit"
+
+msgid "Bouton d'action n° 1"
+msgstr "Action button no. 1"
+
+msgid "Bouton d'action n° 2"
+msgstr "Action button no. 2"
+
+msgid "Bouton d'action n° 3"
+msgstr "Action button no. 3"
+
+msgid "Bouton d'action n° 4"
+msgstr "Action button no. 4"
+
+msgid "Bouton d'action n° 5"
+msgstr "Action button no. 5"
+
+msgid "Bouton d'action n° 6"
+msgstr "Action button no. 6"
+
+msgid "Bouton d'action n° 7"
+msgstr "Action button no. 7"
+
+msgid "Bouton d'action n° 8"
+msgstr "Action button no. 8"
+
+msgid "Bouton d'action n° 9"
+msgstr "Action button no. 9"
+
+msgid "Lieu suivant (centre la vue)"
+msgstr "Next place (centers the view)"
+
+msgid "Lieu précédent"
+msgstr "Previous place"
+
+msgid "Caméra : haut"
+msgstr "Camera: up"
+
+msgid "Caméra : bas"
+msgstr "Camera: down"
+
+msgid "Caméra : gauche"
+msgstr "Camera: left"
+
+msgid "Caméra : droite"
+msgstr "Camera: right"
+
+msgid "Caméra : aller plus vite (maintenir)"
+msgstr "Camera: move faster (hold)"
+
+msgid "Recentrer sur la compagnie"
+msgstr "Recenter on the company"
+
+msgid "Tiroir « Détails »"
+msgstr "\"Details\" drawer"
+
+msgid "Aide : raccourcis clavier"
+msgstr "Help: keyboard shortcuts"
+
+msgid "Ctrl+"
+msgstr "Ctrl+"
+
+msgid "Alt+"
+msgstr "Alt+"
+
+msgid "Maj+"
+msgstr "Shift+"
+
+msgid "Entrée"
+msgstr "Enter"
+
+msgid "Entrée (pavé)"
+msgstr "Enter (keypad)"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Retour arrière"
+msgstr "Backspace"
+
+msgid "Maj"
+msgstr "Shift"
+
+msgid "Pavé %d"
+msgstr "Keypad %d"
+
+msgid "Touche %d"
+msgstr "Key %d"
+
+msgid "Action inconnue."
+msgstr "Unknown action."
+
+msgid "Cette touche est réservée."
+msgstr "This key is reserved."
+
+msgid "Cette touche est déjà utilisée par cette action."
+msgstr "This key is already used by this action."
+
+msgid "Déjà utilisée par : %s."
+msgstr "Already used by: %s."
+
+msgid "Échange impossible."
+msgstr "Swap impossible."
+
+msgid "Trop de mods (maximum %d) : ignoré."
+msgstr "Too many mods (maximum %d): ignored."
+
+msgid "Identifiant « %s » déjà pris par un autre mod : ignoré."
+msgstr "Identifier \"%s\" already taken by another mod: ignored."
+
+msgid "mod.json : %s"
+msgstr "mod.json: %s"
+
+msgid "mod.json : doit être un objet JSON."
+msgstr "mod.json: must be a JSON object."
+
+msgid "mod.json : « name » (texte non vide, 60 caractères au plus) est obligatoire."
+msgstr "mod.json: \"name\" (non-empty text, 60 characters at most) is required."
+
+msgid "%s : %s (fichier ignoré)."
+msgstr "%s: %s (file ignored)."
+
+msgid "%s : doit être un objet JSON (fichier ignoré)."
+msgstr "%s: must be a JSON object (file ignored)."
+
+msgid "… (d'autres avertissements ne sont pas listés)"
+msgstr "… (further warnings are not listed)"
+
+msgid "mod.json : « %s » doit être un texte (ignoré)."
+msgstr "mod.json: \"%s\" must be text (ignored)."
+
+msgid "mod.json : « files » doit être une liste (ignoré)."
+msgstr "mod.json: \"files\" must be a list (ignored)."
+
+msgid "mod.json : chemin refusé « %s » (relatif, sans « .. », se terminant par .json)."
+msgstr "mod.json: path refused \"%s\" (relative, without \"..\", ending in .json)."
+
+msgid "Trop de fichiers (maximum %d) : les suivants sont ignorés."
+msgstr "Too many files (maximum %d): the following are ignored."
+
+msgid "fichier introuvable"
+msgstr "file not found"
+
+msgid "lecture impossible"
+msgstr "cannot be read"
+
+msgid "trop gros (%d octets, maximum %d)"
+msgstr "too big (%d bytes, maximum %d)"
+
+msgid "trop gros"
+msgstr "too big"
+
+msgid "JSON invalide (ligne %d : %s)"
+msgstr "Invalid JSON (line %d: %s)"
+
+msgid "structure trop profonde ou trop volumineuse"
+msgstr "structure too deep or too large"
+
+msgid "« %s » doit être une liste de textes (ignoré)."
+msgstr "\"%s\" must be a list of texts (ignored)."
+
+msgid "« %s » : %d entrée(s) écartée(s) (type, longueur %d–%d, doublon ou liste pleine)."
+msgstr "\"%s\": %d entry(ies) discarded (type, length %d–%d, duplicate or full list)."
+
+msgid "%s : « %s » doit être un nombre (valeur par défaut)."
+msgstr "%s: \"%s\" must be a number (default value)."
+
+msgid "%s : « %s » invalide (valeur par défaut)."
+msgstr "%s: \"%s\" invalid (default value)."
+
+msgid "%s : « %s » ramené entre %d et %d."
+msgstr "%s: \"%s\" clamped between %d and %d."
+
+msgid "%s : catégorie inconnue « %s » (ignorée)."
+msgstr "%s: unknown category \"%s\" (ignored)."
+
+msgid "« backstories » doit être un objet {origine: [textes]} (ignoré)."
+msgstr "\"backstories\" must be an object {origin: [texts]} (ignored)."
+
+msgid "backstories : origine inconnue « %s » (ignorée)."
+msgstr "backstories: unknown origin \"%s\" (ignored)."
+
+msgid "« scenarios » doit être un objet {identifiant: scénario} (ignoré)."
+msgstr "\"scenarios\" must be an object {identifier: scenario} (ignored)."
+
+msgid "scenarios : identifiant refusé « %s » (a-z, 0-9, _ ; 32 caractères au plus)."
+msgstr "scenarios: identifier refused \"%s\" (a-z, 0-9, _ ; 32 characters at most)."
+
+msgid "scenarios : trop de scénarios (maximum %d)."
+msgstr "scenarios: too many scenarios (maximum %d)."
+
+msgid "scénario « %s »"
+msgstr "scenario \"%s\""
+
+msgid "%s : doit être un objet (ignoré)."
+msgstr "%s: must be an object (ignored)."
+
+msgid "%s : « n » (nom, 2 à 60 caractères) obligatoire (scénario ignoré)."
+msgstr "%s: \"n\" (name, 2 to 60 characters) required (scenario ignored)."
+
+msgid "%s : « men » doit lister 1 à 8 origines connues (clés de Data.BG) (scénario ignoré)."
+msgstr "%s: \"men\" must list 1 to 8 known origins (keys of Data.BG) (scenario ignored)."
+
+msgid "%s : « goal.stat » doit être « renown », « gold » ou une statistique connue (scénario ignoré)."
+msgstr "%s: \"goal.stat\" must be \"renown\", \"gold\" or a known statistic (scenario ignored)."
+
+msgid "« events » doit être une liste d'événements (ignoré)."
+msgstr "\"events\" must be a list of events (ignored)."
+
+msgid "events : trop d'événements (maximum %d)."
+msgstr "events: too many events (maximum %d)."
+
+msgid "événement « %s » en double (ignoré)."
+msgstr "event \"%s\" duplicated (ignored)."
+
+msgid "événement : doit être un objet (ignoré)."
+msgstr "event: must be an object (ignored)."
+
+msgid "événement : « id » invalide (a-z, 0-9, _ ; 32 caractères au plus) (ignoré)."
+msgstr "event: \"id\" invalid (a-z, 0-9, _ ; 32 characters at most) (ignored)."
+
+msgid "événement « %s »"
+msgstr "event \"%s\""
+
+msgid "%s : « title » (2 à 60) et « text » (10 à 600) sont obligatoires (ignoré)."
+msgstr "%s: \"title\" (2 to 60) and \"text\" (10 to 600) are required (ignored)."
+
+msgid "%s : « choices » doit lister 1 à 5 choix (ignoré)."
+msgstr "%s: \"choices\" must list 1 to 5 choices (ignored)."
+
+msgid "%s : il faut au moins un choix valide et gratuit (ignoré)."
+msgstr "%s: at least one valid, free choice is needed (ignored)."
+
+msgid "%s : choix invalide (id manquant ou incorrect), écarté."
+msgstr "%s: invalid choice (missing or incorrect id), discarded."
+
+msgid "%s : choix « %s » sans « label » (écarté)."
+msgstr "%s: choice \"%s\" without \"label\" (discarded)."
+
+msgid "%s : choix « %s » : « check.kind » doit être %s (écarté)."
+msgstr "%s: choice \"%s\": \"check.kind\" must be %s (discarded)."
+
+msgid "%s : choix « %s » : « %s » doit lister 1 à 4 issues (écarté)."
+msgstr "%s: choice \"%s\": \"%s\" must list 1 to 4 outcomes (discarded)."
+
+msgid "%s : choix « %s » : « outcomes » doit lister 1 à 5 issues (écarté)."
+msgstr "%s: choice \"%s\": \"outcomes\" must list 1 to 5 outcomes (discarded)."
+
+msgid "%s : « recruit » inconnu « %s » (ignoré)."
+msgstr "%s: unknown \"recruit\" \"%s\" (ignored)."
+
+msgid "%s : « battle » invalide (type %s) (ignoré)."
+msgstr "%s: invalid \"battle\" (type %s) (ignored)."
+
+msgid "Prénoms de recrues"
+msgstr "Recruit first names"
+
+msgid "Surnoms de recrues"
+msgstr "Recruit nicknames"
+
+msgid "Noms de compagnie suggérés"
+msgstr "Suggested company names"
+
+msgid "Noms de lieux (en renfort des listes du jeu)"
+msgstr "Place names (in addition to the game's lists)"
+
+msgid "Épitaphes du mémorial"
+msgstr "Memorial epitaphs"
+
+msgid "Histoires de recrues (par origine)"
+msgstr "Recruit stories (by origin)"
+
+msgid "Scénarios de départ"
+msgstr "Starting scenarios"
+
+msgid "Événements et rencontres de route"
+msgstr "Road events and encounters"
+
+msgid "Deutéranopie / protanopie (rouge-vert)"
+msgstr "Deuteranopia / protanopia (red-green)"
+
+msgid "Tritanopie (bleu-jaune)"
+msgstr "Tritanopia (blue-yellow)"
+

@@ -2,7 +2,7 @@ extends SceneTree
 ## Audit de réactivité de l'interface : ouvre TOUS les grands écrans à plusieurs tailles de fenêtre et échelles d'interface, et signale
 ## les contrôles visibles qui sortent de la zone virtuelle (hors zones défilantes), en tenant compte de la mise à l'échelle des FitBox.
 ##   godot --path . --screen 1 --resolution 1280x720 --audio-driver Dummy -s res://tools/audit_responsive.gd -- \
-##         [--sizes 1280x720,1024x768] [--scales 0.75,1,1.25,1.5] [--only texte] [--verbose]
+##         [--sizes 1280x720,1024x768] [--lang en] [--scales 0.75,1,1.25,1.5] [--only texte] [--verbose]
 ## La taille de la fenêtre est forcée après le démarrage (DisplayServer.window_set_size) et vérifiée dans la sortie ; sans option,
 ## la taille courante et l'échelle 100 % sont utilisées. Les réglages (user://settings.cfg) ne sont pas écrits (Settings.persist = false).
 ## Code de sortie 1 s'il y a des débordements.
@@ -15,6 +15,7 @@ var main: Node
 var _cfg: String = ""
 var _min_fit: float = 1.0
 var _count: int = 0
+var lang_code: String = ""  ## --lang fr|en : langue de l'interface pendant l'audit
 var shots: String = ""  ## dossier des captures (--shots) : écrans clés seulement
 const SHOT_LABELS: Array = ["marché", "inventaire", "options", "ville / onglet Contrats", "carte", "bataille", "menu principal"]
 
@@ -316,6 +317,8 @@ func _run() -> void:
 				verbose = true
 			"--shots":
 				shots = args[i + 1]
+			"--lang", "--locale":
+				lang_code = args[i + 1]
 			"--only":
 				only = args[i + 1]
 			"--scale":
@@ -330,6 +333,9 @@ func _run() -> void:
 					sizes.append(Vector2i(int(wh[0]), int(wh[1])))
 	var settings: Node = root.get_node("/root/Settings")
 	settings.persist = false
+	if lang_code != "":
+		settings.language = I18n.index_of(lang_code)  ## langue d'audit (--lang en) : une langue plus longue peut faire déborder
+		I18n.apply(settings.language)
 	game = root.get_node("/root/Game")
 	game.autosave = false
 	game.random_events = false

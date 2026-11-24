@@ -1,0 +1,821 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid " C'est une partie en mode fer : elle sera perdue définitivement."
+msgstr " This is an ironman game: it will be lost for good."
+
+msgid " — mort définitive stricte"
+msgstr " — strict permadeath"
+
+msgid " — ⛓ Mode fer"
+msgstr " — ⛓ Ironman mode"
+
+msgid "%d i/s"
+msgstr "%d fps"
+
+msgid "%d jours"
+msgstr "%d day|%d days"
+
+msgid "%d succès sur %d débloqués. Ils sont conservés d'une partie à l'autre."
+msgstr "%d of %d achievements unlocked. They carry over from one game to the next."
+
+msgid "%d à %d caractères."
+msgstr "%d to %d characters."
+
+msgid "%d×%d (ajustée à %d×%d)"
+msgstr "%d×%d (adjusted to %d×%d)"
+
+msgid "%s : %d/%d · %d j restants"
+msgstr "%s: %d/%d · %d days left"
+
+msgid "%s est brisé. Le royaume respire, et l'on chantera longtemps le nom de la Compagnie du Corbeau — celui de ceux qui sont tombés en chemin aussi."
+msgstr "%s is broken. The kingdom breathes again, and the name of the Raven Company will be sung for a long time — and the names of those who fell along the way, too."
+
+msgid "%s — objectif atteint"
+msgstr "%s — objective reached"
+
+msgid "%s — échec"
+msgstr "%s — failed"
+
+msgid "1 · Choisir un contrat"
+msgstr "1 · Pick a contract"
+
+msgid "2 · Quitter la ville"
+msgstr "2 · Leave town"
+
+msgid "200 au plus"
+msgstr "At most 200"
+
+msgid "3 · Voyager"
+msgstr "3 · Travel"
+
+msgid "30 au plus"
+msgstr "At most 30"
+
+msgid "4 · Déplacement et attaque"
+msgstr "4 · Moving and attacking"
+
+msgid "5 · PA, fatigue et moral"
+msgstr "5 · AP, fatigue and morale"
+
+msgid "6 · Butin et retour au camp"
+msgstr "6 · Loot and back to camp"
+
+msgid "80 au plus"
+msgstr "At most 80"
+
+msgid "Abondantes (150 %)"
+msgstr "Plentiful (150 %)"
+
+msgid "Activé"
+msgstr "On"
+
+msgid "Affaires closes (arcs)"
+msgstr "Cases closed (story arcs)"
+
+msgid "Afficher en permanence les chances de toucher"
+msgstr "Always show hit chances"
+
+msgid "Afficher les images par seconde"
+msgstr "Show frames per second"
+
+msgid "Aller au lieu suivant / précédent (centre la vue)"
+msgstr "Go to the next / previous place (centers the view)"
+
+msgid "Aller à cet endroit du monde"
+msgstr "Go to this spot in the world"
+
+msgid "Aléatoire"
+msgstr "Random"
+
+msgid "Animations d'ambiance (herbe, feuillages, eau, respiration)"
+msgstr "Ambient animations (grass, foliage, water, breathing)"
+
+msgid "Animations de bataille"
+msgstr "Battle animations"
+
+msgid "Annuler la capacité armée"
+msgstr "Cancel the readied ability"
+
+msgid "Annuler le dernier déplacement"
+msgstr "Undo the last move"
+
+msgid "Anticrénelage (MSAA 2D)"
+msgstr "Anti-aliasing (2D MSAA)"
+
+msgid "Aplats de couleur"
+msgstr "Flat colors"
+
+msgid "Appliquer"
+msgstr "Apply"
+
+msgid "Armes, armures, talents, factions… (F1)"
+msgstr "Weapons, armor, perks, factions… (F1)"
+
+msgid "Attendre (repasser en fin de file)"
+msgstr "Wait (go to the end of the queue)"
+
+msgid "Aucune"
+msgstr "None"
+
+msgid "Aucune (0 %)"
+msgstr "None (0 %)"
+
+msgid "Aucune limite : bâtissez votre légende à votre rythme, jusqu'à la crise finale."
+msgstr "No limit: build your legend at your own pace, up to the final crisis."
+
+msgid "Aucune partie en cours."
+msgstr "No game in progress."
+
+msgid "Autre teinte…"
+msgstr "Other shade…"
+
+msgid "Bannière de la compagnie (onglet Compagnie)"
+msgstr "Company banner (Company tab)"
+
+msgid "Bas"
+msgstr "Low"
+
+msgid "Bas : pour les petites configurations, aplats de couleur et peu d'effets."
+msgstr "Low: for modest machines, flat colors and few effects."
+
+msgid "Bataille"
+msgstr "Battle"
+
+msgid "Blessures %s · vivres %s · menace %s"
+msgstr "Injuries %s · provisions %s · threat %s"
+
+msgid "Bords de l'écran"
+msgstr "Screen edges"
+
+msgid "Capacités, mur de boucliers, changement d'arme (dans l'ordre des boutons)"
+msgstr "Abilities, shield wall, weapon swap (in button order)"
+
+msgid "Carte"
+msgstr "Map"
+
+msgid "Carte : afficher la mini-carte"
+msgstr "Map: show the minimap"
+
+msgid "Carte : défilement quand la souris touche le bord de l'écran"
+msgstr "Map: scroll when the mouse touches the screen edge"
+
+msgid "Carte : la caméra suit la compagnie pendant les déplacements"
+msgstr "Map: the camera follows the company while it travels"
+
+msgid "Cette aide"
+msgstr "This help"
+
+msgid "Chaque ville propose des contrats dans l'onglet « Contrats ». Lisez la prime et le danger, puis acceptez-en un : on n'en suit qu'un à la fois. Les onglets Recruter et Marché servent à renforcer la compagnie."
+msgstr "Every town offers contracts in the \"Contracts\" tab. Read the reward and the danger, then accept one: you can only follow one at a time. The Recruit and Market tabs are there to strengthen the company."
+
+msgid "Charger"
+msgstr "Load"
+
+msgid "Charger (indisponible : partie en mode fer)"
+msgstr "Load (unavailable: ironman game)"
+
+msgid "Charger une partie"
+msgstr "Load a game"
+
+msgid "Chasseurs de primes"
+msgstr "Bounty hunters"
+
+msgid "Chefs abattus"
+msgstr "Warlords slain"
+
+msgid "Choisi"
+msgstr "Chosen"
+
+msgid "Choisir"
+msgstr "Choose"
+
+msgid "Cinq contrats en 60 jours."
+msgstr "Five contracts in 60 days."
+
+msgid "Clic sur la mini-carte"
+msgstr "Click on the minimap"
+
+msgid "Cliquez sur la carte pour marcher, ou sur « Aller » dans la pastille du contrat (en bas à gauche). Les boutons ronds en haut à droite règlent le temps (Espace : pause) ; la touche F ouvre le tiroir « Détails », L la légende. Z, Q, S, D (ou les flèches) déplacent la caméra, H la recentre sur la compagnie. Molette : zoom ; clic milieu : déplacer la carte. Méfiez-vous des bandes errantes."
+msgstr "Click on the map to walk, or on \"Go\" in the contract badge (bottom left). The round buttons at the top right control time (Space: pause); the F key opens the \"Details\" drawer, L the legend. W, A, S, D (Z, Q, S, D on AZERTY, or the arrow keys) move the camera, H recenters it on the company. Wheel: zoom; middle click: drag the map. Beware of roaming bands."
+
+msgid "Cliquez une case dorée pour avancer (2 PA par case) ou un ennemi à portée pour l'attaquer ; son pourcentage de toucher s'affiche au survol. Quitter le contact d'un ennemi lui offre une attaque gratuite. Molette : zoom du plateau (H : vue d'ensemble)."
+msgstr "Click a golden tile to advance (2 AP per tile) or an enemy in range to attack it; its hit chance shows on hover. Leaving an enemy's reach gives it a free attack. Wheel: zoom the board (H: overview)."
+
+msgid "Commencer l'aventure"
+msgstr "Begin the adventure"
+
+msgid "Compagnie de nobles"
+msgstr "Company of nobles"
+
+msgid "Compagnie du Corbeau"
+msgstr "Company of the Raven"
+
+msgid "Compagnie du [color=#b03a2e]Corbeau[/color]"
+msgstr "Company of the [color=#b03a2e]Raven[/color]"
+
+msgid "Complète (avec brouillard)"
+msgstr "Full (with fog)"
+
+msgid "Complètes"
+msgstr "Full"
+
+msgid "Compris"
+msgstr "Got it"
+
+msgid "Confirmer"
+msgstr "Confirm"
+
+msgid "Confirmer l'écrasement"
+msgstr "Confirm overwrite"
+
+msgid "Confirmer « Fin du tour » s'il reste des PA"
+msgstr "Confirm \"End turn\" if AP remain"
+
+msgid "Continuer en mode libre"
+msgstr "Continue in free mode"
+
+msgid "Continuer en partie libre"
+msgstr "Continue in free play"
+
+msgid "Continuer — jour %d, %d couronnes, %d hommes (%s)%s"
+msgstr "Continue — day %d, %d crowns, %d men (%s)%s"
+
+msgid "Contrats honorés"
+msgstr "Contracts fulfilled"
+
+msgid "Couleur principale (champ de la bannière)"
+msgstr "Main color (banner field)"
+
+msgid "Couleur secondaire (emblème)"
+msgstr "Secondary color (emblem)"
+
+msgid "Courbes de campagne"
+msgstr "Campaign curves"
+
+msgid "Couronnes"
+msgstr "Crowns"
+
+msgid "Course contre la montre"
+msgstr "Race against the clock"
+
+msgid "Cycle jour/nuit et lumières de la carte"
+msgstr "Day/night cycle and map lights"
+
+msgid "Demandé %d×%d, obtenu %d×%d (limite de l'écran ou du système)."
+msgstr "Requested %d×%d, got %d×%d (screen or system limit)."
+
+msgid "Densité des particules"
+msgstr "Particle density"
+
+msgid "Des cadets de grande maison, armés de pied en cap, ont fondé une compagnie par ennui et par orgueil. Leurs armures sont belles. Leur solde est une insulte au bon sens."
+msgstr "Cadets of a great house, armed to the teeth, founded a company out of boredom and pride. Their armor is beautiful. Their wages are an insult to common sense."
+
+msgid "Difficulté"
+msgstr "Difficulty"
+
+msgid "Difficulté : %s"
+msgstr "Difficulty: %s"
+
+msgid "Difficulté : %s (fixée à la création de la partie)"
+msgstr "Difficulty: %s (set when the game was created)"
+
+msgid "Donnez un nom à vos mercenaires et dessinez l'étendard qui marquera leur position sur la carte."
+msgstr "Give your mercenaries a name and design the banner that will mark their position on the map."
+
+msgid "Définition de la carte du monde"
+msgstr "World map resolution"
+
+msgid "Départ"
+msgstr "Start"
+
+msgid "Déplacer la caméra (touches W A S D d'un clavier QWERTY) ; Maj : plus vite"
+msgstr "Move the camera (W A S D keys of a QWERTY keyboard); Shift: faster"
+
+msgid "Désactivé"
+msgstr "Off"
+
+msgid "Effets sonores"
+msgstr "Sound effects"
+
+msgid "Emplacement %d"
+msgstr "Slot %d"
+
+msgid "Encyclopédie (F1)"
+msgstr "Encyclopedia (F1)"
+
+msgid "Ennemis : %s, %s"
+msgstr "Enemies: %s, %s"
+
+msgid "Espace / Entrée"
+msgstr "Space / Enter"
+
+msgid "Expérience %s · butin %s"
+msgstr "Experience %s · loot %s"
+
+msgid "Faire défiler la carte (réglable dans les options)"
+msgstr "Scroll the map (adjustable in options)"
+
+msgid "Fenêtre : %d×%d."
+msgstr "Window: %d×%d."
+
+msgid "Fenêtré"
+msgstr "Windowed"
+
+msgid "Fermer"
+msgstr "Close"
+
+msgid "Fermer le tiroir ou la légende, sinon s'arrêter (ou ouvrir le menu pause à l'arrêt)"
+msgstr "Close the drawer or the legend, otherwise stop (or open the pause menu when stopped)"
+
+msgid "Filtrage des textures"
+msgstr "Texture filtering"
+
+msgid "Garder cet affichage ?"
+msgstr "Keep this display?"
+
+msgid "Grand"
+msgstr "Large"
+
+msgid "Graphismes"
+msgstr "Graphics"
+
+msgid "H / C / Début"
+msgstr "H / C / Home"
+
+msgid "H / Début"
+msgstr "H / Home"
+
+msgid "Hommes encore sous le drapeau"
+msgstr "Men still under the flag"
+
+msgid "Hommes tombés"
+msgstr "Men fallen"
+
+msgid "Illimité"
+msgstr "Unlimited"
+
+msgid "Inspecter l'unité suivante / précédente"
+msgstr "Inspect the next / previous unit"
+
+msgid "Interface illustrée (cuir et parchemin)"
+msgstr "Illustrated interface (leather and parchment)"
+
+msgid "Jeu"
+msgstr "Game"
+
+msgid "Jour"
+msgstr "Day"
+
+msgid "Jour %d · %d couronnes · %d hommes · %s"
+msgstr "Day %d · %d crowns · %d men · %s"
+
+msgid "Jours de campagne"
+msgstr "Days of campaign"
+
+msgid "Jours écoulés"
+msgstr "Days elapsed"
+
+msgid "L'hiver est venu et le nom n'est pas relevé. Les survivants se dispersent, l'un après l'autre, sans bruit."
+msgstr "Winter has come and the name has not been restored. The survivors scatter, one after another, without a sound."
+
+msgid "La sauvegarde automatique sera écrasée."
+msgstr "The automatic save will be overwritten."
+
+msgid "Le butin récupéré rejoint votre inventaire : vendez-le ou équipez-le depuis l'onglet Compagnie. Soignez-vous en voyageant, réparez l'armure, recrutez, puis reprenez la route. Bonne chance, capitaine !"
+msgstr "The loot you recover goes to your inventory: sell it or equip it from the Company tab. Heal while traveling, repair armor, recruit, then take the road again. Good luck, captain!"
+
+msgid "Le dernier grain est tombé. Le pari est perdu, et la rumeur dit que votre compagnie préfère la taverne à la route."
+msgstr "The last grain has fallen. The bet is lost, and rumor has it your company prefers the tavern to the road."
+
+msgid "Le niveau se choisit maintenant et ne pourra plus être changé en cours de partie."
+msgstr "The level is chosen now and cannot be changed during the game."
+
+msgid "Le sablier s'est vidé trop tard pour vos rivaux. Le parieur inconnu envoie sa bourse, et un second billet."
+msgstr "The hourglass emptied too late for your rivals. The unknown gambler sends his purse, and a second note."
+
+msgid "Lente"
+msgstr "Slow"
+
+msgid "Les blasons ont payé leurs dettes dans le sang des autres. Les chansons parlent de vous, et la famille a cessé de nier votre existence."
+msgstr "The coats of arms have paid their debts in other men's blood. Songs are sung about you, and the family has stopped denying you exist."
+
+msgid "Les cadets de bonne maison astiquent leurs hauberts. Le trésorier, lui, pleure sur les livres de comptes."
+msgstr "The cadets of good family polish their hauberks. The treasurer, for his part, weeps over the ledgers."
+
+msgid "Les chefs courent toujours. Les primes sont passées à d'autres, plus rapides ou plus chanceux."
+msgstr "The chiefs are still running. The bounties went to others, faster or luckier."
+
+msgid "Les créanciers ont saisi les hauberts. La compagnie finit en cortège de valets, aux ordres de ceux qu'elle méprisait."
+msgstr "The creditors seized the hauberks. The company ends as a procession of valets, at the orders of those it despised."
+
+msgid "Les hommes de départ réclament une solde presque doublée, mais portent mailles, casque et bouclier."
+msgstr "The starting men demand nearly double wages, but wear mail, helmet and shield."
+
+msgid "Les réglages s'appliquent tout de suite ; les effets déjà à l'écran (particules, traces) changent à la prochaine bataille."
+msgstr "Settings apply immediately; effects already on screen (particles, marks) change at the next battle."
+
+msgid "Les seigneurs ne veulent plus de simples escarmouches : ils paient pour la tête des chefs de guerre. Vous ne vivrez que de ces primes, grasses mais dangereuses."
+msgstr "The lords no longer want mere skirmishes: they pay for the heads of warlords. You will live on these bounties alone, fat but dangerous."
+
+msgid "Les trois survivants"
+msgstr "The three survivors"
+
+msgid "Lieux hostiles pris"
+msgstr "Hostile places taken"
+
+msgid "Limite d'images par seconde"
+msgstr "Frame rate limit"
+
+msgid "Linéaire simple"
+msgstr "Simple linear"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Mercenaires, contrats et mort permanente."
+msgstr "Mercenaries, contracts and permadeath."
+
+msgid "Mode de la fenêtre"
+msgstr "Window mode"
+
+msgid "Molette · clic milieu"
+msgstr "Wheel · middle click"
+
+msgid "Molette · clic milieu/droit"
+msgstr "Wheel · middle/right click"
+
+msgid "Moyen"
+msgstr "Medium"
+
+msgid "Moyen : textures du sol, ombres simples, météo légère et peu de particules."
+msgstr "Medium: ground textures, simple shadows, light weather and few particles."
+
+msgid "Musique"
+msgstr "Music"
+
+msgid "Météo (carte et bataille)"
+msgstr "Weather (map and battle)"
+
+msgid "Nom, couleurs, emblème et motif au hasard"
+msgstr "Random name, colors, emblem and pattern"
+
+msgid "Non"
+msgstr "No"
+
+msgid "Normale"
+msgstr "Normal"
+
+msgid "Normales (100 %)"
+msgstr "Normal (100 %)"
+
+msgid "Nouvelle partie"
+msgstr "New game"
+
+msgid "Objectif"
+msgstr "Objective"
+
+msgid "Objectif : %s — en %d jours. %d hommes au départ."
+msgstr "Objective: %s — in %d days. %d men at the start."
+
+msgid "Ombres portées (arbres, figurines)"
+msgstr "Cast shadows (trees, figurines)"
+
+msgid "Options"
+msgstr "Settings"
+
+msgid "Or de départ : %d couronnes"
+msgstr "Starting gold: %d crowns"
+
+msgid "Or, renom et effectif jour après jour ; victoires et défaites par type de contrat"
+msgstr "Gold, renown and headcount day after day; victories and defeats by contract type"
+
+msgid "Oui, nouvelle partie"
+msgstr "Yes, new game"
+
+msgid "Oui, recommencer"
+msgstr "Yes, start over"
+
+msgid "PV et compétences"
+msgstr "HP and skills"
+
+msgid "Partie libre"
+msgstr "Free play"
+
+msgid "Partie libre, ou un scénario avec un objectif et une limite de jours."
+msgstr "Free play, or a scenario with an objective and a day limit."
+
+msgid "Passer l'écran de lancement"
+msgstr "Skip the launch screen"
+
+msgid "Passer le tutoriel"
+msgstr "Skip the tutorial"
+
+msgid "Pause (Échap)"
+msgstr "Pause (Esc)"
+
+msgid "Pause / reprise du temps"
+msgstr "Pause / resume time"
+
+msgid "Personnalisé"
+msgstr "Custom"
+
+msgid "Personnalisé : réglages détaillés choisis à la main."
+msgstr "Custom: detailed settings chosen by hand."
+
+msgid "Petit"
+msgstr "Small"
+
+msgid "Plein écran"
+msgstr "Fullscreen"
+
+msgid "Plein écran : %d×%d."
+msgstr "Fullscreen: %d×%d."
+
+msgid "Plein écran sans bordure"
+msgstr "Borderless fullscreen"
+
+msgid "Pluie et neige seulement"
+msgstr "Rain and snow only"
+
+msgid "Primes %s · achats %s"
+msgstr "Rewards %s · purchases %s"
+
+msgid "Qualité graphique"
+msgstr "Graphics quality"
+
+msgid "Qualité graphique réglée sur %s (modifiable dans Options)."
+msgstr "Graphics quality set to %s (can be changed in Settings)."
+
+msgid "Quatre têtes de chefs ornent la salle d'un seigneur reconnaissant. Plus personne ne vous demande de preuve."
+msgstr "Four warlords' heads adorn the hall of a grateful lord. No one asks you for proof any more."
+
+msgid "Quitter"
+msgstr "Quit"
+
+msgid "Raccourcis clavier"
+msgstr "Keyboard shortcuts"
+
+msgid "Rapide"
+msgstr "Fast"
+
+msgid "Recentrer sur la compagnie (la caméra la suit pendant les trajets)"
+msgstr "Recenter on the company (the camera follows it during trips)"
+
+msgid "Recommandé"
+msgstr "Recommended"
+
+msgid "Renom"
+msgstr "Renown"
+
+msgid "Replier / déplier la mini-carte"
+msgstr "Collapse / expand the minimap"
+
+msgid "Reprendre"
+msgstr "Resume"
+
+msgid "Retour"
+msgstr "Back"
+
+msgid "Retour arrière / Ctrl+Z"
+msgstr "Backspace / Ctrl+Z"
+
+msgid "Retour au menu principal"
+msgstr "Back to the main menu"
+
+msgid "Retour à l'affichage précédent dans %d s."
+msgstr "Reverting to the previous display in %d s."
+
+msgid "Revoir le tutoriel"
+msgstr "Replay the tutorial"
+
+msgid "Rien que des chasses au chef, mieux payées."
+msgstr "Nothing but warlord hunts, better paid."
+
+msgid "Règle : "
+msgstr "Rule: "
+
+msgid "Récits de la compagnie"
+msgstr "Tales of the company"
+
+msgid "Réduite"
+msgstr "Reduced"
+
+msgid "Réduites (40 %)"
+msgstr "Reduced (40 %)"
+
+msgid "Réglages avancés"
+msgstr "Advanced settings"
+
+msgid "Rétablir le préréglage"
+msgstr "Restore the preset"
+
+msgid "Sauvegarde automatique"
+msgstr "Automatic save"
+
+msgid "Sauvegarder"
+msgstr "Save"
+
+msgid "Sauvegarder / Charger"
+msgstr "Save / Load"
+
+msgid "Sauvegarder / Charger (mode fer : indisponible)"
+msgstr "Save / Load (ironman: unavailable)"
+
+msgid "Sauvegardes"
+msgstr "Saves"
+
+msgid "Scénario manqué"
+msgstr "Scenario failed"
+
+msgid "Scénario réussi !"
+msgstr "Scenario completed!"
+
+msgid "Scénario « %s » : %s en %d jours."
+msgstr "Scenario \"%s\": %s in %d days."
+
+msgid "Simples"
+msgstr "Simple"
+
+msgid "Sol de la bataille"
+msgstr "Battle ground"
+
+msgid "Son"
+msgstr "Sound"
+
+msgid "Statistiques de la campagne"
+msgstr "Campaign statistics"
+
+msgid "Succès"
+msgstr "Achievements"
+
+msgid "Succès : %s"
+msgstr "Achievement: %s"
+
+msgid "Succès et statistiques"
+msgstr "Achievements and statistics"
+
+msgid "Suggestion"
+msgstr "Suggestion"
+
+msgid "Suivant"
+msgstr "Next"
+
+msgid "Supprimer"
+msgstr "Delete"
+
+msgid "Sur la carte"
+msgstr "On the map"
+
+msgid "Sur la place, les crieurs annoncent des primes pour des têtes de chefs. Vous n'accepterez rien d'autre."
+msgstr "In the square, criers announce bounties for the heads of chiefs. You will accept nothing else."
+
+msgid "Synchronisation verticale"
+msgstr "Vertical sync"
+
+msgid "TUTORIEL"
+msgstr "TUTORIAL"
+
+msgid "Tab / Maj+Tab"
+msgstr "Tab / Shift+Tab"
+
+msgid "Taille actuelle (%d×%d)"
+msgstr "Current size (%d×%d)"
+
+msgid "Taille de la fenêtre"
+msgstr "Window size"
+
+msgid "Taille du texte (nouveaux écrans)"
+msgstr "Text size (new screens)"
+
+msgid "Terminer"
+msgstr "Finish"
+
+msgid "Textures"
+msgstr "Textures"
+
+msgid "Textures et fondus"
+msgstr "Textures and blending"
+
+msgid "Tiroir « Détails » (contrat, factions, lieux, hommes)"
+msgstr "\"Details\" drawer (contract, factions, places, men)"
+
+msgid "Tous les contrats proposés sont des chasses au chef, payées un tiers de plus."
+msgstr "Every contract offered is a warlord hunt, paid a third more."
+
+msgid "Tout effacer ?"
+msgstr "Erase everything?"
+
+msgid "Traces de sang au sol"
+msgstr "Blood marks on the ground"
+
+msgid "Tremblement d'écran et arrêt sur image"
+msgstr "Screen shake and hit stop"
+
+msgid "Trois hommes sortent du fossé, couverts de boue. Le reste de la compagnie y est resté. Il faudra tout rebâtir."
+msgstr "Three men climb out of the ditch, covered in mud. The rest of the company stayed there. Everything will have to be rebuilt."
+
+msgid "Trois hommes, peu d'or, 90 jours."
+msgstr "Three men, little gold, 90 days."
+
+msgid "Trois lames sont devenues une compagnie. On dit désormais que le Corbeau ne tombe jamais deux fois au même endroit."
+msgstr "Three blades have become a company. They now say the Raven never falls twice in the same place."
+
+msgid "Ultra"
+msgstr "Ultra"
+
+msgid "Ultra : tout au maximum, anticrénelage 4×, particules abondantes, carte haute définition."
+msgstr "Ultra: everything at maximum, 4× anti-aliasing, abundant particles, high-resolution map."
+
+msgid "Un autre nom de compagnie"
+msgstr "Another company name"
+
+msgid "Un commanditaire anonyme parie sur votre compagnie : cinq contrats honorés en soixante jours, sans quoi son or ira à un concurrent. Chaque journée perdue sur la route se paie."
+msgstr "An anonymous backer bets on your company: five contracts fulfilled in sixty days, or his gold goes to a competitor. Every day lost on the road costs you."
+
+msgid "Une bourse scellée vous attend avec un billet : cinq contrats, soixante jours. Le sablier est déjà retourné."
+msgstr "A sealed purse awaits you with a note: five contracts, sixty days. The hourglass has already been turned."
+
+msgid "Une fois votre contrat accepté, cliquez sur « Quitter la ville » pour gagner la carte du monde. La solde de vos hommes est payée chaque jour."
+msgstr "Once your contract is accepted, click \"Leave town\" to reach the world map. Your men's wages are paid every day."
+
+msgid "Valeurs par défaut"
+msgstr "Defaults"
+
+msgid "Victimes"
+msgstr "Kills"
+
+msgid "Victoire !"
+msgstr "Victory!"
+
+msgid "Vide"
+msgstr "Empty"
+
+msgid "Volume général"
+msgstr "Master volume"
+
+msgid "Votre ancienne compagnie a été fauchée dans un fossé de la route royale. Il reste trois hommes, une bourse maigre et un nom à relever avant que l'hiver ne ferme les chemins."
+msgstr "Your old company was cut down in a ditch of the king's road. Three men remain, a thin purse and a name to restore before winter closes the roads."
+
+msgid "Votre compagnie"
+msgstr "Your company"
+
+msgid "Vous avez 9 PA par tour (les pastilles dorées). Chaque action fatigue : une troupe épuisée touche moins et agit plus tard. Le moral baisse quand des camarades tombent ; un homme brisé s'enfuit. Espace : fin du tour."
+msgstr "You have 9 AP per turn (the golden dots). Every action tires: an exhausted troop hits less and acts later. Morale drops when comrades fall; a broken man flees. Space: end turn."
+
+msgid "Vous partez avec des vivres en plus, mais sans personne pour tenir la ligne."
+msgstr "You set out with extra provisions, but with no one to hold the line."
+
+msgid "Vous touchez quelques vivres de plus ; ne perdez pas de temps à vous reposer."
+msgstr "You receive a few more provisions; don't waste time resting."
+
+msgid "Vue d'ensemble du plateau"
+msgstr "Board overview"
+
+msgid "Z Q S D / flèches"
+msgstr "W A S D / arrows"
+
+msgid "Zoom · déplacer la carte"
+msgstr "Zoom · drag the map"
+
+msgid "Zoom · déplacer le plateau"
+msgstr "Zoom · drag the board"
+
+msgid "[center]Compagnie du [color=#b03a2e]Corbeau[/color][/center]"
+msgstr "[center]Company of the [color=#b03a2e]Raven[/color][/center]"
+
+msgid "effectif %+d (danger 2+)"
+msgstr "headcount %+d (danger 2+)"
+
+msgid "jour %d"
+msgstr "day %d"
+
+msgid "Échap"
+msgstr "Esc"
+
+msgid "Échelle de l'interface"
+msgstr "Interface scale"
+
+msgid "Écran"
+msgstr "Screen"
+
+msgid "Écran %d (%d×%d)"
+msgstr "Screen %d (%d×%d)"
+
+msgid "Écraser"
+msgstr "Overwrite"
+
+msgid "Élevé"
+msgstr "High"
+
+msgid "Élevé : textures fondues, ombres, météo complète et animations d'ambiance."
+msgstr "High: blended textures, shadows, full weather and ambient animations."
+
+msgid "Équipés comme des seigneurs, ruinés comme des mendiants."
+msgstr "Equipped like lords, ruined like beggars."
+
+msgid "Étendard"
+msgstr "Banner"
+

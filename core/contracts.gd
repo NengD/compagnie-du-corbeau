@@ -13,12 +13,12 @@ static func _roll(range_: Array, rng: RandomNumberGenerator) -> int:
 
 static func random_name(taken: Array, rng: RandomNumberGenerator) -> String:
 	for i in 30:
-		var n: String = str(pick(Data.FIRST_NAMES, rng))
+		var n: String = str(pick(Mods.first_names(), rng))
 		if rng.randf() < 0.65:
-			n += " " + str(pick(Data.NICKNAMES, rng))
+			n += " " + str(pick(Mods.nicknames(), rng))
 		if not taken.has(n):
 			return n
-	return str(pick(Data.FIRST_NAMES, rng)) + " " + str(rng.randi_range(2, 9))
+	return str(pick(Mods.first_names(), rng)) + " " + str(rng.randi_range(2, 9))
 
 
 static func make_unit(t: Dictionary, side: String, unit_name: String, rng: RandomNumberGenerator) -> Unit:
@@ -103,8 +103,8 @@ static func gen_recruits(rng: RandomNumberGenerator, taken: Array, keys: Array =
 const _BANDITS: Array = [
 	[],
 	["brigand", "brigand", "brigand", "archer"],
-	["brigand", "brigand", "brigand", "archer", "archer", "balafre"],
-	["brigand", "brigand", "brigand", "archer", "archer", "balafre", "balafre", "chef"],
+	["brigand", "brigand", "cavalier_brigand", "archer", "archer", "balafre"],
+	["brigand", "brigand", "cavalier_brigand", "cavalier_brigand", "archer", "archer", "balafre", "chef"],
 ]
 const _GHOULS: Array = [
 	[],

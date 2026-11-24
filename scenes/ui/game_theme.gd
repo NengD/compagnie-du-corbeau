@@ -14,6 +14,39 @@ const STEEL := Color("86a3c0")
 const GOOD := Color("8ea25f")
 const MORALE_COLORS: Array[Color] = [Color("ff7a68"), Color("e89a55"), Color("dcc56a"), Color("a8997e"), Color("a9c879")]
 
+## --- Accessibilité (réglée par Settings.apply_all / set_value) ---
+## Palettes pour les modes daltoniens (1 : rouge-vert, 2 : bleu-jaune), choisies pour rester distinctes une fois
+## simulées (voir tests/suites/suite_acces_mods.gd). Mode 0 = couleurs d'origine.
+const CB_MORALE: Array = [
+	[Color("c0398f"), Color("e8601c"), Color("f0e442"), Color("d8d8d8"), Color("4aa8ec")],
+	[Color("ff4b4b"), Color("8a4b00"), Color("ffd84a"), Color("bdbdbd"), Color("2fd0b8")],
+]
+## Symboles du moral (mode daltonien) : la forme s'ajoute à la couleur.
+const MORALE_SYMBOLS: Array = ["▼▼", "▼", "◆", "●", "▲"]
+const CB_SIDES: Array = [
+	{"p": Color("56b4e9"), "e": Color("e69f00")},
+	{"p": Color("25b8b0"), "e": Color("e84a5a")},
+]
+const SIDES: Dictionary = {"p": Color("8fb0d0"), "e": Color("d9705f")}
+## Barres de la figurine : armure de tête, armure de corps, points de vie.
+const BARS: Dictionary = {"head": Color("cfc8b8"), "body": Color("86a3c0"), "hp": Color("c4483a")}
+const CB_BARS: Array = [
+	{"head": Color("f2f2f2"), "body": Color("56b4e9"), "hp": Color("e8601c")},
+	{"head": Color("f2f2f2"), "body": Color("25b8b0"), "hp": Color("e84a5a")},
+]
+## Couleurs de statut (jauges de la carte) : « mauvais » et « bon ».
+const CB_STATUS: Array = [
+	{"bad": Color("e8601c"), "ok": Color("56b4e9")},
+	{"bad": Color("e84a5a"), "ok": Color("25b8b0")},
+]
+const INK_HC := Color("fffaf0")
+const MUTE_HC := Color("d9cdb2")
+
+static var cb_mode: int = 0
+static var high_contrast: bool = false
+static var reduce_motion: bool = false
+static var tooltip_scale: float = 1.0
+
 static var _theme: Theme
 static var _title_font: Font
 static var _bold_font: Font
@@ -67,6 +100,7 @@ static func refresh_text_size() -> void:
 	if _theme != null:
 		_theme.default_font_size = scaled_size(15)
 		_theme.set_font_size("normal_font_size", "RichTextLabel", scaled_size(14))
+		apply_tooltip_scale(tooltip_scale)
 
 
 static func get_theme() -> Theme:
@@ -80,7 +114,80 @@ static func get_theme() -> Theme:
 	t.set_font_size("normal_font_size", "RichTextLabel", scaled_size(14))
 	_styles(t)
 	_theme = t
+	apply_accessibility(cb_mode, high_contrast, reduce_motion)
+	apply_tooltip_scale(tooltip_scale)
 	return t
+
+
+static func morale_color(i: int) -> Color:
+	var k: int = clampi(i, 0, MORALE_COLORS.size() - 1)
+	return MORALE_COLORS[k] if cb_mode == 0 else (CB_MORALE[cb_mode - 1] as Array)[k]
+
+
+## Symbole du moral, seulement en mode daltonien (sinon chaîne vide).
+static func morale_symbol(i: int) -> String:
+	return "" if cb_mode == 0 else str(MORALE_SYMBOLS[clampi(i, 0, MORALE_SYMBOLS.size() - 1)])
+
+
+## Nom du moral, précédé de son symbole en mode daltonien.
+static func morale_text(i: int) -> String:
+	var n: String = str(Data.MORALE_NAMES[clampi(i, 0, Data.MORALE_NAMES.size() - 1)])
+	return n if cb_mode == 0 else morale_symbol(i) + " " + n
+
+
+static func side_color(side: String) -> Color:
+	var pal: Dictionary = SIDES if cb_mode == 0 else CB_SIDES[cb_mode - 1]
+	return pal.get(side, SIDES["e"])
+
+
+static func bar_color(which: String) -> Color:
+	var pal: Dictionary = BARS if cb_mode == 0 else CB_BARS[cb_mode - 1]
+	return pal.get(which, Color.WHITE)
+
+
+static func status_bad() -> Color:
+	return BLOOD.lightened(0.25) if cb_mode == 0 else (CB_STATUS[cb_mode - 1] as Dictionary)["bad"]
+
+
+static func status_ok() -> Color:
+	return GOLD if cb_mode == 0 else (CB_STATUS[cb_mode - 1] as Dictionary)["ok"]
+
+
+## Couleur de texte : en mode « texte plus contrasté », l'encre et le gris deviennent plus clairs.
+static func text_color(c: Color) -> Color:
+	if not high_contrast:
+		return c
+	if c == INK:
+		return INK_HC
+	if c == MUTE:
+		return MUTE_HC
+	return c
+
+
+static func apply_accessibility(mode: int, contrast: bool, reduce: bool = false) -> void:
+	cb_mode = clampi(mode, 0, 2)
+	high_contrast = contrast
+	reduce_motion = reduce
+	if _theme != null:
+		_theme.set_color("font_color", "Label", text_color(INK))
+		_theme.set_color("default_color", "RichTextLabel", text_color(INK))
+
+
+## Infobulles : taille de la police par défaut (la bulle suit le thème de la commande survolée).
+static func apply_tooltip_scale(f: float) -> void:
+	tooltip_scale = clampf(f, 1.0, 2.0)
+	if _theme != null:
+		_theme.set_font_size("font_size", "TooltipLabel", roundi(scaled_size(15) * tooltip_scale))
+
+
+## Agrandit les étiquettes d'une infobulle personnalisée (à appeler sur la racine retournée par `_make_custom_tooltip`).
+static func scale_tooltip(root: Node) -> void:
+	if tooltip_scale <= 1.001:
+		return
+	for c in root.find_children("*", "Label", true, false):
+		var l := c as Label
+		var cur: int = l.get_theme_font_size("font_size")
+		l.add_theme_font_size_override("font_size", roundi(cur * tooltip_scale))
 
 
 static func illustrated() -> bool:

@@ -23,7 +23,7 @@ func _init(p_label: String = "", p_value: float = 0.0, p_max: float = 1.0, p_col
 
 func _draw() -> void:
 	var font: Font = get_theme_default_font()
-	draw_string(font, Vector2(0, 12), label_text, HORIZONTAL_ALIGNMENT_LEFT, LABEL_W, 12, GameTheme.INK)
+	draw_string(font, Vector2(0, 12), I18n.t(label_text), HORIZONTAL_ALIGNMENT_LEFT, LABEL_W, 12, GameTheme.INK)
 	var track := Rect2(LABEL_W, 4, maxf(0.0, size.x - LABEL_W - VALUE_W - 12.0), 8)
 	draw_rect(track, Color("15120f"))
 	var frac: float = clampf(value / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0

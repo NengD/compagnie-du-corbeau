@@ -27,9 +27,9 @@ class LineChart extends Control:
 		var fs: int = 12
 		draw_rect(Rect2(Vector2.ZERO, size), GameTheme.PANEL)
 		draw_rect(Rect2(Vector2.ZERO, size), GameTheme.LINE, false, 1.0)
-		draw_string(font, Vector2(8, 15), title, HORIZONTAL_ALIGNMENT_LEFT, -1, fs + 1, GameTheme.MUTE)
+		draw_string(font, Vector2(8, 15), I18n.t(title), HORIZONTAL_ALIGNMENT_LEFT, -1, fs + 1, GameTheme.MUTE)
 		if pts.size() < 2:
-			draw_string(font, Vector2(8, size.y * 0.6), "Pas encore assez de jours écoulés.", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GameTheme.MUTE)
+			draw_string(font, Vector2(8, size.y * 0.6), I18n.t("Pas encore assez de jours écoulés."), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GameTheme.MUTE)
 			return
 		var plot := Rect2(Vector2(10, 24), Vector2(maxf(10.0, size.x - 74.0), maxf(10.0, size.y - 42.0)))
 		var x0: float = float(pts[0][0])
@@ -55,8 +55,8 @@ class LineChart extends Control:
 		draw_circle(last, 3.5, color)
 		draw_string(font, Vector2(plot.end.x + 8, clampf(last.y + 4.0, 30.0, size.y - 18.0)), str(int(pts[pts.size() - 1][1])), HORIZONTAL_ALIGNMENT_LEFT, -1, fs + 1, color)
 		draw_string(font, Vector2(8, 15), "max %d" % int(ymax / 1.1), HORIZONTAL_ALIGNMENT_RIGHT, size.x - 16.0, fs - 1, GameTheme.MUTE)
-		draw_string(font, Vector2(plot.position.x, size.y - 5), "Jour %d" % int(x0), HORIZONTAL_ALIGNMENT_LEFT, -1, fs - 1, GameTheme.MUTE)
-		draw_string(font, Vector2(plot.position.x, size.y - 5), "Jour %d" % int(x1), HORIZONTAL_ALIGNMENT_RIGHT, plot.size.x, fs - 1, GameTheme.MUTE)
+		draw_string(font, Vector2(plot.position.x, size.y - 5), I18n.t("Jour %d") % int(x0), HORIZONTAL_ALIGNMENT_LEFT, -1, fs - 1, GameTheme.MUTE)
+		draw_string(font, Vector2(plot.position.x, size.y - 5), I18n.t("Jour %d") % int(x1), HORIZONTAL_ALIGNMENT_RIGHT, plot.size.x, fs - 1, GameTheme.MUTE)
 
 
 ## Histogramme : une ligne par type de combat, barre verte (victoires) puis barre rouge (défaites).
@@ -74,9 +74,9 @@ class BarChart extends Control:
 			font = ThemeDB.fallback_font
 		draw_rect(Rect2(Vector2.ZERO, size), GameTheme.PANEL)
 		draw_rect(Rect2(Vector2.ZERO, size), GameTheme.LINE, false, 1.0)
-		draw_string(font, Vector2(8, 15), "Victoires et défaites par type de combat", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, GameTheme.MUTE)
+		draw_string(font, Vector2(8, 15), I18n.t("Victoires et défaites par type de combat"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, GameTheme.MUTE)
 		if rows.is_empty():
-			draw_string(font, Vector2(8, 44), "Aucun combat pour l'instant.", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, GameTheme.MUTE)
+			draw_string(font, Vector2(8, 44), I18n.t("Aucun combat pour l'instant."), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, GameTheme.MUTE)
 			return
 		var biggest: int = 1
 		for r in rows:
@@ -85,7 +85,7 @@ class BarChart extends Control:
 		var avail: float = maxf(20.0, size.x - label_w - 56.0)
 		for i in rows.size():
 			var y: float = 26.0 + 24.0 * float(i)
-			draw_string(font, Vector2(8, y + 14), str(rows[i][1]), HORIZONTAL_ALIGNMENT_LEFT, label_w - 8.0, 12, GameTheme.INK)
+			draw_string(font, Vector2(8, y + 14), I18n.t(str(rows[i][1])), HORIZONTAL_ALIGNMENT_LEFT, label_w - 8.0, 12, GameTheme.INK)
 			var wins: int = int(rows[i][2])
 			var losses: int = int(rows[i][3])
 			var ww: float = avail * float(wins) / float(biggest)

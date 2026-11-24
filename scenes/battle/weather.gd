@@ -85,16 +85,19 @@ func setup(p_kind: String, p_area: Vector2) -> BattleWeather:
 	if _live:
 		var dens: float = Quality.particle_factor()
 		var full: bool = int(Quality.value("weather")) >= 2  # brouillard : météo complète seulement
+		var calm: bool = GameTheme.reduce_motion  # animations réduites : ni neige, ni brouillard, ni vent
 		match kind:
 			"rain":
 				_make_particles(240, 0.55, Vector2(0.22, 1.0), 520.0, 640.0, _streak(), Color(0.75, 0.85, 1.0, 0.55), 1.0, dens)
 			"snow":
-				_make_particles(130, 3.4, Vector2(0.15, 1.0), 38.0, 70.0, _soft(), Color(1, 1, 1, 0.85), 0.6, dens)
+				if not calm:
+					_make_particles(130, 3.4, Vector2(0.15, 1.0), 38.0, 70.0, _soft(), Color(1, 1, 1, 0.85), 0.6, dens)
 			"fog":
-				if full:
+				if full and not calm:
 					_make_fog()
 			"wind":
-				_make_particles(14, 2.2, Vector2(1.0, 0.18), 160.0, 260.0, _soft(), Color(0.72, 0.68, 0.42, 0.7), 0.35, dens)
+				if not calm:
+					_make_particles(14, 2.2, Vector2(1.0, 0.18), 160.0, 260.0, _soft(), Color(0.72, 0.68, 0.42, 0.7), 0.35, dens)
 	set_process(_live)
 	return self
 

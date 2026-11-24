@@ -55,6 +55,7 @@ func _build(host: Node) -> ModalOverlay:
 	_build_graphics(body)
 	_build_sound(body)
 	_build_game(body)
+	_build_access(body)
 	var foot := UiKit.hbox(8)
 	var defaults := UiKit.button("Valeurs par défaut", "ghost", true)
 	defaults.pressed.connect(func() -> void:
@@ -271,6 +272,13 @@ func _reopen() -> void:
 	OptionsPanel.open(_host)
 
 
+## Langue du jeu (Français / English) : appliquée tout de suite, le panneau se reconstruit dans la nouvelle langue.
+func _build_language(body: VBoxContainer) -> void:
+	_row(body, "Langue", _option(I18n.names(), int(_s().language), func(i: int) -> void:
+		_s().set_value("language", i)
+		_reopen()))
+
+
 func _build_sound(body: VBoxContainer) -> void:
 	_section(body, "Son")
 	for row in [["Volume général", "master_volume"], ["Musique", "music_volume"], ["Effets sonores", "sfx_volume"]]:
@@ -279,6 +287,7 @@ func _build_sound(body: VBoxContainer) -> void:
 
 func _build_game(body: VBoxContainer) -> void:
 	_section(body, "Jeu")
+	_build_language(body)
 	var speeds: Array = []
 	for s in SettingsScript.BATTLE_SPEEDS:
 		speeds.append(str(s["n"]))
@@ -322,6 +331,28 @@ func _slider_row(text: String, key: String) -> Control:
 		v.text = "%d %%" % roundi(x * 100.0)
 		_s().set_value(key, x))
 	return h
+
+
+# --- Touches, accessibilité, mods ---
+
+func _build_access(body: VBoxContainer) -> void:
+	_section(body, "Accessibilité")
+	_row(body, "Mode daltonien", _option(SettingsScript.COLORBLIND_MODES, _s().colorblind, func(i: int) -> void: _s().set_value("colorblind", i)))
+	var tips: Array = []
+	for f in SettingsScript.TOOLTIP_SCALES:
+		tips.append("%d %%" % roundi(float(f) * 100.0))
+	_row(body, "Taille des infobulles", _option(tips, _s().tooltip_scale, func(i: int) -> void: _s().set_value("tooltip_scale", i)))
+	_check(body, "Réduire les animations (tremblement, flashs, neige, brouillard)", _s().reduce_motion, func(on: bool) -> void: _s().set_value("reduce_motion", on))
+	_check(body, "Texte plus contrasté (s'applique pleinement aux prochains écrans)", _s().high_contrast, func(on: bool) -> void: _s().set_value("high_contrast", on))
+	_section(body, "Touches et mods")
+	var row := UiKit.hbox(8)
+	var keys := UiKit.button("Touches…", "ghost", true)
+	keys.pressed.connect(func() -> void: KeysPanel.open(_host))
+	row.add_child(keys)
+	var mods := UiKit.button("Mods (%d chargé%s)…" % [Mods.loaded_count(), "s" if Mods.loaded_count() > 1 else ""], "ghost", true)
+	mods.pressed.connect(func() -> void: ModsPanel.open(_host))
+	row.add_child(mods)
+	body.add_child(row)
 
 
 # --- Application de la fenêtre avec retour automatique ---

@@ -1,0 +1,308 @@
+ [%s]
+ rx 
+ vii
+%d / %d
+%d×%d
+%s : %d
+2×
+4×
+? / F1
+QualityOverlay
+basic render
+gdi generic
+geforce 7
+geforce 8
+geforce 9
+geforce g1
+geforce gt 2
+hd graphics 2000
+hd graphics 3000
+hd graphics 4000
+microsoft basic
+radeon graphics
+radeon hd 2
+radeon hd 3
+radeon hd 4
+radeon x
+radeon(tm) graphics
+vega 10
+vega 11
+vega 3
+vega 6
+vega 7
+vega 8
+ (%s)
+ — %s
+%d %% · %d
+%d – %d
+%d/%d %s %s
+%s  %d   +%d
+%s  %s
+%s %+d
+%s %d → %d
+%s %s
+%s (%+d)
+%s (%d)
+%s : %s ≠ %s
+%s et %s %s
+%s · %d/%d
+%s · %d–%d%s
+%s · %s
+%s — %s
+%s — %s · %s
+Alais
+Alegreya Sans
+Aliénor
+
+Aëlis
+Brû
+Button
+Béatrix
+Card
+Cha
+ChipPanel
+FlatPanel
+Georgia
+GhostButton
+GoldScrollBar
+HFlowContainer
+Haïe
+HeaderPanel
+Hersende
+II
+III
+IV
+Label
+Lig
+Mahaut
+
+ModalPanel
+NewsPanel
+Palatino Linotype
+PanelContainer
+Pirata One
+Poi
+PopupMenu
+PrimaryButton
+Rep
+RichTextLabel
+Sai
+Segoe UI
+Sibylle
+TabContainer
+Times New Roman
+Trebuchet MS
+VI
+VScrollBar
+Ysabeau
+Éluarde
+×5
+ % [ab[
+ ×%d
+%d %%
+%s  (%d)
+%s %d
+%s %s%s
+%s (%s)
+%s · %s%s%s
+%s%s (%d PA)
+Ctrl+Z
+Game
+[color=#6b5d46]  ↳ [/color]
+
+×%d
+%+d %%
+%s %s%d
+%s (%d/%d)
+%s : %s %s
+Aldric
+Amaury
+Anselme
+Arnaud
+Aymeric
+Barthélemy
+Bastien
+Baudouin
+Bellecombe
+Bellerive
+Bertrand
+Bourg-Chalant
+Bourg-Franc
+Bourg-sur-Lys
+Brumevalle
+Béranger
+Calvaire-Gris
+Cendrepierre
+Chapelle-Haute
+Châtel-Ardent
+Chênevert
+Clairefontaine
+Cloître-Noir
+Clément
+Colin
+Combe-Franche
+Combe-Noire
+Confluent
+Conrad
+Corne-de-Bœuf
+Coupe-Gorge
+Courte-Paille
+Croix-des-Foires
+Cryptes de Val-Cendre
+Cuivre-Sec
+Côte du Lys
+Dent-Creuse
+Donjon de la Couleuvre
+Drogon
+Dune-Rouge
+Enguerrand
+Entrepôts-du-Lys
+Eudes
+Face-de-Lune
+Fiefs de Roncevaux
+Fjordelune
+Fontaine-aux-Écus
+Fontfroide
+Forge-du-Désert
+Fort-Sirocco
+Fort-aux-Pendus
+Foulques
+Frontière-Sud
+Fulbert
+Garin
+Gautier
+Gilles
+Givrebourg
+Godefroy
+Guillaume
+Gué-aux-Loups
+Gué-des-Ânes
+Gérard
+Haie-Vive
+Halle-Neuve
+Halte-des-Caravanes
+Haut-Roncevaux
+Haute-Ronce
+Hautefage
+Hautes-Marches
+Hautmanoir
+Havre-Sans-Maître
+Herbert
+Hervé
+Hugonet
+Hugues
+Hurle-Vent
+Hutte-aux-Crânes
+Ingelger
+Jehan
+Jocelin
+Josselin
+L'émissaire revient, plus pâle encore. Il demande un service : laisser passer un convoi de chariots couverts, sans poser de questions. Dans l'un d'eux, vous entendez des gémissements. L'Abbaye offre de son côté de l'argent pour que vous le dénonciez.
+La Rochebrune
+Lac-Gelé
+Lambert
+Lancelin
+Lanvaux
+Le fief de Montfaucon
+Les Marches
+Les Ormeaux
+Longue-Échine
+Lysmarche
+Maheu
+Malbosc
+Martin
+Mathieu
+Mauvaise-Herbe
+Mont-Corbin
+Mont-Sauvage
+Montfaucon-le-Sec
+Montjoie-la-Rouge
+Moulin-du-Gué
+Neige-Bourg
+Noirmoutel
+Nordfeu
+Nécropole de Morteval
+Néel
+Oasis-Brûlée
+Odon
+Olivier
+Ossuaire d'Ombrelune
+Ours-Blanc
+Palissade de Krag
+Pas-Perdu
+Pays de Sablefer
+Perceval
+Perche-Fière
+Pic-de-Glace
+Pied-de-Chêne
+Pierre-Borne
+Pierrecourbe
+Pin-Noir
+Poing-Lourd
+Pons
+Pontlevis
+Port-Franc
+Prieuré-de-Brume
+Puits-d'Ambre
+Péage-Clair
+Quai-aux-Épices
+Quatre-Chemins
+Quentin
+Raoul
+Renaud
+Repaire de Gor-Maug
+Robin
+Ronceval-le-Haut
+Roncevaux-le-Bas
+Sablefer
+Saint-Aigulf
+Saint-Aubin-des-Ronces
+Saint-Ermelin
+Saint-Gildas-du-Gué
+Saint-Orvald
+Sainte-Colombe-les-Eaux
+Sainte-Eulalie
+Sainte-Maure-des-Lances
+Sigebert
+Simon
+Sire Gaspard vous attend à l'écart du camp, son heaume sous le bras. « Capitaine, j'ai reçu des nouvelles. Mon cousin marche vers la frontière avec une petite escorte. Je ne puis laver mon honneur seul. Me suivrez-vous ? »
+Terre-Cuite
+Terre-Rouge
+Thibaut
+Thierry
+Thomas
+Tour du Péager
+Tourbesec
+Tristan
+Trois jours plus tard, un galop fait trembler la route. Une dizaine de cavaliers aux armes de Roncevaux encerclent la compagnie. Leur sergent regarde vos chariots, puis vous. « On cherche un lâche. Qu'avez-vous à dire ? »
+Trois-Doigts
+Trois-Fontaines
+Tête-de-Fer
+Un cavalier en cape grise barre la route à la tombée de la nuit. Son visage est blanc comme la cire, sa voix douce. « Capitaine, je viens de la nécropole. Mon maître ne veut pas de votre mal. Il cherche un allié qui entende raison. En échange de votre bienveillance, il offre un présent. »
+Urbain
+Val-de-Cendre
+Val-des-Moines
+Valcourt
+Vauclair
+Vieux-Moulin
+Vigile-des-Morts
+Ville-Neutre
+Villevieille
+Vivien
+Wilfrid
+Yvon
+de Haut-Regard
+de Haut-Verger
+de Pierre-Sèche
+de Sainte-Orcanie
+de Vieille-Garde
+de l'Ancien Pont
+Émeric
+Épinoy
+Évrard
+Œil-de-Chat
+%s  v%s
+TooltipLabel
+%s – %s
+%s / %s
+], ap, fat]

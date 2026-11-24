@@ -399,8 +399,12 @@ func _report(res: Dictionary, ok_text: String = "") -> void:
 func _input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
+	if Keybinds.matches(event, "inventory"):
+		close()
+		get_viewport().set_input_as_handled()
+		return
 	match (event as InputEventKey).keycode:
-		KEY_ESCAPE, KEY_I:
+		KEY_ESCAPE:
 			close()
 		KEY_LEFT, KEY_UP:
 			step(-1)
@@ -597,7 +601,7 @@ func _stat_rows(u: Unit) -> Array:
 		StatRow.new("hourglass", u.fat, maxi(1, u.fat_max_eff()), Color("8a6a3a"), "%d / %d" % [u.fat, u.fat_max_eff()], "Fatigue actuelle / endurance (réduite par le poids porté : %d)" % u.weight(), "Fatigue"),
 		StatRow.new("chevrons", u.ini_eff(), 160, Color("6f8f8a"), str(u.ini_eff()), "Initiative effective (réduite par le poids et la fatigue)", "Initiative"),
 		StatRow.new("ring", u.eff("resolve"), 100, Color("7a5a9a"), str(u.eff("resolve")), "Détermination : résiste aux tests de moral", "Détermination"),
-		StatRow.new("flag", morale + 1, 5, GameTheme.MORALE_COLORS[morale].darkened(0.2), str(Data.MORALE_NAMES[morale]), "Moral", "Moral"),
+		StatRow.new("flag", morale + 1, 5, GameTheme.morale_color(morale).darkened(0.2), GameTheme.morale_text(morale), "Moral", "Moral"),
 		StatRow.new("weight", u.weight(), 40, Color("7a6a50"), str(u.weight()), "Poids de l'équipement porté", "Poids"),
 	]
 	var right: Array = [

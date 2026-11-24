@@ -7,7 +7,7 @@ static func label(text: String, size: int = 15, color: Color = GameTheme.INK, bo
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", GameTheme.scaled_size(size))
-	l.add_theme_color_override("font_color", color)
+	l.add_theme_color_override("font_color", GameTheme.text_color(color))
 	if bold:
 		l.add_theme_font_override("font", GameTheme.bold_font())
 	return l

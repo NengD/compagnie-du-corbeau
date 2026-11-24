@@ -1,0 +1,7 @@
+{
+	"name": "Compagnie des marais",
+	"version": "1.0",
+	"author": "Exemple",
+	"description": "Mod d'exemple : prénoms, surnoms, noms de lieux, épitaphes, histoires, un scénario et deux événements.",
+	"files": ["noms.json", "scenario.json", "evenements.json"]
+}

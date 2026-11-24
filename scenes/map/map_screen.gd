@@ -115,24 +115,24 @@ func _exit_tree() -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if _help != null and is_instance_valid(_help):
-			if event.keycode == KEY_ESCAPE or event.keycode == KEY_F1 or event.keycode == KEY_QUESTION:
+			if event.keycode == KEY_ESCAPE or event.keycode == KEY_QUESTION or Keybinds.matches(event, "help"):
 				_help.close()
 				_help = null
 				get_viewport().set_input_as_handled()
 			return
-		if event.keycode == KEY_F1 or event.keycode == KEY_QUESTION or event.unicode == 63:
+		if Keybinds.matches(event, "help"):
 			_open_help()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_F:
+		elif Keybinds.matches(event, "map_details"):
 			drawer.toggle()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_L:
+		elif Keybinds.matches(event, "map_legend"):
 			_toggle_legend()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_M:
+		elif Keybinds.matches(event, "map_minimap"):
 			_set_minimap(not Settings.minimap)
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_SPACE:
+		elif Keybinds.matches(event, "map_pause"):
 			_set_speed(0 if _speed > 0 else 1)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
@@ -144,11 +144,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			else:
 				_stop()
-		elif event.keycode == KEY_C or event.keycode == KEY_H or event.keycode == KEY_HOME:
+		elif Keybinds.matches(event, "map_center"):
 			view.center_on_player()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_TAB:
-			_focus_next_place(-1 if event.shift_pressed else 1)
+		elif Keybinds.matches(event, "map_prev_place"):  # avant « suivant » : Maj+Tab est aussi un Tab
+			_focus_next_place(-1)
+			get_viewport().set_input_as_handled()
+		elif Keybinds.matches(event, "map_next_place"):
+			_focus_next_place(1)
 			get_viewport().set_input_as_handled()
 
 

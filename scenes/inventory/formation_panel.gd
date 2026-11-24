@@ -163,13 +163,13 @@ func _draw() -> void:
 	var label: String = "%d/%d" % [count, Data.FIGHTERS]
 	var cw: float = fh.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs + 2).x
 	var col: Color = GameTheme.GOLD if count < Data.FIGHTERS else GameTheme.INK
-	draw_string(fh, Vector2(size.x - PAD - cw, HEADER * 0.5 + (fs + 2) * 0.35), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs + 2, col)
+	draw_string(fh, Vector2(size.x - PAD - cw, HEADER * 0.5 + (fs + 2) * 0.35), I18n.t(label), HORIZONTAL_ALIGNMENT_LEFT, -1, fs + 2, col)
 	var sub: String = "au combat"
 	var sw: float = fh.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-	draw_string(fh, Vector2(size.x - PAD - cw - sw - 6.0, HEADER * 0.5 + 4.0), sub, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, GameTheme.MUTE)
+	draw_string(fh, Vector2(size.x - PAD - cw - sw - 6.0, HEADER * 0.5 + 4.0), I18n.t(sub), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, GameTheme.MUTE)
 	if _notice != "":
 		var nx: float = _auto_btn.position.x + _auto_btn.size.x + 10.0
-		draw_string(fh, Vector2(nx, HEADER * 0.5 + 4.0), _notice, HORIZONTAL_ALIGNMENT_LEFT, size.x - nx - cw - sw - 24.0, 12, GameTheme.BLOOD.lightened(0.25))
+		draw_string(fh, Vector2(nx, HEADER * 0.5 + 4.0), I18n.t(_notice), HORIZONTAL_ALIGNMENT_LEFT, size.x - nx - cw - sw - 24.0, 12, GameTheme.BLOOD.lightened(0.25))
 	for s in Formation.SLOTS:
 		_draw_slot(s)
 

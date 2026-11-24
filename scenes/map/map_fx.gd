@@ -90,7 +90,7 @@ func update(delta: float, day: int, frac: float, day_night: bool, weather_on: bo
 	if day != _last_day:
 		_last_day = day
 		wx_kind = weather_for_day(day)
-	_wx_target = 1.0 if weather_on and wx_kind != "clear" and (wx_full or wx_kind != "fog") else 0.0
+	_wx_target = 1.0 if weather_on and wx_kind != "clear" and (wx_full or wx_kind != "fog") and not (GameTheme.reduce_motion and (wx_kind == "snow" or wx_kind == "fog")) else 0.0
 	wx_k = move_toward(wx_k, _wx_target, delta * 0.5)
 	if wx_k <= 0.0 and wx_kind != "clear" and not weather_on:
 		pass
@@ -223,7 +223,7 @@ func paint_frame(c: Control, day_px: float, zoom_px_per_world: float, day_frac: 
 		c.draw_rect(Rect2(Vector2(bx + px * 0.5 * i, sc.position.y + 12.0), Vector2(px * 0.5, 4.0)), ink if i == 0 else Color("e6dcc0"))
 	c.draw_rect(Rect2(Vector2(bx, sc.position.y + 12.0), Vector2(px, 4.0)), ink, false, 1.0)
 	var f: Font = GameTheme.title_font()
-	c.draw_string(f, Vector2(bx, sc.position.y + 10.0), "1 jour de marche", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, ink)
+	c.draw_string(f, Vector2(bx, sc.position.y + 10.0), I18n.t("1 jour de marche"), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, ink)
 	# heure du jour (haut à droite)
 	if show_clock:
 		var cc := Vector2(s.x - 40.0, 40.0)
@@ -236,7 +236,7 @@ func paint_frame(c: Control, day_px: float, zoom_px_per_world: float, day_frac: 
 		if is_night:
 			c.draw_circle(sun_p + Vector2(1.6, -1.0), 3.4, Color(brown, 0.95))
 		c.draw_line(cc + Vector2(-13, 4), cc + Vector2(13, 4), Color(parch, 0.5), 1.0)
-		c.draw_string(f, Vector2(cc.x - 34.0, cc.y + 32.0), phase_name(day_frac), HORIZONTAL_ALIGNMENT_CENTER, 68, 13, Color("e6dcc0"))
+		c.draw_string(f, Vector2(cc.x - 34.0, cc.y + 32.0), I18n.t(phase_name(day_frac)), HORIZONTAL_ALIGNMENT_CENTER, 68, 13, Color("e6dcc0"))
 
 
 func _compass(c: Control, p: Vector2, r: float) -> void:

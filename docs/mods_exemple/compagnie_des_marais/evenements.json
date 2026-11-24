@@ -1,0 +1,27 @@
+{
+	"events": [
+		{
+			"id": "passeur",
+			"title": "Le passeur du marais",
+			"text": "Un vieux passeur propose de vous guider à travers la tourbière, moyennant quelques pièces.",
+			"choices": [
+				{"id": "payer", "label": "Payer le passeur (30 couronnes)", "cost": 30,
+					"outcomes": [{"w": 3, "text": "Le chemin est sûr et la route plus courte.", "renown": 2, "food": 3},
+						{"w": 1, "text": "Le passeur vous mène droit dans une embuscade !", "battle": {"type": "b", "d": 1}}]},
+				{"id": "negocier", "label": "Marchander le prix", "check": {"kind": "negotiate", "base": 55},
+					"win": [{"w": 1, "text": "Le vieux rit et vous guide pour la moitié du prix.", "gold": -10}],
+					"lose": [{"w": 1, "text": "Il vexe, crache dans l'eau et disparaît dans la brume.", "days": 1}]},
+				{"id": "passer", "label": "Chercher son chemin seul", "outcomes": [{"w": 1, "text": "Vous vous enlisez un moment avant de retrouver la terre ferme.", "days": 1, "hp_one": -4}]}
+			]
+		},
+		{
+			"id": "feux_follets",
+			"title": "Feux follets",
+			"text": "Des lueurs pâles dansent au-dessus de l'eau noire. Les hommes murmurent.",
+			"choices": [
+				{"id": "suivre", "label": "Suivre les lueurs", "outcomes": [{"w": 1, "text": "Elles mènent à un coffre englouti.", "gold": 60}, {"w": 1, "text": "Elles mènent à la boue profonde.", "hp_all": -3}]},
+				{"id": "ignorer", "label": "Détourner les yeux", "outcomes": [{"w": 1, "text": "La compagnie passe son chemin, un peu pâle."}]}
+			]
+		}
+	]
+}

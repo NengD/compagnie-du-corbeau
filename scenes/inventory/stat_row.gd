@@ -52,7 +52,7 @@ func _draw() -> void:
 	draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GameTheme.INK)
 	if label_text != "":
 		var lpos := Vector2(ICON_W + 4.0, H * 0.5 + LABEL_FS * 0.34)
-		draw_string(font, lpos, label_text, HORIZONTAL_ALIGNMENT_LEFT, LABEL_W - 4.0, LABEL_FS, GameTheme.MUTE)
+		draw_string(font, lpos, I18n.t(label_text), HORIZONTAL_ALIGNMENT_LEFT, LABEL_W - 4.0, LABEL_FS, GameTheme.MUTE)
 	_draw_icon(Rect2(0, 0, ICON_W, H))
 
 

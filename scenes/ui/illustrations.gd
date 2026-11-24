@@ -35,8 +35,8 @@ func _draw() -> void:
 		var fs: int = GameTheme.scaled_size(int(clampf(size.y * 0.42, 22.0, 72.0)))
 		var w: float = f.get_string_size(caption, HORIZONTAL_ALIGNMENT_CENTER, -1, fs).x
 		var p := Vector2((size.x - w) * 0.5, size.y * 0.5 + fs * 0.3)
-		draw_string(f, p + Vector2(2, 2), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 0, 0, 0.7))
-		draw_string(f, p, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GameTheme.INK)
+		draw_string(f, p + Vector2(2, 2), I18n.t(caption), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 0, 0, 0.7))
+		draw_string(f, p, I18n.t(caption), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, GameTheme.INK)
 	draw_rect(Rect2(Vector2.ZERO, size), Color("17110c"), false, 2.0)
 	draw_line(Vector2(0, size.y - 3), Vector2(size.x, size.y - 3), Color("8a6f36"), 1.0)
 

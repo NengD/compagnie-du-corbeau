@@ -87,7 +87,7 @@ static func _rng(u: Unit) -> RandomNumberGenerator:
 static func assign(u: Unit) -> void:
 	var r: RandomNumberGenerator = _rng(u)
 	var key: String = origin_key(u)
-	var pool: Array = STORIES.get(key, STORY_FALLBACK)
+	var pool: Array = Mods.backstory_pool(key, STORIES.get(key, STORY_FALLBACK))
 	u.backstory = str(pool[r.randi() % pool.size()])
 	var prefs: Array = PREFS.get(key, KINDS)
 	var kind: String = str(prefs[r.randi() % prefs.size()])

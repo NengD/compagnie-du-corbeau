@@ -355,7 +355,7 @@ func _attack(a: Unit, d: Unit, free: bool = false, ability: String = "") -> Dict
 		board.float_text(d.hex if res.get("shield_broken", false) else a.hex, "Brisé" if res.get("shield_broken", false) else "Ébréché", Color("cfd9e4"), -28.0)
 	for u in state.units:
 		if u.is_live() and u.morale < int(morale_before[u.id]):
-			board.float_text(u.hex, str(Data.MORALE_NAMES[u.morale]), GameTheme.MORALE_COLORS[u.morale], -14.0)
+			board.float_text(u.hex, GameTheme.morale_text(u.morale), GameTheme.morale_color(u.morale), -14.0)
 	_refresh_all()
 	await _pause(0.3)
 	return res
@@ -531,16 +531,16 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	var k: int = ke.keycode
 	var handled: bool = true
 	if _help != null and is_instance_valid(_help):
-		if k == KEY_ESCAPE or k == KEY_QUESTION or k == KEY_F1:
+		if k == KEY_ESCAPE or k == KEY_QUESTION or Keybinds.matches(ke, "help"):
 			_help.close()
 			_help = null
 		else:
 			handled = false
 	elif _modal != null or _confirm_modal != null or state.over != "":
 		handled = false
-	elif k == KEY_F1 or k == KEY_QUESTION or ke.unicode == 63:
+	elif Keybinds.matches(ke, "help"):
 		_open_help()
-	elif k == KEY_H or k == KEY_HOME:
+	elif Keybinds.matches(ke, "battle_view"):
 		reset_view()
 	elif k == KEY_ESCAPE:
 		if _ability != "" or _use_slot >= 0:
@@ -549,17 +549,18 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			_refresh_all()
 		else:
 			handled = false
-	elif (k == KEY_Z and ke.ctrl_pressed) or k == KEY_BACKSPACE:
+	elif Keybinds.matches(ke, "undo_move"):
 		_undo_move()
-	elif k == KEY_SPACE or k == KEY_ENTER or k == KEY_KP_ENTER:
+	elif Keybinds.matches(ke, "end_turn"):
 		_end_turn(true)
-	elif k == KEY_W:
+	elif Keybinds.matches(ke, "wait"):
 		_wait_turn()
-	elif k == KEY_TAB:
-		_inspect_next(-1 if ke.shift_pressed else 1)
+	elif Keybinds.matches(ke, "inspect_prev"):  # avant « suivant » : Maj+Tab est aussi un Tab
+		_inspect_next(-1)
+	elif Keybinds.matches(ke, "inspect_next"):
+		_inspect_next(1)
 	else:
-		var pk: int = ke.physical_keycode
-		var n: int = pk - KEY_1 if pk >= KEY_1 and pk <= KEY_9 else (k - KEY_KP_1 if k >= KEY_KP_1 and k <= KEY_KP_9 else -1)
+		var n: int = Keybinds.slot_of(ke) - 1
 		if n >= 0 and _player_turn() and n < _hot.size() and is_instance_valid(_hot[n]) and not _hot[n].disabled:
 			_hot[n].pressed.emit()
 		else:
@@ -843,7 +844,7 @@ func _unit_block(parent: Node, u: Unit, tag: String) -> void:
 	if Legendary.is_legend(u):
 		n.add_theme_color_override("font_color", GameTheme.GOLD)  ## bête légendaire : nom en or
 	top.add_child(n)
-	top.add_child(UiKit.chip(str(Data.MORALE_NAMES[u.morale]), GameTheme.MORALE_COLORS[u.morale]))
+	top.add_child(UiKit.chip(GameTheme.morale_text(u.morale), GameTheme.morale_color(u.morale)))
 	v.add_child(top)
 	v.add_child(UiKit.sub("%s · %s%s%s" % [tag, u.background, " · niv. %d" % u.level if u.side == "p" else "", " · ★ " + Legendary.tag(u) if Legendary.is_legend(u) else ""]))
 	h.add_child(v)
@@ -1014,7 +1015,7 @@ func _reg_hot(b: Button) -> void:
 	if _hot.size() >= 9:
 		return
 	_hot.append(b)
-	b.text += Shortcuts.tag(str(_hot.size()))
+	b.text += Shortcuts.tag(Keybinds.short_name("slot_%d" % clampi(_hot.size(), 1, 9)))
 
 
 func _refresh_actions() -> void:
@@ -1047,7 +1048,7 @@ func _refresh_actions() -> void:
 		_reg_hot(swap_b)
 		_actions.add_child(swap_b)
 	if state.can_undo_move(u):
-		var undo_b := UiKit.button("Annuler le déplacement" + Shortcuts.tag("Ctrl+Z"))
+		var undo_b := UiKit.button("Annuler le déplacement" + Shortcuts.tag(Keybinds.short_name("undo_move")))
 		undo_b.tooltip_text = "Revenir à la case de départ et récupérer les PA et la fatigue du déplacement (tant que vous n'avez pas attaqué)."
 		undo_b.pressed.connect(_undo_move)
 		_actions.add_child(undo_b)
@@ -1056,11 +1057,11 @@ func _refresh_actions() -> void:
 		undo_t.tooltip_text = "Facile : revient au début du tour de cet homme (une seule fois par bataille). Le hasard n'est pas rejoué à l'identique : les prochains jets seront différents."
 		undo_t.pressed.connect(_undo_turn)
 		_actions.add_child(undo_t)
-	var wait_b := UiKit.button("Attendre" + Shortcuts.tag("W"))
+	var wait_b := UiKit.button("Attendre" + Shortcuts.tag(Keybinds.short_name("wait")))
 	wait_b.disabled = u.waited
 	wait_b.pressed.connect(_wait_turn)
 	_actions.add_child(wait_b)
-	var end_b := UiKit.button("Fin du tour" + Shortcuts.tag("Espace"), "pri")
+	var end_b := UiKit.button("Fin du tour" + Shortcuts.tag(Keybinds.short_name("end_turn")), "pri")
 	end_b.pressed.connect(_end_turn)
 	_actions.add_child(end_b)
 	if _confirm_retreat:

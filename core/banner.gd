@@ -64,7 +64,7 @@ static func is_valid_name(s: String) -> bool:
 
 ## Nom de compagnie suggéré au hasard (`avoid` : nom à ne pas reproduire d'affilée).
 static func random_name(rng: RandomNumberGenerator, avoid: String = "") -> String:
-	var pool: Array = Data.COMPANY_NAME_SUGGESTIONS.filter(func(n: Variant) -> bool: return str(n) != avoid)
+	var pool: Array = Mods.company_names().filter(func(n: Variant) -> bool: return str(n) != avoid)
 	return str(pool[rng.randi() % pool.size()])
 
 

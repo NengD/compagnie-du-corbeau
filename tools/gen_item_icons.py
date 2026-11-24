@@ -108,6 +108,8 @@ def main() -> int:
         f.write(unknown())
     import gen_equip_art  # armes, casques et armures ajoutés (dessinés dans gen_equip_art.py)
     n += gen_equip_art.main_icons()
+    import harmonize_item_icons  # même contour, fond encadré par catégorie
+    harmonize_item_icons.main()
     print("%d icônes + unknown.svg écrits dans %s" % (n, OUT))
     return 0
 

@@ -1,0 +1,4901 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "\nDéconseillé en dessous de 200 de renom."
+msgstr "\nNot recommended below 200 renown."
+
+msgid "\nHostile · %s · danger ◆◆◆\nGarnison : ≈ %d hommes%s"
+msgstr "\nHostile · %s · danger ◆◆◆\nGarrison: ≈ %d men%s"
+
+msgid "\nLibéré. Réoccupation prévue au jour %d."
+msgstr "\nFreed. Reoccupation expected on day %d."
+
+msgid "\nPoste libéré : la compagnie peut s'y reposer."
+msgstr "\nPost freed: the company can rest there."
+
+msgid "\nRécompense : %d couronnes, +%d renom, butin de qualité"
+msgstr "\nReward: %d crowns, +%d renown, quality loot"
+
+msgid "\nTombée."
+msgstr "\nFallen."
+
+msgid "  Légende accomplie : tous les paliers sont atteints."
+msgstr "  Legend fulfilled: all tiers reached."
+
+msgid "  Prochain palier à %d victimes : %s"
+msgstr "  Next tier at %d kills: %s"
+
+msgid "  ✔ %d victimes : %s"
+msgstr "  ✔ %d kills: %s"
+
+msgid " (+100 renom)"
+msgstr " (+100 renown)"
+
+msgid " (environ %d %%)"
+msgstr " (about %d %%)"
+
+msgid " (vague"
+msgstr " (wave"
+
+msgid " Le commanditaire précise que %s tient la bande en sous-main."
+msgstr " The client adds that %s secretly controls the band."
+
+msgid " de "
+msgstr " of "
+
+msgid " en %d vagues"
+msgstr " in %d waves"
+
+msgid " · abîmée %d/%d"
+msgstr " · damaged %d/%d"
+
+msgid " · usure %d/%d"
+msgstr " · wear %d/%d"
+
+msgid " — %d couronnes"
+msgstr " — %d crowns"
+
+msgid "%d (il faut %d talent%s appris avant)"
+msgstr "%1$d (you need %2$d perk(s) learned first)"
+
+msgid "%d case%s"
+msgstr "%d tile(s)"
+
+msgid "%d cases"
+msgstr "%d tiles"
+
+msgid "%d talents pour %d points"
+msgstr "%d perks for %d points"
+
+msgid "%d à %d jours (moins avec le repos en ville et l'infirmerie)"
+msgstr "%d to %d days (less with rest in town and the infirmary)"
+
+msgid "%d–%d dégâts · %d PA%s"
+msgstr "%d–%d damage · %d AP%s"
+
+msgid "%s (vague %d/%d)"
+msgstr "%s (wave %d/%d)"
+
+msgid "%s a tenu son pari : « %s ». Récompense : %s."
+msgstr "%s kept their bet: \"%s\". Reward: %s."
+
+msgid "%s a été pillé : sa confiance en la compagnie en souffre."
+msgstr "%s was looted: its trust in the company suffers."
+
+msgid "%s de %s"
+msgstr "%s of %s"
+
+msgid "%s est de nouveau occupé."
+msgstr "%s is occupied again."
+
+msgid "%s est libéré. Il sera peut-être réoccupé d'ici %d jours."
+msgstr "%s is freed. It may be reoccupied within %d days."
+
+msgid "%s est réoccupé."
+msgstr "%s is reoccupied."
+
+msgid "%s est tombée. La menace est écrasée !"
+msgstr "%s has fallen. The threat is crushed!"
+
+msgid "%s est à vous : un poste où la compagnie peut se reposer."
+msgstr "%s is yours: a post where the company can rest."
+
+msgid "%s vous attend à %s pour la suite : « %s »."
+msgstr "%s awaits you at %s for what comes next: \"%s\"."
+
+msgid "(non apprise)"
+msgstr "(not learned)"
+
+msgid "+%d %s"
+msgstr "+%d %s"
+
+msgid "+%d déf. mêlée, +%d déf. distance · poids %d%s"
+msgstr "+%d melee def., +%d ranged def. · weight %d%s"
+
+msgid "+10 % au toucher, dégâts réguliers."
+msgstr "+10 % to hit, steady damage."
+
+msgid "+10 % de dégâts"
+msgstr "+10 % damage"
+
+msgid "+10 % de dégâts contre une armure légère (moins de 70)."
+msgstr "+10 % damage against light armor (under 70)."
+
+msgid "+10 au toucher contre un ennemi brisé ou en fuite."
+msgstr "+10 to hit against a broken or fleeing enemy."
+
+msgid "+10 au toucher sans avoir bougé."
+msgstr "+10 to hit without having moved."
+
+msgid "+10 au toucher sur un ennemi brisé."
+msgstr "+10 to hit on a broken enemy."
+
+msgid "+10 au toucher à distance s'il n'a pas bougé de ce tour."
+msgstr "+10 to hit at range if he hasn't moved this turn."
+
+msgid "+10 d'endurance."
+msgstr "+10 stamina."
+
+msgid "+10 d'initiative."
+msgstr "+10 initiative."
+
+msgid "+10 en attaque à distance."
+msgstr "+10 ranged attack."
+
+msgid "+10 en défense avec un bouclier."
+msgstr "+10 defense with a shield."
+
+msgid "+10 en défense dans le mur de boucliers."
+msgstr "+10 defense in the shield wall."
+
+msgid "+10 en défense dans le mur."
+msgstr "+10 defense in the wall."
+
+msgid "+10 en défense de mêlée avec un bouclier."
+msgstr "+10 melee defense with a shield."
+
+msgid "+10 en défense à distance."
+msgstr "+10 ranged defense."
+
+msgid "+10 en détermination après le premier coup encaissé dans une bataille."
+msgstr "+10 resolve after taking the first blow in a battle."
+
+msgid "+15 % au toucher pour 2 PA de plus."
+msgstr "+15 % to hit for 2 more AP."
+
+msgid "+15 % au toucher."
+msgstr "+15 % to hit."
+
+msgid "+15 % de butin après chaque bataille (le meilleur pilleur compte)."
+msgstr "+15 % loot after each battle (the best looter counts)."
+
+msgid "+15 aux tests de moral."
+msgstr "+15 to morale checks."
+
+msgid "+15 d'endurance."
+msgstr "+15 stamina."
+
+msgid "+15 d'initiative et +5 en défense tant que le poids de l'équipement est de 10 ou moins."
+msgstr "+15 initiative and +5 defense while equipment weight is 10 or less."
+
+msgid "+20 % au toucher, 25 points de plus de viser la tête."
+msgstr "+20 % to hit, 25 more points to aim at the head."
+
+msgid "+20 % au toucher."
+msgstr "+20 % to hit."
+
+msgid "+3 en défense de mêlée par allié adjacent (jusqu'à 3 alliés, soit +9)."
+msgstr "+3 melee defense per adjacent ally (up to 3 allies, so +9)."
+
+msgid "+3 en défense par allié adjacent."
+msgstr "+3 defense per adjacent ally."
+
+msgid "+35 % de dégâts, −10 % au toucher."
+msgstr "+35 % damage, −10 % to hit."
+
+msgid "+4 en défense de mêlée, −3 en attaque de mêlée."
+msgstr "+4 melee defense, −3 melee attack."
+
+msgid "+5 % au toucher"
+msgstr "+5 % to hit"
+
+msgid "+5 en attaque de mêlée, −5 en défense de mêlée."
+msgstr "+5 melee attack, −5 melee defense."
+
+msgid "+5 en attaque de mêlée."
+msgstr "+5 melee attack."
+
+msgid "+5 en défense de mêlée."
+msgstr "+5 melee defense."
+
+msgid "+6 d'initiative."
+msgstr "+6 initiative."
+
+msgid "+6 en attaque de mêlée une fois blessé dans la bataille."
+msgstr "+6 melee attack once wounded in the battle."
+
+msgid "+6 en attaque à distance."
+msgstr "+6 ranged attack."
+
+msgid "+8 % de dégâts"
+msgstr "+8 % damage"
+
+msgid "+8 % de dégâts d'armure avec toutes les armes."
+msgstr "+8 % armor damage with all weapons."
+
+msgid "+8 % de dégâts d'armure en plus."
+msgstr "+8 % more armor damage."
+
+msgid "+8 % de dégâts d'armure."
+msgstr "+8 % armor damage."
+
+msgid "+8 PV maximum."
+msgstr "+8 maximum HP."
+
+msgid "+8 en attaque et en défense quand personne n'est collé à lui."
+msgstr "+8 attack and defense when no one is next to him."
+
+msgid "+8 en détermination (tests de moral)."
+msgstr "+8 resolve (morale checks)."
+
+msgid "1 lancer par bataille : zone, dégâts et feu."
+msgstr "1 throw per battle: area, damage and fire."
+
+msgid "2 lancers par bataille : immobilise une cible."
+msgstr "2 throws per battle: immobilizes a target."
+
+msgid "2 tirs empoisonnés par bataille (arc ou arbalète) : la cible touchée s'affaiblit chaque tour."
+msgstr "2 poisoned shots per battle (bow or crossbow): the target is weakened each turn."
+
+msgid "3 lancers par bataille : étourdissent."
+msgstr "3 throws per battle: stun."
+
+msgid "35 % de chances de viser la tête au lieu de 25 %."
+msgstr "35 % chance to aim at the head instead of 25 %."
+
+msgid "A tenu la palissade de son village trois étés de suite, jusqu'au jour où le seigneur a repris ses lances sans payer la dernière solde."
+msgstr "Held his village's palisade three summers in a row, until the day the lord took back his spears without paying the last wages."
+
+msgid "Abattre %d ennemis"
+msgstr "Slay %d enemies"
+
+msgid "Abattre le Corbeau Noir"
+msgstr "Slay the Black Raven"
+
+msgid "Accepter le don de l'Abbaye"
+msgstr "Accept the Abbey's gift"
+
+msgid "Accepter le marché de Gaspard (contrat spécial)"
+msgstr "Accept Gaspard's deal (special contract)"
+
+msgid "Accepter les provisions qu'elle offre"
+msgstr "Accept the provisions she offers"
+
+msgid "Accompli"
+msgstr "Accomplished"
+
+msgid "Acheter des onguents (45 couronnes) : +14 PV à tous"
+msgstr "Buy ointments (45 crowns): +14 HP to all"
+
+msgid "Acheter des provisions (35 couronnes) : +10 PV à tous, +12 rations"
+msgstr "Buy provisions (35 crowns): +10 HP to all, +12 rations"
+
+msgid "Acheter du fil de fer et des rivets (60 couronnes) : armures réparées"
+msgstr "Buy wire and rivets (60 crowns): armor repaired"
+
+msgid "Acheter le silence du sergent (120 couronnes)"
+msgstr "Buy the sergeant's silence (120 crowns)"
+
+msgid "Acheter ses vivres sans discuter (35 couronnes)"
+msgstr "Buy his provisions without haggling (35 crowns)"
+
+msgid "Actif : vous tenez ici un équipement de cette famille."
+msgstr "Active: you hold equipment of this family here."
+
+msgid "Aelis la Rousse"
+msgstr "Aelis the Red"
+
+msgid "Aider à creuser une fosse"
+msgstr "Help dig a pit"
+
+msgid "Aldric boude, mais Aelis a déjà bouclé son sac."
+msgstr "Aldric sulks, but Aelis has already packed her bag."
+
+msgid "Aldric la Rousse"
+msgstr "Aldric the Red"
+
+msgid "Aldric marche à la traîne, tête basse. Il n'a pas encore quitté son village du regard. « Capitaine, je ne sais pas si je serai assez bon... »"
+msgstr "Aldric trails behind, head down. He has not yet taken his eyes off his village. \"Captain, I don't know if I'll be good enough...\""
+
+msgid "Aldric serre les dents et suit. Il se fera ses amis plus tard."
+msgstr "Aldric grits his teeth and follows. He will make his friends later."
+
+msgid "Aller parler au bailli (1 jour)"
+msgstr "Go and speak to the bailiff (1 day)"
+
+msgid "Allonge : frappe à 2 cases, +10 % au toucher. Deux mains."
+msgstr "Reach: strikes at 2 tiles, +10 % to hit. Two hands."
+
+msgid "Allonge : frappe à 2 cases. Deux mains."
+msgstr "Reach: strikes at 2 tiles. Two hands."
+
+msgid "Allumer de grands feux et veiller"
+msgstr "Light great fires and keep watch"
+
+msgid "Ambre du nord"
+msgstr "Northern amber"
+
+msgid "Ancien cavalier d'une compagnie dissoute, il a gardé la cotte de mailles, un orgueil intact et des dettes de jeu."
+msgstr "A former rider of a disbanded company, he kept his mail coat, an intact pride and gambling debts."
+
+msgid "Ancien milicien"
+msgstr "Former militiaman"
+
+msgid "Ancien sergent d'une levée oubliée, il sait tenir une ligne et compter les hommes qui n'y reviennent pas."
+msgstr "A former sergeant of a forgotten levy, he knows how to hold a line and count the men who don't come back to it."
+
+msgid "Anguille"
+msgstr "Eel"
+
+msgid "Antre de l'ogre"
+msgstr "Ogre's lair"
+
+msgid "Apprenti zélé"
+msgstr "Zealous apprentice"
+
+msgid "Arbalète"
+msgstr "Crossbow"
+
+msgid "Arbalète en main : +5 % au toucher, Tir ajusté coûte 1 PA de moins ; ouvre « Carreau perforant » (armure ×1,3, traverse 15 points de plus)."
+msgstr "Crossbow in hand: +5 % to hit, Aimed Shot costs 1 less AP; unlocks \"Piercing Bolt\" (armor ×1.3, penetrates 15 more points)."
+
+msgid "Arbalète légère"
+msgstr "Light crossbow"
+
+msgid "Arbalètes"
+msgstr "Crossbows"
+
+msgid "Arbalètes : la recharge coûte 2 PA et 3 fatigue de moins, traversent 10 points de plus l'armure."
+msgstr "Crossbows: reloading costs 2 fewer AP and 3 less fatigue, penetrating 10 more points of armor."
+
+msgid "Arbalétrier"
+msgstr "Crossbowman"
+
+msgid "Arbalétrier perce-armure"
+msgstr "Armor-piercing crossbowman"
+
+msgid "Arbre"
+msgstr "Tree"
+
+msgid "Arc de Mirelune"
+msgstr "Mirelune Bow"
+
+msgid "Arc de chasse"
+msgstr "Hunting bow"
+
+msgid "Arc des Ronces"
+msgstr "Bramble Bow"
+
+msgid "Arc en main : +2 de portée, malus de distance réduit (−2 au lieu de −3 par case) ; ouvre « Tir précis » (+20 % au toucher, 25 % de plus de viser la tête)."
+msgstr "Bow in hand: +2 range, reduced range penalty (−2 instead of −3 per tile); unlocks \"Precise Shot\" (+20 % to hit, 25 % more chance to aim at the head)."
+
+msgid "Arc long"
+msgstr "Longbow"
+
+msgid "Arc long unique. Chaque victime affine la visée."
+msgstr "Unique longbow. Every kill sharpens the aim."
+
+msgid "Arc unique : portée 7."
+msgstr "Unique bow: range 7."
+
+msgid "Archer brigand"
+msgstr "Bandit archer"
+
+msgid "Archer d'élite"
+msgstr "Elite archer"
+
+msgid "Arcs"
+msgstr "Bows"
+
+msgid "Arcs : +10 % de dégâts, aucun malus de tir au contact ; Tir ajusté et Flèche enflammée coûtent 1 PA de moins."
+msgstr "Bows: +10 % damage, no penalty for shooting in melee; Aimed Shot and Flaming Arrow cost 1 less AP."
+
+msgid "Ardoise"
+msgstr "Slate"
+
+msgid "Arme d'hast en main : +5 % au toucher contre une cible à 2 cases ; ouvre « Faucher » (la cible ne peut plus bouger à son prochain tour)."
+msgstr "Polearm in hand: +5 % to hit against a target at 2 tiles; unlocks \"Reap\" (the target cannot move on its next turn)."
+
+msgid "Arme de monstre"
+msgstr "Monster weapon"
+
+msgid "Arme de monstre : aucune famille, jamais portée par la compagnie"
+msgstr "Monster weapon: no family, never carried by the company"
+
+msgid "Arme pauvre, coups peu fatigants et étourdissants : le harceleur vif."
+msgstr "Poor weapon, light and stunning blows: the nimble harasser."
+
+msgid "Armes"
+msgstr "Weapons"
+
+msgid "Armes d'hast"
+msgstr "Polearms"
+
+msgid "Armes de jet"
+msgstr "Throwing weapons"
+
+msgid "Armure"
+msgstr "Armor"
+
+msgid "Armure %d · poids %d%s"
+msgstr "Armor %d · weight %d%s"
+
+msgid "Armure de corps"
+msgstr "Body armor"
+
+msgid "Armures"
+msgstr "Armors"
+
+msgid "Armures et boucliers"
+msgstr "Armor and shields"
+
+msgid "Armurier"
+msgstr "Armorer"
+
+msgid "Arrachée au poing d'une bête qui terrorisait trois vallées : le manche garde l'empreinte de ses doigts."
+msgstr "Torn from the fist of a beast that terrorized three valleys: the handle still bears the print of its fingers."
+
+msgid "Arrondir le droit de passage en douce"
+msgstr "Quietly round up the toll"
+
+msgid "Assaut : "
+msgstr "Assault: "
+
+msgid "Assommer"
+msgstr "Knock out"
+
+msgid "Assommeur"
+msgstr "Knocker-out"
+
+msgid "Atout"
+msgstr "Asset"
+
+msgid "Att. dist."
+msgstr "Ranged att."
+
+msgid "Att. distance"
+msgstr "Ranged attack"
+
+msgid "Att. mêlée"
+msgstr "Melee attack"
+
+msgid "Attaque gratuite sur qui vient au contact, et repousse."
+msgstr "Free attack on whoever comes into contact, and pushes back."
+
+msgid "Atteindre le niveau %d"
+msgstr "Reach level %d"
+
+msgid "Attributs"
+msgstr "Attributes"
+
+msgid "Au détour d'un fossé, un homme en livrée déchirée lève les mains. Les couleurs de la Maison de Roncevaux sont encore visibles sous la boue. « J'ai quitté mon rang avant le massacre du gué, messire. Des cavaliers me cherchent. Cachez-moi. »"
+msgstr "Around a ditch bend, a man in torn livery raises his hands. The colors of the House of Roncevaux are still visible under the mud. \"I left my post before the massacre at the ford, my lord. Riders are looking for me. Hide me.\""
+
+msgid "Au fond du charnier, une tanière immense : une goule vorace y règne sur la meute."
+msgstr "At the back of the charnel pit, an immense den: a ravenous ghoul rules the pack there."
+
+msgid "Au matin, deux loups pendent aux collets. Les peaux se vendront bien."
+msgstr "In the morning, two wolves hang in the snares. The pelts will sell well."
+
+msgid "Aubépine"
+msgstr "Hawthorn"
+
+msgid "Aucun effet particulier."
+msgstr "No particular effect."
+
+msgid "Aucun point de talent disponible."
+msgstr "No perk points available."
+
+msgid "Autour du feu, un vieux refrain fait le tour de la troupe. Deux hommes finissent la nuit à trinquer ensemble."
+msgstr "Around the fire, an old refrain goes around the troop. Two men end the night drinking together."
+
+msgid "Autrefois colporteur, ruiné par des voleurs de grand chemin, il a gardé la rancune et perdu le reste."
+msgstr "Once a peddler, ruined by highwaymen, he kept the grudge and lost the rest."
+
+msgid "Avare"
+msgstr "Miserly"
+
+msgid "Avec bouclier : "
+msgstr "With a shield: "
+
+msgid "Avec un bouclier : +5 en défense de mêlée, +10 à distance ; le mur de boucliers coûte 1 PA et 4 fatigue de moins, le coup de bouclier 1 PA de moins."
+msgstr "With a shield: +5 melee defense, +10 at range; the shield wall costs 1 less AP and 4 less fatigue, the shield bash 1 less AP."
+
+msgid "Aymeric le Fuyard"
+msgstr "Aymeric the Runaway"
+
+msgid "Balafré"
+msgstr "Scarred"
+
+msgid "Balance-d'Or"
+msgstr "Gold-Scales"
+
+msgid "Balayage"
+msgstr "Sweep"
+
+msgid "Bande de brigands"
+msgstr "Band of bandits"
+
+msgid "Bandelettes rouillées de revenant"
+msgstr "Rusted wrappings of a revenant"
+
+msgid "Bandes de toile"
+msgstr "Cloth strips"
+
+msgid "Bandé"
+msgstr "Bandaged"
+
+msgid "Barbute"
+msgstr "Barbute"
+
+msgid "Barrage de rondins"
+msgstr "Log barrage"
+
+msgid "Barrer la route au convoi"
+msgstr "Block the convoy's road"
+
+msgid "Barres de fer"
+msgstr "Iron bars"
+
+msgid "Barricade"
+msgstr "Barricade"
+
+msgid "Bastion"
+msgstr "Bastion"
+
+msgid "Bastion : le mur n'use plus le bouclier, voisins protégés."
+msgstr "Bastion: the wall no longer wears the shield, neighbors protected."
+
+msgid "Bastion : les voisins gagnent +5 en défense."
+msgstr "Bastion: neighbors gain +5 defense."
+
+msgid "Bataille rangée"
+msgstr "Pitched battle"
+
+msgid "Batteur"
+msgstr "Beater"
+
+msgid "Bavarder avec elle (1 jour)"
+msgstr "Chat with her (1 day)"
+
+msgid "Belle-Gueule"
+msgstr "Pretty-Face"
+
+msgid "Berger égaré"
+msgstr "Lost shepherd"
+
+msgid "Berserker orc"
+msgstr "Orc berserker"
+
+msgid "Bestiaire"
+msgstr "Bestiary"
+
+msgid "Blessure définitive"
+msgstr "Permanent injury"
+
+msgid "Blessure temporaire"
+msgstr "Temporary injury"
+
+msgid "Blessures"
+msgstr "Injuries"
+
+msgid "Bleu acier"
+msgstr "Steel blue"
+
+msgid "Bloque la ligne de tir"
+msgstr "Blocks the line of fire"
+
+msgid "Bloque le passage"
+msgstr "Blocks the way"
+
+msgid "Boire dans son coin"
+msgstr "Drink in a corner"
+
+msgid "Boire et laver les blessures"
+msgstr "Drink and wash the wounds"
+
+msgid "Boire et remplir les gourdes"
+msgstr "Drink and fill the canteens"
+
+msgid "Bois des hurlements"
+msgstr "Howling Woods"
+
+msgid "Boiteux"
+msgstr "Lame"
+
+msgid "Bon œil"
+msgstr "Good eye"
+
+msgid "Bonus au toucher"
+msgstr "Hit bonus"
+
+msgid "Bordeaux"
+msgstr "Burgundy"
+
+msgid "Boucher"
+msgstr "Butcher"
+
+msgid "Bouclier : le mur de boucliers ne l'use plus deux fois plus vite, les alliés adjacents ont +5 en défense tant qu'il le tient, le coup de bouclier repousse."
+msgstr "Shield: the shield wall no longer wears it twice as fast, adjacent allies have +5 defense while he holds it, the shield bash pushes back."
+
+msgid "Boucliers"
+msgstr "Shields"
+
+msgid "Bourre épaisse"
+msgstr "Thick padding"
+
+msgid "Bourre épaisse : armure effective et endurance."
+msgstr "Thick padding: effective armor and stamina."
+
+msgid "Bourre épaisse."
+msgstr "Thick padding."
+
+msgid "Braconnier"
+msgstr "Poacher"
+
+msgid "Braconnier acculé"
+msgstr "Cornered poacher"
+
+msgid "Bras blessé"
+msgstr "Wounded arm"
+
+msgid "Bras nus"
+msgstr "Bare arms"
+
+msgid "Bras-de-Fer"
+msgstr "Iron-Arm"
+
+msgid "Brassards de cuir"
+msgstr "Leather bracers"
+
+msgid "Brassards de fer orques"
+msgstr "Orc iron bracers"
+
+msgid "Brave"
+msgstr "Brave"
+
+msgid "Bretteur"
+msgstr "Swordsman"
+
+msgid "Brigandine"
+msgstr "Brigandine"
+
+msgid "Brigandine du Roi déchu"
+msgstr "Brigandine of the Fallen King"
+
+msgid "Brise-Glace"
+msgstr "Ice-Breaker"
+
+msgid "Brise-Os"
+msgstr "Bone-Breaker"
+
+msgid "Brise-heaume"
+msgstr "Helm-Breaker"
+
+msgid "Briser le bouclier"
+msgstr "Break the shield"
+
+msgid "Briseur à la hache"
+msgstr "Axe breaker"
+
+msgid "Brun"
+msgstr "Brown"
+
+msgid "Bâtir une passerelle (1 jour, 20 couronnes de cordages)"
+msgstr "Build a footbridge (1 day, 20 crowns of rope)"
+
+msgid "Bâton ferré"
+msgstr "Iron-shod staff"
+
+msgid "Bêtes sur les chemins de {town}"
+msgstr "Beasts on the roads of {town}"
+
+msgid "Bûcheron"
+msgstr "Woodcutter"
+
+msgid "C'était un appât. Les brigands sortent des fourrés !"
+msgstr "It was bait. Bandits burst from the thickets!"
+
+msgid "C'était un imposteur : il vous dépouille la nuit suivante."
+msgstr "He was an impostor: he robs you the following night."
+
+msgid "C'était un marchand dévalisé. Sa famille vous récompense largement."
+msgstr "He was a robbed merchant. His family rewards you generously."
+
+msgid "Cadavres au bord du chemin"
+msgstr "Corpses by the roadside"
+
+msgid "Cadet d'une ferme trop petite pour trois frères, il est parti sans se retourner, la fourche encore à la main."
+msgstr "The youngest of a farm too small for three brothers, he left without looking back, pitchfork still in hand."
+
+msgid "Cagoule de cuir clouté"
+msgstr "Studded leather hood"
+
+msgid "Camaraderie"
+msgstr "Camaraderie"
+
+msgid "Camp abandonné : l'infirmerie de fortune"
+msgstr "Abandoned camp: the makeshift infirmary"
+
+msgid "Camp abandonné : le convoi pillé"
+msgstr "Abandoned camp: the plundered convoy"
+
+msgid "Camp de guerre orc"
+msgstr "Orc war camp"
+
+msgid "Camp des Dents-Rouges"
+msgstr "Camp of the Red Teeth"
+
+msgid "Campement de brigands"
+msgstr "Bandit encampment"
+
+msgid "Camper à côté (1 jour)"
+msgstr "Camp nearby (1 day)"
+
+msgid "Cantine"
+msgstr "Canteen"
+
+msgid "Capacité : "
+msgstr "Ability: "
+
+msgid "Capacité active d'arme"
+msgstr "Active weapon ability"
+
+msgid "Capacités"
+msgstr "Abilities"
+
+msgid "Capitale"
+msgstr "Capital"
+
+msgid "Capuchon matelassé"
+msgstr "Padded hood"
+
+msgid "Carapace"
+msgstr "Carapace"
+
+msgid "Carreau perforant"
+msgstr "Piercing bolt"
+
+msgid "Carreau perforant : détruit l'armure."
+msgstr "Piercing bolt: destroys armor."
+
+msgid "Casque"
+msgstr "Helmet"
+
+msgid "Casque : 10 points d'armure effective à la tête de plus, +8 en détermination, 40 % de chances de résister à un étourdissement."
+msgstr "Helmet: 10 more points of effective armor on the head, +8 resolve, 40 % chance to resist a stun."
+
+msgid "Casque cornu orque"
+msgstr "Orc horned helm"
+
+msgid "Casque du Loup gris"
+msgstr "Helm of the Grey Wolf"
+
+msgid "Casque rouillé de revenant"
+msgstr "Rusted revenant helm"
+
+msgid "Casque à nasal"
+msgstr "Nasal helm"
+
+msgid "Casque à nasal ou casque du Loup : 15 points d'armure effective à la tête, 8 points de moins de chances d'être visé à la tête."
+msgstr "Nasal helm or Wolf helm: 15 points of effective head armor, 8 points less chance of being aimed at the head."
+
+msgid "Cavalier brigand"
+msgstr "Bandit rider"
+
+msgid "Cavalier de loup"
+msgstr "Wolf rider"
+
+msgid "Cerf"
+msgstr "Stag"
+
+msgid "Chaman orc"
+msgstr "Orc shaman"
+
+msgid "Chanceux"
+msgstr "Lucky"
+
+msgid "Chanter avec lui autour du feu (1 jour)"
+msgstr "Sing with him around the fire (1 day)"
+
+msgid "Chapelle en ruines"
+msgstr "Ruined chapel"
+
+msgid "Chaque attaque coûte 3 fatigue de moins."
+msgstr "Each attack costs 3 less fatigue."
+
+msgid "Chaque case parcourue coûte 1 fatigue de moins."
+msgstr "Each tile traveled costs 1 less fatigue."
+
+msgid "Chaque jour de repos, toute la compagnie récupère 4 PV de plus (le meilleur infirmier compte)."
+msgstr "Each day of rest, the whole company recovers 4 more HP (the best medic counts)."
+
+msgid "Chariot"
+msgstr "Wagon"
+
+msgid "Chariot abandonné"
+msgstr "Abandoned wagon"
+
+msgid "Charnier"
+msgstr "Charnel pit"
+
+msgid "Charrette de pestiférés"
+msgstr "Plague cart"
+
+msgid "Chasse au chef : "
+msgstr "Warlord hunt: "
+
+msgid "Chasse aux monstres : la meute de {town}"
+msgstr "Monster hunt: the pack of {town}"
+
+msgid "Chasser (1 jour)"
+msgstr "Hunt (1 day)"
+
+msgid "Chausses de mailles"
+msgstr "Mail chausses"
+
+msgid "Chausses rouillées de revenant"
+msgstr "Rusted revenant chausses"
+
+msgid "Chef (cible des chasses)"
+msgstr "Chief (target of hunts)"
+
+msgid "Chef : sa mort ébranle le moral de ses hommes."
+msgstr "Chief: his death shakes his men's morale."
+
+msgid "Chef brigand"
+msgstr "Bandit chief"
+
+msgid "Chef de guerre orc"
+msgstr "Orc warlord"
+
+msgid "Chercher la mère (1 jour)"
+msgstr "Look for the mother (1 day)"
+
+msgid "Chercher le cavalier (1 jour)"
+msgstr "Look for the rider (1 day)"
+
+msgid "Chercher un autre passage en amont (1 jour)"
+msgstr "Look for another crossing upstream (1 day)"
+
+msgid "Chercher un gué en amont (1 jour)"
+msgstr "Look for a ford upstream (1 day)"
+
+msgid "Cheval sans cavalier"
+msgstr "Riderless horse"
+
+msgid "Chevalier blessé"
+msgstr "Wounded knight"
+
+msgid "Chevron"
+msgstr "Chevron"
+
+msgid "Chevronné"
+msgstr "Seasoned"
+
+msgid "Cible mouvante"
+msgstr "Moving target"
+
+msgid "Cicatrice profonde"
+msgstr "Deep scar"
+
+msgid "Cicatrisation"
+msgstr "Scarring"
+
+msgid "Cimetière profané"
+msgstr "Desecrated cemetery"
+
+msgid "Cinq jours plus tard, deux silhouettes rousses courent à votre rencontre sur la route, un baluchon sur le dos. Aelis sait tirer à l'arc, Aldric manie la hache comme un grand. « On veut venir avec vous, pour de bon ! »"
+msgstr "Five days later, two red-haired figures run to meet you on the road, a bundle on their backs. Aelis can use a bow, Aldric swings an axe like a grown man. \"We want to come with you, for good!\""
+
+msgid "Citadelle"
+msgstr "Citadel"
+
+msgid "Cités libres"
+msgstr "Free Cities"
+
+msgid "Clans du Givre"
+msgstr "Clans of the Frost"
+
+msgid "Clé"
+msgstr "Key"
+
+msgid "Cohorte de morts-vivants"
+msgstr "Undead cohort"
+
+msgid "Colline"
+msgstr "Hill"
+
+msgid "Commotion"
+msgstr "Concussion"
+
+msgid "Composition"
+msgstr "Composition"
+
+msgid "Concasse l'armure et en traverse une bonne part."
+msgstr "Crushes armor and penetrates a good part of it."
+
+msgid "Condition"
+msgstr "Condition"
+
+msgid "Conseil des marches"
+msgstr "Council of the Marches"
+
+msgid "Content d'être enfin relevé, le vieux vous confie ses notes de patrouille et sa solde cachée."
+msgstr "Glad to be relieved at last, the old man hands over his patrol notes and his hidden wages."
+
+msgid "Contester ses balances devant tout le monde"
+msgstr "Challenge his scales in front of everyone"
+
+msgid "Contondant"
+msgstr "Blunt"
+
+msgid "Contourne en partie les boucliers. Faible contre l'armure lourde."
+msgstr "Partly bypasses shields. Weak against heavy armor."
+
+msgid "Contre-attaque gratuite."
+msgstr "Free counterattack."
+
+msgid "Contre-pied"
+msgstr "Wrong-foot"
+
+msgid "Convoi"
+msgstr "Convoy"
+
+msgid "Corbeau"
+msgstr "Raven"
+
+msgid "Costaud"
+msgstr "Burly"
+
+msgid "Cotte de la Nuit"
+msgstr "Mail of the Night"
+
+msgid "Cotte maîtresse"
+msgstr "Master mail"
+
+msgid "Cotte maîtresse : encore moins de dégâts tranchants."
+msgstr "Master mail: even less edged damage."
+
+msgid "Cotte rouillée de revenant"
+msgstr "Rusted revenant mail"
+
+msgid "Coup d'estoc"
+msgstr "Thrust"
+
+msgid "Coup de bouclier"
+msgstr "Shield bash"
+
+msgid "Coup puissant"
+msgstr "Powerful blow"
+
+msgid "Coup puissant pour finir."
+msgstr "Powerful blow to finish."
+
+msgid "Couronne"
+msgstr "Crown"
+
+msgid "Couronne de la Reine pâle"
+msgstr "Crown of the Pale Queen"
+
+msgid "Coût de déplacement"
+msgstr "Movement cost"
+
+msgid "Croc"
+msgstr "Fang"
+
+msgid "Croc de l'Alpha"
+msgstr "Alpha's Fang"
+
+msgid "Croc-Gris"
+msgstr "Greyfang"
+
+msgid "Croc-en-jambe"
+msgstr "Trip"
+
+msgid "Croix"
+msgstr "Cross"
+
+msgid "Crypte profanée"
+msgstr "Desecrated crypt"
+
+msgid "Crâne"
+msgstr "Skull"
+
+msgid "Cuir"
+msgstr "Leather"
+
+msgid "Cuir clouté"
+msgstr "Studded leather"
+
+msgid "Cuir épais"
+msgstr "Thick leather"
+
+msgid "Cuirasse de peaux"
+msgstr "Hide cuirass"
+
+msgid "Cuirasse de roc"
+msgstr "Rock cuirass"
+
+msgid "Culte de la nécropole"
+msgstr "Cult of the necropolis"
+
+msgid "Dague"
+msgstr "Dagger"
+
+msgid "Dague de la Veuve"
+msgstr "Widow's Dagger"
+
+msgid "Dague légendaire : 3 PA, +15 % au toucher."
+msgstr "Legendary dagger: 3 AP, +15 % to hit."
+
+msgid "Dague unique : 3 PA, +20 % au toucher. S'aiguise à chaque victime."
+msgstr "Unique dagger: 3 AP, +20 % to hit. Sharpens with every kill."
+
+msgid "Dans la brume, un moulin à demi effondré. Une lueur tremble sous la porte. À l'intérieur, trois voleurs se disputent. L'un d'eux tient le reliquaire. Un moine, jeune et pâle, est ligoté dans un coin."
+msgstr "In the mist, a half-collapsed mill. A light trembles under the door. Inside, three thieves are quarreling. One of them holds the reliquary. A young, pale monk is bound in a corner."
+
+msgid "Dans les décombres du repaire, des lettres de change et une carte : le Corbeau Noir tient encore son dernier fortin."
+msgstr "In the rubble of the lair, bills of exchange and a map: the Black Raven still holds his last fortlet."
+
+msgid "Dans les fontes : des vivres, une bourse, un livre d'heures."
+msgstr "In the saddlebags: provisions, a purse, a book of hours."
+
+msgid "De grandes pièces de laine teinte, pliées en balles."
+msgstr "Large pieces of dyed wool, folded into bales."
+
+msgid "Demander la bénédiction"
+msgstr "Ask for the blessing"
+
+msgid "Des bêtes énormes rôdent autour de {town}. Les bergers n'osent plus sortir."
+msgstr "Enormous beasts prowl around {town}. The shepherds no longer dare go out."
+
+msgid "Des chariots brisés, des feux froids. Quelqu'un est parti en hâte, laissant des caisses éventrées."
+msgstr "Broken wagons, cold fires. Someone left in haste, leaving gutted crates."
+
+msgid "Des cités sans seigneur qui jouent les grandes maisons les unes contre les autres et accueillent toute bourse bien garnie."
+msgstr "Cities without a lord that play the great houses against one another and welcome any well-filled purse."
+
+msgid "Des clans montagnards du grand nord, rudes et fidèles à leur parole. Ils paient en peaux et en acier, et ne pardonnent pas la trahison."
+msgstr "Mountain clans of the far north, rough and true to their word. They pay in furs and steel, and do not forgive betrayal."
+
+msgid "Des coups précis, des étincelles : tout est remis à neuf."
+msgstr "Precise blows, sparks: everything is made like new."
+
+msgid "Des empreintes fraîches, plus larges qu'une main, et une carcasse de mouton accrochée aux ronces. La meute n'est pas loin, et la nuit tombe."
+msgstr "Fresh tracks, wider than a hand, and a sheep carcass hanging on the brambles. The pack is not far, and night is falling."
+
+msgid "Des fûts de vin rouge cloutés de cerceaux de chêne."
+msgstr "Casks of red wine studded with oak hoops."
+
+msgid "Des goules déterrent les morts de la paroisse. Chassez-les du cimetière."
+msgstr "Ghouls are digging up the parish's dead. Drive them from the cemetery."
+
+msgid "Des guildes de marchands qui paient bien et comptent chaque couronne. Les routes sûres sont leur fortune."
+msgstr "Merchant guilds that pay well and count every crown. Safe roads are their fortune."
+
+msgid "Des loups vous attendaient dans la clairière."
+msgstr "Wolves were waiting for you in the clearing."
+
+msgid "Des mailles noircies à l'huile, silencieuses comme une nuit sans lune."
+msgstr "Mail blackened with oil, silent as a moonless night."
+
+msgid "Des maîtres de forges et de caravanes du sud brûlé. Leur acier est réputé, leur hospitalité aussi, tant qu'on paie."
+msgstr "Masters of forges and caravans from the scorched south. Their steel is renowned, and so is their hospitality, as long as you pay."
+
+msgid "Des moines-soldats qui veillent sur les reliques et les nécropoles. Ils n'oublient ni un service ni une offense."
+msgstr "Warrior monks who watch over relics and necropolises. They forget neither a service nor an offense."
+
+msgid "Des orcs lèvent un tribut de sang sur les hameaux. Brisez leurs éclaireurs."
+msgstr "Orcs are levying a blood tribute on the hamlets. Break their scouts."
+
+msgid "Des os rongés, des traces de pattes. Quelque chose a élu domicile ici, et vous sentez son haleine dans la pénombre."
+msgstr "Gnawed bones, paw prints. Something has taken up residence here, and you smell its breath in the gloom."
+
+msgid "Des ossements se redressent dans le noir !"
+msgstr "Bones rise in the dark!"
+
+msgid "Des paillasses alignées sous une toile, des bandages propres, une marmite encore tiède. Un camp de blessés, déserté depuis peu."
+msgstr "Pallets lined up under canvas, clean bandages, a pot still warm. A camp of wounded, deserted not long ago."
+
+msgid "Des perles d'ambre roulées dans la paille ; les dames des villes les adorent."
+msgstr "Amber beads rolled in straw; city ladies adore them."
+
+msgid "Des plaques de fer martelées dans la pierre vive : un géant les portait comme un manteau."
+msgstr "Iron plates hammered into the living rock: a giant wore them like a cloak."
+
+msgid "Des rats gros comme des chats. Vous les chassez, il vous paie."
+msgstr "Rats big as cats. You hunt them, he pays you."
+
+msgid "Des sacs de blé et d'orge : peu de valeur, mais toujours demandés."
+msgstr "Sacks of wheat and barley: little value, but always in demand."
+
+msgid "Des silhouettes surgissent des fourrés. « La bourse ou la vie ! »"
+msgstr "Figures burst from the thickets. \"Your purse or your life!\""
+
+msgid "Des toiles solides et des paillasses : la compagnie peut accueillir un homme de plus par niveau."
+msgstr "Sturdy canvas and pallets: the company can take on one more man per level."
+
+msgid "Des tombes se sont ouvertes dans trois paroisses. On murmure qu'un culte veille dans l'ombre."
+msgstr "Graves have opened in three parishes. Rumor has it a cult watches in the shadows."
+
+msgid "Des yeux jaunes dans le sous-bois, des silhouettes grises qui vous suivent depuis une heure. La meute se resserre."
+msgstr "Yellow eyes in the undergrowth, grey shapes that have followed you for an hour. The pack closes in."
+
+msgid "Des éclaireurs orcs ont été vus loin au nord. Un nom court dans les tavernes : Gor-Khan, le seigneur de guerre."
+msgstr "Orc scouts have been seen far to the north. A name runs in the taverns: Gor-Khan, the warlord."
+
+msgid "Des étais à demi pourris, une lanterne éteinte, des coups de pioche sur la paroi. Un filon luit encore dans la roche."
+msgstr "Half-rotten props, an extinguished lantern, pick blows on the wall. A seam still gleams in the rock."
+
+msgid "Des étoffes, du sel et quelques outils : tout se revend."
+msgstr "Cloth, salt and a few tools: all can be resold."
+
+msgid "Descendre fouiller la crypte"
+msgstr "Go down and search the crypt"
+
+msgid "Deux de vos hommes en viennent aux mains pour une part de lard. Le reste de la troupe fait cercle."
+msgstr "Two of your men come to blows over a piece of bacon. The rest of the troop forms a circle."
+
+msgid "Deux enfants, deux ombres"
+msgstr "Two children, two shadows"
+
+msgid "Deux fois moins de risques d'être blessé."
+msgstr "Half as likely to be wounded."
+
+msgid "Deux javelots d'un coup sur la même cible (le second à −5 % de plus)."
+msgstr "Two javelins at once on the same target (the second at a further −5 %)."
+
+msgid "Deux lignes face à face sur un terrain ouvert : le combat le plus courant."
+msgstr "Two lines facing each other on open ground: the most common fight."
+
+msgid "Deux mains"
+msgstr "Two hands"
+
+msgid "Deux mains : fend les armures les plus lourdes, mais coûte 6 PA."
+msgstr "Two hands: cleaves the heaviest armor, but costs 6 AP."
+
+msgid "Deux mains, +10 % au toucher. Arme de pèlerin et de voyageur."
+msgstr "Two hands, +10 % to hit. A pilgrim's and traveler's weapon."
+
+msgid "Devant vos lames, les péagers s'écartent en grommelant."
+msgstr "Before your blades, the toll-keepers step aside grumbling."
+
+msgid "Difficile"
+msgstr "Hard"
+
+msgid "Direct au menton"
+msgstr "Straight to the chin"
+
+msgid "Divisé"
+msgstr "Divided"
+
+msgid "Double bourre"
+msgstr "Double padding"
+
+msgid "Double bourre : encore plus d'armure, moins de blessures."
+msgstr "Double padding: even more armor, fewer injuries."
+
+msgid "Double bourre."
+msgstr "Double padding."
+
+msgid "Double lancer"
+msgstr "Double throw"
+
+msgid "Double tranchant"
+msgstr "Double edge"
+
+msgid "Draps de laine"
+msgstr "Wool sheets"
+
+msgid "Du haut, vous repérez les sentiers sûrs et les fumées suspectes. La compagnie y gagne en prudence."
+msgstr "From up high, you spot safe paths and suspicious smoke. The company gains in caution."
+
+msgid "Du minerai, du vrai : un forgeron de passage vous le rachètera."
+msgstr "Ore, the real thing: a passing blacksmith will buy it from you."
+
+msgid "Durabilité"
+msgstr "Durability"
+
+msgid "Durée"
+msgstr "Duration"
+
+msgid "Décliner poliment"
+msgstr "Politely decline"
+
+msgid "Décor"
+msgstr "Scenery"
+
+msgid "Décor interactif"
+msgstr "Interactive scenery"
+
+msgid "Déf. dist."
+msgstr "Ranged def."
+
+msgid "Défaut"
+msgstr "Flaw"
+
+msgid "Défense de mêlée."
+msgstr "Melee defense."
+
+msgid "Défi en duel"
+msgstr "Challenge to a duel"
+
+msgid "Défier les lutteurs du village"
+msgstr "Challenge the village wrestlers"
+
+msgid "Définitive"
+msgstr "Permanent"
+
+msgid "Dégainer !"
+msgstr "Draw!"
+
+msgid "Dégainer : on ne parle pas aux morts"
+msgstr "Draw: you don't talk to the dead"
+
+msgid "Dégâts d'armure ×1,3, traverse 15 points de plus."
+msgstr "Armor damage ×1.3, penetrates 15 more points."
+
+msgid "Dégâts d'armure ×1,4, −10 % au toucher."
+msgstr "Armor damage ×1.4, −10 % to hit."
+
+msgid "Dégâts d'armure ×1,5, −10 % au toucher."
+msgstr "Armor damage ×1.5, −10 % to hit."
+
+msgid "Déjà pris."
+msgstr "Already taken."
+
+msgid "Désarçonne avant le coup suivant."
+msgstr "Unhorses before the next blow."
+
+msgid "Désarçonne pour le coup suivant."
+msgstr "Unhorses for the next blow."
+
+msgid "Déserteur"
+msgstr "Deserter"
+
+msgid "Déserteur par prudence plus que par lâcheté, il sait reconnaître le moment où un combat est perdu, et s'en vante rarement."
+msgstr "A deserter out of prudence more than cowardice, he knows when a fight is lost, and rarely boasts of it."
+
+msgid "Détermin."
+msgstr "Resolve"
+
+msgid "Détourner le regard"
+msgstr "Look away"
+
+msgid "Détrousseur"
+msgstr "Footpad"
+
+msgid "Détruit l'armure."
+msgstr "Destroys armor."
+
+msgid "Détruit les armures et fend les boucliers ; tient la ligne en cotte de mailles."
+msgstr "Destroys armor and splits shields; holds the line in mail."
+
+msgid "Effet"
+msgstr "Effect"
+
+msgid "Elle a fendu plus de heaumes que n'importe quelle hache du royaume."
+msgstr "It has split more helms than any axe in the kingdom."
+
+msgid "Elle crache par terre, sans rancune."
+msgstr "She spits on the ground, no hard feelings."
+
+msgid "Elle disparaît au matin, laissant une tisane encore tiède."
+msgstr "She vanishes in the morning, leaving a herbal tea still warm."
+
+msgid "Elle fendit la herse d'un château à l'aube. Le fer en garde un reflet rose."
+msgstr "It split a castle's portcullis at dawn. The iron keeps a pink reflection."
+
+msgid "Elle habillait un roi déchu. Les rivets d'or ont été arrachés, pas la solidité."
+msgstr "It dressed a fallen king. The gold rivets were torn off, not the sturdiness."
+
+msgid "Elle ne crie même pas. L'émissaire s'incline et disparaît dans la nuit. Vos hommes sont livides."
+msgstr "She doesn't even scream. The envoy bows and disappears into the night. Your men are ashen."
+
+msgid "Elle pleure en vous serrant les mains. « Revenez dans une semaine, je vous le rendrai. »"
+msgstr "She weeps as she squeezes your hands. \"Come back in a week, I'll give it back to you.\""
+
+msgid "Elle repart seule dans la nuit. Personne ne sait ce qu'elle est devenue."
+msgstr "She leaves alone into the night. No one knows what became of her."
+
+msgid "Elle reste pour la vie de l'homme."
+msgstr "She stays for the man's life."
+
+msgid "Elle sourit, les yeux brillants. « Que Dieu garde la Compagnie. »"
+msgstr "She smiles, eyes shining. \"May God keep the Company.\""
+
+msgid "Elle vous apprend à reconnaître les herbes qui tuent, et celles qui sauvent."
+msgstr "She teaches you to recognize the herbs that kill, and those that save."
+
+msgid "Elle vous glisse un flacon de plus, pour l'amour de la route."
+msgstr "She slips you one more vial, for the love of the road."
+
+msgid "Embuscade"
+msgstr "Ambush"
+
+msgid "Embuscade au gué"
+msgstr "Ambush at the ford"
+
+msgid "Embuscade de brigands"
+msgstr "Bandit ambush"
+
+msgid "Emporter le matériel"
+msgstr "Take the equipment"
+
+msgid "En bataille ou au camp (voir description)"
+msgstr "In battle or at camp (see description)"
+
+msgid "En fuite"
+msgstr "Fleeing"
+
+msgid "En remerciement, on vous remet : %s."
+msgstr "In thanks, you are given: %s."
+
+msgid "Endurance pour compenser l'effort."
+msgstr "Stamina to offset the effort."
+
+msgid "Endurant"
+msgstr "Enduring"
+
+msgid "Enfant égaré"
+msgstr "Lost child"
+
+msgid "Enfumer l'entrée (1 jour)"
+msgstr "Smoke out the entrance (1 day)"
+
+msgid "Ennemis"
+msgstr "Enemies"
+
+msgid "Ennemis des contrats et de la route"
+msgstr "Enemies of contracts and the road"
+
+msgid "Enseigne et étendard"
+msgstr "Standard and ensign"
+
+msgid "Entre deux caisses : des vivres encore sains et quelques pièces."
+msgstr "Between two crates: still-good provisions and a few coins."
+
+msgid "Entre deux rochers, une source claire coule dans un bassin moussu. Les paysans parlent d'une eau qui guérit."
+msgstr "Between two rocks, a clear spring runs into a mossy basin. The peasants speak of water that heals."
+
+msgid "Entrepôt"
+msgstr "Warehouse"
+
+msgid "Entrer, armes en main"
+msgstr "Enter, weapons in hand"
+
+msgid "Envoyer votre meilleur homme"
+msgstr "Send your best man"
+
+msgid "Escorte vers "
+msgstr "Escort to "
+
+msgid "Escrimeur"
+msgstr "Fencer"
+
+msgid "Escrimeur solitaire"
+msgstr "Lone fencer"
+
+msgid "Esquive et mobilité."
+msgstr "Dodging and mobility."
+
+msgid "Esquive, précision et contre-pieds : un contre un, sans allié collé."
+msgstr "Dodging, precision and wrong-footing: one on one, with no ally close by."
+
+msgid "Estimé"
+msgstr "Esteemed"
+
+msgid "Estoc"
+msgstr "Thrust"
+
+msgid "Estoc précis : +15 % au toucher, passe en partie l'armure. Faible contre l'armure lourde."
+msgstr "Precise thrust: +15 % to hit, partly bypasses armor. Weak against heavy armor."
+
+msgid "Exige"
+msgstr "Requires"
+
+msgid "Expérience donnée"
+msgstr "Experience given"
+
+msgid "Facile"
+msgstr "Easy"
+
+msgid "Faire demi-tour et contourner l'éperon (1 jour)"
+msgstr "Turn back and go around the spur (1 day)"
+
+msgid "Faire demi-tour et fuir"
+msgstr "Turn back and flee"
+
+msgid "Faire demi-tour sans un mot"
+msgstr "Turn back without a word"
+
+msgid "Faire l'aumône (20 couronnes)"
+msgstr "Give alms (20 crowns)"
+
+msgid "Faire le détour (1 jour)"
+msgstr "Take the detour (1 day)"
+
+msgid "Faire réparer le matériel (50 couronnes)"
+msgstr "Have the equipment repaired (50 crowns)"
+
+msgid "Famille : "
+msgstr "Family: "
+
+msgid "Famille d'armes"
+msgstr "Weapon family"
+
+msgid "Famille d'armures"
+msgstr "Armor family"
+
+msgid "Famille d'équipement"
+msgstr "Equipment family"
+
+msgid "Familles et maîtrises"
+msgstr "Families and masteries"
+
+msgid "Fatigue de déplacement"
+msgstr "Movement fatigue"
+
+msgid "Fatigue en plus"
+msgstr "Extra fatigue"
+
+msgid "Fatigue par attaque"
+msgstr "Fatigue per attack"
+
+msgid "Fatigue supplémentaire"
+msgstr "Additional fatigue"
+
+msgid "Faucher"
+msgstr "Reap"
+
+msgid "Faucher : la cible ne peut plus bouger."
+msgstr "Reap: the target can no longer move."
+
+msgid "Faucheur"
+msgstr "Reaper"
+
+msgid "Feindre de partir et guetter de loin"
+msgstr "Pretend to leave and watch from afar"
+
+msgid "Fend-Crâne"
+msgstr "Skull-Splitter"
+
+msgid "Fendeur"
+msgstr "Splitter"
+
+msgid "Fendre l'armure"
+msgstr "Split the armor"
+
+msgid "Fente"
+msgstr "Cleave"
+
+msgid "Fermier"
+msgstr "Farmer"
+
+msgid "Festoyer (30 couronnes)"
+msgstr "Feast (30 crowns)"
+
+msgid "Feu"
+msgstr "Fire"
+
+msgid "Feu follet"
+msgstr "Will-o'-the-wisp"
+
+msgid "Fil, aiguilles et rivets : de quoi réparer les cottes en route."
+msgstr "Thread, needles and rivets: enough to repair mail on the road."
+
+msgid "Filet de chasse"
+msgstr "Hunting net"
+
+msgid "Fils de bûcheron, petit-fils de bûcheron, il n'a jamais su pourquoi on tuait les gens. Mais il sait que ça fait du bois à payer."
+msgstr "Son of a woodcutter, grandson of a woodcutter, he never knew why people were killed. But he knows it means firewood to pay for."
+
+msgid "Fiole de venin"
+msgstr "Vial of venom"
+
+msgid "Flanc entaillé"
+msgstr "Gashed flank"
+
+msgid "Flèche empoisonnée"
+msgstr "Poisoned arrow"
+
+msgid "Flèche enduite de venin (1 usage de la fiole) : si le tir touche, poison pendant 4 tours."
+msgstr "Arrow coated in venom (1 use of the vial): if the shot hits, poison for 4 turns."
+
+msgid "Flèche enflammée"
+msgstr "Flaming arrow"
+
+msgid "Fléau d'armes"
+msgstr "Flail"
+
+msgid "Fléau en main : ouvre « Moulinet » (frappe tous les ennemis adjacents) ; Briser le bouclier coûte 1 PA de moins."
+msgstr "Flail in hand: unlocks \"Whirl\" (strikes all adjacent enemies); Shatter Shield costs 1 less AP."
+
+msgid "Fléau et bouclier"
+msgstr "Flail and shield"
+
+msgid "Fléaux"
+msgstr "Flails"
+
+msgid "Fléaux : contourne 10 points de plus de bouclier ; le coup balaie un second ennemi adjacent (−10 au toucher, 60 % des dégâts)."
+msgstr "Flails: bypasses 10 more points of shield; the blow sweeps a second adjacent enemy (−10 to hit, 60 % damage)."
+
+msgid "Foire de village"
+msgstr "Village fair"
+
+msgid "Force brute"
+msgstr "Brute force"
+
+msgid "Forcer le passage"
+msgstr "Force the passage"
+
+msgid "Forge de campagne"
+msgstr "Field forge"
+
+msgid "Forgeron itinérant"
+msgstr "Itinerant blacksmith"
+
+msgid "Forgée pour un capitaine dont le nom s'est perdu. Le pommeau porte un corbeau."
+msgstr "Forged for a captain whose name is lost. The pommel bears a raven."
+
+msgid "Forteresse"
+msgstr "Fortress"
+
+msgid "Forteresse : impossible à repousser, résiste à l'étourdissement."
+msgstr "Fortress: cannot be pushed back, resists stun."
+
+msgid "Forteresse : impossible à repousser."
+msgstr "Fortress: cannot be pushed back."
+
+msgid "Forteresse de Gor-Khan"
+msgstr "Gor-Khan's fortress"
+
+msgid "Fortin des Écorcheurs"
+msgstr "Flayers' fortlet"
+
+msgid "Fouiller la forêt (1 jour)"
+msgstr "Search the forest (1 day)"
+
+msgid "Fouiller les chariots"
+msgstr "Search the wagons"
+
+msgid "Fouiller les corps"
+msgstr "Search the bodies"
+
+msgid "Fouiller les ruines"
+msgstr "Search the ruins"
+
+msgid "Foulée légère"
+msgstr "Light step"
+
+msgid "Fourche"
+msgstr "Pitchfork"
+
+msgid "Fourches et hallebardes : +8 % au toucher, +10 % contre une cible à 2 cases, 1 PA de moins par coup ; Croc coûte 1 PA de moins."
+msgstr "Pitchforks and halberds: +8 % to hit, +10 % against a target at 2 tiles, 1 less AP per blow; Fang costs 1 less AP."
+
+msgid "Fourrures"
+msgstr "Furs"
+
+msgid "Fracasseur"
+msgstr "Smasher"
+
+msgid "Fracasseur en plates"
+msgstr "Plate smasher"
+
+msgid "Fragile"
+msgstr "Fragile"
+
+msgid "Frappe la cible puis tous les autres ennemis adjacents (60 % des dégâts)."
+msgstr "Strikes the target then all other adjacent enemies (60 % damage)."
+
+msgid "Frappe sourde, traverse un peu l'armure."
+msgstr "Dull blow, penetrates armor slightly."
+
+msgid "Frappe vive"
+msgstr "Quick strike"
+
+msgid "Frappe à 2 cases, +10 % au toucher contre un bouclier. Deux mains."
+msgstr "Strikes at 2 tiles, +10 % to hit against a shield. Two hands."
+
+msgid "Frappe à deux cases et cloue les ennemis au sol avant qu'ils n'arrivent."
+msgstr "Strikes at two tiles and pins enemies to the ground before they arrive."
+
+msgid "Fronde"
+msgstr "Sling"
+
+msgid "Frugal"
+msgstr "Frugal"
+
+msgid "Frère Anselme"
+msgstr "Brother Anselm"
+
+msgid "Fuite : dépend de l'initiative moyenne de la compagnie (l'équipement lourd pèse). Un échec vaut une embuscade."
+msgstr "Flight: depends on the company's average initiative (heavy equipment weighs). A failure means an ambush."
+
+msgid "Gagne 10 % d'expérience en plus après chaque bataille."
+msgstr "Gains 10 % more experience after each battle."
+
+msgid "Gambison"
+msgstr "Gambeson"
+
+msgid "Gambison : +12 d'armure effective (corps et tête, tant qu'il reste de l'armure) et +12 d'endurance."
+msgstr "Gambeson: +12 effective armor (body and head, while armor remains) and +12 stamina."
+
+msgid "Gambison : encore 10 points d'armure effective ; deux fois moins de risques de blessure."
+msgstr "Gambeson: 10 more points of effective armor; half as likely to be wounded."
+
+msgid "Garde de porte à Vaubrun, il a vu les murs tomber sans rien pouvoir y faire. Il jure de ne plus jamais défendre un tas de pierres pour rien."
+msgstr "A gate guard at Vaubrun, he saw the walls fall and could do nothing. He swears never to defend a pile of stones for nothing again."
+
+msgid "Garde ferme"
+msgstr "Firm guard"
+
+msgid "Garde-bras à plaques"
+msgstr "Plate vambraces"
+
+msgid "Garder la relique pour la revendre"
+msgstr "Keep the relic to resell it"
+
+msgid "Gardien"
+msgstr "Guardian"
+
+msgid "Gaucher"
+msgstr "Left-handed"
+
+msgid "Gibier en vue"
+msgstr "Game in sight"
+
+msgid "Glas de fer"
+msgstr "Iron Knell"
+
+msgid "Glisser une bourse au sergent"
+msgstr "Slip a purse to the sergeant"
+
+msgid "Gor-Khan unit les hordes sous un seul étendard. Des fermes brûlent, des villages se vident."
+msgstr "Gor-Khan unites the hordes under a single banner. Farms burn, villages empty."
+
+msgid "Goule"
+msgstr "Ghoul"
+
+msgid "Goule vorace"
+msgstr "Ravenous ghoul"
+
+msgid "Gourdin"
+msgstr "Club"
+
+msgid "Gourdin en main : +10 % de dégâts ; ouvre « Matraquer » (1 PA de plus : étourdit à coup sûr, test de moral à −10)."
+msgstr "Club in hand: +10 % damage; unlocks \"Bludgeon\" (1 more AP: stuns for sure, morale check at −10)."
+
+msgid "Gourdins"
+msgstr "Clubs"
+
+msgid "Gourdins : chaque coup coûte 3 fatigue de moins, 12 % de chances d'étourdir ; Assommer ne coûte plus de PA en plus."
+msgstr "Clubs: each blow costs 3 less fatigue, 12 % chance to stun; Knock Out costs no extra AP."
+
+msgid "Gourmand"
+msgstr "Gluttonous"
+
+msgid "Grain"
+msgstr "Grain"
+
+msgid "Grange hantée"
+msgstr "Haunted barn"
+
+msgid "Griffes"
+msgstr "Claws"
+
+msgid "Griffes énormes"
+msgstr "Huge claws"
+
+msgid "Grosse-Mâchoire"
+msgstr "Big-Jaw"
+
+msgid "Grotte : l'antre du loup"
+msgstr "Cave: the wolf's lair"
+
+msgid "Grotte : la veine du mineur fou"
+msgstr "Cave: the mad miner's vein"
+
+msgid "Grèves de fer"
+msgstr "Iron greaves"
+
+msgid "Grèves à genouillères"
+msgstr "Greaves with knee guards"
+
+msgid "Guerrier orc"
+msgstr "Orc warrior"
+
+msgid "Gué des Écorcheurs"
+msgstr "Flayers' Ford"
+
+msgid "Gué surveillé"
+msgstr "Watched ford"
+
+msgid "Guêtres cloutées"
+msgstr "Studded gaiters"
+
+msgid "Hache"
+msgstr "Axe"
+
+msgid "Hache de bataille"
+msgstr "Battle axe"
+
+msgid "Hache de bataille unique. Plus elle tue, plus elle fend."
+msgstr "Unique battle axe. The more it kills, the more it cleaves."
+
+msgid "Hache de l'Aurore"
+msgstr "Axe of the Dawn"
+
+msgid "Hache en main : 10 points de plus de chances de viser la tête ; ouvre « Taille en deux » (2 PA de plus : ×1,25 dégâts, armure ×1,6)."
+msgstr "Axe in hand: 10 more points of chance to aim at the head; unlocks \"Split in Two\" (2 more AP: ×1.25 damage, armor ×1.6)."
+
+msgid "Hache unique : broie l'armure."
+msgstr "Unique axe: grinds armor."
+
+msgid "Haches"
+msgstr "Axes"
+
+msgid "Haches : +15 % de dégâts à l'armure ; chaque coup sur un bouclier l'abîme de 4 points de plus."
+msgstr "Axes: +15 % armor damage; each blow on a shield damages it by 4 more points."
+
+msgid "Haie de piques"
+msgstr "Pike hedge"
+
+msgid "Haie de piques : attaque gratuite sur qui approche."
+msgstr "Pike hedge: free attack on whoever approaches."
+
+msgid "Hallebarde"
+msgstr "Halberd"
+
+msgid "Haubert de mailles"
+msgstr "Mail hauberk"
+
+msgid "Haubert à surcot"
+msgstr "Hauberk with surcoat"
+
+msgid "Hauteur"
+msgstr "Height"
+
+msgid "Heaume du Veilleur"
+msgstr "Watcher's helm"
+
+msgid "Heaume fermé"
+msgstr "Closed helm"
+
+msgid "Heaume vissé"
+msgstr "Screwed helm"
+
+msgid "Heaume vissé : détermination et résistance au choc."
+msgstr "Screwed helm: resolve and shock resistance."
+
+msgid "Heaume à crête"
+msgstr "Crested helm"
+
+msgid "Herbe"
+msgstr "Grass"
+
+msgid "Herboriste"
+msgstr "Herbalist"
+
+msgid "Horde d'orcs"
+msgstr "Orc horde"
+
+msgid "Huile bouillante"
+msgstr "Boiling oil"
+
+msgid "Hésitant"
+msgstr "Wavering"
+
+msgid "Ignore les pénalités de forêt, de colline et de gué."
+msgstr "Ignores forest, hill and ford penalties."
+
+msgid "Ignore les pénalités de terrain."
+msgstr "Ignores terrain penalties."
+
+msgid "Ignore une zone de contrôle ennemie isolée."
+msgstr "Ignores a single enemy zone of control."
+
+msgid "Il a dormi sous tous les ponts de la région et connaît le goût du pain moisi. Une place à une table lui paraît déjà un luxe."
+msgstr "He has slept under every bridge in the region and knows the taste of moldy bread. A seat at a table already seems a luxury."
+
+msgid "Il a passé sa vie derrière une charrue et rêve d'un lopin à lui. Chaque couronne gagnée est comptée deux fois."
+msgstr "He spent his life behind a plow and dreams of a plot of his own. Every crown earned is counted twice."
+
+msgid "Il a quitté les rangs d'une armée avant la bataille, et les rangs ne l'ont pas oublié. Il vend maintenant son épée sous un autre nom."
+msgstr "He left an army's ranks before the battle, and the ranks did not forget him. He now sells his sword under another name."
+
+msgid "Il a vu plus de champs de bataille que de villes. Il accepte d'être sous vos ordres tant que vous gagnez."
+msgstr "He has seen more battlefields than towns. He accepts your orders as long as you win."
+
+msgid "Il abattait des chênes pour un charpentier de la vallée, avant qu'une dette ne lui fasse échanger la cognée pour une paye de soldat."
+msgstr "He felled oaks for a carpenter of the valley, before a debt made him swap the axe for a soldier's pay."
+
+msgid "Il chante le Corbeau et ses lames. Les hommes redressent l'échine."
+msgstr "He sings of the Raven and his blades. The men straighten their backs."
+
+msgid "Il connaît la forêt mieux que les gardes qui le cherchaient. Il tire vite, parle peu et ne rate pas deux fois."
+msgstr "He knows the forest better than the guards who hunted him. He shoots fast, speaks little and doesn't miss twice."
+
+msgid "Il crie au voleur. La foule du carrefour vous toise, et ça ne se rattrape pas."
+msgstr "He cries thief. The crowd at the crossroads sizes you up, and that can't be undone."
+
+msgid "Il dépose un coffret ancien devant vous. « Une preuve de sincérité. Nous nous reverrons. »"
+msgstr "He sets an old casket before you. \"A token of sincerity. We shall meet again.\""
+
+msgid "Il empoche et exige le reste : à vous de vous expliquer."
+msgstr "He pockets it and demands the rest: it's up to you to explain yourselves."
+
+msgid "Il empoche l'argent… et siffle quand même ses hommes !"
+msgstr "He pockets the money… and whistles for his men anyway!"
+
+msgid "Il encaisse, puis réclame aussi le tarif officiel."
+msgstr "He cashes in, then also demands the official rate."
+
+msgid "Il fait mine de ne rien avoir vu. L'économie est affaire d'oreilles discrètes."
+msgstr "He pretends to have seen nothing. Business is a matter of discreet ears."
+
+msgid "Il faut %d talent%s avant de choisir ce rang."
+msgstr "%1$d perk(s) needed before choosing this rank."
+
+msgid "Il faut défendre ou intercepter un convoi qui avance sur le plateau."
+msgstr "You must defend or intercept a convoy advancing across the board."
+
+msgid "Il faut porter la tenue complète (tête et corps) de cette famille."
+msgstr "You must wear the complete outfit (head and body) of this family."
+
+msgid "Il faut un chasseur ou un braconnier dans la compagnie (ou un tireur à l'Œil sûr)."
+msgstr "A hunter or a poacher is needed in the company (or a Sure Eye shooter)."
+
+msgid "Il gagne, vous aussi."
+msgstr "He wins, and so do you."
+
+msgid "Il lance son daim dans les fourrés et vous suit."
+msgstr "He throws his deerskin into the thickets and follows you."
+
+msgid "Il murmure un merci et s'enfonce dans la forêt."
+msgstr "He murmurs thanks and disappears into the forest."
+
+msgid "Il n'a pas dit grand-chose de son passé, et personne ne lui a posé la question deux fois."
+msgstr "He didn't say much about his past, and no one asked twice."
+
+msgid "Il n'avait rien. La honte pèse sur la troupe."
+msgstr "He had nothing. Shame weighs on the troop."
+
+msgid "Il note la somme d'un air satisfait. Le reçu est même lisible."
+msgstr "He notes the sum with satisfaction. The receipt is even legible."
+
+msgid "Il nourrissait sa famille de lièvres volés. Famille partie, il ne reste que l'arc et l'habitude du silence."
+msgstr "He fed his family on stolen hares. Family gone, only the bow and the habit of silence remain."
+
+msgid "Il parle peu de la guerre d'où il vient. Il laisse seulement dire qu'il a vu un général s'enfuir avant ses hommes."
+msgstr "He speaks little of the war he comes from. He only lets it be said that he saw a general flee before his men."
+
+msgid "Il parle toute la nuit de son fief perdu, de la trahison de son cousin. Il pourrait être utile... ou dangereux."
+msgstr "He talks all night of his lost fief, of his cousin's betrayal. He could be useful... or dangerous."
+
+msgid "Il perd. Les couronnes aussi."
+msgstr "He loses. So do the crowns."
+
+msgid "Il préfère sa liberté. Il vous laisse seulement un conseil sur la route."
+msgstr "He prefers his freedom. He only leaves you a piece of advice for the road."
+
+msgid "Il refuse d'abord, par fierté. Puis il tend la main : « Je me battrai pour votre bannière, capitaine, jusqu'à ce que je puisse reprendre la mienne. »"
+msgstr "He refuses at first, out of pride. Then he holds out his hand: \"I will fight for your banner, captain, until I can take back my own.\""
+
+msgid "Il refuse en riant et vous offre une gourde de vin."
+msgstr "He refuses with a laugh and offers you a flask of wine."
+
+msgid "Il se perd dans les bois."
+msgstr "He gets lost in the woods."
+
+msgid "Il se signe en vous regardant partir."
+msgstr "He crosses himself as he watches you leave."
+
+msgid "Il se tait, puis hurle. Les rabatteurs jaillissent des fourrés."
+msgstr "He falls silent, then shouts. Beaters burst from the thickets."
+
+msgid "Il tient parole et se révèle un bon soldat."
+msgstr "He keeps his word and proves a good soldier."
+
+msgid "Il vide votre bourse la nuit suivante et disparaît."
+msgstr "He empties your purse the following night and vanishes."
+
+msgid "Il vous remercie en bredouillant."
+msgstr "He thanks you, stammering."
+
+msgid "Il vous rémunère de quelques pièces et de précieux conseils."
+msgstr "He pays you a few coins and precious advice."
+
+msgid "Ils flairent le piège et le retournent contre vous."
+msgstr "They sniff out the trap and turn it against you."
+
+msgid "Imposer le calme (15 couronnes de dégâts)"
+msgstr "Impose calm (15 crowns of damage)"
+
+msgid "Inactif : aucun bouclier intact."
+msgstr "Inactive: no intact shield."
+
+msgid "Inactif : l'arme actuelle est hors famille."
+msgstr "Inactive: the current weapon is outside the family."
+
+msgid "Inactif : l'armure actuelle est hors famille."
+msgstr "Inactive: the current armor is outside the family."
+
+msgid "Inconnue"
+msgstr "Unknown"
+
+msgid "Infirmerie"
+msgstr "Infirmary"
+
+msgid "Initiative : frapper avant les autres."
+msgstr "Initiative: strike before the others."
+
+msgid "Initiative et défense en équipement léger."
+msgstr "Initiative and defense in light equipment."
+
+msgid "Inspecter les caves"
+msgstr "Inspect the cellars"
+
+msgid "Jambe blessée"
+msgstr "Wounded leg"
+
+msgid "Jambes nues"
+msgstr "Bare legs"
+
+msgid "Jambières de cuir"
+msgstr "Leather greaves"
+
+msgid "Jambières de fer orques"
+msgstr "Orc iron greaves"
+
+msgid "Jarret solide"
+msgstr "Sturdy hamstring"
+
+msgid "Javelots"
+msgstr "Javelins"
+
+msgid "Javelots : +10 % au toucher, +10 % de dégâts et 2 javelots de plus."
+msgstr "Javelins: +10 % to hit, +10 % damage and 2 more javelins."
+
+msgid "Javelots : 2 javelots de plus ; ouvre « Double lancer » (deux javelots d'un coup, 2 PA de plus)."
+msgstr "Javelins: 2 more javelins; unlocks \"Double Throw\" (two javelins at once, 2 more AP)."
+
+msgid "Jeune orc"
+msgstr "Young orc"
+
+msgid "Jouer les relèves et lui demander ses cartes"
+msgstr "Play the relief and ask him for his cards"
+
+msgid "L'abbé"
+msgstr "The abbot"
+
+msgid "L'abbé trace un signe sur chaque front. Les hommes se tiennent plus droit, et vos blessés respirent mieux."
+msgstr "The abbot traces a sign on every forehead. The men stand straighter, and your wounded breathe easier."
+
+msgid "L'accueillir et rompre le pacte"
+msgstr "Welcome him and break the pact"
+
+msgid "L'affaire est rondement menée. La foule applaudit à contrecœur."
+msgstr "The matter is wrapped up briskly. The crowd applauds reluctantly."
+
+msgid "L'affaire laisse des rancunes."
+msgstr "The affair leaves grudges."
+
+msgid "L'affaire « %s » n'est pas close : %s vous reproposera l'étape."
+msgstr "The affair \"%s\" is not closed: %s will offer the step again."
+
+msgid "L'aider au soufflet contre menue monnaie (1 jour)"
+msgstr "Help him at the bellows for small change (1 day)"
+
+msgid "L'aider à rassembler les bêtes (1 jour)"
+msgstr "Help him round up the animals (1 day)"
+
+msgid "L'armure est de bonne facture. La honte, moins."
+msgstr "The armor is well made. The shame, less so."
+
+msgid "L'eau a un goût de fer ; la fatigue, elle, ne revient pas."
+msgstr "The water tastes of iron; the fatigue does not return."
+
+msgid "L'eau est croupie : plusieurs hommes ont des crampes."
+msgstr "The water is stagnant: several men have cramps."
+
+msgid "L'eau est glaciale et étrangement revigorante."
+msgstr "The water is icy and strangely invigorating."
+
+msgid "L'eau est glacée et revigorante. Les blessés respirent mieux."
+msgstr "The water is icy and invigorating. The wounded breathe better."
+
+msgid "L'embuscade est un modèle du genre. Le chevalier en larmes reprend sa bannière, vous donne une part du trésor familial."
+msgstr "The ambush is a model of its kind. The weeping knight takes back his banner and gives you a share of the family treasure."
+
+msgid "L'encourager devant la compagnie"
+msgstr "Encourage him in front of the company"
+
+msgid "L'engager (gratuitement)"
+msgstr "Hire him (for free)"
+
+msgid "L'ennemi frappe de côté ou par surprise : la compagnie démarre en désordre."
+msgstr "The enemy strikes from the side or by surprise: the company starts in disorder."
+
+msgid "L'ermite hausse les épaules et se rassoit."
+msgstr "The hermit shrugs and sits back down."
+
+msgid "L'ermite parle des routes, des gués, des bêtes. Vos hommes écoutent, et retiennent."
+msgstr "The hermit speaks of roads, fords, beasts. Your men listen, and remember."
+
+msgid "L'escorte est plus nombreuse que prévu : la bataille est dure."
+msgstr "The escort is larger than expected: the battle is hard."
+
+msgid "L'expérience prévue : 800 couronnes au départ, ennemis, prix, primes et dangers de la route sans aucun ajustement."
+msgstr "The reference experience: 800 crowns to start, enemies, prices, rewards and road dangers with no adjustment."
+
+msgid "L'humidité a eu raison d'un sac de provisions : le lard est vert, le pain moisi."
+msgstr "Damp got the better of a bag of provisions: the bacon is green, the bread moldy."
+
+msgid "L'interroger fermement"
+msgstr "Question him firmly"
+
+msgid "L'officier consulte un registre, trouve la clause, et vous salue même."
+msgstr "The officer consults a register, finds the clause, and even salutes you."
+
+msgid "L'officier fait semblant de ne pas vous avoir vus. L'honneur est sauf, sa bourse aussi."
+msgstr "The officer pretends not to have seen you. Honor is safe, and so is his purse."
+
+msgid "L'un d'eux flaire l'offrande, grogne, et vous laisse passer sans un bruit."
+msgstr "One of them sniffs the offering, grunts, and lets you pass without a sound."
+
+msgid "L'éclaireur ne revient pas. L'embuscade, elle, se déclenche."
+msgstr "The scout doesn't return. The ambush, though, is sprung."
+
+msgid "L'éclaireur revient sans dommage ; les brigands disparaissent dans les ronces."
+msgstr "The scout returns unharmed; the bandits vanish into the brambles."
+
+msgid "L'émissaire pâle"
+msgstr "The pale envoy"
+
+msgid "L'émissaire s'évapore dans la brume en ricanant. Une cohorte d'ombres vous tombe dessus !"
+msgstr "The envoy evaporates into the mist, sneering. A cohort of shadows falls upon you!"
+
+msgid "La Bande du Chêne"
+msgstr "The Oak Band"
+
+msgid "La Bande noire"
+msgstr "The Black Band"
+
+msgid "La Bande noire n'est plus qu'un mauvais souvenir ; on vous doit les routes libres."
+msgstr "The Black Band is now only a bad memory; the free roads are owed to you."
+
+msgid "La Compagnie de l'Aube"
+msgstr "The Company of the Dawn"
+
+msgid "La Compagnie du Gué"
+msgstr "The Company of the Ford"
+
+msgid "La Garde du Cerf"
+msgstr "The Stag Guard"
+
+msgid "La Garde-Écarlate"
+msgstr "The Scarlet Guard"
+
+msgid "La Main Rouge"
+msgstr "The Red Hand"
+
+msgid "La Reine pâle"
+msgstr "The Pale Queen"
+
+msgid "La Vorace"
+msgstr "The Ravenous One"
+
+msgid "La Vorace est abattue. Le prêtre bénit enfin la terre, et vous remet sa gratitude."
+msgstr "The Ravenous One is slain. The priest finally blesses the earth, and gives you his thanks."
+
+msgid "La bourse disparaît dans une manche. Les rondins roulent comme par enchantement."
+msgstr "The purse disappears into a sleeve. The logs roll away as if by magic."
+
+msgid "La bête s'échappe, une heure perdue."
+msgstr "The beast escapes, an hour lost."
+
+msgid "La cible porte un bouclier"
+msgstr "The target carries a shield"
+
+msgid "La compagnie voit 15 % plus loin sur la carte (le meilleur éclaireur compte)."
+msgstr "The company sees 15 % further on the map (the best scout counts)."
+
+msgid "La cotte est vérolée. Plusieurs hommes en pâtissent."
+msgstr "The mail is pox-ridden. Several men suffer from it."
+
+msgid "La croix désigne un tas de pierres. Dessous : une bourse moisie, mais pleine."
+msgstr "The cross marks a pile of stones. Beneath: a moldy purse, but full."
+
+msgid "La dame"
+msgstr "The lady"
+
+msgid "La dette de la nécropole"
+msgstr "The necropolis's debt"
+
+msgid "La discussion s'envenime : les lames sortent à moitié, puis tout à fait."
+msgstr "The argument turns ugly: blades half-drawn, then fully."
+
+msgid "La discussion tourne vinaigre : on sort les lames."
+msgstr "The discussion sours: blades come out."
+
+msgid "La fièvre, ou la fatigue : un homme s'effondre."
+msgstr "Fever, or fatigue: a man collapses."
+
+msgid "La flèche venait de ses « amis », qui reviennent finir le travail."
+msgstr "The arrow came from his \"friends\", who return to finish the job."
+
+msgid "La goule vorace et sa meute doivent mourir pour que la paroisse retrouve la paix."
+msgstr "The ravenous ghoul and her pack must die for the parish to find peace."
+
+msgid "La horde de Gor-Khan se met en marche : tambours de guerre, fumées sur toutes les collines. Le royaume tremble."
+msgstr "Gor-Khan's horde sets out: war drums, smoke on every hill. The kingdom trembles."
+
+msgid "La livrer à l'émissaire"
+msgstr "Hand her over to the envoy"
+
+msgid "La meute vous rattrape au crépuscule."
+msgstr "The pack catches up with you at dusk."
+
+msgid "La mère rentre de la chasse !"
+msgstr "The mother returns from the hunt!"
+
+msgid "La mère, folle d'angoisse, vous bénit à genoux. On le dira au village."
+msgstr "The mother, mad with worry, blesses you on her knees. The village will hear of it."
+
+msgid "La nuit est courte, le moral meilleur."
+msgstr "The night is short, the morale better."
+
+msgid "La palissade"
+msgstr "The palisade"
+
+msgid "La palissade en cendres, le chef de guerre a juré de se venger en personne."
+msgstr "With the palisade in ashes, the warlord has sworn to take revenge in person."
+
+msgid "La première attaque de chaque tour coûte 1 PA de moins."
+msgstr "The first attack of each turn costs 1 less AP."
+
+msgid "La prieure"
+msgstr "The prioress"
+
+msgid "La prudence est la mère des vieux mercenaires."
+msgstr "Caution is the mother of old mercenaries."
+
+msgid "La reconnaissance de l'Abbaye"
+msgstr "The Abbey's gratitude"
+
+msgid "La relique volée"
+msgstr "The stolen relic"
+
+msgid "La renvoyer sans l'aide de la compagnie"
+msgstr "Send her away without the company's help"
+
+msgid "La roue clapote quand la compagnie repasse. La veuve vous attend sur le seuil avec un pain tout chaud, son fils à côté d'elle. L'adolescent a ramassé une vieille hache de son père : « Je veux apprendre à me battre, comme eux. »"
+msgstr "The wheel splashes as the company passes again. The widow awaits you on the threshold with a hot loaf, her son beside her. The teenager has picked up an old axe of his father's: \"I want to learn to fight, like them.\""
+
+msgid "La source vous regarde partir."
+msgstr "The spring watches you leave."
+
+msgid "La surprise est totale. Les voleurs jettent leurs armes. Le moine en larmes baise le reliquaire."
+msgstr "The surprise is total. The thieves throw down their weapons. The weeping monk kisses the reliquary."
+
+msgid "La tour est vide, mais l'escalier tient encore. Du sommet, on voit tout le pays alentour."
+msgstr "The tower is empty, but the stairs still hold. From the top, you can see the whole country around."
+
+msgid "La tour garde ses secrets."
+msgstr "The tower keeps its secrets."
+
+msgid "La traque tourne mal : un homme se fait mordre à la jambe."
+msgstr "The hunt goes wrong: a man is bitten on the leg."
+
+msgid "La veuve du meunier"
+msgstr "The miller's widow"
+
+msgid "La veuve hésite, puis hoche la tête. Tom a de bons bras, et le cœur sur la main."
+msgstr "The widow hesitates, then nods. Tom has strong arms and a generous heart."
+
+msgid "La vue est réduite à quelques cases ; les feux éclairent le plateau."
+msgstr "Vision is reduced to a few tiles; fires light up the board."
+
+msgid "Laisser dormir les loups"
+msgstr "Let the wolves sleep"
+
+msgid "Laisser le cheval"
+msgstr "Leave the horse"
+
+msgid "Laisser passer le convoi"
+msgstr "Let the convoy pass"
+
+msgid "Laisser quelques pièces et partir"
+msgstr "Leave a few coins and go"
+
+msgid "Laisser tel quel"
+msgstr "Leave it as is"
+
+msgid "Laisser une offrande (40 couronnes)"
+msgstr "Leave an offering (40 crowns)"
+
+msgid "Lame affûtée"
+msgstr "Sharpened blade"
+
+msgid "Lame du Corbeau"
+msgstr "Blade of the Raven"
+
+msgid "Lance"
+msgstr "Spear"
+
+msgid "Lance de l'Aigle"
+msgstr "Eagle's Spear"
+
+msgid "Lance en main : attaque gratuite sur tout ennemi qui vient à son contact (1 fois par manche) ; elle repousse l'ennemi touché."
+msgstr "Spear in hand: free attack on any enemy who comes into contact (once per round); it pushes the enemy hit back."
+
+msgid "Lance unique : +30 % au toucher."
+msgstr "Unique spear: +30 % to hit."
+
+msgid "Lancer : filet"
+msgstr "Throw: net"
+
+msgid "Lancer : huile"
+msgstr "Throw: oil"
+
+msgid "Lancer : pierre"
+msgstr "Throw: stone"
+
+msgid "Lances"
+msgstr "Spears"
+
+msgid "Lances : +10 % au toucher ; Recul ne coûte plus de PA en plus."
+msgstr "Spears: +10 % to hit; Recoil costs no extra AP."
+
+msgid "Lanceur"
+msgstr "Thrower"
+
+msgid "Lanceur de javelots"
+msgstr "Javelin thrower"
+
+msgid "Lancier"
+msgstr "Spearman"
+
+msgid "Le Charnier de Saint-Hilaire"
+msgstr "The Charnel Pit of Saint-Hilaire"
+
+msgid "Le Corbeau Noir est tombé. La Bande noire est brisée, et les routes sont enfin sûres."
+msgstr "The Black Raven has fallen. The Black Band is broken, and the roads are finally safe."
+
+msgid "Le Culte de la nécropole relève ses morts par centaines. Les prêtres ferment leurs chapelles et s'enfuient."
+msgstr "The Cult of the Necropolis raises its dead by the hundreds. Priests close their chapels and flee."
+
+msgid "Le Roi blême appelle à lui tous les squelettes du pays. L'armée des morts quitte ses cryptes."
+msgstr "The Pale King calls to him every skeleton in the land. The army of the dead leaves its crypts."
+
+msgid "Le Tribut du Sang"
+msgstr "The Blood Tribute"
+
+msgid "Le Tribut du Sang est aboli. Les hameaux vous accueillent désormais en héros."
+msgstr "The Blood Tribute is abolished. The hamlets now welcome you as heroes."
+
+msgid "Le bailli"
+msgstr "The bailiff"
+
+msgid "Le bailli appelle ses gardes. Il faut s'expliquer à coups de gourdin."
+msgstr "The bailiff calls his guards. It has to be settled with clubs."
+
+msgid "Le bailli rechigne, puis cède quand vos hommes s'adossent au mur. La dette est effacée."
+msgstr "The bailiff balks, then yields when your men lean against the wall. The debt is erased."
+
+msgid "Le bailli reconnaît le nom de la compagnie et vous laisse passer pour une bouchée de pain."
+msgstr "The bailiff recognizes the company's name and lets you pass for a song."
+
+msgid "Le cacher dans le chariot"
+msgstr "Hide him in the wagon"
+
+msgid "Le cacher dans un chariot"
+msgstr "Hide him in a wagon"
+
+msgid "Le cavalier revient avec ses amis, peu enclins à plaisanter."
+msgstr "The rider returns with his friends, little inclined to joke."
+
+msgid "Le cerf finit à la broche. On mangera bien."
+msgstr "The stag ends up on the spit. You will eat well."
+
+msgid "Le cerf lève la tête et disparaît."
+msgstr "The stag raises its head and vanishes."
+
+msgid "Le champion tient bon. Votre homme finit au sol, la mâchoire démise."
+msgstr "The champion holds firm. Your man ends up on the ground, jaw dislocated."
+
+msgid "Le chariot cache des piques : deux hommes se blessent en fouillant."
+msgstr "The wagon hides pikes: two men are hurt searching."
+
+msgid "Le charnier"
+msgstr "The charnel pit"
+
+msgid "Le charnier de Saint-Hilaire est purifié. Les paroissiens vous tiennent pour leurs sauveurs."
+msgstr "The charnel pit of Saint-Hilaire is purified. The parishioners consider you their saviors."
+
+msgid "Le charnier grouille de charognards. Nettoyez-le avant que le mal ne gagne les villages."
+msgstr "The charnel pit teems with scavengers. Clean it before the evil reaches the villages."
+
+msgid "Le chasser"
+msgstr "Hunt him"
+
+msgid "Le chef crache dans la poussière et siffle l'attaque."
+msgstr "The chief spits in the dust and whistles the attack."
+
+msgid "Le chef de guerre"
+msgstr "The warlord"
+
+msgid "Le chef de guerre orc vous attend avec sa garde. L'un de vous deux ne rentrera pas."
+msgstr "The orc warlord awaits you with his guard. One of you two will not go home."
+
+msgid "Le chef de la Bande noire est acculé dans son dernier retranchement. Pas de quartier."
+msgstr "The leader of the Black Band is cornered in his last stronghold. No quarter."
+
+msgid "Le chef des voleurs a prévu votre venue : combat !"
+msgstr "The thieves' chief expected you: battle!"
+
+msgid "Le chef orc gît dans la boue. Sa horde se disperse : le tribut du sang ne sera plus levé."
+msgstr "The orc chief lies in the mud. His horde scatters: the blood tribute will be levied no more."
+
+msgid "Le cheval vous regarde partir, sans mot dire."
+msgstr "The horse watches you leave, without a word."
+
+msgid "Le chevalier déchu"
+msgstr "The fallen knight"
+
+msgid "Le chevalier incline la tête. Il restera, mais plus rien ne sera comme avant."
+msgstr "The knight bows his head. He will stay, but nothing will be as before."
+
+msgid "Le chevalier vous regarde sans colère, puis se laisse emmener. 300 couronnes tintent dans votre bourse. Elles pèsent lourd."
+msgstr "The knight looks at you without anger, then lets himself be led away. 300 crowns jingle in your purse. They weigh heavy."
+
+msgid "Le châtelain"
+msgstr "The castellan"
+
+msgid "Le ciel noircit d'un coup. La pluie tombe en rideaux, les chemins se changent en boue."
+msgstr "The sky blackens at once. Rain falls in sheets, the paths turn to mud."
+
+msgid "Le colporteur hausse les épaules et fouette son mulet."
+msgstr "The peddler shrugs and whips his mule."
+
+msgid "Le confier au prochain hameau"
+msgstr "Entrust him to the next hamlet"
+
+msgid "Le courant emporte un homme sur quelques mètres avant qu'on le repêche."
+msgstr "The current sweeps a man away for a few yards before he is fished out."
+
+msgid "Le courant emporte un sac de provisions et blesse un homme."
+msgstr "The current carries off a bag of provisions and hurts a man."
+
+msgid "Le courant le reprend et l'emporte."
+msgstr "The current takes it back and sweeps it away."
+
+msgid "Le dernier forgeron de Fontfroide l'a battu avec les clous de sa propre porte, la nuit où le village a brûlé."
+msgstr "The last blacksmith of Fontfroide forged it with the nails of his own door, the night the village burned."
+
+msgid "Le décor se détruit, s'ouvre ou s'enflamme pendant la bataille."
+msgstr "The scenery is destroyed, opens or catches fire during the battle."
+
+msgid "Le dépouiller"
+msgstr "Strip him"
+
+msgid "Le déserteur de Roncevaux"
+msgstr "The deserter from Roncevaux"
+
+msgid "Le fer brut des forges, vendu en barres liées par dix."
+msgstr "Raw iron from the forges, sold in bars tied in tens."
+
+msgid "Le fermier ferme la porte sans un mot."
+msgstr "The farmer shuts the door without a word."
+
+msgid "Le frère qui s'attarde"
+msgstr "The lingering brother"
+
+msgid "Le gardien d'un gué l'a tenue trois jours contre une armée. Le gué, lui, tient toujours."
+msgstr "A ford's guardian held it for three days against an army. The ford still holds."
+
+msgid "Le laisser faire ses preuves seul"
+msgstr "Let him prove himself alone"
+
+msgid "Le lard est correct, le sel un peu mouillé."
+msgstr "The bacon is fine, the salt a little damp."
+
+msgid "Le lard est gâté sous une belle couenne. Quelques ventres s'en souviendront."
+msgstr "The bacon is spoiled under a fine rind. A few bellies will remember it."
+
+msgid "Le livrer aux cavaliers de Roncevaux"
+msgstr "Hand him over to the riders of Roncevaux"
+
+msgid "Le livrer aux gardes"
+msgstr "Hand him over to the guards"
+
+msgid "Le marchand"
+msgstr "The merchant"
+
+msgid "Le marchand cherche une autre dupe, sans rancune."
+msgstr "The merchant looks for another dupe, no hard feelings."
+
+msgid "Le marteau reprend sa chanson derrière vous."
+msgstr "The hammer takes up its song again behind you."
+
+msgid "Le maître de guilde"
+msgstr "The guildmaster"
+
+msgid "Le meilleur marchandeur de la compagnie : −5 % sur les achats, +5 % sur les ventes."
+msgstr "The company's best haggler: −5 % on purchases, +5 % on sales."
+
+msgid "Le message du cousin"
+msgstr "The cousin's message"
+
+msgid "Le meunier"
+msgstr "The miller"
+
+msgid "Le moine s'éloigne, courbé. L'Ordre n'oubliera pas ce refus."
+msgstr "The monk walks away, stooped. The Order will not forget this refusal."
+
+msgid "Le moine soupire, vide sa bourse, et vous indique la piste. L'Ordre goûte peu le marchandage."
+msgstr "The monk sighs, empties his purse, and points out the trail. The Order has little taste for haggling."
+
+msgid "Le moment est venu : %s est signalée sur la carte. Son seigneur se prépare à frapper — en finir est votre seule chance."
+msgstr "The time has come: %s is marked on the map. Its lord is preparing to strike — ending it is your only chance."
+
+msgid "Le moulin des marais"
+msgstr "The marsh mill"
+
+msgid "Le moulin silencieux"
+msgstr "The silent mill"
+
+msgid "Le moulin tourne de nouveau"
+msgstr "The mill turns again"
+
+msgid "Le mur de boucliers donne +10 en défense de plus (mêlée et distance)."
+msgstr "The shield wall gives +10 more defense (melee and ranged)."
+
+msgid "Le ménestrel lève un sourcil et reprend son luth."
+msgstr "The minstrel raises an eyebrow and takes up his lute again."
+
+msgid "Le pacte de la nécropole"
+msgstr "The necropolis pact"
+
+msgid "Le patron vous remercie d'un tonneau de bière."
+msgstr "The innkeeper thanks you with a barrel of beer."
+
+msgid "Le plafond cède : un homme est blessé, mais on sauve de quoi réparer les armures."
+msgstr "The ceiling gives way: a man is hurt, but enough is saved to repair armor."
+
+msgid "Le pli était une lettre de change. Le banquier de la ville la rachètera."
+msgstr "The letter was a bill of exchange. The town banker will buy it."
+
+msgid "Le poids de l'équipement est réduit de 30 % (fatigue, initiative, déplacement)."
+msgstr "Equipment weight is reduced by 30 % (fatigue, initiative, movement)."
+
+msgid "Le pont de pierre a cédé sous les pluies. Le torrent gronde en contrebas, brun et rapide."
+msgstr "The stone bridge gave way under the rains. The torrent roars below, brown and fast."
+
+msgid "Le prendre avec ses fontes"
+msgstr "Take it with its saddlebags"
+
+msgid "Le prieur bénit la compagnie. Les hommes se sentent plus légers."
+msgstr "The prior blesses the company. The men feel lighter."
+
+msgid "Le prix du cadeau"
+msgstr "The price of the gift"
+
+msgid "Le propriétaire revient, escorté de gardes. Explication musclée."
+msgstr "The owner returns, escorted by guards. A forceful explanation."
+
+msgid "Le prévôt"
+msgstr "The provost"
+
+msgid "Le registre s'oublie opportunément. Le bailli vous souhaite bonne route."
+msgstr "The register is conveniently forgotten. The bailiff wishes you a good road."
+
+msgid "Le reliquaire"
+msgstr "The reliquary"
+
+msgid "Le repaire de la Bande noire"
+msgstr "The lair of the Black Band"
+
+msgid "Le sanglot vous suit longtemps."
+msgstr "The sobbing follows you for a long time."
+
+msgid "Le seigneur"
+msgstr "The lord"
+
+msgid "Le sel des marais : il conserve la viande et vaut son poids de monnaie loin de la mer."
+msgstr "Marsh salt: it preserves meat and is worth its weight in coin far from the sea."
+
+msgid "Le sergent compte les pièces, tourne bride sans un mot. Le déserteur, sauvé, s'engage dans la compagnie."
+msgstr "The sergeant counts the coins, turns his horse without a word. The deserter, saved, joins the company."
+
+msgid "Le sergent flaire la faiblesse et double le tarif en riant."
+msgstr "The sergeant smells weakness and doubles the rate, laughing."
+
+msgid "Le sergent hoche la tête. Le fuyard hurle votre nom quand on l'emmène. Roncevaux vous récompense."
+msgstr "The sergeant nods. The runaway screams your name as he is led off. Roncevaux rewards you."
+
+msgid "Le sergent plisse les yeux, puis lève la main : la troupe repart. Le soldat sort de sa cachette, livide, et jure de vous suivre jusqu'en enfer."
+msgstr "The sergeant squints, then raises a hand: the troop moves on. The soldier comes out of hiding, pale, and swears to follow you to hell."
+
+msgid "Le sergent se gratte la barbe, vous offre une gamelle et un laissez-passer griffonné. On repart le ventre plein."
+msgstr "The sergeant scratches his beard, offers you a mess tin and a scribbled pass. You set off with full bellies."
+
+msgid "Le soigner et le conduire au prochain village (1 jour)"
+msgstr "Heal him and take him to the next village (1 day)"
+
+msgid "Le soigner sans poser de questions (1 jour)"
+msgstr "Heal him without asking questions (1 day)"
+
+msgid "Le soir, le troupeau est enclos. Il vous offre ce qu'il a : trois fromages et un peu d'argent."
+msgstr "By evening, the flock is penned. He offers you what he has: three cheeses and a little silver."
+
+msgid "Le suivre : tendre une embuscade au cousin"
+msgstr "Follow him: ambush the cousin"
+
+msgid "Le syndic"
+msgstr "The syndic"
+
+msgid "Le sénéchal"
+msgstr "The seneschal"
+
+msgid "Le tank : mur de boucliers peu coûteux, voisins protégés, rien ne le fait reculer."
+msgstr "The tank: cheap shield wall, protected neighbors, nothing pushes him back."
+
+msgid "Le vieillard tire de sa besace une vieille bague d'argent : « Pour celui qui partage. »"
+msgstr "The old man pulls an old silver ring from his satchel: \"For the one who shares.\""
+
+msgid "Le vieux salue encore un moment, seul sur sa tour."
+msgstr "The old man waves a while longer, alone on his tower."
+
+msgid "Le vieux soldat boucle son sac : « Enfin, un capitaine ! »"
+msgstr "The old soldier buckles his bag: \"At last, a captain!\""
+
+msgid "Lent"
+msgstr "Slow"
+
+msgid "Les Chiens de Guerre"
+msgstr "The War Dogs"
+
+msgid "Les Corbeaux de Fer"
+msgstr "The Iron Ravens"
+
+msgid "Les Faucheurs de Brume"
+msgstr "The Mist Reapers"
+
+msgid "Les Fils de la Cendre"
+msgstr "The Sons of Ash"
+
+msgid "Les Hallebardes d'Argent"
+msgstr "The Silver Halberds"
+
+msgid "Les Lames Grises"
+msgstr "The Grey Blades"
+
+msgid "Les Loups de la Lande"
+msgstr "The Wolves of the Heath"
+
+msgid "Les Sentinelles du Nord"
+msgstr "The Sentinels of the North"
+
+msgid "Les Veilleurs du Col"
+msgstr "The Watchers of the Pass"
+
+msgid "Les aider (50 couronnes de vivres)"
+msgstr "Help them (50 crowns of provisions)"
+
+msgid "Les alliés adjacents ont +10 à leurs tests de moral."
+msgstr "Adjacent allies have +10 on their morale checks."
+
+msgid "Les alliés adjacents ont +5 en défense de mêlée et à distance."
+msgstr "Adjacent allies have +5 melee and ranged defense."
+
+msgid "Les alliés adjacents ont +5 à leurs tests de moral."
+msgstr "Adjacent allies have +5 on their morale checks."
+
+msgid "Les alliés à 3 cases ou moins ont +5 à leurs tests de moral."
+msgstr "Allies within 3 tiles have +5 on their morale checks."
+
+msgid "Les archers se ravisent. Le percepteur jure de se plaindre à son maître."
+msgstr "The archers think better of it. The tax collector swears to complain to his master."
+
+msgid "Les attaques d'opportunité le ratent presque toujours."
+msgstr "Opportunity attacks almost always miss him."
+
+msgid "Les bandages, l'herbe à plaies, une nuit d'abri : tout le monde s'en trouve mieux."
+msgstr "Bandages, wound-herb, a night's shelter: everyone feels better."
+
+msgid "Les baumes sentent mauvais mais les plaies se ferment."
+msgstr "The salves smell bad but the wounds close."
+
+msgid "Les bourgs libres des confins, qui se gouvernent eux-mêmes et se méfient des grands seigneurs."
+msgstr "Free boroughs of the borderlands, self-governing and wary of great lords."
+
+msgid "Les bêtes fuient dans la nuit. La grotte est à vous : on s'y repose."
+msgstr "The beasts flee into the night. The cave is yours: you can rest there."
+
+msgid "Les cavaliers de Roncevaux"
+msgstr "The riders of Roncevaux"
+
+msgid "Les cavaliers le ligotent sans un mot et vous jettent une bourse. La Maison saura s'en souvenir."
+msgstr "The riders bind him without a word and toss you a purse. The House will remember it."
+
+msgid "Les chariots défilent dans le silence. Vos hommes évitent de se regarder. La menace grandit quelque part."
+msgstr "The wagons pass in silence. Your men avoid looking at each other. Somewhere, the threat grows."
+
+msgid "Les chariots s'immobilisent. Des morts-vivants en jaillissent !"
+msgstr "The wagons stop. Undead leap out of them!"
+
+msgid "Les corbeaux ont fait leur travail avant vous."
+msgstr "The ravens did their work before you."
+
+msgid "Les corps étaient contaminés : un homme tombe malade."
+msgstr "The bodies were contaminated: a man falls ill."
+
+msgid "Les coups à la tête contre lui sont 10 points moins fréquents (15 % au lieu de 25 %)."
+msgstr "Blows to the head against him are 10 points less frequent (15 % instead of 25 %)."
+
+msgid "Les deux frères sautent dans un chariot, ravis. Ils ne se quitteront plus, et les hommes les adopteront vite."
+msgstr "The two brothers jump into a wagon, delighted. They will never leave you, and the men will soon adopt them."
+
+msgid "Les effets de la maîtrise et du talent expert ne jouent qu'avec l'équipement RÉEL de la famille ; sans maîtrise, l'arme ou l'armure reste utilisable."
+msgstr "Mastery and expert perk effects apply only with the REAL equipment of the family; without mastery, the weapon or armor remains usable."
+
+msgid "Les engager tous les deux"
+msgstr "Hire them both"
+
+msgid "Les enterrer (1 jour)"
+msgstr "Bury them (1 day)"
+
+msgid "Les escorter jusqu'au prochain carrefour (1 jour)"
+msgstr "Escort them to the next crossroads (1 day)"
+
+msgid "Les gardes du cousin tiennent la tour de Montfaucon. Chassez-les et rendez au chevalier ce qui lui revient."
+msgstr "The cousin's guards hold the tower of Montfaucon. Drive them out and give the knight back what is his."
+
+msgid "Les gardes passent. Il vous offre un bon morceau de venaison."
+msgstr "The guards pass. He offers you a good piece of venison."
+
+msgid "Les gardes vous remercient. L'homme crache à vos pieds."
+msgstr "The guards thank you. The man spits at your feet."
+
+msgid "Les goules fuyaient quelque chose : un charnier ancien, rouvert par des fouilles imprudentes."
+msgstr "The ghouls were fleeing something: an ancient charnel pit, reopened by reckless digging."
+
+msgid "Les hommes passent la corde à la main, trempés jusqu'aux hanches."
+msgstr "The men cross rope in hand, soaked to the hips."
+
+msgid "Les héler et marchander un tribut"
+msgstr "Hail them and haggle over a tribute"
+
+msgid "Les jumeaux disparus"
+msgstr "The missing twins"
+
+msgid "Les jumeaux repartent, la tête basse, mais le fermier vous envoie un jambon."
+msgstr "The twins head back, heads low, but the farmer sends you a ham."
+
+msgid "Les jumeaux roux"
+msgstr "The red-haired twins"
+
+msgid "Les laisser régler ça"
+msgstr "Let them settle it"
+
+msgid "Les lames sortent du fourreau."
+msgstr "Blades leave their scabbards."
+
+msgid "Les loups contournent les pièges et attaquent le campement."
+msgstr "The wolves skirt the traps and attack the camp."
+
+msgid "Les loups de {town}"
+msgstr "The wolves of {town}"
+
+msgid "Les loups tournent autour du feu toute la nuit, puis s'en vont."
+msgstr "The wolves circle the fire all night, then leave."
+
+msgid "Les loups vous laissent filer, ou vous accompagnent un temps."
+msgstr "The wolves let you slip away, or accompany you for a while."
+
+msgid "Les masques tombent : ils obéissaient à un certain « Corbeau Noir », qui rançonne la région depuis un refuge secret."
+msgstr "The masks fall: they obeyed a certain \"Black Raven\", who has been extorting the region from a secret hideout."
+
+msgid "Les moines-soldats interceptent le convoi. Ils vous remercient et vous remettent une bourse."
+msgstr "The warrior monks intercept the convoy. They thank you and hand you a purse."
+
+msgid "Les murs d'une ancienne chapelle émergent du lierre. Il y a des traces de pas récentes dans la cendre du foyer."
+msgstr "The walls of an old chapel emerge from the ivy. There are recent footprints in the hearth ash."
+
+msgid "Les ménestrels se moquent de vos mines sombres."
+msgstr "The minstrels mock your gloomy faces."
+
+msgid "Les oiseaux se sont tus. Entre deux ronces, un reflet d'acier : des brigands vous attendent en contrebas du talus, persuadés que vous n'avez rien vu."
+msgstr "The birds have fallen silent. Between two brambles, a gleam of steel: bandits wait below the embankment, convinced you have seen nothing."
+
+msgid "Les orcs ont dressé une palissade pour rançonner la région. Brûlez-la."
+msgstr "The orcs raised a palisade to extort the region. Burn it."
+
+msgid "Les pillards reviennent chercher leur butin !"
+msgstr "The looters return for their spoils!"
+
+msgid "Les poings parlent. L'un des deux se jure de ne jamais pardonner."
+msgstr "Fists speak. One of the two swears never to forgive."
+
+msgid "Les profanations"
+msgstr "The desecrations"
+
+msgid "Les péagers dégainent : à vous de les convaincre !"
+msgstr "The toll-keepers draw: it's up to you to convince them!"
+
+msgid "Les renvoyer chez leur grand-père"
+msgstr "Send them back to their grandfather"
+
+msgid "Les ruines sont habitées : des brigands vous attendaient."
+msgstr "The ruins are inhabited: bandits were waiting for you."
+
+msgid "Les réparations de la compagnie coûtent 20 % de moins (le meilleur armurier compte)."
+msgstr "The company's repairs cost 20 % less (the best armorer counts)."
+
+msgid "Les saluer et poursuivre"
+msgstr "Greet them and press on"
+
+msgid "Les séparer et les punir"
+msgstr "Separate and punish them"
+
+msgid "Les tabards écarlates se perdent dans le sous-bois, et vous dans l'autre sens."
+msgstr "The scarlet tabards vanish into the undergrowth, and you in the other direction."
+
+msgid "Les traquer et les abattre"
+msgstr "Track them down and slay them"
+
+msgid "Les vers sont pitoyables, mais le refrain restera."
+msgstr "The verses are pitiful, but the refrain will last."
+
+msgid "Les vieilles pierres coupent le vent. Chacun reprend des forces."
+msgstr "The old stones cut the wind. Everyone regains strength."
+
+msgid "Les villageois voisins, impressionnés, vous offrent à boire."
+msgstr "The neighboring villagers, impressed, buy you a drink."
+
+msgid "Les voleurs rendent le reliquaire contre une bourse. Le moine est libéré. L'Ordre est reconnaissant, sans plus."
+msgstr "The thieves return the reliquary for a purse. The monk is freed. The Order is grateful, no more."
+
+msgid "Les Épées Noires"
+msgstr "The Black Swords"
+
+msgid "Les éclaireurs avouent, avant de mourir, que leur chef campe sur une palissade plus au large."
+msgstr "The scouts confess, before dying, that their chief camps at a palisade further out."
+
+msgid "Les éclaireurs de la horde"
+msgstr "The horde's scouts"
+
+msgid "Leur chef rit, accepte un tribut modeste et vous laisse passer : « Les affaires, c'est les affaires. »"
+msgstr "Their chief laughs, accepts a modest tribute and lets you pass: \"Business is business.\""
+
+msgid "Leur faire porter une bourse par un éclaireur"
+msgstr "Have a scout carry them a purse"
+
+msgid "Leur tendre une contre-embuscade"
+msgstr "Set up a counter-ambush"
+
+msgid "Leurs chants vous suivent longtemps."
+msgstr "Their songs follow you for a long time."
+
+msgid "Levée en masse"
+msgstr "Mass levy"
+
+msgid "Ligue marchande du Lys"
+msgstr "Merchant League of the Lily"
+
+msgid "Livraison à "
+msgstr "Delivery to "
+
+msgid "Livrer l'homme"
+msgstr "Hand over the man"
+
+msgid "Livrer le chevalier au cousin"
+msgstr "Hand the knight over to the cousin"
+
+msgid "Loup"
+msgstr "Wolf"
+
+msgid "Loup solitaire"
+msgstr "Lone wolf"
+
+msgid "Lui donner du pain et le laisser partir"
+msgstr "Give him bread and let him go"
+
+msgid "Lui donner une sépulture (1 jour)"
+msgstr "Give him a burial (1 day)"
+
+msgid "Lui donner à manger et l'écouter (1 jour)"
+msgstr "Feed him and listen to him (1 day)"
+
+msgid "Lui glisser une bourse en secret (25 couronnes)"
+msgstr "Slip him a purse in secret (25 crowns)"
+
+msgid "Lui indiquer la direction des loups"
+msgstr "Point him toward the wolves"
+
+msgid "Lui payer une ballade (25 couronnes)"
+msgstr "Pay him for a ballad (25 crowns)"
+
+msgid "Lui proposer de se joindre à la compagnie"
+msgstr "Offer him to join the company"
+
+msgid "Lui proposer de vous suivre"
+msgstr "Offer him to follow you"
+
+msgid "Lui proposer une place dans la compagnie"
+msgstr "Offer him a place in the company"
+
+msgid "Lumière (cases)"
+msgstr "Light (tiles)"
+
+msgid "Lune"
+msgstr "Moon"
+
+msgid "Légère : peu de fatigue, +5 % au toucher."
+msgstr "Light: little fatigue, +5 % to hit."
+
+msgid "Mailles"
+msgstr "Mail"
+
+msgid "Mailles : 2 points de poids en moins ; l'armure et les PV subissent encore 15 % de dégâts en moins des armes tranchantes."
+msgstr "Mail: 2 points less weight; armor and HP still take 15 % less damage from edged weapons."
+
+msgid "Mailles : 3 points de poids en moins ; l'armure subit 15 % de dégâts en moins des armes tranchantes (épées, haches)."
+msgstr "Mail: 3 points less weight; armor takes 15 % less damage from edged weapons (swords, axes)."
+
+msgid "Maillons serrés"
+msgstr "Tight links"
+
+msgid "Maillons serrés : moins lourd, résiste aux lames."
+msgstr "Tight links: lighter, resists blades."
+
+msgid "Main abîmée"
+msgstr "Damaged hand"
+
+msgid "Mains douces"
+msgstr "Gentle hands"
+
+msgid "Mains nues"
+msgstr "Bare hands"
+
+msgid "Mains nues : chaque coup coûte 1 PA de moins, 15 % d'étourdir ; ouvre « Direct au menton » (étourdit à coup sûr)."
+msgstr "Bare hands: each blow costs 1 less AP, 15 % chance to stun; unlocks \"Straight to the Chin\" (stuns for sure)."
+
+msgid "Mains nues : dégâts doublés, +5 % au toucher, traverse 25 points de plus l'armure et la détruit deux fois plus vite, +6 en défense (mêlée et distance)."
+msgstr "Bare hands: damage doubled, +5 % to hit, penetrates 25 more points of armor and destroys it twice as fast, +6 defense (melee and ranged)."
+
+msgid "Mains nues, sans armure : un moine esquiveur qui étourdit à répétition."
+msgstr "Bare hands, no armor: a dodging monk who stuns repeatedly."
+
+msgid "Maison de Roncevaux"
+msgstr "House of Roncevaux"
+
+msgid "Maison ou ligue"
+msgstr "House or league"
+
+msgid "Maladrerie"
+msgstr "Leper house"
+
+msgid "Manches de mailles"
+msgstr "Mail sleeves"
+
+msgid "Manchettes de toile"
+msgstr "Cloth cuffs"
+
+msgid "Manicles cloutées"
+msgstr "Studded manacles"
+
+msgid "Marchand ambulant"
+msgstr "Traveling merchant"
+
+msgid "Marchand aux balances truquées"
+msgstr "Merchant with rigged scales"
+
+msgid "Marchander avec les voleurs (150 couronnes)"
+msgstr "Bargain with the thieves (150 crowns)"
+
+msgid "Marchandeur"
+msgstr "Haggler"
+
+msgid "Marche sur le royaume"
+msgstr "March on the kingdom"
+
+msgid "Marchepied"
+msgstr "Mounting step"
+
+msgid "Marches du Nord"
+msgstr "Northern Marches"
+
+msgid "Marches franches"
+msgstr "Free Marches"
+
+msgid "Marteau de guerre"
+msgstr "War hammer"
+
+msgid "Marteau du Dernier Forgeron"
+msgstr "Hammer of the Last Blacksmith"
+
+msgid "Marteau unique : écrase l'armure. Frappe de plus en plus juste."
+msgstr "Unique hammer: crushes armor. Strikes truer and truer."
+
+msgid "Marteler"
+msgstr "Hammer"
+
+msgid "Marteler : étourdissement garanti, dégâts sur étourdis."
+msgstr "Hammer: guaranteed stun, damage on stunned targets."
+
+msgid "Marteleur"
+msgstr "Hammerer"
+
+msgid "Masse d'armes"
+msgstr "Mace"
+
+msgid "Masse en main : +20 % de dégâts contre une cible étourdie ou brisée ; ouvre « Marteler » (étourdit à coup sûr, ×1,2 dégâts)."
+msgstr "Mace in hand: +20 % damage against a stunned or broken target; unlocks \"Hammer\" (stuns for sure, ×1.2 damage)."
+
+msgid "Masse légendaire : brise l'armure et les os."
+msgstr "Legendary mace: breaks armor and bones."
+
+msgid "Masse unique : traverse l'armure."
+msgstr "Unique mace: penetrates armor."
+
+msgid "Masses"
+msgstr "Maces"
+
+msgid "Masses : traversent 10 points de plus l'armure ; 10 % de chances d'étourdir sur un coup qui touche."
+msgstr "Maces: penetrate 10 more points of armor; 10 % chance to stun on a blow that hits."
+
+msgid "Massue de géant"
+msgstr "Giant's club"
+
+msgid "Matelassé"
+msgstr "Padded"
+
+msgid "Matraquer"
+msgstr "Bludgeon"
+
+msgid "Matraquer : étourdissement garanti et moral ébranlé."
+msgstr "Bludgeon: guaranteed stun and shaken morale."
+
+msgid "Matraqueur"
+msgstr "Bludgeoner"
+
+msgid "Matraqueur de ruelle"
+msgstr "Alley bludgeoner"
+
+msgid "Maîtrise (rang 4)"
+msgstr "Mastery (rank 4)"
+
+msgid "Maîtrise : %s — %s (%s)"
+msgstr "Mastery: %s — %s (%s)"
+
+msgid "Maîtrise : +10 % au toucher, Fente au prix d'une attaque."
+msgstr "Mastery: +10 % to hit, Cleave at the price of one attack."
+
+msgid "Maîtrise : +10 % au toucher, Recul à prix d'attaque."
+msgstr "Mastery: +10 % to hit, Recoil at the price of an attack."
+
+msgid "Maîtrise : +10 % de dégâts, aucun malus au contact."
+msgstr "Mastery: +10 % damage, no penalty in melee."
+
+msgid "Maîtrise : contourne les boucliers, balaie un second ennemi."
+msgstr "Mastery: bypasses shields, sweeps a second enemy."
+
+msgid "Maîtrise : coups légers en fatigue, étourdit parfois, Assommer à prix réduit."
+msgstr "Mastery: blows light on fatigue, sometimes stuns, Knock Out at reduced cost."
+
+msgid "Maîtrise : dégâts d'armure +15 %, bouclier fendu."
+msgstr "Mastery: armor damage +15 %, shield split."
+
+msgid "Maîtrise : dégâts doublés et défense."
+msgstr "Mastery: damage doubled and defense."
+
+msgid "Maîtrise : plus précis, plus de javelots."
+msgstr "Mastery: more accurate, more javelins."
+
+msgid "Maîtrise : recharge raccourcie, perce un peu plus."
+msgstr "Mastery: shorter reload, pierces slightly more."
+
+msgid "Maîtrise : traverse l'armure, étourdit parfois."
+msgstr "Mastery: penetrates armor, sometimes stuns."
+
+msgid "Maîtrise : un PA de moins par coup, bonus à deux cases."
+msgstr "Mastery: one less AP per blow, bonus at two tiles."
+
+msgid "Mendiant"
+msgstr "Beggar"
+
+msgid "Meneur"
+msgstr "Leader"
+
+msgid "Mentir : « Nous n'avons vu personne. »"
+msgstr "Lie: \"We haven't seen anyone.\""
+
+msgid "Mercenaire de métier, il a servi quatre bannières en six ans, et n'en regrette aucune. La solde, d'abord."
+msgstr "A professional mercenary, he has served four banners in six years and regrets none. Wages first."
+
+msgid "Meute de bêtes"
+msgstr "Pack of beasts"
+
+msgid "Meute de goules"
+msgstr "Ghoul pack"
+
+msgid "Meute de loups"
+msgstr "Wolf pack"
+
+msgid "Mieux vaut laisser les ruines aux fantômes."
+msgstr "Better to leave the ruins to the ghosts."
+
+msgid "Mieux vaut ne pas réveiller ce qui dort là."
+msgstr "Better not to wake what sleeps there."
+
+msgid "Mieux vaut ne pas toucher à ce qui n'est pas à soi."
+msgstr "Better not to touch what isn't yours."
+
+msgid "Mieux vaut ne pas être là quand les propriétaires reviendront."
+msgstr "Better not to be here when the owners return."
+
+msgid "Mirage"
+msgstr "Mirage"
+
+msgid "Mobilité"
+msgstr "Mobility"
+
+msgid "Moins de blessures."
+msgstr "Fewer injuries."
+
+msgid "Moins de coups à la tête."
+msgstr "Fewer blows to the head."
+
+msgid "Moins de fatigue en marchant."
+msgstr "Less fatigue when walking."
+
+msgid "Moins de fatigue par coup."
+msgstr "Less fatigue per blow."
+
+msgid "Moins de fatigue par jet."
+msgstr "Less fatigue per throw."
+
+msgid "Moins de fatigue par tir."
+msgstr "Less fatigue per shot."
+
+msgid "Montagnard"
+msgstr "Mountaineer"
+
+msgid "Monter observer les routes"
+msgstr "Climb up to observe the roads"
+
+msgid "Moral et commandement"
+msgstr "Morale and command"
+
+msgid "Morsure"
+msgstr "Bite"
+
+msgid "Moulin hanté"
+msgstr "Haunted mill"
+
+msgid "Moulinet"
+msgstr "Whirl"
+
+msgid "Moulinet : frappe tous les ennemis adjacents."
+msgstr "Whirl: strikes all adjacent enemies."
+
+msgid "Mur vivant"
+msgstr "Living wall"
+
+msgid "Murmurer vos regrets et repartir"
+msgstr "Murmur your regrets and move on"
+
+msgid "Myope"
+msgstr "Nearsighted"
+
+msgid "Méfiant"
+msgstr "Wary"
+
+msgid "Ménestrel"
+msgstr "Minstrel"
+
+msgid "Mêlée : +10 au toucher et +10 % de dégâts après avoir parcouru au moins 2 cases ce tour."
+msgstr "Melee: +10 to hit and +10 % damage after moving at least 2 tiles this turn."
+
+msgid "N'engager qu'Aelis, l'archère"
+msgstr "Hire only Aelis, the archer"
+
+msgid "Ne blesse pas ; si le coup touche, la cible perd 4 PA à son prochain tour."
+msgstr "Does not wound; if the blow hits, the target loses 4 AP on its next turn."
+
+msgid "Ne pas s'attarder"
+msgstr "Don't linger"
+
+msgid "Ne pas s'en mêler"
+msgstr "Stay out of it"
+
+msgid "Ne pas toucher aux étais"
+msgstr "Don't touch the props"
+
+msgid "Ne rien dire et partir"
+msgstr "Say nothing and leave"
+
+msgid "Ne répondre à personne"
+msgstr "Answer no one"
+
+msgid "Nerfs d'acier"
+msgstr "Nerves of steel"
+
+msgid "Neutre"
+msgstr "Neutral"
+
+msgid "Noir"
+msgstr "Black"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "Noyé dans le gué"
+msgstr "Drowned in the ford"
+
+msgid "Nuque protégée"
+msgstr "Protected neck"
+
+msgid "Nécromant"
+msgstr "Necromancer"
+
+msgid "Nécropole du Roi blême"
+msgstr "Necropolis of the Pale King"
+
+msgid "Nécropole oubliée"
+msgstr "Forgotten necropolis"
+
+msgid "Négociation : dépend de la détermination du meilleur homme, de la réputation locale et des traits."
+msgstr "Negotiation: depends on the best man's resolve, local reputation and traits."
+
+msgid "Négocier le passage avec leur sergent"
+msgstr "Negotiate passage with their sergeant"
+
+msgid "Négocier un passage en paix"
+msgstr "Negotiate a peaceful passage"
+
+msgid "Objectif : %s (%s) · récompense : %s"
+msgstr "Objective: %s (%s) · reward: %s"
+
+msgid "Objet unique. "
+msgstr "Unique item. "
+
+msgid "Objets de la famille"
+msgstr "Family items"
+
+msgid "Ocre"
+msgstr "Ochre"
+
+msgid "Offensive"
+msgstr "Offensive"
+
+msgid "Offerte à une veuve par le bourreau de son mari. Elle ne l'a rendue qu'après la dernière gorge."
+msgstr "Given to a widow by her husband's executioner. She only gave it back after the last throat."
+
+msgid "Offrir de la viande séchée et parlementer"
+msgstr "Offer dried meat and parley"
+
+msgid "Offrir une bourse à l'officier"
+msgstr "Offer the officer a purse"
+
+msgid "Ogre"
+msgstr "Ogre"
+
+msgid "On a retrouvé des troupeaux entiers dévorés. Le syndic paie pour qu'on en finisse."
+msgstr "Entire herds have been found devoured. The syndic pays for it to be ended."
+
+msgid "On défend un lieu : défenses posées avant le combat, miliciens alliés, villageois à protéger, assaillants en plusieurs vagues."
+msgstr "You defend a place: defenses set up before the fight, allied militia, villagers to protect, attackers in several waves."
+
+msgid "On l'entend sonner trois rues plus loin. Les os n'y résistent pas."
+msgstr "It can be heard ringing three streets away. Bones don't resist it."
+
+msgid "On rit un peu de vous. Un peu."
+msgstr "They laugh at you a little. A little."
+
+msgid "On sauve ce qu'on peut."
+msgstr "You save what you can."
+
+msgid "On trinque. Ils vous cèdent même un peu de leur butin."
+msgstr "You drink together. They even give you a bit of their loot."
+
+msgid "On vous fait payer le plein tarif, plus l'affront."
+msgstr "You are charged the full rate, plus the insult."
+
+msgid "On vous traite de déserteurs et l'on vous poursuit."
+msgstr "They call you deserters and give chase."
+
+msgid "Orage"
+msgstr "Storm"
+
+msgid "Ordre de l'Abbaye"
+msgstr "Order of the Abbey"
+
+msgid "Ossuaire"
+msgstr "Ossuary"
+
+msgid "Oui"
+msgstr "Yes"
+
+msgid "Outil de jet"
+msgstr "Throwing tool"
+
+msgid "Outils de jet"
+msgstr "Throwing tools"
+
+msgid "Ouvre la capacité « Coup puissant » (mêlée) : +35 % de dégâts, −10 au toucher, 1 PA de plus."
+msgstr "Unlocks the \"Powerful Blow\" ability (melee): +35 % damage, −10 to hit, 1 more AP."
+
+msgid "Ouvre la capacité « Croc-en-jambe » (mêlée) : si le coup touche, la cible a −10 en défense jusqu'à son prochain tour."
+msgstr "Unlocks the \"Trip\" ability (melee): if the blow hits, the target has −10 defense until its next turn."
+
+msgid "Ouvrir"
+msgstr "Open"
+
+msgid "PA en plus d'une attaque"
+msgstr "AP on top of an attack"
+
+msgid "PV maximum"
+msgstr "Maximum HP"
+
+msgid "Pain, lard et vin coupé : les hommes se remplissent la panse."
+msgstr "Bread, bacon and watered wine: the men fill their bellies."
+
+msgid "Palissade orque"
+msgstr "Orc palisade"
+
+msgid "Parade"
+msgstr "Parry"
+
+msgid "Parchemin"
+msgstr "Parchment"
+
+msgid "Parier sur le champion (30 couronnes)"
+msgstr "Bet on the champion (30 crowns)"
+
+msgid "Parmi eux, un jeune homme costaud demande à se battre à vos côtés."
+msgstr "Among them, a burly young man asks to fight at your side."
+
+msgid "Partager leur feu pour la nuit (1 jour)"
+msgstr "Share their fire for the night (1 day)"
+
+msgid "Partager vos vivres (−8 rations)"
+msgstr "Share your provisions (−8 rations)"
+
+msgid "Partir sur leurs traces (1 jour)"
+msgstr "Set off on their trail (1 day)"
+
+msgid "Pas de fatigue en trop, attaques d'opportunité ratées."
+msgstr "No extra fatigue, opportunity attacks missed."
+
+msgid "Pas des rats : des goules sortent de la cave !"
+msgstr "Not rats: ghouls come out of the cellar!"
+
+msgid "Pas léger"
+msgstr "Light step"
+
+msgid "Passe en partie à travers l'armure."
+msgstr "Partly passes through armor."
+
+msgid "Passe entre les zones de contrôle."
+msgstr "Passes between zones of control."
+
+msgid "Passer"
+msgstr "Pass"
+
+msgid "Passer la nuit au moulin (1 jour)"
+msgstr "Spend the night at the mill (1 day)"
+
+msgid "Passer sous le vent"
+msgstr "Pass downwind"
+
+msgid "Patrouille de recrutement"
+msgstr "Recruiting patrol"
+
+msgid "Payer l'impôt (55 couronnes)"
+msgstr "Pay the tax (55 crowns)"
+
+msgid "Payer la dette (150 couronnes)"
+msgstr "Pay the debt (150 crowns)"
+
+msgid "Payer le péage (40 couronnes)"
+msgstr "Pay the toll (40 crowns)"
+
+msgid "Payer pour passer (80 couronnes)"
+msgstr "Pay to pass (80 crowns)"
+
+msgid "Peau de troll tannée"
+msgstr "Tanned troll hide"
+
+msgid "Peaux de loup et de renard, rudes et chaudes, très prisées des villes."
+msgstr "Wolf and fox pelts, rough and warm, prized by cities."
+
+msgid "Perce-armure"
+msgstr "Armor-piercer"
+
+msgid "Percepteur du seigneur"
+msgstr "The lord's tax collector"
+
+msgid "Perforant"
+msgstr "Piercing"
+
+msgid "Personne ne se souvient de son village, lui non plus. Il demande seulement qu'on ne le renvoie pas dans la rue."
+msgstr "No one remembers his village, nor does he. He only asks not to be sent back to the street."
+
+msgid "Peu de coups, gros dégâts : la recharge est abrégée et les carreaux traversent."
+msgstr "Few blows, heavy damage: reloading is shortened and bolts penetrate."
+
+msgid "Peureux"
+msgstr "Fearful"
+
+msgid "Pierres de jet"
+msgstr "Throwing stones"
+
+msgid "Pilleur"
+msgstr "Looter"
+
+msgid "Piocher un jour dans le filon (1 jour)"
+msgstr "Dig a day in the seam (1 day)"
+
+msgid "Pique"
+msgstr "Pike"
+
+msgid "Pique du Gardien du gué"
+msgstr "Pike of the Ford Guardian"
+
+msgid "Pique unique : allonge 2. Elle retient ceux qui passent."
+msgstr "Unique pike: reach 2. It holds back those who pass."
+
+msgid "Piquier"
+msgstr "Pikeman"
+
+msgid "Piquier faucheur"
+msgstr "Reaping pikeman"
+
+msgid "Piste de loups"
+msgstr "Wolf tracks"
+
+msgid "Piège"
+msgstr "Trap"
+
+msgid "Piège : dépend des chasseurs de la compagnie et de leur tir."
+msgstr "Trap: depends on the company's hunters and their shooting."
+
+msgid "Plaider : des mercenaires sous contrat sont exemptés"
+msgstr "Plead: mercenaries under contract are exempt"
+
+msgid "Plaider la cause de la compagnie auprès du bailli"
+msgstr "Plead the company's case with the bailiff"
+
+msgid "Plastron de fer orque"
+msgstr "Orc iron breastplate"
+
+msgid "Plates"
+msgstr "Plate"
+
+msgid "Plates (brigandine, heaume) : le poids ne pèse plus sur la fatigue ni sur le déplacement, mais l'initiative baisse de 30 % du poids en plus."
+msgstr "Plate (brigandine, helm): weight no longer weighs on fatigue or movement, but initiative drops by an extra 30 % of weight."
+
+msgid "Plates : 8 points d'armure effective, impossible à repousser, 40 % de chances de résister à un étourdissement."
+msgstr "Plate: 8 points of effective armor, cannot be pushed back, 40 % chance to resist a stun."
+
+msgid "Plates : le poids ne fatigue plus (initiative lourde)."
+msgstr "Plate: weight no longer tires (heavy initiative)."
+
+msgid "Plates : le poids ne fatigue plus."
+msgstr "Plate: weight no longer tires."
+
+msgid "Plates lourdes"
+msgstr "Heavy plate"
+
+msgid "Plus de coups à la tête, fatals avec la hache."
+msgstr "More blows to the head, fatal with the axe."
+
+msgid "Poids réduit de 30 %."
+msgstr "Weight reduced by 30 %."
+
+msgid "Poing d'acier"
+msgstr "Iron fist"
+
+msgid "Poing d'acier : coups à 3 PA, étourdit."
+msgstr "Iron fist: 3 AP blows, stuns."
+
+msgid "Poings et rires : vos hommes sortent bleus, fiers et un peu plus soudés."
+msgstr "Fists and laughter: your men come out bruised, proud and a little closer."
+
+msgid "Poings nus"
+msgstr "Bare fists"
+
+msgid "Points d'action"
+msgstr "Action points"
+
+msgid "Points de structure"
+msgstr "Structure points"
+
+msgid "Poivre, safran et clous de girofle : petits ballots, gros profits."
+msgstr "Pepper, saffron and cloves: small bales, big profits."
+
+msgid "Pont du troll"
+msgstr "Troll bridge"
+
+msgid "Pont effondré"
+msgstr "Collapsed bridge"
+
+msgid "Pont à péage"
+msgstr "Toll bridge"
+
+msgid "Porte"
+msgstr "Door"
+
+msgid "Porte du fort"
+msgstr "Fort gate"
+
+msgid "Porter un bouclier"
+msgstr "Carry a shield"
+
+msgid "Porteur de plates"
+msgstr "Plate bearer"
+
+msgid "Porté par les veilleurs de la tour d'Os, qui ne dormaient jamais."
+msgstr "Worn by the watchers of the Bone Tower, who never slept."
+
+msgid "Portée +2 et « Tir précis »."
+msgstr "Range +2 and \"Precise Shot\"."
+
+msgid "Portée 3 (pas au contact). La case visée et ses voisines : dégâts et feu. Amis compris !"
+msgstr "Range 3 (not in contact). The targeted tile and its neighbors: damage and fire. Friends included!"
+
+msgid "Portée 3. Si la pierre touche, la cible est étourdie."
+msgstr "Range 3. If the stone hits, the target is stunned."
+
+msgid "Portée 3. Si le filet touche, la cible ne peut pas bouger à son prochain tour. Sans effet sur les grandes créatures."
+msgstr "Range 3. If the net hits, the target cannot move on its next turn. No effect on large creatures."
+
+msgid "Portée 4, 3 lancers par bataille. Une main."
+msgstr "Range 4, 3 throws per battle. One hand."
+
+msgid "Portée 5, pierres à volonté. Une main : permet le bouclier."
+msgstr "Range 5, unlimited stones. One hand: allows a shield."
+
+msgid "Portée 5. Se recharge en 5 PA seulement. Deux mains."
+msgstr "Range 5. Reloads in only 5 AP. Two hands."
+
+msgid "Portée 6. Deux mains."
+msgstr "Range 6. Two hands."
+
+msgid "Portée 6. Dégâts élevés, mais la recharge coûte 7 PA. Deux mains."
+msgstr "Range 6. High damage, but reloading costs 7 AP. Two hands."
+
+msgid "Portée 7, dégâts élevés. Deux mains."
+msgstr "Range 7, high damage. Two hands."
+
+msgid "Poser collets et fosses avant la nuit (1 jour)"
+msgstr "Lay snares and pits before night (1 day)"
+
+msgid "Poste de guet"
+msgstr "Lookout post"
+
+msgid "Pot-de-vin : presque sûr, mais l'argent est perdu même en cas d'échec."
+msgstr "Bribe: almost sure, but the money is lost even on failure."
+
+msgid "Poumons de forge"
+msgstr "Forge lungs"
+
+msgid "Pour découvrir le jeu. Plus d'or au départ, ennemis moins résistants et un peu moins nombreux, primes et butin généreux, blessures plus rares, vivres moins vite épuisés."
+msgstr "To discover the game. More starting gold, weaker and slightly fewer enemies, generous rewards and loot, rarer injuries, provisions last longer."
+
+msgid "Pour les vétérans. Moins d'or au départ, ennemis plus coriaces et plus nombreux, primes réduites, achats plus chers, blessures fréquentes, faim et moral impitoyables, menace qui monte plus vite."
+msgstr "For veterans. Less starting gold, tougher and more numerous enemies, reduced rewards, pricier purchases, frequent injuries, merciless hunger and morale, faster-rising threat."
+
+msgid "Pour « l'effort de guerre », il confisque une partie de vos rations."
+msgstr "For \"the war effort\", he confiscates part of your rations."
+
+msgid "Poursuivre"
+msgstr "Press on"
+
+msgid "Poursuivre sous la pluie"
+msgstr "Press on in the rain"
+
+msgid "Prendre ce qu'on peut"
+msgstr "Take what you can"
+
+msgid "Prendre la cotte et le pli"
+msgstr "Take the mail and the letter"
+
+msgid "Prendre le garçon dans la compagnie"
+msgstr "Take the boy into the company"
+
+msgid "Prendre son équipement"
+msgstr "Take his equipment"
+
+msgid "Presser le pas"
+msgstr "Quicken the pace"
+
+msgid "Presser le pas pour atteindre un abri"
+msgstr "Quicken the pace to reach shelter"
+
+msgid "Primes +10 %, recrues d'élite sur ses terres."
+msgstr "Rewards +10 %, elite recruits on its lands."
+
+msgid "Primes +20 %, recrues d'élite, marchand rare sur ses terres."
+msgstr "Rewards +20 %, elite recruits, rare merchant on its lands."
+
+msgid "Pris la main dans le sac, le marchand rend gorge et vous offre ses meilleures rations."
+msgstr "Caught red-handed, the merchant disgorges and offers you his best rations."
+
+msgid "Pris trois fois à tirer sur le gibier du seigneur, il a préféré quitter la région avant la quatrième."
+msgstr "Caught three times shooting the lord's game, he preferred to leave the region before the fourth."
+
+msgid "Prise"
+msgstr "Grip"
+
+msgid "Prix +10 % sur ses terres."
+msgstr "Prices +10 % on its lands."
+
+msgid "Prix +25 % sur ses terres, patrouilles hostiles."
+msgstr "Prices +25 % on its lands, hostile patrols."
+
+msgid "Prix de base"
+msgstr "Base price"
+
+msgid "Prix des vivres"
+msgstr "Provisions price"
+
+msgid "Protéger le hameau"
+msgstr "Protect the hamlet"
+
+msgid "Prudent"
+msgstr "Cautious"
+
+msgid "Prune"
+msgstr "Plum"
+
+msgid "Précision de base."
+msgstr "Basic accuracy."
+
+msgid "Prévenir l'Abbaye (1 jour)"
+msgstr "Warn the Abbey (1 day)"
+
+msgid "Pugiliste"
+msgstr "Pugilist"
+
+msgid "Pèlerins"
+msgstr "Pilgrims"
+
+msgid "Péage illégal"
+msgstr "Illegal toll"
+
+msgid "Quelque chose hurle la nuit près de {town}. Rapportez des preuves."
+msgstr "Something howls at night near {town}. Bring back proof."
+
+msgid "Quelques hommes se signent en passant."
+msgstr "A few men cross themselves as they pass."
+
+msgid "Quelques jours de corvée calment les esprits."
+msgstr "A few days of chores calm tempers."
+
+msgid "Quelques peaux, un peu de gloire de paysan."
+msgstr "A few hides, a little peasant glory."
+
+msgid "Quelques vétérans lui donnent une tape dans le dos. Il rit, s'ébroue, et vient de gagner sa place."
+msgstr "A few veterans clap him on the back. He laughs, shakes himself, and has just earned his place."
+
+msgid "Querelle au bivouac"
+msgstr "Bivouac quarrel"
+
+msgid "Quitter la route et se fondre dans les bois"
+msgstr "Leave the road and melt into the woods"
+
+msgid "Rancunier"
+msgstr "Vindictive"
+
+msgid "Rang"
+msgstr "Rank"
+
+msgid "Rang %d"
+msgstr "Rank %d"
+
+msgid "Rapace"
+msgstr "Raptor"
+
+msgid "Rapide : 3 PA et +15 % au toucher, mais des dégâts faibles."
+msgstr "Fast: 3 AP and +15 % to hit, but low damage."
+
+msgid "Rapière"
+msgstr "Rapier"
+
+msgid "Rations consommées"
+msgstr "Rations consumed"
+
+msgid "Rebrousser chemin et filer par les chaumes (1 jour)"
+msgstr "Turn back and slip away through the stubble (1 day)"
+
+msgid "Reconnaissant, le chevalier vous remet une bourse et promet de parler de vous."
+msgstr "Grateful, the knight hands you a purse and promises to speak of you."
+
+msgid "Recopier la carte pour la vendre en ville"
+msgstr "Copy the map to sell it in town"
+
+msgid "Recul"
+msgstr "Recoil"
+
+msgid "Refuser : ce n'est pas votre affaire"
+msgstr "Refuse: it's not your business"
+
+msgid "Refuser avec reconnaissance"
+msgstr "Refuse with thanks"
+
+msgid "Refuser de se mêler d'une querelle de famille"
+msgstr "Refuse to meddle in a family quarrel"
+
+msgid "Refuser et passer outre"
+msgstr "Refuse and go on"
+
+msgid "Regard glaçant"
+msgstr "Chilling gaze"
+
+msgid "Reliquaire"
+msgstr "Reliquary"
+
+msgid "Rempart"
+msgstr "Rampart"
+
+msgid "Rempart : bouclier plus efficace."
+msgstr "Rampart: more effective shield."
+
+msgid "Rempart : mur de boucliers moins cher."
+msgstr "Rampart: cheaper shield wall."
+
+msgid "Rempart : mur peu coûteux, coup de bouclier à prix réduit."
+msgstr "Rampart: cheap wall, shield bash at reduced cost."
+
+msgid "Rempart de la compagnie"
+msgstr "Company rampart"
+
+msgid "Remparts, portes et barricades : on prend ou l'on défend une position."
+msgstr "Ramparts, gates and barricades: a position is taken or defended."
+
+msgid "Remporter %d bataille%s"
+msgstr "Win %d battle(s)"
+
+msgid "Renforcée par la maîtrise « %s » (rang 4) et le talent expert « %s » (rang 6), quand l'équipement réel de l'homme est de la famille %s."
+msgstr "Reinforced by the mastery \"%s\" (rank 4) and the expert perk \"%s\" (rank 6), when the man's actual equipment is of the %s family."
+
+msgid "Renforcée par la maîtrise « %s » (rang 4) puis le talent expert « %s » (rang 6), tant que l'arme réellement portée est de la famille %s."
+msgstr "Reinforced by the mastery \"%s\" (rank 4) then the expert perk \"%s\" (rank 6), as long as the weapon actually carried is of the %s family."
+
+msgid "Repaire dans les bois"
+msgstr "Lair in the woods"
+
+msgid "Repousse la cible d'une case si la place est libre."
+msgstr "Pushes the target back one tile if the space is free."
+
+msgid "Reprendre Montfaucon"
+msgstr "Retake Montfaucon"
+
+msgid "Respecter le lieu et poursuivre"
+msgstr "Respect the place and move on"
+
+msgid "Reître"
+msgstr "Reiter"
+
+msgid "Rien ne bouge, mais le meunier dort enfin. Vous êtes nourris et logés."
+msgstr "Nothing moves, but the miller finally sleeps. You are fed and lodged."
+
+msgid "Riposte gratuite après chaque coup raté."
+msgstr "Free riposte after each missed blow."
+
+msgid "Rivière profonde"
+msgstr "Deep river"
+
+msgid "Rixe d'auberge"
+msgstr "Tavern brawl"
+
+msgid "Robuste"
+msgstr "Sturdy"
+
+msgid "Rocher"
+msgstr "Rock"
+
+msgid "Rouge sang"
+msgstr "Blood red"
+
+msgid "Rouille"
+msgstr "Rust"
+
+msgid "Ruines : la crypte effondrée"
+msgstr "Ruins: the collapsed crypt"
+
+msgid "Ruines : les graffitis du déserteur"
+msgstr "Ruins: the deserter's graffiti"
+
+msgid "Ruines envahies"
+msgstr "Overrun ruins"
+
+msgid "Rumeurs"
+msgstr "Rumors"
+
+msgid "Réclame une solde plus élevée (+25 %)."
+msgstr "Demands higher wages (+25 %)."
+
+msgid "Réclamer d'abord une avance (60 couronnes)"
+msgstr "Demand an advance first (60 crowns)"
+
+msgid "Récupère 3 PV au début de chacun de ses tours de combat."
+msgstr "Recovers 3 HP at the start of each of his combat turns."
+
+msgid "Récupère 5 PV de plus à chaque jour de repos en ville."
+msgstr "Recovers 5 more HP each day of rest in town."
+
+msgid "Récupère 5 points de fatigue de plus par tour."
+msgstr "Recovers 5 more fatigue points per turn."
+
+msgid "Récupère plus de fatigue par tour."
+msgstr "Recovers more fatigue per turn."
+
+msgid "Réfugiés"
+msgstr "Refugees"
+
+msgid "Région"
+msgstr "Region"
+
+msgid "Région : %s"
+msgstr "Region: %s"
+
+msgid "S'abriter jusqu'à la fin de l'orage (1 jour)"
+msgstr "Shelter until the storm ends (1 day)"
+
+msgid "S'y abriter pour la nuit (1 jour)"
+msgstr "Take shelter there for the night (1 day)"
+
+msgid "S'écarter largement (1 jour)"
+msgstr "Give it a wide berth (1 day)"
+
+msgid "Saison de %d jours"
+msgstr "Season of %d days"
+
+msgid "Saisons"
+msgstr "Seasons"
+
+msgid "Salines"
+msgstr "Salt pans"
+
+msgid "Sanctuaire : l'ermite"
+msgstr "Sanctuary: the hermit"
+
+msgid "Sanctuaire : la source bénite"
+msgstr "Sanctuary: the blessed spring"
+
+msgid "Sans allié adjacent : +8 en attaque et +8 en défense de mêlée."
+msgstr "With no adjacent ally: +8 attack and +8 melee defense."
+
+msgid "Sans arme : on frappe à mains nues."
+msgstr "Unarmed: you fight bare-handed."
+
+msgid "Sans-Terre"
+msgstr "Landless"
+
+msgid "Sarcelle"
+msgstr "Teal"
+
+msgid "Saulaie"
+msgstr "Willow grove"
+
+msgid "Se contente d'une solde réduite (−20 %)."
+msgstr "Content with reduced wages (−20 %)."
+
+msgid "Se jette sur les flancs et l'arrière de la ligne."
+msgstr "Throws himself at the flanks and rear of the line."
+
+msgid "Se mêler à la mêlée"
+msgstr "Join the melee"
+
+msgid "Se porte avec une arme à une main. Défense accrue contre les attaques de mêlée et à distance ; il s'use sous les coups."
+msgstr "Carried with a one-handed weapon. Increased defense against melee and ranged attacks; wears down under blows."
+
+msgid "Se replier pas à pas, sans bruit (1 jour)"
+msgstr "Fall back step by step, quietly (1 day)"
+
+msgid "Second coup d'un fléau."
+msgstr "Second blow of a flail."
+
+msgid "Second javelot"
+msgstr "Second javelin"
+
+msgid "Second javelot du double lancer."
+msgstr "Second javelin of the double throw."
+
+msgid "Seigneur de guerre orc"
+msgstr "Orc warlord"
+
+msgid "Seigneurie de Sablefer"
+msgstr "Lordship of Sablefer"
+
+msgid "Sel gris"
+msgstr "Grey salt"
+
+msgid "Sentinelle"
+msgstr "Sentinel"
+
+msgid "Sept vies"
+msgstr "Seven lives"
+
+msgid "Sept-Doigts"
+msgstr "Seven-Fingers"
+
+msgid "Ses bras ont la largeur de deux fagots. Un incendie a emporté sa scierie ; la hache, elle, lui est restée."
+msgstr "His arms are as wide as two bundles of wood. A fire took his sawmill; the axe stayed with him."
+
+msgid "Seul au contact : +8 en attaque et en défense."
+msgstr "Alone in contact: +8 attack and defense."
+
+msgid "Si le coup touche : étourdi, et test de moral à −10. 70 % des dégâts."
+msgstr "If the blow hits: stunned, and morale check at −10. 70 % damage."
+
+msgid "Si le coup touche, abîme fortement le bouclier de la cible."
+msgstr "If the blow hits, badly damages the target's shield."
+
+msgid "Si le coup touche, la cible a −10 en défense jusqu'au début de son prochain tour."
+msgstr "If the blow hits, the target has −10 defense until the start of its next turn."
+
+msgid "Si le coup touche, la cible est désarçonnée : −10 en défense jusqu'au début de son prochain tour."
+msgstr "If the blow hits, the target is unhorsed: −10 defense until the start of its next turn."
+
+msgid "Si le coup touche, la cible est étourdie."
+msgstr "If the blow hits, the target is stunned."
+
+msgid "Si le coup touche, la cible est étourdie. ×1,2 dégâts, −10 % au toucher."
+msgstr "If the blow hits, the target is stunned. ×1.2 damage, −10 % to hit."
+
+msgid "Si le coup touche, la cible ne peut plus bouger à son prochain tour (sans effet sur les grandes créatures)."
+msgstr "If the blow hits, the target can no longer move on its next turn (no effect on large creatures)."
+
+msgid "Si le coup touche, test de moral de la cible à −15."
+msgstr "If the blow hits, morale check for the target at −15."
+
+msgid "Si le tir touche, enflamme la case de la cible (herbe et forêt)."
+msgstr "If the shot hits, sets fire to the target's tile (grass and forest)."
+
+msgid "Silence suspect dans le chemin creux"
+msgstr "Suspicious silence in the sunken road"
+
+msgid "Sire Gaspard de Montfaucon"
+msgstr "Lord Gaspard of Montfaucon"
+
+msgid "Siège"
+msgstr "Siege"
+
+msgid "Sociable"
+msgstr "Sociable"
+
+msgid "Soigner les hommes (1 jour)"
+msgstr "Tend the men (1 day)"
+
+msgid "Soldats en maraude"
+msgstr "Marauding soldiers"
+
+msgid "Solde"
+msgstr "Wages"
+
+msgid "Son père, plus pratique, vous remet une bourse bien lourde."
+msgstr "His father, more practical, hands you a very heavy purse."
+
+msgid "Souffle long"
+msgstr "Long breath"
+
+msgid "Source guérisseuse"
+msgstr "Healing spring"
+
+msgid "Sous un pan de mur écroulé, un escalier s'enfonce dans le noir. Des armes rouillées jonchent les premières marches."
+msgstr "Under a collapsed section of wall, a stair descends into the dark. Rusted weapons litter the first steps."
+
+msgid "Sous une dalle, un coffret de chandeliers d'argent."
+msgstr "Under a slab, a casket of silver candlesticks."
+
+msgid "Sous votre regard, il avoue : il sert d'appât à une bande. Il vous mène à leur cache, vide pour l'heure."
+msgstr "Under your gaze, he confesses: he serves as bait for a band. He leads you to their cache, empty for now."
+
+msgid "Squelette"
+msgstr "Skeleton"
+
+msgid "Squelette archer"
+msgstr "Skeleton archer"
+
+msgid "Stable"
+msgstr "Steady"
+
+msgid "Suivre la carte"
+msgstr "Follow the map"
+
+msgid "Sur le seuil d'une ferme, un vieux fermier vous arrête en pleurant. « Mes petits-enfants, Aelis et Aldric, ont disparu dans la forêt avant la tombée du soir. Les loups hurlent. Pitié ! »"
+msgstr "On the threshold of a farm, an old farmer stops you in tears. \"My grandchildren, Aelis and Aldric, disappeared in the forest before nightfall. The wolves are howling. Please!\""
+
+msgid "Sur un mur noirci, un soldat a gravé une carte grossière, avec une croix : « Ici, ma solde. »"
+msgstr "On a blackened wall, a soldier carved a rough map with a cross: \"Here, my pay.\""
+
+msgid "Taille en deux"
+msgstr "Split in Two"
+
+msgid "Taillé dans un if foudroyé près des marais de Mirelune. On dit qu'il préfère le brouillard."
+msgstr "Cut from a yew struck by lightning near the marshes of Mirelune. It is said to prefer fog."
+
+msgid "Talent : "
+msgstr "Perk: "
+
+msgid "Talent expert (rang 6)"
+msgstr "Expert perk (rank 6)"
+
+msgid "Talent inconnu."
+msgstr "Unknown perk."
+
+msgid "Tanière de loups"
+msgstr "Wolf den"
+
+msgid "Tannée sur le dos d'un troll qui se relevait de tout, sauf du feu."
+msgstr "Tanned from the back of a troll that healed from everything but fire."
+
+msgid "Temporaire"
+msgstr "Temporary"
+
+msgid "Tendre un fil de pierres et un seau de gravier"
+msgstr "Stretch a cord of stones and a bucket of gravel"
+
+msgid "Tenir %d jours dans la compagnie"
+msgstr "Last %d days in the company"
+
+msgid "Tentes"
+msgstr "Tents"
+
+msgid "Terrain de bataille"
+msgstr "Battlefield"
+
+msgid "Terrains et décors"
+msgstr "Terrain and scenery"
+
+msgid "Terres de l'Abbaye"
+msgstr "Abbey lands"
+
+msgid "Tertre des Veilleurs"
+msgstr "Watchers' Mound"
+
+msgid "Tertre maudit"
+msgstr "Cursed mound"
+
+msgid "Test de moral sur chaque coup qui blesse."
+msgstr "Morale check on every blow that wounds."
+
+msgid "Tient une ligne : repousse et frappe d'abord tout ce qui approche."
+msgstr "Holds a line: pushes back and strikes first whatever approaches."
+
+msgid "Tir ajusté"
+msgstr "Aimed shot"
+
+msgid "Tir précis"
+msgstr "Precise shot"
+
+msgid "Tirailleur mobile : une volée de javelots puis il décroche."
+msgstr "Mobile skirmisher: a volley of javelins then he disengages."
+
+msgid "Tire de loin sans malus et ajuste : le premier à frapper, le dernier à bouger."
+msgstr "Shoots from afar without penalty and takes aim: first to strike, last to move."
+
+msgid "Tireur d'élite"
+msgstr "Marksman"
+
+msgid "Tireur posté"
+msgstr "Posted shooter"
+
+msgid "Tissu"
+msgstr "Cloth"
+
+msgid "Tissu léger"
+msgstr "Light cloth"
+
+msgid "Tissu seul (tunique, capuchon ou rien) : +12 d'initiative, +4 en défense de mêlée, +6 à distance."
+msgstr "Cloth only (tunic, hood or nothing): +12 initiative, +4 melee defense, +6 ranged."
+
+msgid "Tissu seul : +8 d'initiative, +4 en défense, une case de fatigue en moins par pas, et les attaques d'opportunité contre lui ont 25 % de moins de chances de toucher."
+msgstr "Cloth only: +8 initiative, +4 defense, one less fatigue per step, and opportunity attacks against him have a 25 % lower chance to hit."
+
+msgid "Tom du Moulin"
+msgstr "Tom of the Mill"
+
+msgid "Torche"
+msgstr "Torch"
+
+msgid "Toucher"
+msgstr "Hit"
+
+msgid "Toucher %d couronnes de primes"
+msgstr "Collect %d crowns in bounties"
+
+msgid "Tour"
+msgstr "Turn"
+
+msgid "Tour de guet : la vue d'en haut"
+msgstr "Watchtower: the view from above"
+
+msgid "Tour de guet : le guetteur oublié"
+msgstr "Watchtower: the forgotten lookout"
+
+msgid "Tour de guet prise"
+msgstr "Captured watchtower"
+
+msgid "Tourbière"
+msgstr "Peat bog"
+
+msgid "Tourelle"
+msgstr "Turret"
+
+msgid "Trait"
+msgstr "Trait"
+
+msgid "Traits de caractère"
+msgstr "Character traits"
+
+msgid "Tranchant"
+msgstr "Edged"
+
+msgid "Traquer la Bande noire"
+msgstr "Hunt down the Black Band"
+
+msgid "Traverse 20 points d'armure de plus, −5 % au toucher."
+msgstr "Penetrates 20 more points of armor, −5 % to hit."
+
+msgid "Traverser sans s'arrêter"
+msgstr "Cross without stopping"
+
+msgid "Traverser à gué"
+msgstr "Wade across the ford"
+
+msgid "Traversée de l'armure"
+msgstr "Armor penetration"
+
+msgid "Trempés et frigorifiques, mais vous avancez."
+msgstr "Soaked and freezing, but you press on."
+
+msgid "Trier ce qui reste"
+msgstr "Sort through what remains"
+
+msgid "Troll"
+msgstr "Troll"
+
+msgid "Tunique de lin"
+msgstr "Linen tunic"
+
+msgid "Type de bataille"
+msgstr "Battle type"
+
+msgid "Type de dégâts"
+msgstr "Damage type"
+
+msgid "Types de bataille"
+msgstr "Battle types"
+
+msgid "Tête brûlée"
+msgstr "Hothead"
+
+msgid "Tête dure"
+msgstr "Hard head"
+
+msgid "Tête dure : casque plus solide."
+msgstr "Hard head: sturdier helmet."
+
+msgid "Tête froide"
+msgstr "Cool head"
+
+msgid "Tête nue"
+msgstr "Bare head"
+
+msgid "Têtes plus visées et « Taille en deux »."
+msgstr "More blows to the head and \"Split in Two\"."
+
+msgid "Un abbé à barbe grise vous attend sur le parvis d'une chapelle. L'Ordre n'est pas riche, mais il est reconnaissant : il propose un don, ou une bénédiction qui réchauffera le cœur de la compagnie."
+msgstr "A grey-bearded abbot awaits you on a chapel forecourt. The Order is not rich, but it is grateful: it offers a gift, or a blessing that will warm the company's heart."
+
+msgid "Un abri de pierre sous un ciel noir. Chacun repart reposé."
+msgstr "A stone shelter under a black sky. Everyone leaves rested."
+
+msgid "Un amas de rondins coupe la route entre deux talus. Quatre hommes en cotte rapiécée, une bannière de seigneurie fanée, une marmite sur le feu : ce genre de barrage rapporte plus que la guerre."
+msgstr "A heap of logs cuts the road between two banks. Four men in patched mail, a faded lordship banner, a pot on the fire: this kind of roadblock pays better than war."
+
+msgid "Un archer vous a vus. Les traits sifflent avant que la compagnie ne soit hors de portée."
+msgstr "An archer has seen you. Bolts whistle before the company is out of range."
+
+msgid "Un bras mort, de l'eau à mi-cuisse, et personne pour compter les pièces."
+msgstr "A dead arm of the river, thigh-deep water, and no one to count the coins."
+
+msgid "Un cadavre gonflé flotte contre les roseaux. Il porte une bonne cotte, et à sa ceinture, un pli cacheté."
+msgstr "A bloated corpse floats against the reeds. He wears a good mail coat, and at his belt, a sealed letter."
+
+msgid "Un casque à nasal orné d'une gueule de loup gravée."
+msgstr "A nasal helm adorned with an engraved wolf's maw."
+
+msgid "Un cavalier soulève la bâche. Les lames sortent !"
+msgstr "A rider lifts the tarpaulin. Blades come out!"
+
+msgid "Un cercle d'os et de fer rouillé. Celles qui la portaient commandaient aux morts."
+msgstr "A circle of bone and rusted iron. Those who wore it commanded the dead."
+
+msgid "Un cerf paît à la lisière du bois. Les braconniers de la troupe se lèchent déjà les babines."
+msgstr "A stag grazes at the edge of the wood. The troop's poachers are already licking their lips."
+
+msgid "Un champion de village, torse nu sur la place, défie la compagnie : « Un seul de vous contre moi, pour une bourse ! »"
+msgstr "A village champion, bare-chested on the square, challenges the company: \"One of you against me, for a purse!\""
+
+msgid "Un chariot couvert et des caisses cloutées : huit emplacements de réserve par niveau."
+msgstr "A covered wagon and studded crates: eight reserve slots per level."
+
+msgid "Un chariot renversé, des corps déjà froids. Une bourse dépasse peut-être d'une poche."
+msgstr "An overturned wagon, bodies already cold. A purse may stick out of a pocket."
+
+msgid "Un chariot sans cocher, une roue cassée, les bâches claquent dans le vent. La cargaison est encore là."
+msgstr "A coachless wagon, a broken wheel, tarps flapping in the wind. The cargo is still there."
+
+msgid "Un cheval sellé broute au bord du chemin. Ni cavalier ni blessure, seulement du sang sur la bride."
+msgstr "A saddled horse grazes at the roadside. No rider, no wound, only blood on the bridle."
+
+msgid "Un chevalier au bord de la route"
+msgstr "A knight by the roadside"
+
+msgid "Un chevalier gît à côté de son cheval mort, la jambe brisée. « Au nom du seigneur de ces terres, aidez-moi. »"
+msgstr "A knight lies beside his dead horse, leg broken. \"In the name of the lord of these lands, help me.\""
+
+msgid "Un colporteur arrête sa charrette et déballe sa marchandise sur le bord du chemin. « Des prix d'ami, messires ! »"
+msgstr "A peddler stops his cart and unpacks his wares by the roadside. \"Friend's prices, sirs!\""
+
+msgid "Un coup de moins en PA."
+msgstr "One AP less per blow."
+
+msgid "Un coup qui laisse l'ennemi sous 60 % de ses PV lui impose un test de moral à −10."
+msgstr "A blow that leaves the enemy under 60 % of his HP forces a morale check at −10."
+
+msgid "Un couteau jaillit. Un homme est piqué avant que la salle ne se calme."
+msgstr "A knife flashes. A man is stabbed before the room calms."
+
+msgid "Un cri : on vous a vus ! La charge arrive."
+msgstr "A cry: you've been seen! The charge is coming."
+
+msgid "Un cri guttural dans les rochers. Deux éclaireurs à la peau verte de mousse vous observent depuis un éperon. Derrière eux monte la fumée d'un camp de guerre."
+msgstr "A guttural cry in the rocks. Two scouts with moss-green skin watch you from a spur. Behind them rises the smoke of a war camp."
+
+msgid "Un cri rauque répond au premier : la bande vous prend en chasse."
+msgstr "A harsh cry answers the first: the band gives chase."
+
+msgid "L'émissaire revient, plus pâle encore. Il demande un service : laisser passer un convoi de chariots couverts, sans poser de questions. Dans l'un d'eux, vous entendez des gémissements. L'Abbaye offre de son côté de l'argent pour que vous le dénonciez."
+msgstr "The envoy returns, even paler. He asks a favor: let a convoy of covered wagons pass, no questions asked. In one of them, you hear groans. The Abbey, for its part, offers money for you to denounce it."
+
+msgid "Sire Gaspard vous attend à l'écart du camp, son heaume sous le bras. « Capitaine, j'ai reçu des nouvelles. Mon cousin marche vers la frontière avec une petite escorte. Je ne puis laver mon honneur seul. Me suivrez-vous ? »"
+msgstr "Lord Gaspard awaits you apart from the camp, helm under his arm. \"Captain, I have received news. My cousin marches to the border with a small escort. I cannot wash my honor alone. Will you follow me?\""
+
+msgid "Trois jours plus tard, un galop fait trembler la route. Une dizaine de cavaliers aux armes de Roncevaux encerclent la compagnie. Leur sergent regarde vos chariots, puis vous. « On cherche un lâche. Qu'avez-vous à dire ? »"
+msgstr "Three days later, a gallop shakes the road. A dozen riders bearing the arms of Roncevaux surround the company. Their sergeant looks at your wagons, then at you. \"We're looking for a coward. What have you to say?\""
+
+msgid "Un cavalier en cape grise barre la route à la tombée de la nuit. Son visage est blanc comme la cire, sa voix douce. « Capitaine, je viens de la nécropole. Mon maître ne veut pas de votre mal. Il cherche un allié qui entende raison. En échange de votre bienveillance, il offre un présent. »"
+msgstr "A rider in a grey cloak bars the road at nightfall. His face is white as wax, his voice soft. \"Captain, I come from the necropolis. My master wishes you no harm. He seeks an ally who listens to reason. In exchange for your goodwill, he offers a gift.\""
+
+msgid "Un homme en cotte rouillée est assis près d'un cheval mort, un heaume cabossé sur les genoux. Il se redresse avec dignité. « Sire Gaspard de Montfaucon. Dépouillé de mes terres par un cousin, abandonné par mes hommes. Je ne demande rien... qu'un peu de pain. »"
+msgstr "A man in rusted mail sits beside a dead horse, a dented helm on his knees. He straightens with dignity. \"Lord Gaspard of Montfaucon. Stripped of my lands by a cousin, abandoned by my men. I ask for nothing... but a little bread.\""
+
+msgid "Un messager vous rattrape, porteur d'un parchemin scellé de cire verte. Le cousin de Sire Gaspard offre 300 couronnes pour que la compagnie « oublie » le chevalier et le livre à ses gardes. De son côté, Gaspard propose en secret de partager le trésor de sa cave, s'il retrouve ses terres."
+msgstr "A messenger catches up with you, carrying a parchment sealed in green wax. Lord Gaspard's cousin offers 300 crowns for the company to \"forget\" the knight and hand him over to his guards. For his part, Gaspard secretly offers to share his cellar's treasure, if he regains his lands."
+
+msgid "Un moine de l'Abbaye, hors d'haleine, vous barre le chemin. « On a volé la relique de saint Aldegonde ! Les voleurs ont pris la route des marais. Aidez-nous, et l'Ordre ne l'oubliera pas. Ils sont trois, peut-être davantage. »"
+msgstr "A monk of the Abbey, out of breath, blocks your way. \"The relic of Saint Aldegonde has been stolen! The thieves took the road to the marshes. Help us, and the Order will not forget it. There are three, perhaps more.\""
+
+msgid "Un moulin à eau dont la roue ne tourne plus. Sur le seuil, une femme en noir tient un enfant par la main. « Mon mari est mort le mois dernier. Le bailli veut la dette ou le moulin. Aidez-nous, au nom de Dieu. »"
+msgstr "A water mill whose wheel no longer turns. On the threshold, a woman in black holds a child by the hand. \"My husband died last month. The bailiff wants the debt or the mill. Help us, in God's name.\""
+
+msgid "Une jeune femme, transie, s'est glissée parmi vos hommes. Ysolde, ancienne servante du nécromant : elle jure être lasse des morts. « Il vous croit lié à lui, capitaine. Il viendra bientôt réclamer son dû. Je peux vous aider à rompre le pacte. »"
+msgstr "A young woman, chilled to the bone, has slipped in among your men. Ysolde, former servant of the necromancer: she swears she is weary of the dead. \"He thinks you are bound to him, captain. He will soon come to claim his due. I can help you break the pact.\""
+
+msgid "Un croc de la taille d'une main, monté sur un manche de corne. La meute attend toujours son chef."
+msgstr "A fang the size of a hand, mounted on a horn handle. The pack still awaits its leader."
+
+msgid "Un dur labeur. Les familles gardent mémoire de votre aide."
+msgstr "Hard labor. The families remember your help."
+
+msgid "Un déserteur"
+msgstr "A deserter"
+
+msgid "Un détour par les champs moissonnés, sans un cri derrière vous."
+msgstr "A detour through the harvested fields, without a cry behind you."
+
+msgid "Un effondrement : deux hommes sont blessés dans la poussière."
+msgstr "A cave-in: two men are hurt in the dust."
+
+msgid "Un filet d'eau claire coule d'une stèle moussue. Des rubans de laine pendent aux branches : on prie ici depuis longtemps."
+msgstr "A trickle of clear water runs from a mossy stele. Wool ribbons hang from the branches: people have prayed here for a long time."
+
+msgid "Un forgeron de fortune répare les cottes entre deux bouchées."
+msgstr "A makeshift blacksmith mends mail between two bites."
+
+msgid "Un forgeron installe son enclume sur le bas-côté. Il cogne une lame rouge, la trempe, la brandit. « Qui a du métal à redresser ? »"
+msgstr "A blacksmith sets up his anvil by the roadside. He hammers a red blade, quenches it, brandishes it. \"Who has metal to straighten?\""
+
+msgid "Un garde en sait plus qu'il n'en dit. Explication tendue."
+msgstr "A guard knows more than he says. Tense explanation."
+
+msgid "Un homme accroupi dans un fossé tient un daim sur ses épaules. Les gardes du seigneur battent le bois non loin."
+msgstr "A crouching man in a ditch carries a deer on his shoulders. The lord's guards beat the woods nearby."
+
+msgid "Un homme comme un autre, venu chercher une solde et une raison de se lever le matin."
+msgstr "A man like any other, come for pay and a reason to get up in the morning."
+
+msgid "Un homme en armure dépareillée sort du bois, les mains levées : « J'ai quitté le service du seigneur. Prenez-moi avec vous. »"
+msgstr "A man in mismatched armor steps out of the woods, hands raised: \"I left the lord's service. Take me with you.\""
+
+msgid "Un homme est adossé à une borne, une flèche dans la cuisse, une sacoche serrée contre lui. Il vous supplie du regard. Ses bottes sont pourtant bien trop propres pour un pauvre diable."
+msgstr "A man leans against a milestone, an arrow in his thigh, a satchel clutched to him. He pleads with his eyes. Yet his boots are far too clean for a poor devil."
+
+msgid "Un homme glisse dans un fossé et se blesse."
+msgstr "A man slips into a ditch and hurts himself."
+
+msgid "Un homme perd pied. On le repêche à moitié noyé."
+msgstr "A man loses his footing. He is fished out half drowned."
+
+msgid "Un if sauvage, courbé par un maître archer qui ne l'a jamais vendu de son vivant."
+msgstr "A wild yew, bent by a master archer who never sold it in his lifetime."
+
+msgid "Un jongleur accorde son luth sur une borne. « Une ballade pour trois sous, et un nom qui fera le tour des auberges ! »"
+msgstr "A juggler tunes his lute on a milestone. \"A ballad for three pennies, and a name that will go around the inns!\""
+
+msgid "Un long détour dans l'éboulis, sans croiser un regard jaune."
+msgstr "A long detour through the scree, without meeting a yellow gaze."
+
+msgid "Un loup plus hardi mord un homme au mollet avant de fuir."
+msgstr "A bolder wolf bites a man on the calf before fleeing."
+
+msgid "Un loup plus hardi se jette sur un homme avant de fuir."
+msgstr "A bolder wolf leaps at a man before fleeing."
+
+msgid "Un marchand au sourire large vante son sel, son lard et ses « reliques de saints ». Ses balances penchent d'un côté qui ne doit rien au hasard."
+msgstr "A broadly smiling merchant extols his salt, his bacon and his \"saints' relics\". His scales tip to a side that owes nothing to chance."
+
+msgid "Un meunier apeuré vous arrête. « Depuis trois nuits, on gratte sous le moulin. Faites-moi taire cette chose, et je vous paie. »"
+msgstr "A frightened miller stops you. \"For three nights, something has been scratching under the mill. Silence this thing for me, and I'll pay you.\""
+
+msgid "Un mur de boucliers qui balaie : deux cibles par coup, bouclier ennemi contourné."
+msgstr "A sweeping shield wall: two targets per blow, enemy shield bypassed."
+
+msgid "Un mât de vigie et un éclaireur : on repère les bandes de plus loin sur la carte."
+msgstr "A lookout mast and a scout: bands are spotted from further away on the map."
+
+msgid "Un obstacle sur la ligne de tir bloque les tirs ; une unité sur la ligne les gêne (−15 %)."
+msgstr "An obstacle on the line of fire blocks shots; a unit on the line hinders them (−15 %)."
+
+msgid "Un paysan, plus loin, saura qui remercier."
+msgstr "A peasant, further on, will know whom to thank."
+
+msgid "Un percepteur à cheval, flanqué de deux archers, exige le tribut de passage au nom du seigneur de ces terres."
+msgstr "A mounted tax collector, flanked by two archers, demands the toll of passage in the name of the lord of these lands."
+
+msgid "Un petit garçon pleure au bord du chemin, sa mère introuvable. Les bois sont profonds."
+msgstr "A little boy cries at the roadside, his mother nowhere to be found. The woods are deep."
+
+msgid "Un piège à loup se referme sur la jambe d'un homme."
+msgstr "A wolf trap snaps shut on a man's leg."
+
+msgid "Un pont de bois. Trois hommes armés barrent le passage : « Dix couronnes par tête, ou vous traversez à la nage. »"
+msgstr "A wooden bridge. Three armed men bar the way: \"Ten crowns a head, or you swim.\""
+
+msgid "Un prisonnier a parlé : le repaire de la Bande noire est dans les bois. Allez le détruire."
+msgstr "A prisoner talked: the Black Band's lair is in the woods. Go and destroy it."
+
+msgid "Un prêtre de passage vous bénit pour ce geste."
+msgstr "A passing priest blesses you for this deed."
+
+msgid "Un reliquaire d'or et de cristal... Vos hommes ne disent rien, mais certains détournent le regard."
+msgstr "A reliquary of gold and crystal... Your men say nothing, but some look away."
+
+msgid "Un sentiment de paix descend sur la troupe. La route sera clémente."
+msgstr "A feeling of peace settles on the troop. The road will be kind."
+
+msgid "Un sergent honnête dénonce la corruption : la patrouille se retourne contre vous."
+msgstr "An honest sergeant denounces the corruption: the patrol turns on you."
+
+msgid "Un soldat sans bannière"
+msgstr "A soldier without a banner"
+
+msgid "Un taureau de lutteur écrase votre champion."
+msgstr "A wrestler's bull crushes your champion."
+
+msgid "Un tir de moins en PA."
+msgstr "One shot less in AP."
+
+msgid "Un vieillard maigre garde la stèle depuis, dit-il, quarante hivers. Il demande du pain, et promet de la sagesse."
+msgstr "A gaunt old man has guarded the stele, he says, for forty winters. He asks for bread, and promises wisdom."
+
+msgid "Un vieux berger cherche son troupeau dispersé par les loups. Il a l'air d'avoir couru toute la nuit."
+msgstr "An old shepherd looks for his flock scattered by the wolves. He looks like he ran all night."
+
+msgid "Un vieux soldat mal rasé garde la tour au nom d'un seigneur mort depuis des années. Il vous prend pour des relèves."
+msgstr "An unshaven old soldier guards the tower in the name of a lord dead for years. He takes you for his relief."
+
+msgid "Un village en fête : musiciens, tripes grillées, joutes de lutte. On vous invite à poser vos armes."
+msgstr "A village in festival: musicians, grilled tripe, wrestling bouts. You are invited to lay down your arms."
+
+msgid "Un éboulement. Personne n'est mort, mais la journée est perdue."
+msgstr "A landslide. Nobody died, but the day is lost."
+
+msgid "Un éclaireur trébuche, l'autre fuit en hurlant. Vous prenez leurs armes et leur bourse."
+msgstr "One scout stumbles, the other flees screaming. You take their weapons and purse."
+
+msgid "Un éclat de métal fait sauter la flamme : une brûlure."
+msgstr "A shard of metal makes the flame jump: a burn."
+
+msgid "Un érudit paiera cher ce croquis. Pour l'heure, la nouvelle fait parler de vous."
+msgstr "A scholar will pay dearly for this sketch. For now, the news gets you talked about."
+
+msgid "Une attaque d'hast à 4 PA."
+msgstr "A polearm attack for 4 AP."
+
+msgid "Une attaque à 3 PA : Fente + déplacement."
+msgstr "An attack for 3 AP: Cleave + movement."
+
+msgid "Une bande de brigands masqués dévalise les convois. Retrouvez-les et faites-en un exemple."
+msgstr "A band of masked bandits robs convoys. Find them and make an example of them."
+
+msgid "Une bannière bien visible : le renom de vos exploits voyage plus vite."
+msgstr "A highly visible banner: the renown of your exploits travels faster."
+
+msgid "Une blessure se reçoit en bataille quand un homme tombe au sol sans mourir."
+msgstr "An injury is received in battle when a man falls to the ground without dying."
+
+msgid "Une bourse pesante et une promesse d'hospitalité en tout lieu de l'Ordre."
+msgstr "A heavy purse and a promise of hospitality in every place of the Order."
+
+msgid "Une branche craque. Les brigands, avertis, chargent !"
+msgstr "A branch cracks. The bandits, warned, charge!"
+
+msgid "Une caisse piégée explose : un homme est brûlé."
+msgstr "A booby-trapped crate explodes: a man is burned."
+
+msgid "Une cassette scellée : quelques couronnes d'un autre âge."
+msgstr "A sealed casket: a few crowns of another age."
+
+msgid "Une charrette couverte avance au pas, un chiffon noué sur le visage du conducteur. L'odeur est écœurante."
+msgstr "A covered cart advances at a walk, a rag tied over the driver's face. The smell is sickening."
+
+msgid "Une enclume sur un chariot : l'armurier remet les cottes en état et ménage les lames."
+msgstr "An anvil on a wagon: the armorer restores mail and spares the blades."
+
+msgid "Une femme sort en courant et l'arrache à vos bras."
+msgstr "A woman runs out and tears him from your arms."
+
+msgid "Une file de paysans en haillons fuit un village brûlé. Une femme vous tend les bras, un enfant contre elle."
+msgstr "A line of ragged peasants flees a burned village. A woman holds out her arms to you, a child against her."
+
+msgid "Une fois par bataille, 35 % de chances d'échapper à un coup mortel (il survit avec 1 PV)."
+msgstr "Once per battle, 35 % chance to escape a mortal blow (he survives with 1 HP)."
+
+msgid "Une fois par bataille, 40 % de chances d'encaisser un coup mortel et de rester à 1 PV."
+msgstr "Once per battle, 40 % chance to take a mortal blow and stay at 1 HP."
+
+msgid "Une hampe de frêne, une pointe d'acier de montagne. Elle ne manque jamais sa cible."
+msgstr "An ash shaft, a mountain steel point. It never misses its target."
+
+msgid "Une journée de marche lente, mais la reconnaissance est sincère."
+msgstr "A day of slow marching, but the gratitude is sincere."
+
+msgid "Une journée de repos sous les saules."
+msgstr "A day of rest under the willows."
+
+msgid "Une longue marche sur des chemins de chèvres."
+msgstr "A long march on goat paths."
+
+msgid "Une main (bouclier possible)"
+msgstr "One hand (shield possible)"
+
+msgid "Une marmite, un cuisinier et du sel : on mange mieux pour moins cher."
+msgstr "A pot, a cook and salt: you eat better for less."
+
+msgid "Une mauvaise récolte, puis une pire, puis le percepteur. La terre est vendue, et le fermier s'est mis à la solde."
+msgstr "A bad harvest, then a worse one, then the tax collector. The land is sold, and the farmer has taken up wages."
+
+msgid "Une milice de village garde le seul gué praticable et réclame un « droit de passage » par homme, par cheval et par chien. Le bailli tient un registre. Il aime visiblement ça."
+msgstr "A village militia guards the only passable ford and demands a \"right of way\" per man, per horse and per dog. The bailiff keeps a register. He clearly enjoys it."
+
+msgid "Une nuit blanche, mais les loups tournent sans oser approcher."
+msgstr "A sleepless night, but the wolves circle without daring to approach."
+
+msgid "Une nuit de bombance. Les hommes repartent frais et joyeux."
+msgstr "A night of feasting. The men set off fresh and cheerful."
+
+msgid "Une patrouille en tabards écarlates vous barre la route et cherche des bras pour « la guerre du comte ». Leur officier lorgne vos épées avec un appétit non dissimulé."
+msgstr "A patrol in scarlet tabards bars your road and seeks arms for \"the count's war\". Their officer eyes your swords with undisguised appetite."
+
+msgid "Une planche cède sous un homme : belle chute."
+msgstr "A plank gives way under a man: a nasty fall."
+
+msgid "Une portée de louveteaux et des restes de voyageurs : on récupère quelques pièces."
+msgstr "A litter of wolf cubs and remains of travelers: you recover a few coins."
+
+msgid "Une procession de pèlerins en bure chante des psaumes sur la route. Leur prieur vous salue d'un geste las."
+msgstr "A procession of pilgrims in homespun sings psalms on the road. Their prior greets you with a weary gesture."
+
+msgid "Une soirée de chants gaillards. Tout le monde dort mieux ensuite."
+msgstr "An evening of bawdy songs. Everyone sleeps better afterwards."
+
+msgid "Une tente de soins, des bandages propres et un barbier qui sait coudre."
+msgstr "A healing tent, clean bandages and a barber who can sew."
+
+msgid "Une troupe de soldats en loques fouille un hameau. Leur capitaine vous remarque et lève la main : « Compagnons, pas d'histoire. »"
+msgstr "A troop of ragged soldiers searches a hamlet. Their captain notices you and raises a hand: \"Comrades, no trouble.\""
+
+msgid "Une veillée tranquille, des histoires de saints et de bêtes."
+msgstr "A quiet evening, tales of saints and beasts."
+
+msgid "Une vieille femme cueille des plantes à l'orée du bois. Elle vous jauge : « Vos hommes ont l'air de ceux qui saignent beaucoup. »"
+msgstr "An old woman gathers plants at the edge of the woods. She sizes you up: \"Your men look like the kind who bleed a lot.\""
+
+msgid "Une vieille maison de chevaliers : fière, rancunière, généreuse avec ceux qui servent sa bannière."
+msgstr "An old house of knights: proud, vindictive, generous to those who serve its banner."
+
+msgid "Une vieille prêtresse sort de l'ombre et bénit vos armes."
+msgstr "An old priestess steps out of the shadows and blesses your weapons."
+
+msgid "Uni"
+msgstr "Plain"
+
+msgid "Utilisations par bataille"
+msgstr "Uses per battle"
+
+msgid "Veiller autour de grands feux"
+msgstr "Keep watch around great fires"
+
+msgid "Veillée chantée"
+msgstr "Singing evening"
+
+msgid "Vert forêt"
+msgstr "Forest green"
+
+msgid "Vert mousse"
+msgstr "Moss green"
+
+msgid "Victimes de l'arme : %d"
+msgstr "Weapon kills: %d"
+
+msgid "Vif"
+msgstr "Lively"
+
+msgid "Vin de coteau"
+msgstr "Hillside wine"
+
+msgid "Violet"
+msgstr "Purple"
+
+msgid "Vision de chaque camp"
+msgstr "Vision of each side"
+
+msgid "Visée haute"
+msgstr "High aim"
+
+msgid "Vitesse de marche"
+msgstr "Walking speed"
+
+msgid "Vivres gâtés"
+msgstr "Spoiled provisions"
+
+msgid "Voix claire"
+msgstr "Clear voice"
+
+msgid "Volée"
+msgstr "Volley"
+
+msgid "Volée : encore 2 javelots et Double lancer."
+msgstr "Volley: 2 more javelins and Double Throw."
+
+msgid "Vos guetteurs sont repérés ; la bande vous encercle."
+msgstr "Your lookouts are spotted; the band encircles you."
+
+msgid "Vos lames sortent. Les maraudeurs cherchent noise."
+msgstr "Your blades come out. The marauders pick a fight."
+
+msgid "Vos mots s'émoussent contre leurs crocs : la bande charge."
+msgstr "Your words dull against their fangs: the band charges."
+
+msgid "Vos tireurs rampent derrière les ronces : les brigands tombent dans leur propre piège et laissent bourses et vivres."
+msgstr "Your shooters crawl behind the brambles: the bandits fall into their own trap and leave purses and provisions."
+
+msgid "Vos vivres les sauvent. On parlera de la Compagnie du Corbeau dans les foyers."
+msgstr "Your provisions save them. The Raven Company will be spoken of in many hearths."
+
+msgid "Votre meilleur homme gagne la bourse du tournoi."
+msgstr "Your best man wins the tournament purse."
+
+msgid "Votre réputation auprès d'une faction change les primes, les contrats, les recrues et le marchand rare."
+msgstr "Your reputation with a faction changes rewards, contracts, recruits and the rare merchant."
+
+msgid "Vous attendez dans une grange, au sec."
+msgstr "You wait in a barn, out of the rain."
+
+msgid "Vous brûlez le parchemin. Le messager repart, vexé."
+msgstr "You burn the parchment. The messenger leaves, offended."
+
+msgid "Vous continuez. Personne ne parle pendant une heure."
+msgstr "You go on. No one speaks for an hour."
+
+msgid "Vous contournez le cavalier. Son regard vous brûle le dos."
+msgstr "You go around the rider. His gaze burns your back."
+
+msgid "Vous contournez les champs par prudence."
+msgstr "You skirt the fields out of caution."
+
+msgid "Vous courez. Une flèche vous blesse en chemin."
+msgstr "You run. An arrow wounds you on the way."
+
+msgid "Vous cueillez la bande au moment où elle sort de son trou : butin sans combat."
+msgstr "You catch the band as it leaves its hole: loot without a fight."
+
+msgid "Vous détournez les yeux. Derrière vous, il maudit le ciel à mi-voix."
+msgstr "You look away. Behind you, he curses the sky under his breath."
+
+msgid "Vous faites halte dans une auberge de bord de route quand une bagarre éclate. Les bancs volent."
+msgstr "You stop at a roadside inn when a brawl breaks out. Benches fly."
+
+msgid "Vous finissez vos chopes sous la table, sans histoire."
+msgstr "You finish your mugs under the table, without incident."
+
+msgid "Vous gagnez une grange avant la tombée de la nuit. Les hurlements restent dehors."
+msgstr "You reach a barn before nightfall. The howling stays outside."
+
+msgid "Vous laissez le chevalier à son deuil."
+msgstr "You leave the knight to his mourning."
+
+msgid "Vous laissez le vieil homme à ses bêtes."
+msgstr "You leave the old man to his animals."
+
+msgid "Vous le glissez sous une bâche. Il vous remercie à voix basse. Reste à savoir qui le suit."
+msgstr "You slip him under a tarp. He thanks you in a whisper. It remains to be seen who follows him."
+
+msgid "Vous le trouvez blessé sous un arbre. Il paiera bien sa dette."
+msgstr "You find him wounded under a tree. He will repay his debt well."
+
+msgid "Vous ne trouvez que ses ennemis."
+msgstr "You only find his enemies."
+
+msgid "Vous ne vous retournez pas."
+msgstr "You don't look back."
+
+msgid "Vous ne vous retournez pas. Le blessé, lui, ne crie même pas."
+msgstr "You don't look back. The wounded man doesn't even cry out."
+
+msgid "Vous passez la tête basse. Les paysans murmurent."
+msgstr "You pass with your head low. The peasants murmur."
+
+msgid "Vous payez à contrecœur. Les brigands s'effacent."
+msgstr "You pay grudgingly. The bandits melt away."
+
+msgid "Vous payez. Les gardes comptent deux fois chaque pièce."
+msgstr "You pay. The guards count each coin twice."
+
+msgid "Vous poursuivez. Le moulin reste muet."
+msgstr "You press on. The mill stays silent."
+
+msgid "Vous reculez sans bruit."
+msgstr "You back away without a sound."
+
+msgid "Vous reculez sans qu'un seul brigand ne bouge. Un jour perdu, mais la peau sauve."
+msgstr "You back away without a single bandit moving. A day lost, but your skin saved."
+
+msgid "Vous rendez le parchemin au messager, sans réponse. Un nouveau contrat vous attend bientôt."
+msgstr "You hand the parchment back to the messenger, without a reply. A new contract awaits you soon."
+
+msgid "Vous repartez avec des sacs de farine et des galettes encore tièdes."
+msgstr "You leave with sacks of flour and still-warm flatbreads."
+
+msgid "Vous tombez sur les voleurs avant d'avoir flairé le piège !"
+msgstr "You fall on the thieves before sniffing out the trap!"
+
+msgid "Vous trouvez les jumeaux au pied d'un chêne, grelottants. Ils ont de bonnes jambes et de grands yeux."
+msgstr "You find the twins at the foot of an oak, shivering. They have good legs and big eyes."
+
+msgid "Vous trouvez quelques pièces et un bon couteau."
+msgstr "You find a few coins and a good knife."
+
+msgid "Vous trouvez un campement abandonné et des traces menant à un moulin en ruine."
+msgstr "You find an abandoned camp and tracks leading to a ruined mill."
+
+msgid "Vous trouvez un gué, les bottes trempées."
+msgstr "You find a ford, boots soaked."
+
+msgid "Vous vous lavez à la prochaine source, sans un mot."
+msgstr "You wash at the next spring, without a word."
+
+msgid "Voyageur blessé"
+msgstr "Wounded traveler"
+
+msgid "Y passer la nuit à l'abri des murs (1 jour)"
+msgstr "Spend the night there, sheltered by the walls (1 day)"
+
+msgid "Ysolde brise l'amulette de cendre du nécromant sur une pierre. Elle ne vous quittera plus."
+msgstr "Ysolde smashes the necromancer's ash amulet on a stone. She will not leave you again."
+
+msgid "Ysolde la Pâle"
+msgstr "Ysolde the Pale"
+
+msgid "Zombie"
+msgstr "Zombie"
+
+msgid "apprise ✓"
+msgstr "learned ✓"
+
+msgid "de l'Ermite"
+msgstr "of the Hermit"
+
+msgid "de l'Ours Noir"
+msgstr "of the Black Bear"
+
+msgid "de la Dame des Eaux"
+msgstr "of the Lady of the Waters"
+
+msgid "de la Frontière"
+msgstr "of the Frontier"
+
+msgid "de la Source Froide"
+msgstr "of the Cold Spring"
+
+msgid "de la Veilleuse"
+msgstr "of the Nightlight"
+
+msgid "de la Vigie Brisée"
+msgstr "of the Broken Lookout"
+
+msgid "des Brûleurs de Charbon"
+msgstr "of the Charcoal Burners"
+
+msgid "des Cendres"
+msgstr "of the Ashes"
+
+msgid "des Chasseurs de Loups"
+msgstr "of the Wolf Hunters"
+
+msgid "des Déserteurs"
+msgstr "of the Deserters"
+
+msgid "des Quatre Vents"
+msgstr "of the Four Winds"
+
+msgid "des Trois Tours"
+msgstr "of the Three Towers"
+
+msgid "des Échos"
+msgstr "of the Echoes"
+
+msgid "du Colporteur"
+msgstr "of the Peddler"
+
+msgid "du Convoi Perdu"
+msgstr "of the Lost Convoy"
+
+msgid "du Corbeau Blanc"
+msgstr "of the White Raven"
+
+msgid "du Guetteur Borgne"
+msgstr "of the One-Eyed Watcher"
+
+msgid "du Loup Gris"
+msgstr "of the Grey Wolf"
+
+msgid "du Mineur Fou"
+msgstr "of the Mad Miner"
+
+msgid "du Rocher Bénit"
+msgstr "of the Blessed Rock"
+
+msgid "du Roi Oublié"
+msgstr "of the Forgotten King"
+
+msgid "du Régiment Fantôme"
+msgstr "of the Ghost Regiment"
+
+msgid "du Saint Pendu"
+msgstr "of the Hanged Saint"
+
+msgid "défense"
+msgstr "defense"
+
+msgid "dégâts d'armure +10 %"
+msgstr "armor damage +10 %"
+
+msgid "détermination"
+msgstr "resolve"
+
+msgid "la Belette"
+msgstr "the Weasel"
+
+msgid "la Brute"
+msgstr "the Brute"
+
+msgid "la Fouine"
+msgstr "the Stoat"
+
+msgid "la Pie"
+msgstr "the Magpie"
+
+msgid "le Bavard"
+msgstr "the Chatterbox"
+
+msgid "le Blême"
+msgstr "the Pale"
+
+msgid "le Boiteux"
+msgstr "the Lame"
+
+msgid "le Borgne"
+msgstr "the One-Eyed"
+
+msgid "le Bâtard"
+msgstr "the Bastard"
+
+msgid "le Cadet"
+msgstr "the Younger"
+
+msgid "le Chanceux"
+msgstr "the Lucky"
+
+msgid "le Gris"
+msgstr "the Grey"
+
+msgid "le Muet"
+msgstr "the Mute"
+
+msgid "le Pieux"
+msgstr "the Pious"
+
+msgid "le Rouge"
+msgstr "the Red"
+
+msgid "le Sournois"
+msgstr "the Sly"
+
+msgid "le Taciturne"
+msgstr "the Taciturn"
+
+msgid "le Vieux"
+msgstr "the Old"
+
+msgid "le trait « %s »"
+msgstr "the trait \"%s\""
+
+msgid "maîtrise de mêlée"
+msgstr "melee mastery"
+
+msgid "non apprise"
+msgstr "not learned"
+
+msgid "traverse 10 points d'armure de plus"
+msgstr "penetrates 10 more points of armor"
+
+msgid "traverse 5 points d'armure de plus"
+msgstr "penetrates 5 more points of armor"
+
+msgid "traverse 8 points d'armure de plus"
+msgstr "penetrates 8 more points of armor"
+
+msgid "tête:"
+msgstr "head:"
+
+msgid "un point de talent"
+msgstr "one perk point"
+
+msgid "Écailles"
+msgstr "Scales"
+
+msgid "Écartelé"
+msgstr "Quartered"
+
+msgid "Éclaireur"
+msgstr "Scout"
+
+msgid "Éclaireurs"
+msgstr "Scouts"
+
+msgid "Éclaireurs sur l'éperon"
+msgstr "Scouts on the spur"
+
+msgid "Écorche-Gué"
+msgstr "Fordflayer"
+
+msgid "Écorcheval"
+msgstr "Horseflayer"
+
+msgid "Écouter son offre"
+msgstr "Hear his offer"
+
+msgid "Élan"
+msgstr "Momentum"
+
+msgid "Épaulières de fer"
+msgstr "Iron pauldrons"
+
+msgid "Épices"
+msgstr "Spices"
+
+msgid "Épée courte"
+msgstr "Short sword"
+
+msgid "Épée d'armes"
+msgstr "Arming sword"
+
+msgid "Épée en main : quand un ennemi le rate au corps à corps, il riposte aussitôt, sans PA (1 fois par manche)."
+msgstr "Sword in hand: when an enemy misses him in melee, he ripostes at once, for no AP (once per round)."
+
+msgid "Épée unique : +15 % au toucher."
+msgstr "Unique sword: +15 % to hit."
+
+msgid "Épées"
+msgstr "Swords"
+
+msgid "Épées : +10 % au toucher ; Fente ne coûte plus de PA en plus."
+msgstr "Swords: +10 % to hit; Cleave costs no extra AP."
+
+msgid "Épées croisées"
+msgstr "Crossed swords"
+
+msgid "Équipe et campagne"
+msgstr "Team and campaign"
+
+msgid "Équipement concerné"
+msgstr "Equipment concerned"
+
+msgid "Étoffe légère : initiative et esquive."
+msgstr "Light cloth: initiative and dodging."
+
+msgid "Étoffe légère."
+msgstr "Light cloth."
+
+msgid "Étoile"
+msgstr "Star"
+
+msgid "Étourdit, traverse l'armure et encaisse sans bouger : l'enclume de la compagnie."
+msgstr "Stuns, penetrates armor and takes hits without moving: the company's anvil."
+
+msgid "×1,25 dégâts, armure ×1,6, −10 % au toucher."
+msgstr "×1.25 damage, armor ×1.6, −10 % to hit."
+
+msgid "à rendre : "
+msgstr "to return: "
+
+msgid "à reprendre chez "
+msgstr "to take back from "
+
+msgid "Œil de lynx"
+msgstr "Lynx eye"
+
+msgid "Œil perdu"
+msgstr "Lost eye"
+
+msgid "Œil sûr"
+msgstr "Sure eye"
+
+msgid "−10 à son test de moral quand un camarade tombe près de lui."
+msgstr "−10 on morale check when a comrade falls near him."
+
+msgid "−6 d'initiative."
+msgstr "−6 initiative."
+
+msgid "−8 PV maximum."
+msgstr "−8 maximum HP."
+
+msgid "−8 en attaque à distance."
+msgstr "−8 ranged attack."
+

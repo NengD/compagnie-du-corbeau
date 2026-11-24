@@ -581,7 +581,7 @@ static func get_def(id: String) -> Dictionary:
 		for st in Data.STORIES[sid]["steps"]:
 			if st["id"] == id:
 				return st
-	return {}
+	return Mods.event_def(id)
 
 
 ## Histoire (clé de Data.STORIES) dont `step_id` est une étape, ou "".
@@ -597,7 +597,7 @@ static func story_of(step_id: String) -> String:
 ## `flags` (Game.story_flags) et `day` : les histoires pas encore commencées et assez tardives entrent aussi dans le tirage (à poids double).
 static func pick(rng: RandomNumberGenerator, last_id: String = "", flags: Dictionary = {}, day: int = 0) -> Dictionary:
 	var pool: Array = []
-	for e in DEFS + CAMP_DEFS + RoadEncounters.DEFS:
+	for e in DEFS + CAMP_DEFS + RoadEncounters.DEFS + Mods.events():
 		if e["id"] != last_id:
 			pool.append(e)
 	if day > 0:

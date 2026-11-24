@@ -394,41 +394,7 @@ func _build_contracts(root: VBoxContainer) -> void:
 	var flow := _flow(root)
 	for i in here["contracts"].size():
 		var ct: Dictionary = here["contracts"][i]
-		var c := UiKit.card(flow, CARD_W + 20)
-		var top := UiKit.hbox(6)
-		var sk := UiKit.skulls(int(ct["d"]))
-		sk.tooltip_text = "Danger %d sur 3" % ct["d"]
-		top.add_child(sk)
-		if ct.has("arc"):
-			top.add_child(UiKit.chip("%s · %d/%d" % [Campaign.ARCS[ct["arc"]]["title"], int(ct["arc_step"]) + 1, Campaign.ARC_STEPS], GameTheme.GOLD))
-		top.add_child(UiKit.spacer())
-		var dist: float = origin.distance_to(Vector2(float(ct["tx"]), float(ct["ty"])))
-		top.add_child(UiKit.sub("≈ %d jour%s de route" % [maxi(1, int(ceil(dist / World.DAY_PX))), "s" if dist > World.DAY_PX else ""], 13, false))
-		c.add_child(top)
-		c.add_child(UiKit.title(str(ct["title"]), 22))
-		c.add_child(UiKit.sub(str(ct["employer"])))
-		if Data.FACTIONS.has(str(ct.get("faction", ""))):
-			var fl := UiKit.label("%s %s" % [Data.FACTIONS[ct["faction"]]["ic"], Factions.name_of(str(ct["faction"]))], 13, Factions.color_of(str(ct["faction"])), true)
-			fl.tooltip_text = "Employeur : sa réputation est en jeu."
-			c.add_child(fl)
-			if Data.FACTIONS.has(str(ct.get("vs_faction", ""))):
-				c.add_child(UiKit.sub("Dessert la cause contre : " + Factions.name_of(str(ct["vs_faction"])) + " (prime majorée)", 12))
-		c.add_child(UiKit.para(str(ct["desc"])))
-		var kind_txt: String = {"kill": "Éliminer", "hunt": "Chasse au chef", "escort": "Escorte", "delivery": "Livraison", "defense": "Défense", "legend": "Bête légendaire"}.get(str(ct.get("type_contract", "kill")), "Éliminer")
-		if Contracts.is_transport(ct):
-			var risk: String = "embuscade possible (%s)" % Data.FACTION_NAMES[ct["type"]] if float(ct.get("ambush_at", -1.0)) >= 0.0 else "route réputée sûre"
-			c.add_child(UiKit.sub("%s · destination : %s · prime à l'arrivée · %s" % [kind_txt, ct["target_name"], "risque : " + risk]))
-		else:
-			c.add_child(UiKit.sub("%s · Lieu : %s · ennemis : %s, environ %d" % [kind_txt, ct["target_name"], Data.FACTION_NAMES[ct["type"]], ct["foes"].size()]))
-		var foot := UiKit.hbox(6)
-		foot.add_child(UiKit.label(str(ct["pay"]), 22, GameTheme.GOLD, true))
-		foot.add_child(UiKit.sub("couronnes", 13, false))
-		foot.add_child(UiKit.spacer())
-		var acc := UiKit.button("Accepter", "pri")
-		acc.disabled = not Game.active_contract.is_empty()
-		acc.pressed.connect(Game.accept_contract.bind(i))
-		foot.add_child(acc)
-		c.add_child(foot)
+		ContractCard.build(flow, ct, origin, Game.active_contract.is_empty(), Game.accept_contract.bind(i), CARD_W + 20)
 
 
 # --- Recrues ---

@@ -49,6 +49,22 @@ const BACK_LAYER := {"epee": "back_sword", "hache": "back_axe", "masse": "back_c
 const WEAR_MID := 0.66  ## en dessous : usure légère (entailles, bosses, fente)
 const WEAR_LOW := 0.33  ## en dessous : usure lourde
 
+## Silhouettes : proportions tirées de façon stable depuis l'id (générateur à part : l'apparence de look() ne bouge pas). Bornes : voir silhouette().
+const SIL_W_MIN := 0.88  ## largeur relative (épaules, corpulence)
+const SIL_W_MAX := 1.16
+const SIL_H_MIN := 0.92  ## taille relative
+const SIL_H_MAX := 1.08
+const SIL_HEAD_MIN := 0.9  ## taille de la tête
+const SIL_HEAD_MAX := 1.1
+const HEAD_PIVOT := Vector2(0.0, -21.0)  ## le cou : centre d'échelle de la tête (coordonnées du viewBox)
+## Montures : cavalier réduit et posé sur la selle ; la figurine entière est rétrécie pour tenir sur la case.
+const MOUNT_RIDER_POS := Vector2(-3.0, -13.0)
+const MOUNT_RIDER_SCALE := 0.8
+const MOUNT_SCALE := 0.9
+const MOUNT_TINTS := {"horse": [Color("8a5a3a"), Color("5e4030"), Color("b08a60"), Color("3e3632"), Color("a8a49a"), Color("7a4a30")]}
+const HEAVY_BACKGROUNDS: Array[String] = ["cheron", "fermier", "reitre", "milicien"]  ## morceaux de nom d'origine : plus massifs
+const LEAN_BACKGROUNDS: Array[String] = ["braconnier", "mendiant", "deserteur", "déserteur"]  ## plus fins
+
 static var _textures: Dictionary = {}
 
 var unit: Unit
@@ -56,6 +72,10 @@ var _wall: bool = false
 var _sig: String = ""  ## signature de l'apparence courante (mur de boucliers, usure) : refresh() ne reconstruit que si elle change
 var base_scale: float = 1.0  ## carrure (orcs ×1.12, chef ×1.25) ; UnitView la combine à la respiration
 var gear: bool = true  ## équipement visible (dos, étendard, pièces d'armure) ; faux pour les portraits
+var shape: Vector2 = Vector2.ONE  ## silhouette (largeur, hauteur) relative, voir silhouette() ; UnitView la combine à base_scale
+var mounted: bool = false  ## cavalier : calques de monture sous l'homme
+var _host: Node2D = null  ## nœud qui reçoit les calques (le cavalier, ou la figurine elle-même)
+var _head: Node2D = null  ## groupe de la tête, ouvert pendant la pose des calques du visage et du casque
 
 
 static func texture(layer_name: String) -> Texture2D:
@@ -69,8 +89,10 @@ func setup(u: Unit, with_gear: bool = true) -> Figure:
 	unit = u
 	gear = with_gear
 	base_scale = body_scale(u)
-	scale = Vector2(-1.0 if u.side == "e" else 1.0, 1.0) * base_scale
-	position.y = 10.0 * (1.0 - base_scale)
+	var sil: Dictionary = silhouette(u)
+	shape = Vector2(float(sil["w"]), float(sil["h"])) if with_gear else Vector2.ONE  # portrait : cadrage fixe, sans monture
+	scale = Vector2(-1.0 if u.side == "e" else 1.0, 1.0) * base_scale * shape
+	position.y = 10.0 * (1.0 - base_scale * shape.y)
 	rebuild()
 	return self
 
@@ -100,6 +122,44 @@ static func body_scale(u: Unit) -> float:
 	if u.faction == "o":
 		return 1.25 if u.leader else 1.12
 	return 1.0
+
+
+## Monture de `u` ("horse" ; "" = à pied) : champ « mount » de sa ligne Data.FOE. Rien à sauvegarder : foe_key l'est déjà.
+static func mount_of(u: Unit) -> String:
+	if u == null or u.sprite != "" or u.faction == "g" or u.faction == "u" or u.faction == "o":
+		return ""
+	return str(Data.FOE.get(u.foe_key, {}).get("mount", ""))
+
+
+## Silhouette de `u` : {"w", "h", "head", "build"} (largeur, taille, tête : facteurs bornés ; build 0 mince / 1 normale / 2 costaude).
+## Stable (graine dérivée de l'id), nuancée par l'origine (bûcheron massif, braconnier fin) ; purement visuelle, aucune règle n'en dépend.
+## Créatures, convoi et bêtes légendaires gardent leurs proportions.
+static func silhouette(u: Unit) -> Dictionary:
+	var out: Dictionary = {"w": 1.0, "h": 1.0, "head": 1.0, "build": 1}
+	if u == null or u.sprite != "" or u.foe_key.begins_with("leg_") or u.faction == "g" or u.immobile:
+		return out
+	var r := RandomNumberGenerator.new()
+	r.seed = u.id * 71 + 19
+	var roll: float = r.randf()
+	var build: int = 0 if roll < 0.27 else (2 if roll > 0.73 else 1)
+	var bg: String = u.background.to_lower()
+	for k in HEAVY_BACKGROUNDS:
+		if bg.contains(k):
+			build = mini(2, build + (1 if r.randf() < 0.55 else 0))
+	for k in LEAN_BACKGROUNDS:
+		if bg.contains(k):
+			build = maxi(0, build - (1 if r.randf() < 0.55 else 0))
+	var w: float = [0.93, 1.0, 1.09][build] + r.randf_range(-0.03, 0.03)
+	var h: float = 1.0 + r.randf_range(-0.07, 0.07) + (0.01 if build == 0 else (-0.01 if build == 2 else 0.0))
+	var hd: float = 1.0 + r.randf_range(-0.09, 0.09)
+	if mount_of(u) != "":
+		w *= MOUNT_SCALE
+		h *= MOUNT_SCALE
+	out["w"] = clampf(w, SIL_W_MIN, SIL_W_MAX)
+	out["h"] = clampf(h, SIL_H_MIN * (MOUNT_SCALE if mount_of(u) != "" else 1.0), SIL_H_MAX)
+	out["head"] = clampf(hd, SIL_HEAD_MIN, SIL_HEAD_MAX)
+	out["build"] = build
+	return out
 
 
 ## Apparence stable pour une unité donnée (dérivée de son id).
@@ -273,6 +333,9 @@ static func outfit(u: Unit) -> Dictionary:
 func rebuild() -> void:
 	for c in get_children():
 		c.queue_free()
+	_host = self
+	_head = null
+	mounted = false
 	_wall = unit.shield_wall
 	_sig = _signature()
 	var l: Dictionary = look(unit)
@@ -297,17 +360,31 @@ func rebuild() -> void:
 	var extras: bool = gear and gear_enabled()
 	var bstyle: String = brigand_style(unit)
 	var clan: int = orc_clan(unit)
+	var mount: String = mount_of(unit) if gear else ""
+	if mount != "":  # monture sous le cavalier : l'homme est réduit et posé sur la selle (sans jambes visibles)
+		mounted = true
+		var mr := RandomNumberGenerator.new()
+		mr.seed = unit.id * 19 + 5
+		var tints: Array = MOUNT_TINTS.get(mount, [Color.WHITE])
+		_add("mount_" + mount, tints[mr.randi() % tints.size()])
+		_add("mount_%s_fx" % mount)
+		var rider := Node2D.new()
+		rider.position = MOUNT_RIDER_POS
+		rider.scale = Vector2.ONE * MOUNT_RIDER_SCALE
+		add_child(rider)
+		_host = rider
 	if extras and is_standard_bearer(unit):  # étendard de la compagnie, derrière tout le reste
 		_add("banner_pole")
 		_add("banner_flag", Banner.primary(ban))
 		_add("banner_flag_trim", Banner.secondary(ban))
 	# jambes, bottes et jambières (derrière le torse)
-	_add("legs", (l["skin"].darkened(0.25) if orc else l["cloth"].darkened(0.2)))
-	_add("boots", l["leather"].darkened(0.1))
-	if Limbs.worn(unit, "legs") and gear:
-		_add("limb_legs_" + Perks.armor_family("legs", unit.legs))  # jambières portées : remplacent la jambière décorative
-	elif of["greaves"]:
-		_add("greaves")
+	if not mounted:  # à cheval, les jambes disparaissent derrière le tapis de selle
+		_add("legs", (l["skin"].darkened(0.25) if orc else l["cloth"].darkened(0.2)))
+		_add("boots", l["leather"].darkened(0.1))
+		if Limbs.worn(unit, "legs") and gear:
+			_add("limb_legs_" + Perks.armor_family("legs", unit.legs))  # jambières portées : remplacent la jambière décorative
+		elif of["greaves"]:
+			_add("greaves")
 	var cloak: String = of["cloak"]
 	if tags.has("cape"):  # vétéran : cape aux couleurs de la compagnie
 		_add("cape", Banner.primary(ban).darkened(0.3))
@@ -370,6 +447,7 @@ func rebuild() -> void:
 		"scarf":
 			_add("scarf", l["cloth"].lightened(0.2))
 	if orc:
+		_begin_head()
 		_add("head_orc", l["skin"])
 		_add("face_orc_%d" % l["face"])
 		if clan >= 1 and not tags.has("paint"):
@@ -389,6 +467,7 @@ func rebuild() -> void:
 		_add_elite_head(tags)
 		_finish_human(w, sleeve, l)
 		return
+	_begin_head()
 	_add("head", l["skin"])
 	if l["mark"] == "bruise":
 		_add("mark_bruise")
@@ -424,6 +503,7 @@ func rebuild() -> void:
 
 ## Arme, bras, épaulière, main et bouclier (communs aux humains et aux orcs).
 func _finish_human(w: String, sleeve: Color, l: Dictionary) -> void:
+	_end_head()
 	var pose: String = "gourdin" if w == "poings" else w  # à mains nues : bras et main du gourdin, sans arme
 	var wear: Dictionary = wear_state(unit)
 	if w != "poings":
@@ -443,6 +523,22 @@ func _finish_human(w: String, sleeve: Color, l: Dictionary) -> void:
 	_add("hand_" + pose, l["skin"])
 	if unit.shield:
 		_add_shield()
+	if mounted:  # tapis de selle devant le cavalier, hors de son groupe réduit
+		_host = self
+		_add("mount_%s_front" % mount_of(unit), l["cloth"].darkened(0.1))
+
+
+## Groupe de la tête (échelle propre autour du cou, voir silhouette()) : ouvert avant le premier calque du visage.
+func _begin_head() -> void:
+	_head = Node2D.new()
+	_head.position = HEAD_PIVOT
+	var hs: float = float(silhouette(unit)["head"])
+	_head.scale = Vector2.ONE * hs
+	_host.add_child(_head)
+
+
+func _end_head() -> void:
+	_head = null
 
 
 ## Ornements de tête des ennemis d'élite et des vétérans : plume sur casque, cercle d'or tête nue, peinture de guerre, collier d'os.
@@ -541,7 +637,12 @@ func _add(layer_name: String, tint: Color = Color.WHITE) -> void:
 	var s := Sprite2D.new()
 	s.texture = tex
 	s.centered = false
-	s.position = ORIGIN
+	s.position = ORIGIN - (HEAD_PIVOT if _head != null else Vector2.ZERO)
 	s.scale = Vector2.ONE * PIXEL_SCALE
 	s.modulate = tint
-	add_child(s)
+	if _head != null:
+		_head.add_child(s)
+	elif _host != null:
+		_host.add_child(s)
+	else:
+		add_child(s)

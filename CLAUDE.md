@@ -148,6 +148,21 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   progression suit le porteur (`core/legends.gd`, clé d'objet `"kills"`), `docs/builds.md` régénéré ; **emplacements Bras et Jambes** (kinds `"arms"` / `"legs"`,
   armure propre, familles et maîtrises, zones de touche : tête 25 %, le reste du corps répartit une part vers bras/jambes seulement si une pièce est équipée —
   sans pièce, comportement inchangé).
+- **Vague gameplay n°2** : **états de combat** (`core/statuses.gd`, `core/statuses_data.gd`, `Unit.statuses` : saignement / poison / brûlure / gel, jamais persistants hors combat) et
+  **consommables** (`core/consumables.gd`, bandages, antidotes, onguents, toniques, fioles de courage ; achetables, en butin, utilisables en bataille) ; **ordres de groupe** du capitaine
+  (`core/orders.gd`, `core/orders_data.gd`) ; **IA plus maligne** (`core/ai.gd`, `core/ai_plan.gd` : renforts, aura des chefs, couvert/hauteur, ruses) ; **rediffusion** de la dernière bataille
+  (`core/battle_log.gd`, `scenes/battle/replay_screen.gd`, `Game.extras["last_replay"]`) et **annulation du tour** en mode Facile seulement (`core/turn_undo.gd`, interdite en mode fer) ;
+  **batailles défensives** (`core/defense.gd`, `scenes/battle/defense_panel.gd`), **monstres légendaires** (`core/legendary.gd`, `core/legendary_data.gd`, butin unique une fois par partie),
+  **ruines** à plusieurs combats enchaînés (`core/ruins.gd`, `scenes/ruins/`) ; **camp vivant** (`core/camp_life.gd`, `scenes/camp/camp_life_screen.gd` : veillées, rivalités, duels, mutinerie),
+  **retraite et héritage** (`core/legacy.gd`, `scenes/camp/legacy_screen.gd`), **statistiques illustrées** (`core/stats_history.gd`, `scenes/stats/`).
+- **Fonctions et modèles n°2** : **langue** français (défaut) / anglais (`core/i18n.gd`, `translations/*.po`, `translations/GLOSSARY.md`, `tools/extract_strings.gd`, `tools/translation_report.gd`,
+  le français sert de clé : une chaîne sans traduction reste en français ; relecture humaine de l'anglais à faire) ; **touches reconfigurables** (`core/keybinds.gd`, `scenes/menu/keys_panel.gd`, défauts =
+  anciennes touches) ; **accessibilité** (mode daltonien, taille des infobulles, réduction des animations, contraste) ; **mods JSON** dans `user://mods/` (`core/mods.gd`, `core/mods_data.gd`,
+  `docs/mods.md`, exemple `docs/mods_exemple/`, panneau `scenes/menu/mods_panel.gd` ; données seulement : les `const` de `Data` ne sont pas modifiables) ; **silhouettes variées**, **montures**
+  (cavalier brigand à cheval) et **poses d'animation** (`scenes/ui/figure.gd`, `scenes/battle/unit_view.gd`, `scenes/battle/attack_anims.gd`) ; **carte vivante** (`scenes/map/map_life.gd` : caravanes,
+  armées, fumées…), **cartes de contrat** illustrées (`scenes/camp/contract_card.gd`), **plateau animé** (`scenes/battle/board_life.gd`), icônes d'objets harmonisées (`tools/harmonize_item_icons.py`).
+- **Publication** : `.github/workflows/release.yml` (étiquette `v*` -> tests, exports Windows et Linux, zips via `tools/package_release.py`, Release GitHub), voir `docs/publier.md`. Interface adaptative :
+  `scenes/ui/fit_box.gd`, `ModalOverlay` s'ajuste seul, `tools/audit_responsive.gd` (échelles 75-150 %, `--scale`, `--locale en`).
 - Tests modulaires : `tests/suites/suite_*.gd` (voir `tests/suites/README.md`) chargés par `tests/run_tests.gd`.
 - Consignes de travail de l'utilisateur : ne jamais piloter la souris (pas de computer-use) ; lancer la fenêtre du jeu avec
   `--screen 1 --resolution 1280x720 --audio-driver Dummy` (écran de l'app Claude, **son coupé** : toujours ajouter `--audio-driver Dummy`

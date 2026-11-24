@@ -81,6 +81,9 @@ var _tufts: Array = []
 var _trees: Array = []  ## {p, k, ph} : canopées animées
 var _waters: Array = []
 var _night_on: bool = false
+var _sun: Dictionary = {"dx": 0.8, "len": 1.0, "a": 0.3}  ## orientation des ombres selon l'heure (BoardLife.sun)
+var _amb_mode: String = "none"  ## particules d'ambiance de saison / de région (BoardLife)
+var _amb_seed: int = 0
 
 
 func _init() -> void:
@@ -192,6 +195,7 @@ func setup(s: BattleState) -> void:
 	decals = BattleDecals.new()
 	decals.load_carry(s.cells, _rng)
 	_build_decor()
+	_setup_ambience(s, sd)
 	_terrain.queue_redraw()
 	refresh_units()
 
@@ -376,6 +380,23 @@ func add_ash(h: Vector2i) -> void:
 
 # --- Préparation du décor animé ---
 
+## Heure, saison et région du contrat -> ombres et particules d'ambiance (purement visuel ; sans partie : valeurs par défaut).
+func _setup_ambience(s: BattleState, sd: int) -> void:
+	var g: Node = get_node_or_null("/root/Game")
+	var day: int = int(g.get("day")) if g != null and g.get("day") != null else 1
+	var frac: float = float(g.get("day_fraction")) if g != null and g.get("day_fraction") != null else 0.3
+	_sun = BoardLife.sun(frac, bool(s.get("night")))
+	var kind: String = "meadow"
+	if enabled_region():
+		kind = str(RegionDecor.look_for(self).get("kind", "meadow"))
+	_amb_mode = BoardLife.mode_for(Seasons.season_of(day), kind, weather_kind)
+	_amb_seed = sd
+
+
+func enabled_region() -> bool:
+	return state != null and RegionDecor.enabled()
+
+
 func _build_decor() -> void:
 	_tufts.clear()
 	_trees.clear()
@@ -547,8 +568,10 @@ func _paint_terrain(l: Node2D) -> void:
 ## Ombre portée (soleil en haut à gauche -> ombre vers le bas à droite) et tronc.
 func _tree_base(l: Node2D, p: Vector2, k: float) -> void:
 	if _shadows() > 0:
-		l.draw_set_transform(p + Vector2(11, 12) * k, -0.12, Vector2(1.0, 0.3))
-		l.draw_circle(Vector2.ZERO, 21.0 * k, Color(0, 0, 0, 0.3))
+		var dx: float = float(_sun["dx"])
+		var ln: float = float(_sun["len"])
+		l.draw_set_transform(p + Vector2(13.0 * dx * ln, 12) * k, -0.12 * dx, Vector2(1.0, 0.3))
+		l.draw_circle(Vector2.ZERO, (15.0 + 6.0 * ln) * k, Color(0, 0, 0, float(_sun["a"])))
 		l.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var trunk := PackedVector2Array([p + Vector2(-2.5, 12) * k, p + Vector2(-1.5, -2) * k, p + Vector2(2.5, -2) * k, p + Vector2(3.5, 12) * k])
 	l.draw_colored_polygon(trunk, Color("4a3424"))
@@ -578,7 +601,7 @@ func _tree_crown(l: Node2D, p: Vector2, k: float, ph: float) -> void:
 
 func _paint_hill(l: Node2D, p: Vector2, tint: Color) -> void:
 	if _shadows() > 0:
-		_ellipse(l, p + Vector2(7, 10), 23, 6, Color(0.05, 0.06, 0.02, 0.38))
+		_ellipse(l, p + Vector2(8.0 * float(_sun["dx"]) * float(_sun["len"]), 10), 19.0 + 4.0 * float(_sun["len"]), 6, Color(0.05, 0.06, 0.02, float(_sun["a"]) + 0.08))
 	var mound := PackedVector2Array()
 	for i in 13:
 		var a: float = PI + PI * i / 12.0
@@ -620,7 +643,7 @@ func _paint_ford(l: Node2D, p: Vector2) -> void:
 
 func _paint_rock(l: Node2D, p: Vector2, h: Vector2i) -> void:
 	if _shadows() > 0:
-		_ellipse(l, p + Vector2(8, 11), 17, 4.5, Color(0, 0, 0, 0.32))
+		_ellipse(l, p + Vector2(10.0 * float(_sun["dx"]) * float(_sun["len"]), 11), 13.0 + 4.0 * float(_sun["len"]), 4.5, Color(0, 0, 0, float(_sun["a"]) + 0.02))
 	var r := RandomNumberGenerator.new()
 	r.seed = h.x * 17 + h.y * 29 + 5
 	var tex: Texture2D = GroundTex.get_tex("rock")
@@ -811,6 +834,11 @@ func _paint_anim(l: Node2D) -> void:
 				var gp: Vector2 = p + Vector2(-9 + g * 16.0, -8 + g * 11.0 + sin(ph) * 3.0)
 				l.draw_line(gp + Vector2(-2.5, 0), gp + Vector2(2.5, 0), Color(1, 1, 1, glint * 0.8), 1.2)
 				l.draw_line(gp + Vector2(0, -2.0), gp + Vector2(0, 2.0), Color(1, 1, 1, glint * 0.8), 1.0)
+	for w2 in _waters:
+		BoardLife.paint_flow(l, w2["p"], float(w2["ph"]), _ta, bool(w2["ford"]))
+	var amb_n: int = BoardLife.count_for(Quality.particle_factor())
+	if amb_n > 0 and _amb_mode != "none":
+		BoardLife.paint_ambient(l, _amb_mode, amb_n, _ta, world_size(state.width, state.height), _amb_seed)
 	for t in _trees:
 		_tree_crown(l, t["p"], float(t["k"]), float(t["ph"]))
 	# objets interactifs (feu, portes, barricades, palissades, pièges, torches)
@@ -1021,7 +1049,7 @@ func _paint_hud(l: Node2D) -> void:
 	var font: Font = GameTheme.bold_font()
 	if cost_hex != null and cost_text != "":
 		var p: Vector2 = hex_px(cost_hex)
-		l.draw_string(font, p + Vector2(-30, 4), cost_text, HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color("1c1915"))
+		l.draw_string(font, p + Vector2(-30, 4), I18n.t(cost_text), HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Color("1c1915"))
 	for t in targets:
 		var p2: Vector2 = hex_px(t["hex"])
 		var r := Rect2(p2.x - 16, p2.y - 60, 32, 14)
@@ -1029,4 +1057,4 @@ func _paint_hud(l: Node2D) -> void:
 		l.draw_rect(r, Color("f0a090"), false, 1.0)
 		l.draw_string(font, Vector2(p2.x - 16, p2.y - 49), "%d %%" % t["pct"], HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color.WHITE)
 		if t.has("tag") and str(t["tag"]) != "":
-			l.draw_string(font, Vector2(p2.x - 30, p2.y - 63), str(t["tag"]), HORIZONTAL_ALIGNMENT_CENTER, 60, 9, Color("f0e0a0"))
+			l.draw_string(font, Vector2(p2.x - 30, p2.y - 63), I18n.t(str(t["tag"])), HORIZONTAL_ALIGNMENT_CENTER, 60, 9, Color("f0e0a0"))

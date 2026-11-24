@@ -1,0 +1,695 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "\nPersonne n'en a besoin."
+msgstr "\nNobody needs it."
+
+msgid " (+%d couronnes)"
+msgstr " (+%d crowns)"
+
+msgid " (+%d renom)"
+msgstr " (+%d renown)"
+
+msgid " (attaque d'opportunité)"
+msgstr " (opportunity attack)"
+
+msgid " (chef)"
+msgstr " (chief)"
+
+msgid " · Assaut"
+msgstr " · Assault"
+
+msgid " · Embuscade"
+msgstr " · Ambush"
+
+msgid " · Prime %d couronnes"
+msgstr " · Reward %d crowns"
+
+msgid " · Ruines"
+msgstr " · Ruins"
+
+msgid " · bouclier"
+msgstr " · shield"
+
+msgid " · niv. %d"
+msgstr " · lvl %d"
+
+msgid " · portée %d"
+msgstr " · range %d"
+
+msgid "%d PA"
+msgstr "%d AP"
+
+msgid "%d ennemi%s brisé%s ou en fuite se rend%s."
+msgstr "%1$d broken or fleeing enemy(ies) surrender."
+
+msgid "%d homme%s concerné%s."
+msgstr "%1$d man|men affected."
+
+msgid "%d projectiles"
+msgstr "%d projectiles"
+
+msgid "%s\nCoût : %d PA, %d fatigue. Un ordre par manche."
+msgstr "%s\nCost: %d AP, %d fatigue. One order per round."
+
+msgid "%s\nCoût : %d PA."
+msgstr "%s\nCost: %d AP."
+
+msgid "%s %d–%d · %d PA%s · Mêlée %d/%d · Dist. %d/%d%s"
+msgstr "%s %d–%d · %d AP%s · Melee %d/%d · Ranged %d/%d%s"
+
+msgid "%s %s : %s."
+msgstr "%s %s: %s."
+
+msgid "%s %s."
+msgstr "%s %s."
+
+msgid "%s (%d PA)"
+msgstr "%s (%d AP)"
+
+msgid "%s : cliquez sur un ennemi à portée (ou de nouveau sur le bouton, ou Échap, pour annuler)."
+msgstr "%s: click an enemy in range (or the button again, or Esc, to cancel)."
+
+msgid "%s : ses plaies fument, le feu l'empêche de guérir."
+msgstr "%s: his wounds smoke, fire keeps him from healing."
+
+msgid "%s brûle : %d PV."
+msgstr "%s burns: %d HP."
+
+msgid "%s encaisse le choc sans broncher."
+msgstr "%s takes the shock without flinching."
+
+msgid "%s est abattu : un trophée légendaire."
+msgstr "%s is slain: a legendary trophy."
+
+msgid "%s est blessé : %s."
+msgstr "%s is wounded: %s."
+
+msgid "%s est cloué au sol."
+msgstr "%s is pinned to the ground."
+
+msgid "%s est désarçonné."
+msgstr "%s is unhorsed."
+
+msgid "%s est détruit."
+msgstr "%s is destroyed."
+
+msgid "%s est détruite."
+msgstr "%s is destroyed."
+
+msgid "%s est galvanisé."
+msgstr "%s is galvanized."
+
+msgid "%s est immobilisé."
+msgstr "%s is immobilized."
+
+msgid "%s est pris dans le filet."
+msgstr "%s is caught in the net."
+
+msgid "%s est repoussé."
+msgstr "%s is pushed back."
+
+msgid "%s est retenu."
+msgstr "%s is held back."
+
+msgid "%s est touché (%s) : %d PV."
+msgstr "%s is hit (%s): %d HP."
+
+msgid "%s est étourdi et perd des forces."
+msgstr "%s is stunned and loses strength."
+
+msgid "%s est étourdi."
+msgstr "%s is stunned."
+
+msgid "%s frappe : %s (−%d)."
+msgstr "%s strikes: %s (−%d)."
+
+msgid "%s manque %s — %s."
+msgstr "%s misses %s — %s."
+
+msgid "%s manque %s%s — %d %%"
+msgstr "%s misses %s%s — %d %%"
+
+msgid "%s manque la %s."
+msgstr "%s misses the %s."
+
+msgid "%s manque la porte."
+msgstr "%s misses the door."
+
+msgid "%s ne se laisse pas faucher."
+msgstr "%s will not be cut down."
+
+msgid "%s ordonne : « %s »"
+msgstr "%s orders: \"%s\""
+
+msgid "%s ouvre la porte."
+msgstr "%s opens the door."
+
+msgid "%s paiera %d couronnes."
+msgstr "%s will pay %d crowns."
+
+msgid "%s prend la fuite !"
+msgstr "%s takes flight!"
+
+msgid "%s quitte le champ de bataille."
+msgstr "%s leaves the battlefield."
+
+msgid "%s relève %s !"
+msgstr "%s raises %s!"
+
+msgid "%s renverse une torche."
+msgstr "%s knocks over a torch."
+
+msgid "%s repère un piège."
+msgstr "%s spots a trap."
+
+msgid "%s revient sur ses pas."
+msgstr "%s retraces their steps."
+
+msgid "%s se dégage du filet sans effort."
+msgstr "%s frees himself from the net with ease."
+
+msgid "%s se ressaisit."
+msgstr "%s rallies."
+
+msgid "%s se régénère."
+msgstr "%s regenerates."
+
+msgid "%s soigne %s (+%d PV)."
+msgstr "%s heals %s (+%d HP)."
+
+msgid "%s sort %s."
+msgstr "%s draws %s."
+
+msgid "%s succombe à %s."
+msgstr "%s succumbs to %s."
+
+msgid "%s surgit d'un flanc !"
+msgstr "%s springs from a flank!"
+
+msgid "%s surgit près de %s !"
+msgstr "%s springs up near %s!"
+
+msgid "%s tombe dans un piège : %d PV."
+msgstr "%s falls into a trap: %d HP."
+
+msgid "%s tombe sous les coups de %s."
+msgstr "%s falls under the blows of %s."
+
+msgid "%s touche %s%s%s : %d PV, %d armure — %d %%"
+msgstr "%s hits %s%s%s: %d HP, %d armor — %d %%"
+
+msgid "%s · %s contre %s"
+msgstr "%s · %s vs %s"
+
+msgid "%s · normal contre %s"
+msgstr "%s · normal vs %s"
+
+msgid "%s échappe à la mort de justesse !"
+msgstr "%s narrowly escapes death!"
+
+msgid "Allié"
+msgstr "Ally"
+
+msgid "Annuler le déplacement"
+msgstr "Undo the move"
+
+msgid "Annuler le tour"
+msgstr "Undo the turn"
+
+msgid "Antre de "
+msgstr "Lair of "
+
+msgid "Attendre"
+msgstr "Wait"
+
+msgid "Aucun allié à portée (%d cases)."
+msgstr "No ally in range (%d tiles)."
+
+msgid "Aucun bouclier à lever à 2 cases ou moins."
+msgstr "No shield to raise within 2 tiles."
+
+msgid "Aucun mort"
+msgstr "No dead"
+
+msgid "Aucun mort à déplorer."
+msgstr "No dead to mourn."
+
+msgid "Aucun villageois tué"
+msgstr "No villager killed"
+
+msgid "Barre le passage (50 points de structure) ; l'ennemi doit la briser."
+msgstr "Blocks the way (50 structure points); the enemy must break it."
+
+msgid "Bataille reprise depuis une sauvegarde : la rediffusion commence à la reprise."
+msgstr "Battle resumed from a save: the replay starts at the resume."
+
+msgid "Bataille très longue : la fin de la rediffusion est tronquée."
+msgstr "Very long battle: the end of the replay is truncated."
+
+msgid "Bras ! "
+msgstr "Arm! "
+
+msgid "Brisé"
+msgstr "Broken"
+
+msgid "Brouillard"
+msgstr "Fog"
+
+msgid "Butin récupéré (%d)"
+msgstr "Loot recovered (%d)"
+
+msgid "Caché : blesse et retient le premier ennemi qui marche dessus."
+msgstr "Hidden: wounds and holds the first enemy who steps on it."
+
+msgid "Certaines défenses n'ont pas trouvé de place ou de matériaux."
+msgstr "Some defenses found no room or materials."
+
+msgid "Changer : %s (%d PA)"
+msgstr "Swap: %s (%d AP)"
+
+msgid "Cible"
+msgstr "Target"
+
+msgid "Ciel dégagé"
+msgstr "Clear sky"
+
+msgid "Cliquez sur l'homme à soigner (%s) — ou Échap pour annuler."
+msgstr "Click on the man to heal (%s) — or Esc to cancel."
+
+msgid "Commencer la bataille"
+msgstr "Start the battle"
+
+msgid "Confirmer la retraite"
+msgstr "Confirm the retreat"
+
+msgid "Continuer"
+msgstr "Continue"
+
+msgid "Couvert"
+msgstr "Cover"
+
+msgid "Couvert −%d"
+msgstr "Cover −%d"
+
+msgid "Des assaillants marchent sur {dest}. Les miliciens sont peu nombreux : il faut tenir le village et protéger les paysans."
+msgstr "Attackers are marching on {dest}. The militia is few: you must hold the village and protect the peasants."
+
+msgid "Disposition par défaut"
+msgstr "Default arrangement"
+
+msgid "Début"
+msgstr "Start"
+
+msgid "Défaite"
+msgstr "Defeat"
+
+msgid "Défaite. Les survivants se dispersent."
+msgstr "Defeat. The survivors scatter."
+
+msgid "Défendre "
+msgstr "Defend "
+
+msgid "Défense"
+msgstr "Defense"
+
+msgid "Défenses en grande partie intactes"
+msgstr "Defenses largely intact"
+
+msgid "Dégâts %d–%d"
+msgstr "Damage %d–%d"
+
+msgid "Désarçonné"
+msgstr "Unhorsed"
+
+msgid "Ennemi"
+msgstr "Enemy"
+
+msgid "Espace"
+msgstr "Space"
+
+msgid "Facile : revient au début du tour de cet homme (une seule fois par bataille). Le hasard n'est pas rejoué à l'identique : les prochains jets seront différents."
+msgstr "Easy: returns to the start of this man's turn (once per battle). Chance is not replayed identically: the next rolls will differ."
+
+msgid "Fatigue"
+msgstr "Fatigue"
+
+msgid "Fin du tour"
+msgstr "End turn"
+
+msgid "Finir en 10 manches"
+msgstr "Finish in 10 rounds"
+
+msgid "Finir en 6 manches"
+msgstr "Finish in 6 rounds"
+
+msgid "Finir le tour"
+msgstr "End the turn"
+
+msgid "Finir le tour ?"
+msgstr "End the turn?"
+
+msgid "Hauteur +%d"
+msgstr "Height +%d"
+
+msgid "Hauteur −%d"
+msgstr "Height −%d"
+
+msgid "Hors de portée."
+msgstr "Out of range."
+
+msgid "Il reste %d PA à %s."
+msgstr "%d AP remain for %s."
+
+msgid "Ils relèvent de : %s."
+msgstr "They are under: %s."
+
+msgid "Image %d / %d · Manche %d · ×%d"
+msgstr "Frame %d / %d · Round %d · ×%d"
+
+msgid "Jambe ! "
+msgstr "Leg! "
+
+msgid "L'arme de %s est ébréchée."
+msgstr "%s's weapon is chipped."
+
+msgid "L'ennemi agit…"
+msgstr "The enemy acts…"
+
+msgid "L'ordre de %s tombe avec lui."
+msgstr "%s's order falls with them."
+
+msgid "La bande est dispersée. La route est libre."
+msgstr "The band is scattered. The road is clear."
+
+msgid "La compagnie"
+msgstr "The company"
+
+msgid "La compagnie bat en retraite."
+msgstr "The company retreats."
+
+msgid "Le bouclier de %s est %s."
+msgstr "%s's shield is %s."
+
+msgid "Le bouclier de %s se brise !"
+msgstr "%s's shield breaks!"
+
+msgid "Le bouclier de %s vole en éclats !"
+msgstr "%s's shield shatters!"
+
+msgid "Le détail (hommes, butin, prime) suit."
+msgstr "Details (men, loot, reward) follow."
+
+msgid "Le feu prend."
+msgstr "The fire catches."
+
+msgid "Le lieu est pris. La garnison est taillée en pièces."
+msgstr "The place is taken. The garrison is cut to pieces."
+
+msgid "Le village a tenu : les assaillants se retirent."
+msgstr "The village held: the attackers withdraw."
+
+msgid "Le village a été pillé : on vous reprochera longtemps cet échec."
+msgstr "The village was looted: you will be blamed for this failure for a long time."
+
+msgid "Le village est sauf : on vous acclame (réputation et renom en hausse)."
+msgstr "The village is safe: you are cheered (reputation and renown up)."
+
+msgid "Le village est sauvé, mais %d villageois sont tombés : la joie est amère."
+msgstr "The village is saved, but %d villagers have fallen: the joy is bitter."
+
+msgid "Lecture"
+msgstr "Playback"
+
+msgid "Les assaillants arriveront en %d vague%s. La milice du lieu se joint à vous ; %d villageois sont à protéger. Posez des défenses devant votre ligne avant le premier coup."
+msgstr "The attackers will arrive in %1$d wave(s). The local militia joins you; %3$d villagers are to be protected. Set up defenses in front of your line before the first blow."
+
+msgid "Les survivants s'enfuient à travers champs."
+msgstr "The survivors flee across the fields."
+
+msgid "Ligne de tir bloquée."
+msgstr "Line of fire blocked."
+
+msgid "Manche %d"
+msgstr "Round %d"
+
+msgid "Manche %d · Danger %d/3%s"
+msgstr "Round %d · Danger %d/3%s"
+
+msgid "Manche suivante"
+msgstr "Next round"
+
+msgid "Matériaux : %d / %d"
+msgstr "Materials: %d / %d"
+
+msgid "Milicien %d"
+msgstr "Militiaman %d"
+
+msgid "Molette : zoom · bouton du milieu : déplacer · H ou Début : recentrer"
+msgstr "Wheel: zoom · middle button: drag · H or Home: recenter"
+
+msgid "Mur"
+msgstr "Wall"
+
+msgid "Mur de boucliers"
+msgstr "Shield wall"
+
+msgid "Mur de boucliers (%d PA)"
+msgstr "Shield wall (%d AP)"
+
+msgid "Neige"
+msgstr "Snow"
+
+msgid "Niveau %d !"
+msgstr "Level %d!"
+
+msgid "Nouvelle vague d'assaillants : %d hommes arrivent !"
+msgstr "New wave of attackers: %d men arrive!"
+
+msgid "Objectifs"
+msgstr "Objectives"
+
+msgid "On annonce un assaut sur {dest} avant la nuit. Dressez des défenses, la milice vous prêtera main-forte."
+msgstr "An assault on {dest} is announced before nightfall. Set up defenses, the militia will lend a hand."
+
+msgid "PA"
+msgstr "AP"
+
+msgid "PV %d → %d / %d · XP +%d · %d victime%s"
+msgstr "HP %d → %d / %d · XP +%d · %1$d kill(s)"
+
+msgid "PV %d → 0 · %d victime%s"
+msgstr "HP %d → 0 · %d kill(s)"
+
+msgid "Palissade"
+msgstr "Palisade"
+
+msgid "Pas assez de PA (%d)."
+msgstr "Not enough AP (%d)."
+
+msgid "Pas assez de PA ou trop fatigué."
+msgstr "Not enough AP or too tired."
+
+msgid "Pas un sou pour ce contrat."
+msgstr "Not a penny for this contract."
+
+msgid "Pause"
+msgstr "Pause"
+
+msgid "Pieux"
+msgstr "Stakes"
+
+msgid "Piège à loups"
+msgstr "Wolf trap"
+
+msgid "Pluie"
+msgstr "Rain"
+
+msgid "Prime : %+d couronnes"
+msgstr "Reward: %+d crowns"
+
+msgid "Prime : aucune"
+msgstr "Reward: none"
+
+msgid "Prisonniers"
+msgstr "Prisoners"
+
+msgid "Prisonniers : %d (sort à décider)"
+msgstr "Prisoners: %d (fate to decide)"
+
+msgid "Préparation de la défense"
+msgstr "Defense preparation"
+
+msgid "Raccourcis clavier (? ou F1)"
+msgstr "Keyboard shortcuts (? or F1)"
+
+msgid "Range ce que vous portez dans le sac. Coût : %d PA, %d fatigue."
+msgstr "Puts what you carry into the bag. Cost: %d AP, %d fatigue."
+
+msgid "Raté"
+msgstr "Missed"
+
+msgid "Rejouer"
+msgstr "Replay"
+
+msgid "Rejouer la bataille depuis le début (lecture seule)."
+msgstr "Replay the battle from the start (read-only)."
+
+msgid "Renfort !"
+msgstr "Reinforcements!"
+
+msgid "Renom : %+d"
+msgstr "Renown: %+d"
+
+msgid "Repoussé"
+msgstr "Repelled"
+
+msgid "Rester"
+msgstr "Stay"
+
+msgid "Retraite"
+msgstr "Retreat"
+
+msgid "Revenir à la case de départ et récupérer les PA et la fatigue du déplacement (tant que vous n'avez pas attaqué)."
+msgstr "Return to the starting tile and recover the AP and fatigue of the move (as long as you haven't attacked)."
+
+msgid "Revoir"
+msgstr "Rewatch"
+
+msgid "Revoir la bataille"
+msgstr "Rewatch the battle"
+
+msgid "Rien de récupérable sur les dépouilles."
+msgstr "Nothing recoverable from the spoils."
+
+msgid "Sauver tous les chariots"
+msgstr "Save all the wagons"
+
+msgid "Surplomb"
+msgstr "Overhang"
+
+msgid "Système"
+msgstr "System"
+
+msgid "Tenir 3 manches sans perdre la moitié de la compagnie"
+msgstr "Hold 3 rounds without losing half the company"
+
+msgid "Tombé"
+msgstr "Fallen"
+
+msgid "Tombés : "
+msgstr "Fallen: "
+
+msgid "Toucher %d %%"
+msgstr "Hit %d %%"
+
+msgid "Trop fatigué."
+msgstr "Too tired."
+
+msgid "Tuer le chef"
+msgstr "Kill the chief"
+
+msgid "Tête ! "
+msgstr "Head! "
+
+msgid "Un seul ordre par manche."
+msgstr "Only one order per round."
+
+msgid "Une haie de pieux (30 points) : retarde l'assaut."
+msgstr "A hedge of stakes (30 points): delays the assault."
+
+msgid "Vague repoussée ! La suivante arrive, sans répit : les blessures restent."
+msgstr "Wave repelled! The next one arrives without respite: injuries remain."
+
+msgid "Vent"
+msgstr "Wind"
+
+msgid "Victoire"
+msgstr "Victory"
+
+msgid "Victoire. Le champ est à vous."
+msgstr "Victory. The field is yours."
+
+msgid "Villageois %d"
+msgstr "Villager %d"
+
+msgid "Vue d'ensemble (H)"
+msgstr "Overview (H)"
+
+msgid "efficace contre "
+msgstr "effective against "
+
+msgid "est assommé"
+msgstr "is knocked senseless"
+
+msgid "est intimidé par %s"
+msgstr "is intimidated by %s"
+
+msgid "est pris par les flammes"
+msgstr "is caught in flames"
+
+msgid "est ébouillanté"
+msgstr "is scalded"
+
+msgid "flanche sous le coup"
+msgstr "falters under the blow"
+
+msgid "forme un mur de boucliers"
+msgstr "forms a shield wall"
+
+msgid "fracassé"
+msgstr "shattered"
+
+msgid "le piège"
+msgstr "the trap"
+
+msgid "les flammes"
+msgstr "the flames"
+
+msgid "lui-même"
+msgstr "himself"
+
+msgid "lève son bouclier"
+msgstr "raises his shield"
+
+msgid "perd son chef"
+msgstr "loses his chief"
+
+msgid "peu efficace"
+msgstr "not very effective"
+
+msgid "peu efficace contre "
+msgstr "not very effective against "
+
+msgid "sans point faible marqué"
+msgstr "no marked weakness"
+
+msgid "ses blessures"
+msgstr "his wounds"
+
+msgid "voit son chef tomber"
+msgstr "sees his chief fall"
+
+msgid "voit tomber "
+msgstr "sees fall "
+
+msgid "{dest} appelle à l'aide : une bande approche, par vagues. Les villageois comptent sur votre acier."
+msgstr "{dest} calls for help: a band approaches, in waves. The villagers count on your steel."
+
+msgid "À vous"
+msgstr "Yours"
+
+msgid "Ébréché"
+msgstr "Chipped"
+
+msgid "Étourdi"
+msgstr "Stunned"
+
+msgid "• %s — niveau %d%s"
+msgstr "• %s — level %d%s"
+
+msgid "−%d armure"
+msgstr "−%d armor"
+

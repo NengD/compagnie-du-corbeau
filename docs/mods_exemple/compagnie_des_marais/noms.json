@@ -1,0 +1,10 @@
+{
+	"first_names": ["Aubin", "Mirabel", "Tancrède", "Joinville"],
+	"nicknames": ["Pied-Mouillé", "le Roseau", "Trois-Grenouilles"],
+	"company_names": ["Les Roseaux Noirs", "La Compagnie des Brumes"],
+	"place_names": ["Marais-Gris", "Roselière", "Fondrevase"],
+	"epitaphs": ["La vase a gardé son nom, et personne d'autre."],
+	"backstories": {
+		"braconnier": ["Il pêchait l'anguille dans les marais du comte et connaît chaque gué sous la brume."]
+	}
+}

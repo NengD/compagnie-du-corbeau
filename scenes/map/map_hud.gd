@@ -295,16 +295,16 @@ func refresh() -> void:
 	if Game.world == null or _food == null:
 		return
 	var low: bool = Game.provisions_days() <= float(Data.PROVISIONS_WARN_DAYS)
-	_food.set_value("%d j" % int(floor(Game.provisions_days())), GameTheme.BLOOD.lightened(0.25) if low else GameTheme.INK)
+	_food.set_value("%d j" % int(floor(Game.provisions_days())), GameTheme.status_bad() if low else GameTheme.INK)
 	_food.tooltip_text = "Vivres : %d rations, ≈ %.1f jours de route.%s\nUne ration par homme et par jour de route ; achat au marché." % [Game.provisions, Game.provisions_days(), "\nVivres presque épuisés !" if low else ""]
-	_morale.set_value(str(int(Game.company_morale)), GameTheme.GOLD if Game.company_morale >= Data.MORALE_LOW else GameTheme.BLOOD.lightened(0.25))
+	_morale.set_value(str(int(Game.company_morale)), GameTheme.status_ok() if Game.company_morale >= Data.MORALE_LOW else GameTheme.status_bad())
 	_morale.tooltip_text = "Moral de la compagnie : %s (%d/100).\nIl fixe le moral de départ des hommes en bataille (< %d : Hésitant, > %d : Confiant)." % [Game.morale_label(), int(Game.company_morale), int(Data.MORALE_LOW), int(Data.MORALE_HIGH)]
 	var st: Dictionary = Game.campaign
 	var threat: float = float(st.get("threat", 0.0))
 	var over: bool = st.get("final", "") == "won" or bool(st.get("free_mode", false))
 	_threat.visible = threat > 0.0 and not over
 	if _threat.visible:
-		_threat.set_value("%d%%" % int(threat), GameTheme.BLOOD.lightened(0.3))
+		_threat.set_value("%d%%" % int(threat), GameTheme.status_bad())
 		_threat.tooltip_text = "Menace montante : %s\nPalier %d/%d : %s\nOuvrez « Détails » (F) pour le contrat final et les affaires en cours." % [Campaign.threat_title(st), int(st.get("stage", 0)), Campaign.STAGES.size(), Campaign.stage_name(st)]
 	refresh_pill()
 

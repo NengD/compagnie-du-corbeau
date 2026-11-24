@@ -64,7 +64,15 @@ const SCHEMA: Dictionary = {
 	"map_territories": ["game", "map_territories", true, 0, 0],
 	"map_regions": ["game", "map_regions", true, 0, 0],
 	"map_borders": ["game", "map_borders", true, 0, 0],
+	"language": ["game", "language", 0, 0, 1],  ## index dans I18n.LANGS (0 = français, toujours le défaut)
+	"colorblind": ["access", "colorblind", 0, 0, 2],
+	"tooltip_scale": ["access", "tooltip_scale", 0, 0, 2],
+	"reduce_motion": ["access", "reduce_motion", false, 0, 0],
+	"high_contrast": ["access", "high_contrast", false, 0, 0],
 }
+## Accessibilité : modes daltoniens (0 aucun) et tailles d'infobulles (index -> facteur).
+const COLORBLIND_MODES: Array = ["Aucun", "Deutéranopie / protanopie (rouge-vert)", "Tritanopie (bleu-jaune)"]
+const TOOLTIP_SCALES: Array = [1.0, 1.25, 1.5]
 ## Clés de la fenêtre, appliquées ensemble (avec confirmation dans le panneau d'options).
 const DISPLAY_KEYS: Array = ["window_mode", "window_w", "window_h", "window_x", "window_y", "window_pos_set", "monitor"]
 
@@ -109,6 +117,11 @@ var minimap: bool = true  ## mini-carte affichée sur la carte du monde
 var map_territories: bool = true  ## teinte des territoires de faction sur la carte
 var map_regions: bool = true  ## noms des régions écrits sur la carte
 var map_borders: bool = true  ## frontières et bornes frontières
+var language: int = 0  ## langue du jeu : index dans I18n.LANGS (0 français par défaut, 1 anglais)
+var colorblind: int = 0  ## 0 aucun, 1 deutéranopie/protanopie, 2 tritanopie (palettes de GameTheme)
+var tooltip_scale: int = 0  ## index dans TOOLTIP_SCALES (100 / 125 / 150 %)
+var reduce_motion: bool = false  ## réduit tremblement, flashs, neige et brouillards
+var high_contrast: bool = false  ## texte plus contrasté
 var persist: bool = true  ## faux dans les tests : ne rien écrire sur le disque
 
 var _applying: bool = false
@@ -117,6 +130,8 @@ var _dirty_time: float = -1.0
 
 
 func _ready() -> void:
+	if persist:
+		Mods.load_default()  # mods JSON de user://mods (données seulement, tolérant)
 	load_settings()
 	apply_all()
 	if DisplayServer.get_name() != "headless" and persist:
@@ -143,6 +158,15 @@ func battle_speed_factor() -> float:
 
 func text_factor() -> float:
 	return float(TEXT_SIZES[clampi(text_size, 0, TEXT_SIZES.size() - 1)]["f"])
+
+
+func tooltip_factor() -> float:
+	return float(TOOLTIP_SCALES[clampi(tooltip_scale, 0, TOOLTIP_SCALES.size() - 1)])
+
+
+## Tremblement et arrêt sur image : coupés par leur option ou par « réduire les animations ».
+func shake_enabled() -> bool:
+	return screen_shake and not reduce_motion
 
 
 func fps_cap() -> int:
@@ -200,6 +224,12 @@ func set_value(key: String, value: Variant) -> void:
 	changed.emit()
 
 
+## Enregistre les touches reconfigurées (appelé par l'écran « Touches »).
+func save_keybinds() -> void:
+	save_settings()
+	changed.emit()
+
+
 ## Valeurs détaillées courantes (clés de Quality.KEYS ; « weather » = niveau effectif).
 func detail_values() -> Dictionary:
 	var d: Dictionary = {}
@@ -231,8 +261,9 @@ func apply_quality(level: int, notify: bool = true) -> void:
 ## Remet tous les réglages par défaut (sauf « tutoriel vu »), les applique et les enregistre.
 func reset_defaults() -> void:
 	for k in SCHEMA:
-		if k != "tutorial_seen":
+		if k != "tutorial_seen" and k != "language":
 			set(k, SCHEMA[k][2])
+	Keybinds.reset_all()
 	quality = Quality.identify(detail_values())
 	apply_all()
 	if DisplayServer.get_name() != "headless":
@@ -248,6 +279,8 @@ func to_config() -> ConfigFile:
 	for k in SCHEMA:
 		var def: Array = SCHEMA[k]
 		c.set_value(str(def[0]), str(def[1]), get(k))
+	for a in Keybinds.overrides:
+		c.set_value("keys", str(a), Keybinds.overrides[a])
 	return c
 
 
@@ -256,6 +289,11 @@ func from_config(c: ConfigFile) -> void:
 	for k in SCHEMA:
 		var def: Array = SCHEMA[k]
 		set(k, sanitize(k, c.get_value(str(def[0]), str(def[1]), def[2])))
+	var raw_keys: Dictionary = {}
+	if c.has_section("keys"):
+		for a in c.get_section_keys("keys"):
+			raw_keys[a] = c.get_value("keys", a)
+	Keybinds.load_overrides(raw_keys)
 	if not c.has_section_key("video", "window_mode") and bool(c.get_value("video", "fullscreen", false)):
 		window_mode = 2  # ancien fichier : « plein écran » était le mode sans bordure
 	# Le préréglage affiché se déduit toujours des réglages détaillés : un ancien fichier (sans « quality »)
@@ -292,6 +330,9 @@ func _first_launch() -> void:
 # --- Application ---
 
 func apply_all() -> void:
+	I18n.apply(language)
+	GameTheme.apply_accessibility(colorblind, high_contrast, reduce_motion)
+	GameTheme.apply_tooltip_scale(tooltip_factor())
 	apply_window()
 	apply_scale()
 	apply_video_quality()
@@ -308,6 +349,12 @@ func _apply_key(key: String) -> void:
 		GameTheme.refresh_text_size()
 	elif key == "illustrated_ui":
 		GameTheme.apply_style()
+	elif key in ["colorblind", "high_contrast", "reduce_motion"]:
+		GameTheme.apply_accessibility(colorblind, high_contrast, reduce_motion)
+	elif key == "language":
+		I18n.apply(language)
+	elif key == "tooltip_scale":
+		GameTheme.apply_tooltip_scale(tooltip_factor())
 
 
 func apply_scale() -> void:

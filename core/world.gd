@@ -132,7 +132,7 @@ func _build_astar(with_roads: bool = true) -> void:
 
 
 func _place_settlements() -> void:
-	var names: Array = Data.TOWNS.duplicate()
+	var names: Array = Mods.towns().duplicate()
 	for i in names.size():
 		var j: int = rng.randi() % names.size()
 		var t: Variant = names[i]

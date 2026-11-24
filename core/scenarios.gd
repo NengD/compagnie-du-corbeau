@@ -9,15 +9,15 @@ const FREE := ""
 
 
 static func keys() -> Array:
-	return ScenariosData.ORDER.duplicate()
+	return Mods.scenario_keys()
 
 
 static func has(key: String) -> bool:
-	return ScenariosData.SCENARIOS.has(key)
+	return ScenariosData.SCENARIOS.has(key) or not Mods.scenario_data(key).is_empty()
 
 
 static func data(key: String) -> Dictionary:
-	return ScenariosData.SCENARIOS.get(key, {})
+	return Mods.scenario_data(key)
 
 
 static func label(key: String) -> String:

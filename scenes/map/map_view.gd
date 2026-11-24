@@ -124,6 +124,7 @@ var _wx: Overlay
 var _frame: Overlay
 var _fx: MapFx = MapFx.new()
 var _curves: Array = []
+var _life: MapLife = MapLife.new()  ## caravanes, fumées, oiseaux, bateaux, colonnes de guerre (cosmétique)
 var _lights: Array = []
 var _lab: Dictionary = {}  ## grille d'étiquettes des territoires (Territory.labels)
 var _terr_tex: ImageTexture
@@ -614,13 +615,13 @@ static func key_direction() -> Vector2:
 	var d := Vector2.ZERO
 	if Input.is_key_pressed(KEY_CTRL) or Input.is_key_pressed(KEY_ALT) or Input.is_key_pressed(KEY_META):
 		return d
-	if Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT):
+	if Keybinds.is_held("cam_right"):
 		d.x += 1.0
-	if Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT):
+	if Keybinds.is_held("cam_left"):
 		d.x -= 1.0
-	if Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN):
+	if Keybinds.is_held("cam_down"):
 		d.y += 1.0
-	if Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP):
+	if Keybinds.is_held("cam_up"):
 		d.y -= 1.0
 	return d
 
@@ -631,7 +632,7 @@ func _camera_tick(delta: float, w: World) -> void:
 	var fast: bool = false
 	if _keys_ok():
 		want = key_direction()
-		fast = Input.is_key_pressed(KEY_SHIFT)
+		fast = Keybinds.is_held("cam_fast")
 		if want == Vector2.ZERO and Settings.edge_scroll and _mouse_in and _drag_btn == 0 and DisplayServer.window_is_focused():
 			want = MapFrame.edge_dir(get_local_mouse_position(), size)
 	var target_vel: Vector2 = want.normalized() * MapFrame.pan_speed_px(size, fast)
@@ -665,6 +666,7 @@ func rebuild() -> void:
 	_shimmer.scale = w.size / Vector2((tx[1] as Texture2D).get_size())
 	(_shimmer.material as ShaderMaterial).set_shader_parameter("grid", Vector2(w.gw, w.gh))
 	_curves = MapTerrain.road_curves(w)
+	_life.setup(w, _curves)
 	_terr_sig = ""
 	_vis_sig = ""
 	_state_dirty = true
@@ -862,8 +864,8 @@ func _paint_names(c: Control) -> void:
 				continue
 			var txt: String = str(q["name"]) + (" ✓" if bool(q.get("done", false)) else "")
 			var ca := Color(GameTheme.INK, 0.62 if bool(q.get("done", false)) else 0.85)
-			c.draw_string_outline(pfont, qp + Vector2(-90.0, 24.0 * _iz * k + 10.0), txt, HORIZONTAL_ALIGNMENT_CENTER, 180, 13, 4, Color(0.07, 0.06, 0.05, 0.8))
-			c.draw_string(pfont, qp + Vector2(-90.0, 24.0 * _iz * k + 10.0), txt, HORIZONTAL_ALIGNMENT_CENTER, 180, 13, ca)
+			c.draw_string_outline(pfont, qp + Vector2(-90.0, 24.0 * _iz * k + 10.0), I18n.t(txt), HORIZONTAL_ALIGNMENT_CENTER, 180, 13, 4, Color(0.07, 0.06, 0.05, 0.8))
+			c.draw_string(pfont, qp + Vector2(-90.0, 24.0 * _iz * k + 10.0), I18n.t(txt), HORIZONTAL_ALIGNMENT_CENTER, 180, 13, ca)
 
 
 ## Texte aux lettres espacées, centré sur `at`, légèrement bombé comme les noms de régions d'une carte ancienne.
@@ -932,6 +934,7 @@ func _paint_dynamic(l: Node2D) -> void:
 		var qp: Vector2 = w.poi_pos(q)
 		if _in_view(qp):
 			MapPlaces.paint_poi(l, "ruins_deep" if Ruins.is_deep(q) and not bool(q.get("done", false)) else str(q["kind"]), qp, 0.8 * iz, bool(q.get("done", false)), _t, animate)
+	_life.paint(l, visible_world_rect(), iz, Game.day, _t, animate, Wars.pairs(Game.extras))
 	# Contrat : drapeau sur le lieu à atteindre
 	if not Game.active_contract.is_empty():
 		var tp: Vector2 = Game.contract_target()
@@ -970,8 +973,8 @@ func _paint_dynamic(l: Node2D) -> void:
 	# Chemin prévu et chemin en cours
 	if _hover_ok and _hover_path.size() >= 2:
 		l.draw_polyline(PackedVector2Array(_hover_path), Color(1, 1, 1, 0.28), 2.0 * iz, true)
-		l.draw_string_outline(font, _hover + Vector2(-40, -14) * iz, "≈ %.1f j" % _hover_days, HORIZONTAL_ALIGNMENT_CENTER, 80, int(13.0 * iz), 4, Color("120f0c"))
-		l.draw_string(font, _hover + Vector2(-40, -14) * iz, "≈ %.1f j" % _hover_days, HORIZONTAL_ALIGNMENT_CENTER, 80, int(13.0 * iz), GameTheme.INK)
+		l.draw_string_outline(font, _hover + Vector2(-40, -14) * iz, I18n.t("≈ %.1f j") % _hover_days, HORIZONTAL_ALIGNMENT_CENTER, 80, int(13.0 * iz), 4, Color("120f0c"))
+		l.draw_string(font, _hover + Vector2(-40, -14) * iz, I18n.t("≈ %.1f j") % _hover_days, HORIZONTAL_ALIGNMENT_CENTER, 80, int(13.0 * iz), GameTheme.INK)
 	if not w.path.is_empty():
 		var pts := PackedVector2Array([w.player_pos])
 		pts.append_array(PackedVector2Array(w.path))

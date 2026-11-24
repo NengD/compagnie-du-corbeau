@@ -125,7 +125,7 @@ func _draw() -> void:
 	var illus: bool = GameTheme.illustrated()
 	draw_rect(full, Color(0.10, 0.075, 0.05, 0.88) if illus else Color(GameTheme.PANEL, 0.9))
 	draw_rect(full, Color("7a5f30") if illus else GameTheme.LINE, false, 2.0)
-	draw_string(GameTheme.bold_font(), Vector2(PAD + 2.0, 15.0), "Carte du monde", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, GameTheme.GOLD)
+	draw_string(GameTheme.bold_font(), Vector2(PAD + 2.0, 15.0), I18n.t("Carte du monde"), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, GameTheme.GOLD)
 	if collapsed or _world == null or _tex == null:
 		return
 	var r: Rect2 = map_rect()

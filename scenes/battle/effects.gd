@@ -82,6 +82,13 @@ func dust(pos: Vector2) -> void:
 	_burst(pos + Vector2(0.0, 10.0), 5, 0.5, Color(DUST, 0.55), 6.0, 20.0, 3.0, Vector2.UP, 90.0, -14.0)
 
 
+## Corps qui touche le sol : petit nuage de poussière.
+func thud(pos: Vector2) -> void:
+	if not enabled() or not is_inside_tree():
+		return
+	_burst(pos + Vector2(0.0, 10.0), 7, 0.45, Color(DUST, 0.5), 10.0, 34.0, 3.4, Vector2.UP, 170.0, -12.0)
+
+
 ## Mort d'un homme : grosse gerbe, poussière et tremblement du plateau.
 func death(pos: Vector2, target: Node2D = null, blood: Color = BLOOD) -> void:
 	if not enabled() or not is_inside_tree():
@@ -175,4 +182,4 @@ func _exit_tree() -> void:
 static func shake_allowed() -> bool:
 	var tree := Engine.get_main_loop() as SceneTree
 	var st: Node = null if tree == null else tree.root.get_node_or_null("/root/Settings")
-	return st == null or bool(st.get("screen_shake"))
+	return st == null or (bool(st.get("screen_shake")) and not bool(st.get("reduce_motion")))

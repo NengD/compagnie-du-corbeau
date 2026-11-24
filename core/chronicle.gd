@@ -66,4 +66,5 @@ static func counts(extras: Dictionary) -> Dictionary:
 
 ## Épitaphe stable pour un tombé (même nom -> même phrase).
 static func epitaph(name_: String) -> String:
-	return EPITAPHS[absi(name_.hash()) % EPITAPHS.size()]
+	var pool: Array = Mods.epitaphs()
+	return str(pool[absi(name_.hash()) % pool.size()])

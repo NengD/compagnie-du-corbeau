@@ -1,0 +1,47 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Maîtrises de l'équipement porté :"
+msgstr "Masteries of the equipment worn:"
+
+msgid "Armure des bras et des jambes (une part des coups au corps vise le bras ou la jambe, si la pièce est portée)."
+msgstr "Arm and leg armor (a share of body blows targets the arm or the leg, if the piece is worn)."
+
+msgid "Solde/jour"
+msgstr "Wages/day"
+
+msgid "%s flanche sous le coup"
+msgstr "%s falters under the blow"
+
+msgid "%s voit son chef tomber"
+msgstr "%s sees their leader fall"
+
+msgid "%s perd son chef"
+msgstr "%s loses their leader"
+
+msgid "%s voit tomber %s"
+msgstr "%s sees %s fall"
+
+msgid "%s est assommé"
+msgstr "%s is knocked senseless"
+
+msgid "%s est intimidé par %s"
+msgstr "%s is intimidated by %s"
+
+msgid "%s est pris par les flammes"
+msgstr "%s is caught in flames"
+
+msgid "%s est ébouillanté"
+msgstr "%s is scalded"
+
+msgid "%s lève son bouclier"
+msgstr "%s raises their shield"
+
+msgid "%s forme un mur de boucliers"
+msgstr "%s forms a shield wall"
+
+msgid "Confiant"
+msgstr "Confident"
+

@@ -67,17 +67,27 @@ static func play(board: BoardView, a: Unit, d: Unit, hit: bool, ability: String 
 	var pb: Vector2 = board.hex_px(d.hex)
 	var av: UnitView = board.view_of(a)
 	var dir: Vector2 = (pb - pa).normalized() if pb != pa else Vector2.RIGHT
+	var dv: UnitView = board.view_of(d)
 	if is_projectile(kind):
 		var end: Vector2 = projectile_end(pa, pb, hit, a.id)
+		if av != null:
+			av.lunge(pb, kind)  # tension de l'arme avant le départ du projectile
+			var wait: float = UnitView.impact_delay(kind)
+			if wait > 0.0:
+				await board.get_tree().create_timer(wait * sp).timeout
+		if not hit and dv != null:
+			dv.parry(-dir)  # esquive du tir manqué
 		if ex:
 			_expert_trail(board, pa + CHEST, end, expert_color(kind), sp)
 		await _projectile(board, kind, pa + CHEST, end, sp)
 		return
 	if av != null:
-		av.lunge(pb)
+		av.lunge(pb, kind)
 		if ex:
 			av.squash()
-	await board.get_tree().create_timer(0.09 * sp).timeout
+	await board.get_tree().create_timer(UnitView.impact_delay(kind) * sp).timeout
+	if not hit and dv != null:
+		dv.parry(dir)  # coup manqué : parade du bouclier ou esquive
 	match kind:
 		"thrust":
 			_thrust(board, pa + CHEST, pb + CHEST, sp)

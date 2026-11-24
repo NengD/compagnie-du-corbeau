@@ -479,13 +479,13 @@ func _top_modal_layer() -> Node:
 
 func _input(event: InputEvent) -> void:
 	_track_input_mode(event)
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1 and CodexScreen.can_open(self):
+	if event is InputEventKey and event.pressed and not event.echo and Keybinds.matches(event, "codex") and CodexScreen.can_open(self):
 		CodexScreen.open(self)  # touche F1 : encyclopédie (partout, hors saisie de texte et autre fenêtre)
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_I:
+	if event is InputEventKey and event.pressed and not event.echo and Keybinds.matches(event, "inventory"):
 		_open_inventory()  # touche I : inventaire (hors menu, bataille et fenêtres ouvertes)
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_J and not _in_menu and Game.battle == null and not Game.game_over and not Game.roster.is_empty() and _count_modals(self) == 0 and not (get_viewport().gui_get_focus_owner() is LineEdit):
+	if event is InputEventKey and event.pressed and not event.echo and Keybinds.matches(event, "journal") and not _in_menu and Game.battle == null and not Game.game_over and not Game.roster.is_empty() and _count_modals(self) == 0 and not (get_viewport().gui_get_focus_owner() is LineEdit):
 		ChronicleScreen.open(self)  # touche J : journal de campagne et mémorial
 		return
 	if not (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
