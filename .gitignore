@@ -4,3 +4,5 @@
 
 # Exécutable exporté (trop gros pour git : à publier dans les « Releases »)
 build/
+__pycache__/
+*.pyc
