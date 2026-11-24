@@ -43,7 +43,7 @@ godot --path . --headless -s res://tools/sim_battles.gd     # batailles simulée
 godot --path . --headless -s res://tools/sim_campaign.gd    # campagnes simulées (détection de bugs)
 ```
 
-Export Windows : voir [`tools/export.md`](tools/export.md). Architecture et règles du jeu : voir [`CLAUDE.md`](CLAUDE.md).
+Export Windows : voir [`tools/export.md`](tools/export.md). Publication automatique des archives Windows et Linux : voir [`docs/publier.md`](docs/publier.md). Architecture et règles du jeu : voir [`CLAUDE.md`](CLAUDE.md).
 Originalité des noms et des textes : [`docs/provenance.md`](docs/provenance.md).
 `prototype/corbeau.html` est le prototype HTML d'origine, qui sert de référence aux règles.
 

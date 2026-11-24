@@ -1,0 +1,96 @@
+name: Publier une version
+
+# Se déclenche quand on pousse une étiquette de version (ex. : git tag v0.4.1 && git push origin v0.4.1),
+# ou à la main depuis l'onglet Actions (« Run workflow »).
+# Étapes : installer Godot -> importer -> tests -> exporter Windows et Linux -> fabriquer les deux zips -> créer la Release.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Numéro de version (sans le v), par ex. 0.4.1 ; vide = celui de project.godot"
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # nécessaire pour créer la Release et y déposer les archives
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Godot et ses modèles d'export
+        run: |
+          set -euo pipefail
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -fsSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q godot.zip -d godot_bin
+          sudo mv "godot_bin/Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          tpl="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$tpl" templates_tmp
+          unzip -q templates.tpz -d templates_tmp
+          mv templates_tmp/templates/* "$tpl/"
+          godot --version
+
+      - name: Importer les ressources
+        run: |
+          set -euo pipefail
+          godot --headless --path . --import 2>&1 | tee import.log
+          if grep -E "SCRIPT ERROR|Parse Error" import.log; then
+            echo "Erreur d'analyse de script à l'import" >&2
+            exit 1
+          fi
+
+      - name: Tests (arrêt si un test échoue)
+        run: |
+          set -euo pipefail
+          godot --headless --path . -s res://tests/run_tests.gd
+          godot --headless --path . -s res://tests/smoke_ui.gd
+
+      - name: Déterminer la version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            v="${GITHUB_REF_NAME#v}"
+          elif [ -n "${INPUT_VERSION}" ]; then
+            v="${INPUT_VERSION#v}"
+          else
+            v="$(sed -n 's/^config\/version="\(.*\)"/\1/p' project.godot)"
+          fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "Version : $v"
+
+      - name: Exporter Windows et Linux
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          godot --headless --path . --export-release "Windows Desktop" build/CompagnieDuCorbeau.exe
+          godot --headless --path . --export-release "Linux" build/CompagnieDuCorbeau.x86_64
+          ls -la build
+
+      - name: Fabriquer les archives
+        run: python3 tools/package_release.py --version "${{ steps.ver.outputs.version }}" --build build --out dist
+
+      - name: Publier la Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          name: Compagnie du Corbeau ${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/CompagnieDuCorbeau-${{ steps.ver.outputs.version }}-windows.zip
+            dist/CompagnieDuCorbeau-${{ steps.ver.outputs.version }}-linux.zip
