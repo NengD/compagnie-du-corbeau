@@ -148,7 +148,7 @@ Les identifiants de code (variables, fonctions, fichiers) sont en anglais.
   progression suit le porteur (`core/legends.gd`, clé d'objet `"kills"`), `docs/builds.md` régénéré ; **emplacements Bras et Jambes** (kinds `"arms"` / `"legs"`,
   armure propre, familles et maîtrises, zones de touche : tête 25 %, le reste du corps répartit une part vers bras/jambes seulement si une pièce est équipée —
   sans pièce, comportement inchangé).
-- **Vague gameplay n°2** : **états de combat** (`core/statuses.gd`, `core/statuses_data.gd`, `Unit.statuses` : saignement / poison / brûlure / gel, jamais persistants hors combat) et
+- **Vague gameplay n°2 (version 0.7.0)** : **états de combat** (`core/statuses.gd`, `core/statuses_data.gd`, `Unit.statuses` : saignement / poison / brûlure / gel, jamais persistants hors combat) et
   **consommables** (`core/consumables.gd`, bandages, antidotes, onguents, toniques, fioles de courage ; achetables, en butin, utilisables en bataille) ; **ordres de groupe** du capitaine
   (`core/orders.gd`, `core/orders_data.gd`) ; **IA plus maligne** (`core/ai.gd`, `core/ai_plan.gd` : renforts, aura des chefs, couvert/hauteur, ruses) ; **rediffusion** de la dernière bataille
   (`core/battle_log.gd`, `scenes/battle/replay_screen.gd`, `Game.extras["last_replay"]`) et **annulation du tour** en mode Facile seulement (`core/turn_undo.gd`, interdite en mode fer) ;
